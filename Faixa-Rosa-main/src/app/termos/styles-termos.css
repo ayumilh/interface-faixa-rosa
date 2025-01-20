@@ -1,0 +1,148 @@
+/* Estrutura Principal */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9fafb;
+    color: #4a5568;
+    margin: 0;
+    padding: 0;
+    margin-top: 100px; /* Aumente o valor conforme necessário */
+
+  }
+  
+  /* Container Principal */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Título Principal */
+  h1 {
+    font-size: 28px;
+    color: #2d3748;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+ /* Subtítulo de Orientação */
+.subtitle {
+  text-align: center;
+  color: #718096;
+  font-weight: normal;
+  margin-bottom: 40px; /* Aumentar a margem para dar mais espaço */
+}
+
+/* Botões de Alternância */
+.toggle-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px; /* Aumentar a margem para dar mais espaço */
+}
+
+  
+  .button {
+    padding: 10px 24px;
+    border-radius: 20px;
+    border: 2px solid #d6336c;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .button.active {
+    background-color: #d6336c;
+    color: #ffffff;
+    transform: scale(1.05);
+  }
+  
+  .button.inactive {
+    background-color: #ffffff;
+    color: #d6336c;
+  }
+  
+  .button:hover {
+    background-color: #c2185b;
+    color: #ffffff;
+  }
+  
+  /* Títulos de Seção */
+  h2 {
+    font-size: 22px;
+    color: #2d3748;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  
+  /* Parágrafos */
+  p {
+    margin-bottom: 16px;
+    line-height: 1.6;
+    color: #4a5568;
+  }
+  /* Conteúdo Centralizado */
+  .section-content {
+    max-width: 750px;
+    margin: 0 auto;
+    text-align: left;
+  }
+  
+  
+  /* Listas */
+  ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-bottom: 16px;
+  }
+  
+  li {
+    margin-bottom: 8px;
+  }
+  
+  /* Links */
+  a {
+    color: #d6336c;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Caixa de Cláusula Destacada */
+  .clausula-dados {
+    background-color: #fff0f6;
+    padding: 16px;
+    border-left: 4px solid #d6336c;
+    margin: 20px 0;
+  }
+  
+  .clausula-dados h3 {
+    font-weight: bold;
+    color: #d6336c;
+    margin-bottom: 8px;
+  }
+  
+  /* Ocultar Conteúdo Inativo */
+  .section {
+    display: none;
+  }
+  
+  .section.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  

@@ -1,0 +1,103 @@
+/* Update below HEX and RGB color code to your primary color for light mode */
+[data-bs-theme="light"] {
+  --bs-primary: #d23c77 !important;
+  --bs-primary-rgb: 210, 60, 119 !important;
+  --bs-link-color: #d23c77 !important;
+  --bs-link-hover-color: #6e203e !important;
+  --bs-link-color-rgb: 255, 104, 131 !important;
+  --bs-link-hover-color-rgb: 255, 70, 104;
+  --bs-nav-pills-link-active-bg: #d23c77 !important;
+}
+
+/* Update below HEX and RGB color code to your primary color for dark mode */
+[data-bs-theme="dark"] {
+  --bs-primary: #fb92a5 !important;
+  --bs-primary-rgb: 255, 70, 104 !important;
+  --bs-link-color: #ff6883 !important;
+  --bs-link-hover-color: #ff4668 !important;
+  --bs-link-color-rgb: 255, 104, 131 !important;
+  --bs-link-hover-color-rgb: 255, 70, 104;
+  --bs-nav-pills-link-active-bg: #ff4668 !important;
+}
+
+/* CSS for overriding primary colors */
+.navbar {
+  --bs-navbar-hover-color: var(--bs-primary);
+  --bs-navbar-active-color: var(--bs-primary);
+}
+
+.navbar-dark {
+  --bs-navbar-hover-color: var(--bs-primary) !important;
+  --bs-navbar-active-color: var(--bs-primary) !important;
+}
+.nav {
+  --bs-nav-link-hover-color: var(--bs-link-hover-color);
+}
+.dropdown-menu {
+  --bs-dropdown-link-hover-color: var(--bs-primary) !important;
+  --bs-dropdown-link-active-color: var(--bs-primary) !important;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--bs-link-hover-color);
+  --bs-btn-hover-border-color: var(--bs-link-hover-color);
+  --bs-btn-active-bg: var(--bs-link-hover-color);
+  --bs-btn-active-border-color: var(--bs-link-hover-color);
+  --bs-btn-disabled-bg: var(--bs-primary);
+}
+.btn-link {
+  --bs-btn-color: var(--bs-primary);
+  --bs-link-color: var(--bs-primary);
+  --bs-btn-hover-color: var(--bs-link-hover-color);
+  --bs-btn-active-color: var(--bs-link-hover-color);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-active-bg: var(--bs-primary);
+  --bs-btn-active-border-color: var(--bs-primary);
+  --bs-btn-disabled-color: var(--bs-primary);
+  --bs-btn-disabled-border-color: var(--bs-primary);
+}
+.btn-primary-soft {
+  color: var(--bs-primary);
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+.btn-primary-soft:hover {
+  color: var(--bs-white);
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+.btn-primary-soft:focus {
+  color: var(--bs-white);
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+.btn-primary-soft.active {
+  color: var(--bs-white);
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
+.fill-primary {
+  fill: var(--bs-primary) !important;
+}
+.nav-pills {
+  --bs-nav-pills-link-active-bg: var(--bs-primary);
+}
+.form-control:focus {
+  border-color: var(--bs-primary);
+}
+.text-bg-primary {
+  background-color: rgba(var(--bs-primary-rgb), 1) !important;
+}
+.form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+.choices.is-focused .choices__inner {
+  border-color: var(--bs-primary);
+}

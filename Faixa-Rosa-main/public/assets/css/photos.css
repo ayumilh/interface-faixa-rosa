@@ -1,0 +1,19 @@
+.delete-icon-1:hover {
+    color: #D23C77;
+    cursor: pointer;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+.delete-icon-1 {
+    color: #FF6883;
+    margin-top: 2px;
+}
+
+.delete-icon-1  {
+    margin-left: 10px;
+}
+
+.delete-icon-1-container {
+    margin-top: 10px;
+}

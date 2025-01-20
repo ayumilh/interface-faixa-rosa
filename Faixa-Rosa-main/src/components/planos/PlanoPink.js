@@ -1,0 +1,613 @@
+// ./src/components/planos/PlanoPink.js
+
+"use client";
+
+import React, { useState, useCallback, memo } from "react";
+import {
+  FaWhatsapp,
+  FaMapMarkerAlt,
+  FaStar,
+  FaRegComments,
+  FaRegCopy,
+  FaTelegram,
+  FaCheckCircle,
+  FaBirthdayCake,
+  FaTimes,
+  FaPhone,
+  FaTimesCircle,
+} from "react-icons/fa";
+import { BsCardText } from "react-icons/bs";
+import Image from "next/image";
+
+// Constantes
+const DEFAULT_PHONE_NUMBER = "(00) 00000-0000";
+const DEFAULT_PROFILE_IMAGE = "/assets/default-profile.png";
+
+// Dados de Benefícios para o Plano Pink
+const benefitsPink = [
+  { text: "Seu anúncio em tamanho padrão", included: true },
+  { text: "Prioridade no suporte Faixa Rosa", included: true },
+  { text: "Anúncio online todos os dias da semana", included: true },
+  { text: "Acesso aos stories", included: true },
+  { text: "Acesso ao convênio", included: true },
+  // Adicione mais benefícios conforme necessário
+];
+
+// Componente Modal genérico
+const Modal = memo(({ onClose, title, description, children, theme = "light" }) => {
+  React.useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+      aria-modal="true"
+      role="dialog"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalDescription"
+      onClick={onClose}
+    >
+      <div
+        className={`${
+          theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+        } rounded-2xl p-4 sm:p-6 max-w-lg w-full relative`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className={`absolute top-3 right-3 ${
+            theme === "dark"
+              ? "text-gray-300 hover:text-white"
+              : "text-gray-700 hover:text-gray-900"
+          }`}
+          aria-label="Fechar modal"
+        >
+          <FaTimes className="w-5 h-5" />
+        </button>
+        <h3 id="modalTitle" className="text-lg sm:text-xl font-semibold text-center mb-2">
+          {title}
+        </h3>
+        <p id="modalDescription" className="text-sm text-center italic mb-4">
+          {description}
+        </p>
+        {children}
+      </div>
+    </div>
+  );
+});
+
+// Componente CardVIPLight
+const CardVIPLight = memo(
+  ({
+    name = "Nome do Anunciante",
+    price = "R$227,90",
+    location = "Jardins, São Paulo",
+    description = "Descrição breve sobre o anunciante.",
+    reviews = 10,
+    contact = true,
+    images = [],
+    age = 30,
+    phoneNumber = DEFAULT_PHONE_NUMBER,
+    theme = "light",
+  }) => {
+    const [showModalNumero, setShowModalNumero] = useState(false);
+
+    const handleOpenModal = useCallback(() => {
+      setShowModalNumero(true);
+    }, []);
+
+    return (
+      <>
+        <div
+          className={`bg-pink-100 border border-pink-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl ${
+            theme === "dark" ? "bg-gray-800 text-white" : "bg-pink-100 text-gray-800"
+          }`}
+        >
+          {/* Imagem Principal */}
+          {images && images.length > 0 ? (
+            <img
+              src={images[0]}
+              alt={name}
+              className="w-full h-48 object-cover rounded-md mb-3"
+            />
+          ) : (
+            <div className="w-full h-48 bg-gray-800 rounded-md mb-3 flex items-center justify-center text-gray-500 text-lg">
+              Sem imagem disponível
+            </div>
+          )}
+
+          {/* Nome */}
+          <h3 className="text-xl font-extrabold text-pink-400 mb-1">{name}</h3>
+
+          {/* Descrição */}
+          <p className="text-sm text-black italic mb-2 flex items-center">
+            <BsCardText className="mr-2 text-pink-500" /> {description}
+          </p>
+
+          {/* Idade */}
+          {age && (
+            <p className="text-black mb-1 flex items-center">
+              <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
+            </p>
+          )}
+
+          {/* Localização */}
+          <p className="text-black mb-1 flex items-center">
+            <FaMapMarkerAlt className="mr-2 text-pink-400" /> {location}
+          </p>
+
+          {/* Preço */}
+          <p className="font-semibold text-pink-400 mb-1 flex items-center">
+            <FaStar className="mr-1 text-yellow-500" /> {price}
+          </p>
+
+          {/* Reviews */}
+          <p className="text-gray-400 mb-3 flex items-center">
+            <FaRegComments className="mr-1 text-pink-500" />
+            {reviews > 0 ? (
+              <span className="text-green-500">
+                {reviews} review{reviews !== 1 ? "s" : ""}
+              </span>
+            ) : (
+              <span className="text-gray-400">Sem reviews</span>
+            )}
+          </p>
+
+          {/* Botão de contato */}
+          {contact && (
+            <button
+              className="mt-2 bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={handleOpenModal}
+            >
+              <FaWhatsapp className="mr-2 text-lg" /> Ver contato
+            </button>
+          )}
+        </div>
+
+        {/* Modal de contato */}
+        {showModalNumero && (
+          <Modal
+            onClose={() => setShowModalNumero(false)}
+            title="Detalhes de Contato"
+            description={`Entre em contato com ${name} para mais informações.`}
+            theme={theme}
+          >
+            <div className="relative bg-pink-100 p-4 rounded-lg shadow-lg max-w-md w-full">
+              {/* Carrossel de foto */}
+              <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
+                {images.length > 0 ? (
+                  <>
+                    <Image
+                      src={images[0]}
+                      alt={`Foto de ${name}`}
+                      fill
+                      style={{ objectFit: "cover" }}
+                    />
+                    {/* Botões de navegação do carrossel podem ser implementados aqui */}
+                  </>
+                ) : (
+                  <div className="w-full h-48 bg-gray-800 rounded-md flex items-center justify-center text-gray-500">
+                    Sem imagem disponível
+                  </div>
+                )}
+              </div>
+
+              {/* Imagem de perfil e nome */}
+              <div className="flex flex-col items-center mb-4">
+                <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
+                  <Image
+                    src="/assets/mulher.png"
+                    alt="Foto de perfil"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                  <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
+                </div>
+                <h2 className="text-xl text-pink-400 font-bold mt-2">{name}</h2>
+              </div>
+
+              {/* Banner Google simulado */}
+              <div className="bg-pink-600 p-2 rounded-md mb-4">
+                <p className="text-center text-gray-200 font-semibold">
+                  Banner GOOGLE
+                </p>
+              </div>
+
+              {/* Informações de telefone com ícone de copiar */}
+              <div className="bg-pink-600 p-4 rounded-md mb-4 shadow-inner flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-gray-200">Telefone:</p>
+                  <p className="text-lg text-white">{phoneNumber}</p>
+                </div>
+                <button
+                  className="text-gray-300 hover:text-white"
+                  onClick={() => navigator.clipboard.writeText(phoneNumber)}
+                  aria-label="Copiar número"
+                >
+                  <FaRegCopy className="text-xl" />
+                </button>
+              </div>
+
+              {/* Botões de ação */}
+              <div className="flex justify-around mt-4 space-x-3">
+                <button className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105">
+                  <FaWhatsapp />
+                  <span>WhatsApp</span>
+                </button>
+                <button className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-600 transition-transform transform hover:scale-105">
+                  <FaPhone />
+                  <span>Ligar</span>
+                </button>
+                <button className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-105">
+                  <FaTelegram />
+                  <span>Telegram</span>
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+      </>
+    );
+  }
+);
+
+// Componente CardVIPDark
+const CardVIPDark = memo(
+  ({
+    name = "Nome do Anunciante",
+    price = "R$227,90",
+    location = "Jardins, São Paulo",
+    description = "Descrição breve sobre o anunciante.",
+    reviews = 10,
+    contact = true,
+    images = [],
+    age = 30,
+    phoneNumber = DEFAULT_PHONE_NUMBER,
+    theme = "dark",
+  }) => {
+    const [showModalNumero, setShowModalNumero] = useState(false);
+
+    const handleOpenModal = useCallback(() => {
+      setShowModalNumero(true);
+    }, []);
+
+    return (
+      <>
+        <div
+          className={`bg-black border border-pink-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl ${
+            theme === "dark" ? "bg-black text-white" : "bg-black text-white"
+          }`}
+        >
+          {/* Imagem Principal */}
+          {images && images.length > 0 ? (
+            <img
+              src={images[0]}
+              alt={name}
+              className="w-full h-48 object-cover rounded-md mb-3"
+            />
+          ) : (
+            <div className="w-full h-48 bg-gray-800 rounded-md mb-3 flex items-center justify-center text-gray-500 text-lg">
+              Sem imagem disponível
+            </div>
+          )}
+
+          {/* Nome */}
+          <h3 className="text-xl font-extrabold text-pink-400 mb-1">{name}</h3>
+
+          {/* Descrição */}
+          <p className="text-sm text-white italic mb-2 flex items-center">
+            <BsCardText className="mr-2 text-pink-500" /> {description}
+          </p>
+
+          {/* Idade */}
+          {age && (
+            <p className="text-white mb-1 flex items-center">
+              <FaBirthdayCake className="mr-2 text-pink-500" /> {age} anos
+            </p>
+          )}
+
+          {/* Localização */}
+          <p className="text-white mb-1 flex items-center">
+            <FaMapMarkerAlt className="mr-2 text-pink-400" /> {location}
+          </p>
+
+          {/* Preço */}
+          <p className="font-semibold text-pink-400 mb-1 flex items-center">
+            <FaStar className="mr-1 text-yellow-500" /> {price}
+          </p>
+
+          {/* Reviews */}
+          <p className="text-gray-400 mb-3 flex items-center">
+            <FaRegComments className="mr-1 text-pink-500" />
+            {reviews > 0 ? (
+              <span className="text-green-500">
+                {reviews} review{reviews !== 1 ? "s" : ""}
+              </span>
+            ) : (
+              <span className="text-gray-400">Sem reviews</span>
+            )}
+          </p>
+
+          {/* Botão de contato */}
+          {contact && (
+            <button
+              className="mt-2 bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={handleOpenModal}
+            >
+              <FaWhatsapp className="mr-2 text-lg" /> Ver contato
+            </button>
+          )}
+        </div>
+
+        {/* Modal de contato */}
+        {showModalNumero && (
+          <Modal
+            onClose={() => setShowModalNumero(false)}
+            title="Detalhes de Contato"
+            description={`Entre em contato com ${name} para mais informações.`}
+            theme={theme}
+          >
+            <div className="relative bg-pink-900 p-4 rounded-lg shadow-lg max-w-md w-full">
+              {/* Carrossel de foto */}
+              <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
+                {images.length > 0 ? (
+                  <>
+                    <Image
+                      src={images[0]}
+                      alt={`Foto de ${name}`}
+                      fill
+                      style={{ objectFit: "cover" }}
+                    />
+                    {/* Botões de navegação do carrossel podem ser implementados aqui */}
+                  </>
+                ) : (
+                  <div
+                    className={`w-full h-48 rounded-md flex items-center justify-center text-gray-500 ${
+                      theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  >
+                    Sem imagem disponível
+                  </div>
+                )}
+              </div>
+
+              {/* Imagem de perfil e nome */}
+              <div className="flex flex-col items-center mb-4">
+                <div
+                  className={`relative w-20 h-20 rounded-full border-4 border-pink-500 bg-gradient-to-r from-pink-500 via-pink-400 to-pink-500 hover:from-pink-600 hover:via-pink-500 hover:to-pink-600 shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105`}
+                >
+                  <Image
+                    src={images[0] || DEFAULT_PROFILE_IMAGE}
+                    alt="Foto de perfil"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                  <FaCheckCircle className="absolute bottom-1 right-1 text-green-500 text-2xl" />
+                </div>
+                <h2
+                  className={`text-xl text-pink-400 font-bold mt-2 ${
+                    theme === "dark" ? "text-white" : "text-pink-400"
+                  }`}
+                >
+                  {name}
+                </h2>
+              </div>
+
+              {/* Banner Google simulado */}
+              <div className="bg-pink-600 p-2 rounded-md mb-4">
+                <p className="text-center text-gray-200 font-semibold">
+                  Banner GOOGLE
+                </p>
+              </div>
+
+              {/* Informações de telefone com ícone de copiar */}
+              <div className="bg-pink-600 p-4 rounded-md mb-4 shadow-inner flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-gray-200">Telefone:</p>
+                  <p className="text-lg text-white">{phoneNumber}</p>
+                </div>
+                <button
+                  className="text-gray-300 hover:text-white"
+                  onClick={() => navigator.clipboard.writeText(phoneNumber)}
+                  aria-label="Copiar número"
+                >
+                  <FaRegCopy className="text-xl" />
+                </button>
+              </div>
+
+              {/* Botões de ação */}
+              <div className="flex justify-around mt-4 space-x-3">
+                <button className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105">
+                  <FaWhatsapp />
+                  <span>WhatsApp</span>
+                </button>
+                <button className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-600 transition-transform transform hover:scale-105">
+                  <FaPhone />
+                  <span>Ligar</span>
+                </button>
+                <button className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-105">
+                  <FaTelegram />
+                  <span>Telegram</span>
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+      </>
+    );
+  }
+);
+
+// Componente PlanoPink
+const PlanoPink = () => {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [modalTheme, setModalTheme] = useState("light");
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+    setModalTheme("light");
+  }, []);
+
+  const toggleTheme = useCallback((theme) => {
+    setModalTheme(theme);
+  }, []);
+
+  return (
+    <div className="max-w-md w-full mx-auto rounded-3xl shadow-xl bg-white overflow-hidden">
+      <div className="p-6 sm:p-8 flex flex-col h-full">
+        <div>
+          {/* Título do Plano */}
+          <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+            <FaCheckCircle className="text-pink-500 text-2xl sm:text-3xl" />
+            <h3 className="text-xl sm:text-2xl font-extrabold text-black">
+              Plano{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-600">
+                Pink
+              </span>
+            </h3>
+          </div>
+
+          {/* Pontos de Listagem */}
+          <p className="bg-pink-50 text-pink-700 font-semibold text-xs sm:text-sm px-3 py-1 rounded-full inline-block mb-6 sm:mb-8">
+            +500 pontos de listagem
+          </p>
+
+          {/* Benefícios */}
+          <ul className="space-y-3 sm:space-y-4 text-black text-sm sm:text-base mb-6 sm:mb-8">
+            {benefitsPink.map((benefit, index) => (
+              <li key={index} className="flex items-start space-x-2 sm:space-x-3">
+                {benefit.included ? (
+                  <FaCheckCircle className="text-pink-500 flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
+                ) : (
+                  <FaTimesCircle className="text-red-500 flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
+                )}
+                <span>{benefit.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Preços */}
+        <div className="flex-grow flex flex-col justify-end mt-4 sm:mt-2">
+        {/* Seção de Preço Atualizada */}
+          <div className="text-center mb-8 -mt-8">
+            {/* Texto acima do preço */}
+            <p className="text-gray-400 text-sm">A partir de:</p>
+
+            {/* Preço do plano */}
+            <p className="text-3xl font-bold text-gray-800">R$ 227,90</p>
+
+            {/* Detalhe do desconto */}
+            <span className="text-sm text-green-600 font-medium mt-2 block">
+              Economize 10% no pagamento
+            </span>
+          </div>
+
+          {/* Botão Contratar */}
+          <button
+            onClick={() => setModalOpen(true)}
+            className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-lg transition duration-300 mb-4"
+          >
+            Contratar o Plano Pink
+          </button>
+
+          {/* Exemplo de Anúncio */}
+          <div className="mt-4 sm:mt-6 sm:-mt-2 flex justify-center">
+          <button
+    onClick={() => setModalOpen(true)}
+    className="text-pink-600 text-sm font-medium underline hover:text-pink-800 transition duration-300 ease-in-out"
+  >
+    Veja um exemplo do anúncio
+  </button>
+
+
+
+          </div>
+        </div>
+      </div>
+
+      {/* Modal Responsivo com tema Light e Dark */}
+      {isModalOpen && (
+        <Modal
+          onClose={closeModal}
+          title="Exemplo de Anúncio"
+          description="Descubra como o plano Pink realça seu anúncio e maximiza a visibilidade. Para aproveitar o modo escuro (Dark Mode), certifique-se de que o recurso está habilitado no seu plano."
+          theme={modalTheme}
+        >
+          {/* Botões para alternar temas */}
+          <div className="flex justify-center mb-4 space-x-4">
+            {/* Botão Light */}
+            <button
+              onClick={() => toggleTheme("light")}
+              className={`px-4 py-2 rounded transition ${
+                modalTheme === "light"
+                  ? "bg-pink-200 text-pink-800"
+                  : "bg-gray-300 text-gray-700"
+              } hover:bg-pink-100 hover:text-pink-800`}
+            >
+              Light
+            </button>
+
+            {/* Botão Dark */}
+            <button
+              onClick={() => toggleTheme("dark")}
+              className={`px-4 py-2 rounded transition ${
+                modalTheme === "dark"
+                  ? "bg-pink-800 text-pink-100"
+                  : "bg-gray-600 text-gray-400"
+              } hover:bg-pink-700 hover:text-pink-100`}
+            >
+              Dark
+            </button>
+          </div>
+
+          {/* Exibir CardVIPLight ou CardVIPDark com tema selecionado */}
+          {modalTheme === "light" ? (
+            <CardVIPLight
+              name="Nome do Anunciante"
+              price="R$227,90"
+              location="Jardins, São Paulo"
+              description="Descrição breve sobre o anunciante."
+              reviews={10}
+              contact={false}
+              images={[
+                "/assets/banner-faixa.jpg",
+                "/assets/banner-faixa.jpg",
+                "/assets/banner-faixa.jpg",
+              ]}
+              age={30}
+              phoneNumber="(00) 00000-0000"
+              theme="light"
+            />
+          ) : (
+            <CardVIPDark
+              name="Nome do Anunciante"
+              price="R$227,90"
+              location="Jardins, São Paulo"
+              description="Descrição breve sobre o anunciante."
+              reviews={10}
+              contact={false}
+              images={[
+                "/assets/banner-faixa.jpg",
+                "/assets/banner-faixa.jpg",
+                "/assets/banner-faixa.jpg",
+              ]}
+              age={30}
+              phoneNumber="(00) 00000-0000"
+              theme="dark"
+            />
+          )}
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+export default PlanoPink;

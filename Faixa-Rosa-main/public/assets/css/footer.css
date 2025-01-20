@@ -1,0 +1,46 @@
+.footer-container {
+    height: 65px;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-content {
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-content >* {
+    font-weight: 500;
+}
+
+.footer-content-left {
+    display: flex;
+    align-items: center;
+    width: 500px;
+    text-align: left;
+    justify-content: flex-start;
+}
+
+.footer-content-left > *:not(:first-child) {
+    margin-left: 35px!important;
+}
+
+.footer-content-left > *:hover {
+    color: #FF6883;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.bi .bi-tiktok .icon-1 {
+    font-size: large;
+}
+
+.footer-content-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+

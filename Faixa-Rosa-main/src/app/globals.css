@@ -1,0 +1,219 @@
+/* src/globals.css */
+
+/* Importa as diretivas do Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos padrão para o modo claro */
+:root {
+  --background: #ebeff2; /* Cor de fundo atualizada */
+  --foreground: #333333;
+  --cor-cinza-claro: #e0e0e0;
+  --cor-branco: #ffffff;
+  --cor-neon: #ff69b4;
+  --cor-gradiente-inicio: #ff007f;
+  --cor-gradiente-meio: #ff66cc;
+  --cor-gradiente-fim: #8000ff;
+  --header-bg: #f0f0f0; /* Fundo do header no modo claro */
+  --card-bg: #ffffff; /* Fundo dos cartões ou seções */
+  --border-color: #cccccc;
+}
+
+/* Corpo padrão para o modo claro */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Elementos do layout (modo claro) */
+header,
+footer,
+.card,
+.section,
+.navbar,
+.footer {
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  border-color: var(--border-color);
+}
+
+/* Estilos para o modo escuro */
+.dark {
+  --background: #1a202c; /* Modo escuro inalterado */
+  --foreground: #f7fafc;
+  --cor-cinza-claro: #4a5568;
+  --cor-branco: #333333;
+  --cor-neon: #ff69b4;
+  --cor-gradiente-inicio: #8000ff;
+  --cor-gradiente-meio: #ff007f;
+  --cor-gradiente-fim: #ff66cc;
+  --header-bg: #2d3748; /* Fundo do header no modo escuro */
+  --card-bg: #2a2e37; /* Fundo dos cartões ou seções no modo escuro */
+  --border-color: #4a5568;
+}
+
+/* Corpo e elementos do layout para o modo escuro */
+.dark body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.dark header,
+.dark footer,
+.dark .card,
+.dark .section,
+.dark .navbar,
+.dark .footer {
+  background-color: var(--card-bg);
+  color: var(--foreground);
+  border-color: var(--border-color);
+}
+
+/* Personalização da cor do scroll */
+html {
+  scrollbar-color: var(--cor-neon) var(--cor-cinza-claro);
+  scrollbar-width: thin;
+}
+
+/* Estilos para navegadores baseados em WebKit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cor-cinza-claro);
+  border-radius: 10px;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--cor-gradiente-inicio),
+    var(--cor-gradiente-meio),
+    var(--cor-gradiente-fim)
+  );
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cor-neon);
+  box-shadow: 0 0 10px var(--cor-neon);
+}
+
+/* Modo escuro para o scroll */
+.dark html {
+  scrollbar-color: var(--cor-neon) var(--cor-cinza-claro);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--cor-cinza-claro);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--cor-gradiente-inicio),
+    var(--cor-gradiente-meio),
+    var(--cor-gradiente-fim)
+  );
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--cor-neon);
+}
+
+/* Configuração da grid principal */
+.grid-cols-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 colunas no desktop */
+  gap: 20px; /* Espaçamento entre os cards */
+  justify-content: center; /* Centralizar os itens horizontalmente */
+}
+
+/* Ajuste para 2 itens na última linha no formato pirâmide */
+.grid-cols-layout > .plan-card:nth-last-child(2):nth-child(odd) {
+  grid-column: 2 / span 1; /* Centralizar o item na última linha */
+}
+
+/* Estilo dos cards */
+.plan-card {
+  width: 100%;
+  max-width: 400px; /* Tamanho máximo no desktop */
+  height: 550px; /* Altura fixa no desktop */
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Espaça o conteúdo interno uniformemente */
+  padding: -1rem; /* Espaçamento interno */
+  overflow: hidden; /* Impede conteúdo de transbordar */
+  box-sizing: border-box; /* Inclui padding no cálculo da largura/altura */
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .grid-cols-layout {
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas para tablets */
+    justify-content: center;
+  }
+
+  .plan-card {
+    max-width: 300px; /* Reduz o tamanho máximo para tablets */
+    height: auto; /* Permite altura flexível */
+    padding: 1.5rem; /* Ajusta o espaçamento interno */
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-cols-layout {
+    grid-template-columns: 1fr; /* 1 coluna para mobile */
+    justify-content: center; /* Centraliza os cards no mobile */
+  }
+
+  .plan-card {
+    max-width: 90%; /* Adapta para caber bem na tela do mobile */
+    height: auto; /* Altura flexível no mobile */
+    margin: 0 auto; /* Garante alinhamento centralizado */
+    padding: 1rem; /* Mantém espaçamento confortável */
+  }
+}
+
+/* src/styles/Contato.css */
+
+/* Animação de riscar o preço antigo */
+@keyframes strikeThrough {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.strike-through {
+  position: relative;
+  display: inline-block;
+}
+
+.strike-through::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 2px;
+  background-color: #f87171; /* Cor vermelha para destaque */
+  width: 0%;
+  transition: width 0.7s ease-in-out;
+}
+
+.strike-through.strike-animate::after {
+  width: 100%;
+}

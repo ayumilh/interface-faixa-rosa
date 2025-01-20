@@ -1,0 +1,32 @@
+/* src/components/planos/PlanoOculto.css */
+
+/* Animação para riscar o preço antigo */
+@keyframes strike {
+    0% {
+      text-decoration: none;
+    }
+    100% {
+      text-decoration: line-through;
+    }
+  }
+  
+  .animate-strike {
+    animation: strike 0.7s ease-in-out forwards;
+  }
+  
+  /* Animação para aparecer o preço novo */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-in-out forwards;
+  }
+  

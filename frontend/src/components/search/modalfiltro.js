@@ -5,8 +5,7 @@ import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 
 export default function ModalFiltro({ showModalFiltro, setShowModalFiltro }) {
-  if (!showModalFiltro) return null;
-
+  
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [expandedSections, setExpandedSections] = useState({});
   const [filters, setFilters] = useState({
@@ -16,7 +15,9 @@ export default function ModalFiltro({ showModalFiltro, setShowModalFiltro }) {
     height: [150, 200],
     footSize: [35, 45],
   });
-
+  
+  if (!showModalFiltro) return null;
+  
   const toggleFilter = (filter) => {
     if (selectedFilters.includes(filter)) {
       setSelectedFilters(selectedFilters.filter((f) => f !== filter));

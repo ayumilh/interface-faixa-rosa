@@ -1,11 +1,14 @@
 import React from "react";
+import Image from "next/image";
 
 export default function AnuncioCard({ totalPoints }) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 w-full md:w-1/3 flex flex-col items-center">
-      <img
+      <Image
         src="/profile-placeholder.png" /* Substitua pelo caminho correto da imagem */
         alt="Perfil"
+        width={128}
+        height={128}
         className="w-32 h-32 rounded-full object-cover mb-4"
       />
       <h2 className="text-xl font-semibold text-gray-800">Paula Assunção</h2>

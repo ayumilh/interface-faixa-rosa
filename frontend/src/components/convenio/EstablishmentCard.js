@@ -1,14 +1,15 @@
-// components/EstablishmentCard.js
-
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
+import Image from "next/image";
 
 export default function EstablishmentCard({ estabelecimento }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow flex flex-col justify-between">
       {/* Imagem do Estabelecimento */}
-      <img
+      <Image
         src={estabelecimento.imagem}
         alt={estabelecimento.nome}
+        width={400}
+        height={192}
         className="w-full h-48 object-cover rounded-lg mb-4"
       />
 

@@ -10,6 +10,7 @@ import {
   FaTimes,
   FaBirthdayCake, // Certifique-se de que este ícone está importado
 } from "react-icons/fa";
+import Image from "next/image";
 
 // Componente Card Light
 const CardLight = ({ name, price, location, contact, image, age }) => {
@@ -17,9 +18,10 @@ const CardLight = ({ name, price, location, contact, image, age }) => {
     <div className="flex flex-col">
       {image ? (
         <div className="relative mb-2 sm:mb-3 lg:mb-4">
-          <img
+          <Image
             src={image}
             alt={name}
+            layout="responsive"
             className="w-full h-24 sm:h-32 lg:h-40 object-cover rounded-md filter blur-sm"
           />
           <div className="absolute inset-0 flex items-center justify-center">

@@ -1,5 +1,3 @@
-// src/dashboard/FinancialControl.js
-
 import React, { useState } from 'react';
 import {
   FaMoneyBillWave,
@@ -10,6 +8,7 @@ import {
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import Slider from 'rc-slider';
+import Image from 'next/image';
 import 'rc-slider/assets/index.css';
 
 const FinancialControl = () => {
@@ -27,7 +26,7 @@ const FinancialControl = () => {
   // Lista de formas de pagamento disponíveis
   const allPaymentMethods = [
     { nome: 'DINHEIRO', icon: <FaMoneyBillWave className="text-3xl text-black" /> },
-    { nome: 'PIX', icon: <img src="/assets/pix-icon.png" alt="Pix Icon" className="w-8 h-8" /> },
+    { nome: 'PIX', icon: <Image src="/assets/pix-icon.png" alt="Pix Icon" width={32} height={32} className="w-8 h-8" /> },
     { nome: 'CRÉDITO', icon: <FaCreditCard className="text-3xl text-black" /> },
     { nome: 'DÉBITO', icon: <FaCcMastercard className="text-3xl text-black" /> },
   ];

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -25,7 +25,7 @@ const ProfileSettings = ({ onUpdate }) => {
 
   const activePlans = ["Pink", "Safira", "Rubi"];
   const rankingPosition = 35;
-  const planExpirationDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const planExpirationDate = useMemo(() => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), []);
   const [timeLeft, setTimeLeft] = useState("");
   const [timeProgress, setTimeProgress] = useState(100);
 

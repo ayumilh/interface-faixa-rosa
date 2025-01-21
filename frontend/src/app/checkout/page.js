@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCreditCard, FaRegCheckCircle, FaCopy } from 'react-icons/fa';
 import axios from 'axios';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 // Validações
@@ -155,21 +156,20 @@ export default function CheckoutPage() {
               </button>
 
               <button type="button" onClick={() => handleSelectMethod('pix')} className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === 'pix' ? 'border-pink-500 text-pink-500 bg-pink-100' : 'border-gray-300'}`}>
-                <img src="/pix-icon.png" alt="Pix" className="inline-block mr-2 w-6 h-6" /> Pix
+                <Image src="/pix-icon.png" alt="Pix" width={24} height={24} className="inline-block mr-2 w-6 h-6" /> Pix
                 {selectedMethod === 'pix' && <FaRegCheckCircle className="inline-block ml-2 text-green-500" />}
               </button>
             </div>
 
             <button type="submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition">PAGAR AGORA</button>
-            <p className="text-center text-gray-400 text-sm mt-6">Ao clicar em 'Pagar Agora', eu declaro que li e concordo com os Termos de Compra.</p>
-          </form>
+            <p className="text-center text-gray-400 text-sm mt-6">Ao clicar em &apos;Pagar Agora&apos;, eu declaro que li e concordo com os Termos de Compra.</p>          </form>
         ) : (
           <div className="text-center">
-            <img src="/pix-icon.png" alt="Pix Logo" className="w-20 mx-auto my-4" />
+            <Image src="/pix-icon.png" alt="Pix Logo" width={80} height={56} className="w-20 mx-auto my-4" />
             <h1 className="text-2xl font-bold text-pink-600 mb-4">Conclua o pagamento no PIX</h1>
-            
+
             <p className="text-gray-700 mb-4">Escaneie o QR Code abaixo ou copie o código Pix:</p>
-            <img src={`data:image/png;base64,${qrCodeData.qr_code_base64}`} alt="QR Code Pix" className="w-40 h-40 mx-auto my-4" />
+            <Image src={`data:image/png;base64,${qrCodeData.qr_code_base64}`} alt="QR Code Pix" width={160} height={160} className="w-40 h-40 mx-auto my-4" />
             <button onClick={handleCopyPixCode} className={`flex items-center justify-center w-full p-2 border-2 rounded-md ${copied ? 'bg-green-500 text-white' : 'bg-pink-500 text-white'}`}>
               <FaCopy className="mr-2" /> {copied ? "Código copiado!" : "Copiar Código Pix"}
             </button>

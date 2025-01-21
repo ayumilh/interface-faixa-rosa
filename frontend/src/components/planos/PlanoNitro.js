@@ -65,6 +65,7 @@ const BenefitItem = memo(({ text, hasBenefit = true }) => (
     )}
   </li>
 ));
+BenefitItem.displayName = "BenefitItem";
 
 // Componente Modal genérico
 const Modal = memo(({ onClose, title, description, children, theme = "light" }) => {
@@ -80,16 +81,14 @@ const Modal = memo(({ onClose, title, description, children, theme = "light" }) 
       onClick={onClose}
     >
       <div
-        className={`${
-          theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-        } rounded-2xl p-4 sm:p-6 max-w-lg w-full mx-auto relative`}
+        className={`${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+          } rounded-2xl p-4 sm:p-6 max-w-lg w-full mx-auto relative`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className={`absolute top-3 right-3 ${
-            theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-          }`}
+          className={`absolute top-3 right-3 ${theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+            }`}
           aria-label="Fechar modal"
         >
           <FaTimes className="w-5 h-5" />
@@ -105,6 +104,7 @@ const Modal = memo(({ onClose, title, description, children, theme = "light" }) 
     </div>
   );
 });
+Modal.displayName = "Modal";
 
 // Componente ImageCarousel otimizado
 const ImageCarousel = memo(({ images, theme = "light" }) => {
@@ -125,11 +125,10 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
   if (images.length === 0) {
     return (
       <div
-        className={`w-full h-56 rounded-md mb-4 flex items-center justify-center ${
-          theme === "dark"
+        className={`w-full h-56 rounded-md mb-4 flex items-center justify-center ${theme === "dark"
             ? "bg-gray-700 text-gray-300"
             : "bg-gray-200 text-gray-500"
-        }`}
+          }`}
       >
         Sem imagem disponível
       </div>
@@ -147,22 +146,20 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
       />
       <button
         onClick={handlePrev}
-        className={`absolute top-1/2 left-3 transform -translate-y-1/2 ${
-          theme === "light"
+        className={`absolute top-1/2 left-3 transform -translate-y-1/2 ${theme === "light"
             ? "text-gray-700 bg-white hover:bg-gray-100"
             : "text-gray-300 bg-black hover:bg-gray-700"
-        } rounded-full p-2 shadow-md transition`}
+          } rounded-full p-2 shadow-md transition`}
         aria-label="Imagem anterior"
       >
         <FaChevronLeft />
       </button>
       <button
         onClick={handleNext}
-        className={`absolute top-1/2 right-3 transform -translate-y-1/2 ${
-          theme === "light"
+        className={`absolute top-1/2 right-3 transform -translate-y-1/2 ${theme === "light"
             ? "text-gray-700 bg-white hover:bg-gray-100"
             : "text-gray-300 bg-black hover:bg-gray-700"
-        } rounded-full p-2 shadow-md transition`}
+          } rounded-full p-2 shadow-md transition`}
         aria-label="Próxima imagem"
       >
         <FaChevronRight />
@@ -171,15 +168,15 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
         {images.map((_, index) => (
           <span
             key={index}
-            className={`w-3 h-3 rounded-full ${
-              index === currentIndex ? "bg-gray-700" : "bg-gray-300"
-            } transition-all`}
+            className={`w-3 h-3 rounded-full ${index === currentIndex ? "bg-gray-700" : "bg-gray-300"
+              } transition-all`}
           ></span>
         ))}
       </div>
     </div>
   );
 });
+ImageCarousel.displayName = "ImageCarousel";
 
 // Componente ModalContato para Tema Light
 const ModalContatoLight = memo(({ name, images, setShowModalNumero, phoneNumber = DEFAULT_PHONE_NUMBER }) => {
@@ -260,11 +257,10 @@ const ModalContatoLight = memo(({ name, images, setShowModalNumero, phoneNumber 
                 {images.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      index === currentIndexModal
+                    className={`w-3 h-3 rounded-full ${index === currentIndexModal
                         ? "bg-gray-700"
                         : "bg-gray-300"
-                    } transition-all`}
+                      } transition-all`}
                   ></span>
                 ))}
               </div>
@@ -343,6 +339,7 @@ const ModalContatoLight = memo(({ name, images, setShowModalNumero, phoneNumber 
     </div>
   );
 });
+ModalContatoLight.displayName = "ModalContatoLight";
 
 // Componente ModalContato para Tema Dark
 const ModalContatoDark = memo(({ name, images, setShowModalNumero, phoneNumber = DEFAULT_PHONE_NUMBER }) => {
@@ -423,11 +420,10 @@ const ModalContatoDark = memo(({ name, images, setShowModalNumero, phoneNumber =
                 {images.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      index === currentIndexModal
+                    className={`w-3 h-3 rounded-full ${index === currentIndexModal
                         ? "bg-gray-300"
                         : "bg-gray-700"
-                    } transition-all`}
+                      } transition-all`}
                   ></span>
                 ))}
               </div>
@@ -506,6 +502,7 @@ const ModalContatoDark = memo(({ name, images, setShowModalNumero, phoneNumber =
     </div>
   );
 });
+ModalContatoDark.displayName = "ModalContatoDark";
 
 // Componente CardRubiLight
 const CardRubiLight = memo(
@@ -528,9 +525,9 @@ const CardRubiLight = memo(
 
     const formattedPrice = price
       ? price.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        })
+        style: "currency",
+        currency: "BRL",
+      })
       : "A consultar";
 
     const handleOpenModal = useCallback(() => {
@@ -540,11 +537,10 @@ const CardRubiLight = memo(
     return (
       <>
         <div
-          className={`border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl ${
-            theme === "dark"
+          className={`border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl ${theme === "dark"
               ? "bg-gray-800 text-white"
               : "bg-white text-gray-800"
-          }`}
+            }`}
         >
           {/* Carrossel de Imagens */}
           <ImageCarousel images={images} theme={theme} />
@@ -564,103 +560,102 @@ const CardRubiLight = memo(
               </div>
             )}
           </div>
-  
-            {/* Descrição curta */}
-            <p
-              className={`text-sm italic mb-3 ${
-                theme === "dark" ? "text-black" : "text-black"
+
+          {/* Descrição curta */}
+          <p
+            className={`text-sm italic mb-3 ${theme === "dark" ? "text-black" : "text-black"
               }`}
-            >
-              {description}
-            </p>
-  
-            {/* Informações */}
-            <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-              <div>
-                <p className="font-semibold text-black">{formattedPrice}</p>
-                <div className="flex items-center mt-2">
-                  <FaStar className="text-yellow-400 mr-1" />
-                  <p className="text-green-500 font-semibold">
-                    {reviews} review{reviews !== 1 ? "s" : ""}
-                  </p>
-                </div>
-                <div className="flex items-center mt-2">
-                  <FaBirthdayCake className="text-pink-500 mr-1" />
-                  <div
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      theme === "dark"
-                        ? "bg-white text-black"
-                        : "bg-white text-black"
+          >
+            {description}
+          </p>
+
+          {/* Informações */}
+          <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+            <div>
+              <p className="font-semibold text-black">{formattedPrice}</p>
+              <div className="flex items-center mt-2">
+                <FaStar className="text-yellow-400 mr-1" />
+                <p className="text-green-500 font-semibold">
+                  {reviews} review{reviews !== 1 ? "s" : ""}
+                </p>
+              </div>
+              <div className="flex items-center mt-2">
+                <FaBirthdayCake className="text-pink-500 mr-1" />
+                <div
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${theme === "dark"
+                      ? "bg-white text-black"
+                      : "bg-white text-black"
                     }`}
-                  >
-                    {age} anos
-                  </div>
-                </div>
-                <div className="flex items-center mt-2">
-                  <FaCamera className="text-red-500 mr-1" />
-                  <p className="text-black">
-                    {images.length || 5} fotos ou vídeos
-                  </p>
-                </div>
-                {hasLocation && (
-                  <div className="flex items-center mt-2">
-                    <FaCheckCircle className="text-green-500 mr-1" />
-                    <span className="text-black">Com local</span>
-                  </div>
-                )}
-                <div className="flex items-center mt-2">
-                  <FaMapMarkerAlt className="text-red-500 mr-1" />
-                  <p className="text-black">{location}</p>
+                >
+                  {age} anos
                 </div>
               </div>
-  
-              {/* Descrição detalhada e Serviços */}
-              <div className="border-l border-gray-500 pl-4">
-                <p className="text-black mb-2">{description}</p>
-                <p className="text-black font-semibold mb-1">Serviços:</p>
-                <ul className="list-disc list-inside text-black space-y-1">
-                  {(services.length > 0 ? services : DEFAULT_SERVICES).map(
-                    (service, index) => (
-                      <li key={index}>{service}</li>
-                    )
-                  )}
-                </ul>
+              <div className="flex items-center mt-2">
+                <FaCamera className="text-red-500 mr-1" />
+                <p className="text-black">
+                  {images.length || 5} fotos ou vídeos
+                </p>
+              </div>
+              {hasLocation && (
+                <div className="flex items-center mt-2">
+                  <FaCheckCircle className="text-green-500 mr-1" />
+                  <span className="text-black">Com local</span>
+                </div>
+              )}
+              <div className="flex items-center mt-2">
+                <FaMapMarkerAlt className="text-red-500 mr-1" />
+                <p className="text-black">{location}</p>
               </div>
             </div>
-  
-            {/* Botão de contato aprimorado */}
-            {contact && (
-              <button
-                className="mt-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"
-                onClick={handleOpenModal}
-                aria-label="Ver contato"
-              >
-                <FaWhatsapp className="mr-2" /> Ver contato
-              </button>
-            )}
+
+            {/* Descrição detalhada e Serviços */}
+            <div className="border-l border-gray-500 pl-4">
+              <p className="text-black mb-2">{description}</p>
+              <p className="text-black font-semibold mb-1">Serviços:</p>
+              <ul className="list-disc list-inside text-black space-y-1">
+                {(services.length > 0 ? services : DEFAULT_SERVICES).map(
+                  (service, index) => (
+                    <li key={index}>{service}</li>
+                  )
+                )}
+              </ul>
+            </div>
           </div>
-  
-          {/* Modal de contato */}
-          {showModalNumero && (
-            <Modal
-              onClose={() => setShowModalNumero(false)}
-              title="Detalhes de Contato"
-              description={`Entre em contato com ${name} para mais informações.`}
-              theme="light"
+
+          {/* Botão de contato aprimorado */}
+          {contact && (
+            <button
+              className="mt-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"
+              onClick={handleOpenModal}
+              aria-label="Ver contato"
             >
-              <ModalContatoLight
-                name={name}
-                images={images}
-                setShowModalNumero={setShowModalNumero}
-                phoneNumber={phoneNumber}
-              />
-            </Modal>
+              <FaWhatsapp className="mr-2" /> Ver contato
+            </button>
           )}
-        </>
-      );
-    }
-  );
-  
+        </div>
+
+        {/* Modal de contato */}
+        {showModalNumero && (
+          <Modal
+            onClose={() => setShowModalNumero(false)}
+            title="Detalhes de Contato"
+            description={`Entre em contato com ${name} para mais informações.`}
+            theme="light"
+          >
+            <ModalContatoLight
+              name={name}
+              images={images}
+              setShowModalNumero={setShowModalNumero}
+              phoneNumber={phoneNumber}
+            />
+          </Modal>
+        )}
+      </>
+    );
+  }
+);
+CardRubiLight.displayName = "CardRubiLight";
+
 // Componente CardDark para Tema Dark
 const CardDark = memo(
   ({
@@ -682,9 +677,9 @@ const CardDark = memo(
 
     const formattedPrice = price
       ? price.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        })
+        style: "currency",
+        currency: "BRL",
+      })
       : "A consultar";
 
     const handleOpenModal = () => {
@@ -802,6 +797,7 @@ const CardDark = memo(
     );
   }
 );
+CardDark.displayName = "CardDark";
 
 
 // Componente PlanoNitro com suporte a temas no modal de exemplo
@@ -838,81 +834,79 @@ const PlanoNitro = () => {
             +4.000 pontos de listagem (Por uma hora)
           </p>
 
- {/* Benefícios */}
-<ul className="space-y-3 sm:space-y-4 text-white text-sm sm:text-base mb-6 sm:mb-8">
-  {benefits.map((benefit, index) => (
-    <BenefitItem key={index} text={benefit} hasBenefit={true} />
-  ))}
-  {/* Adicionando "Sem convênio" logo após os benefícios */}
-  <BenefitItem key="no-benefit" hasBenefit={false} />
-</ul>
+          {/* Benefícios */}
+          <ul className="space-y-3 sm:space-y-4 text-white text-sm sm:text-base mb-6 sm:mb-8">
+            {benefits.map((benefit, index) => (
+              <BenefitItem key={index} text={benefit} hasBenefit={true} />
+            ))}
+            {/* Adicionando "Sem convênio" logo após os benefícios */}
+            <BenefitItem key="no-benefit" hasBenefit={false} />
+          </ul>
 
 
         </div>
-{/* Preços */}
-<div className="text-center mb-4 sm:mb-6 mt-0 sm:-mt-8">
-  <p className="text-gray-400 text-xs sm:text-sm mb-2">A partir de:</p>
-  <p className="text-lg sm:text-xl font-bold text-white mb-2">R$ 6,90 por 1 hora</p>
-  <span className="bg-orange-500 text-black text-xs sm:text-sm font-semibold px-2 py-0.5 rounded-full inline-block mb-3">
-    Mais Popular
-  </span>
+        {/* Preços */}
+        <div className="text-center mb-4 sm:mb-6 mt-0 sm:-mt-8">
+          <p className="text-gray-400 text-xs sm:text-sm mb-2">A partir de:</p>
+          <p className="text-lg sm:text-xl font-bold text-white mb-2">R$ 6,90 por 1 hora</p>
+          <span className="bg-orange-500 text-black text-xs sm:text-sm font-semibold px-2 py-0.5 rounded-full inline-block mb-3">
+            Mais Popular
+          </span>
 
-  {/* Botão Contratar */}
-  <button className="w-full bg-gradient-to-r from-orange-400 to-orange-600 text-black text-md sm:text-lg font-bold py-3 sm:py-4 rounded-full hover:opacity-90 transition duration-300 ease-in-out">
-    Contrate o Plano
-  </button>
+          {/* Botão Contratar */}
+          <button className="w-full bg-gradient-to-r from-orange-400 to-orange-600 text-black text-md sm:text-lg font-bold py-3 sm:py-4 rounded-full hover:opacity-90 transition duration-300 ease-in-out">
+            Contrate o Plano
+          </button>
 
-  {/* Exemplo do Anúncio */}
-  <div className="mt-3 sm:mt-4 text-center">
-    <button
-      onClick={() => setModalOpen(true)}
-      className="text-orange-600 text-sm font-medium underline hover:text-orange-800 transition duration-300 ease-in-out"
-    >
-      Veja um exemplo do anúncio
-    </button>
+          {/* Exemplo do Anúncio */}
+          <div className="mt-3 sm:mt-4 text-center">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="text-orange-600 text-sm font-medium underline hover:text-orange-800 transition duration-300 ease-in-out"
+            >
+              Veja um exemplo do anúncio
+            </button>
 
-            
+
           </div>
-            
+
         </div>
       </div>
 
       {/* Modal Responsivo com tema Light e Dark */}
-      
+
       {isModalOpen && (
         <Modal
           onClose={closeModal}
           title="Exemplo de Anúncio"
           theme={modalTheme}
         >
-        {/* Botões para alternar temas */}
-        <p className="text-sm text-center text-gray-400 italic mb-4">
-        O card abaixo está no modo Light e ficará ativo por 1 hora, aumentando sua visibilidade. Para aproveitar o modo Dark, verifique se o plano DarkMode está ativo.</p>
-<div className="flex justify-center mb-4 space-x-4">
-  {/* Botão Light */}
-  <button
-    onClick={() => toggleTheme("light")}
-    className={`px-4 py-2 rounded transition ${
-      modalTheme === "light"
-        ? "bg-[#F0F4FF] text-[#0A0A0A]" // Fundo claro, texto escuro
-        : "bg-gray-300 text-gray-700" // Fundo cinza claro, texto cinza médio
-    } hover:bg-[#E0E7FF] hover:text-[#0A0A0A]`} // Efeito de hover para clarear
-  >
-    Light
-  </button>
-  
-  {/* Botão Dark */}
-  <button
-    onClick={() => toggleTheme("dark")}
-    className={`px-4 py-2 rounded transition ${
-      modalTheme === "dark"
-        ? "bg-[#1C1C1C] text-[#E0E7FF]" // Fundo escuro, texto claro
-        : "bg-gray-400 text-gray-700" // Fundo cinza médio, texto cinza escuro
-    } hover:bg-[#2A2A2A] hover:text-[#E0E7FF]`} // Efeito de hover para escurecer
-  >
-    Dark
-  </button>
-</div>
+          {/* Botões para alternar temas */}
+          <p className="text-sm text-center text-gray-400 italic mb-4">
+            O card abaixo está no modo Light e ficará ativo por 1 hora, aumentando sua visibilidade. Para aproveitar o modo Dark, verifique se o plano DarkMode está ativo.</p>
+          <div className="flex justify-center mb-4 space-x-4">
+            {/* Botão Light */}
+            <button
+              onClick={() => toggleTheme("light")}
+              className={`px-4 py-2 rounded transition ${modalTheme === "light"
+                  ? "bg-[#F0F4FF] text-[#0A0A0A]" // Fundo claro, texto escuro
+                  : "bg-gray-300 text-gray-700" // Fundo cinza claro, texto cinza médio
+                } hover:bg-[#E0E7FF] hover:text-[#0A0A0A]`} // Efeito de hover para clarear
+            >
+              Light
+            </button>
+
+            {/* Botão Dark */}
+            <button
+              onClick={() => toggleTheme("dark")}
+              className={`px-4 py-2 rounded transition ${modalTheme === "dark"
+                  ? "bg-[#1C1C1C] text-[#E0E7FF]" // Fundo escuro, texto claro
+                  : "bg-gray-400 text-gray-700" // Fundo cinza médio, texto cinza escuro
+                } hover:bg-[#2A2A2A] hover:text-[#E0E7FF]`} // Efeito de hover para escurecer
+            >
+              Dark
+            </button>
+          </div>
 
 
           {/* Exibir CardRubiLight ou CardDark com tema selecionado */}

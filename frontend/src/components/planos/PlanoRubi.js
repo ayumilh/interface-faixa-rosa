@@ -67,6 +67,7 @@ const BenefitItem = memo(({ text, hasBenefit = true }) => (
     )}
   </li>
 ));
+BenefitItem.displayName = "BenefitItem";
 
 // Componente Modal genérico
 const Modal = memo(({ onClose, title, description, children, theme = "light" }) => {
@@ -113,6 +114,7 @@ const Modal = memo(({ onClose, title, description, children, theme = "light" }) 
     </div>
   );
 });
+Modal.displayName = "Modal";
 
 // Componente ImageCarousel
 const ImageCarousel = memo(({ images, theme = "light" }) => {
@@ -188,6 +190,7 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
     </div>
   );
 });
+ImageCarousel.displayName = "ImageCarousel";
 
 // Componente ModalContato
 const ModalContato = memo(({ name, images, setShowModalNumero, phoneNumber = DEFAULT_PHONE_NUMBER, theme }) => {
@@ -357,6 +360,7 @@ const ModalContato = memo(({ name, images, setShowModalNumero, phoneNumber = DEF
     </div>
   );
 });
+ModalContato.displayName = "ModalContato";
 
 // Componente CardRubiLight
 const CardRubiLight = memo(
@@ -506,6 +510,7 @@ const CardRubiLight = memo(
     );
   }
 );
+CardRubiLight.displayName = "CardRubiLight";
 
 // Componente CardDark
 const CardDark = memo(
@@ -611,6 +616,7 @@ const CardDark = memo(
     );
   }
 );
+CardDark.displayName = "CardDark";
 
 // Componente PlanoRubi com suporte a temas no modal de exemplo
 const PlanoRubi = () => {

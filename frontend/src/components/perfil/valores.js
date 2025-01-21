@@ -1,5 +1,4 @@
-// components/perfil/Valores.js
-
+import Image from "next/image";
 import { FaMoneyBillWave, FaCreditCard, FaCcVisa, FaCcMastercard, FaMoneyCheck } from 'react-icons/fa';
 
 export default function Valores() {
@@ -59,7 +58,7 @@ export default function Valores() {
       <span className="text-sm font-medium text-black">DINHEIRO</span>
     </div>
     <div className="flex flex-col items-center">
-      <img src="/assets/pix-icon.png" alt="Pix Icon" className="w-8 h-8" /> {/* Mantido como está */}
+      <Image src="/assets/pix-icon.png" alt="Pix Icon" width={32} height={32} className="w-8 h-8" /> {/* Mantido como está */}
       <span className="text-sm font-medium text-black">PIX</span>
     </div>
     <div className="flex flex-col items-center">

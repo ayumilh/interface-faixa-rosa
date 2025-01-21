@@ -64,6 +64,7 @@ const BenefitItem = memo(({ text, hasBenefit = true }) => (
     )}
   </li>
 ));
+BenefitItem.displayName = "BenefitItem";
 
 // Componente Modal genérico
 const Modal = memo(({ onClose, title, description, children }) => {
@@ -100,6 +101,7 @@ const Modal = memo(({ onClose, title, description, children }) => {
     </div>
   );
 });
+Modal.displayName = "Modal";
 
 // Componente ImageCarousel otimizado para Tema Dark
 const ImageCarousel = memo(({ images }) => {
@@ -161,6 +163,7 @@ const ImageCarousel = memo(({ images }) => {
     </div>
   );
 });
+ImageCarousel.displayName = "ImageCarousel";
 
 // Componente ModalContatoDark (removendo ModalContatoLight)
 const ModalContatoDark = memo(({ name, images, setShowModalNumero, phoneNumber = DEFAULT_PHONE_NUMBER }) => {
@@ -323,6 +326,7 @@ const ModalContatoDark = memo(({ name, images, setShowModalNumero, phoneNumber =
     </div>
   );
 });
+ModalContatoDark.displayName = "ModalContatoDark";
 
 // Componente CardDark para Tema Dark
 const CardDark = memo(
@@ -457,6 +461,7 @@ const CardDark = memo(
     );
   }
 );
+CardDark.displayName = "CardDark";
 
 // Componente PlanoDarkMode ajustado para apenas tema Dark
 const PlanoDarkMode = () => {

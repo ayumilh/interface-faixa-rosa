@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Top10() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,9 +70,11 @@ export default function Top10() {
                 key={advertiser.id}
                 className="w-full h-64 rounded-lg shadow-lg transform transition-all duration-500 hover:scale-105 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent relative"
               >
-                <img
+                <Image
                   src={advertiser.image}
                   alt={advertiser.name}
+                  layout="fill"
+                  objectFit="cover"
                   className="w-full h-full object-cover rounded-lg opacity-90 hover:opacity-100"
                 />
                 <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent text-white p-4 rounded-b-lg">
@@ -91,9 +94,10 @@ export default function Top10() {
                   advertiser.id === topAdvertisers[currentIndex].id ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <img
+                <Image
                   src={advertiser.image}
                   alt={advertiser.name}
+                  layout="fill"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent text-white p-4">

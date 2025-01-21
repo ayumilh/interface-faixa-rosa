@@ -6,6 +6,7 @@ import { MdLocationOn, MdVideoLibrary, MdRateReview } from "react-icons/md";
 import { Transition } from "@headlessui/react";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LoginNavbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -53,8 +54,8 @@ export default function LoginNavbar() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/home" className="flex items-center">
-            <img src="/assets/FaixaRosaSombra.png" alt="Logo" className="h-12 w-auto mr-2" />
+          <Link href="/" className="flex items-center">
+            <Image src="/assets/FaixaRosaSombra.png" alt="Logo" width={48} height={48} className="h-12 w-auto mr-2" />
           </Link>
         </div>
 

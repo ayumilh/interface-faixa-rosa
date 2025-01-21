@@ -31,8 +31,8 @@ import UserPremium from "@/components/userDashboard/UserPremium";
 import UserPlanManagement from "@/components/userDashboard/UserPlanManagement";
 import UserSupport from "@/components/userDashboard/UserSupport";
 import UserImportantInfo from "@/components/userDashboard/UserImportantInfo";
-
 import useMediaQuery from "@/hooks/useMediaQuery";
+import Image from "next/image";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("painel");
@@ -77,9 +77,11 @@ const UserDashboard = () => {
             <div className="p-6">
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
-                <img
+                <Image
                   src="/images/user.jpg"
                   alt="João Ribeiro"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
@@ -119,9 +121,11 @@ const UserDashboard = () => {
           {isMobile && (
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
-                <img
+                <Image
                   src="/images/user.jpg"
                   alt="João Ribeiro"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>

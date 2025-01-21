@@ -12,7 +12,6 @@ import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
-
 const CardVIP = ({ name, price, location, description, reviews, contact, images, age }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -31,7 +30,7 @@ const CardVIP = ({ name, price, location, description, reviews, contact, images,
       {/* Card principal */}
       <div className="bg-yellow-100 border border-yellow-500 rounded-lg shadow-xl p-4 transition transform hover:scale-105 hover:shadow-2xl">
         {images && images.length > 0 ? (
-          <img src={images[0]} alt={name} className="w-full h-48 object-cover rounded-md mb-3" />
+          <Image src={images[0]} alt={name} width={320} height={192} className="w-full h-48 object-cover rounded-md mb-3" />
         ) : (
           <div className="w-full h-48 bg-gray-200 rounded-md mb-3 flex items-center justify-center text-gray-500 text-lg">
             Sem imagem disponível

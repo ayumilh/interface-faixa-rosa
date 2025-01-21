@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaRegClock, FaFire } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Blog() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -48,7 +49,7 @@ export default function Blog() {
       {/* Carrossel para dispositivos móveis */}
       <div className="w-full max-w-xs md:hidden px-4">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300">
-          <img src={articles[currentIndex].image} alt={articles[currentIndex].title} className="w-full h-48 object-cover" />
+          <Image src={articles[currentIndex].image} alt={articles[currentIndex].title} width={320} height={192} className="w-full h-48 object-cover" />
           <div className="p-4">
             <h3 className="text-lg font-semibold text-gray-800 mb-2">{articles[currentIndex].title}</h3>
             <div className="flex items-center text-gray-500 text-sm mb-2">
@@ -79,7 +80,7 @@ export default function Blog() {
       <div className="hidden md:grid md:grid-cols-3 md:gap-4 md:w-full md:max-w-6xl">
         {articles.map((article, index) => (
           <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-105">
-            <img src={article.image} alt={article.title} className="w-full h-48 object-cover" />
+            <Image src={article.image} alt={article.title} width={320} height={192} className="w-full h-48 object-cover" />
             <div className="p-4">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">{article.title}</h3>
               <div className="flex items-center text-gray-500 text-sm mb-2">

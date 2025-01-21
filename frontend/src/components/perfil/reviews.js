@@ -1,7 +1,6 @@
-// components/perfil/Reviews.js
-
 import { FaStar, FaTimes } from 'react-icons/fa';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import Image from "next/image";
 
 export default function Reviews({ nomeAnunciante, companionId }) {
   const [reviews, setReviews] = useState([
@@ -34,7 +33,7 @@ export default function Reviews({ nomeAnunciante, companionId }) {
   const [status, setStatus] = useState('');
 
   // Função para buscar reviews do back-end
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/reviews?companionId=${companionId}`); // Ajuste a rota conforme necessário
@@ -45,7 +44,7 @@ export default function Reviews({ nomeAnunciante, companionId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [companionId]);
 
   const handleSubmit = async () => {
     if (!nota || !comentario || !cidade) {
@@ -87,7 +86,7 @@ export default function Reviews({ nomeAnunciante, companionId }) {
     if (companionId) {
       fetchReviews();
     }
-  }, [companionId]);
+  }, [companionId, fetchReviews]);
 
   return (
     <div className="mt-8 p-4 md:p-6 bg-white rounded-lg shadow-lg w-full sm:w-[95%] mx-auto">
@@ -128,9 +127,11 @@ export default function Reviews({ nomeAnunciante, companionId }) {
           <div key={review.id} className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <img
+                <Image
                   src="/assets/kemet.jpg"
                   alt={review.autor}
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-full"
                 />
                 <div>

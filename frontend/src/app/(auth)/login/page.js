@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import Link from "next/link"; // Importar Link do Next.js
+import Image from "next/image";
+import Link from "next/link";
 
 export default function AuthPage() {
   const [email, setEmail] = useState("");
@@ -21,40 +23,29 @@ export default function AuthPage() {
     e.preventDefault();
     setLoading(true);
 
-    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/cadastro";
-    const payload = isLogin
-      ? { email, password }
-      : { firstName, lastName, email, password, phone, cpf, userType };
+    console.log({ email, password });
 
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-      const data = await response.json();
+      const data = res.data;
+      console.log(data);
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erro no cadastro/login");
+      if (res.status !== 200) {
+        throw new Error(data.message || "Erro no login");
       }
 
-      if (isLogin) {
-        // Armazena o token no localStorage
-        localStorage.setItem("token", data.token);
-        toast.success("Login realizado com sucesso!");
-        // Redireciona para a página /search
-        router.push("/search");
-      } else {
-        toast.success("Cadastro realizado com sucesso!");
-        // Após cadastro bem-sucedido, alterna para a tela de login
-        setIsLogin(true);
-        toast.info("Por favor, faça login com suas credenciais.");
-      }
+      // Armazena o token no localStorage
+      // localStorage.setItem("token", data.token);
+      // toast.success("Login realizado com sucesso!");
+      // Redireciona para a página /search
+      // router.push("/search");
     } catch (error) {
       toast.error(error.message);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -75,9 +66,11 @@ export default function AuthPage() {
           // Formulário de Login
           <>
             <div className="text-center mb-6">
-              <img
+              <Image
                 src="/assets/logofaixa.png"
                 alt="Faixa Rosa Logo"
+                width={160}
+                height={64}
                 className="mx-auto h-16"
               />
               <h2 className="text-2xl font-semibold text-pink-500 mt-4">
@@ -175,9 +168,11 @@ export default function AuthPage() {
           // Formulário de Cadastro
           <>
             <div className="text-center mb-6">
-              <img
+              <Image
                 src="/assets/logofaixa.png"
                 alt="Faixa Rosa Logo"
+                width={160}
+                height={64}
                 className="mx-auto h-16"
               />
               <h2 className="text-2xl font-semibold text-pink-500 mt-4">

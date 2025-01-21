@@ -82,6 +82,7 @@ const Modal = memo(({ onClose, title, description, children, theme = "light" }) 
     </div>
   );
 });
+Modal.displayName = "Modal";
 
 // Componente CardVIPLight
 const CardVIPLight = memo(
@@ -112,9 +113,11 @@ const CardVIPLight = memo(
         >
           {/* Imagem Principal */}
           {images && images.length > 0 ? (
-            <img
+            <Image
               src={images[0]}
               alt={name}
+              width={320}
+              height={192}
               className="w-full h-48 object-cover rounded-md mb-3"
             />
           ) : (
@@ -257,6 +260,7 @@ const CardVIPLight = memo(
     );
   }
 );
+CardVIPLight.displayName = "CardVIPLight";
 
 // Componente CardVIPDark
 const CardVIPDark = memo(
@@ -287,9 +291,11 @@ const CardVIPDark = memo(
         >
           {/* Imagem Principal */}
           {images && images.length > 0 ? (
-            <img
+            <Image
               src={images[0]}
               alt={name}
+              width={320}
+              height={192}
               className="w-full h-48 object-cover rounded-md mb-3"
             />
           ) : (
@@ -444,6 +450,7 @@ const CardVIPDark = memo(
     );
   }
 );
+CardVIPDark.displayName = "CardVIPDark";
 
 // Componente PlanoPink
 const PlanoPink = () => {

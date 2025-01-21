@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function CadastroPage() {
@@ -58,9 +59,11 @@ export default function CadastroPage() {
     >
       <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg">
         <div className="text-center mb-6">
-          <img
+          <Image
             src="/assets/logofaixa.png"
             alt="Faixa Rosa Logo"
+            width={160}
+            height={64}
             className="mx-auto h-16"
           />
           <h2 className="text-2xl font-semibold text-pink-500 mt-4">

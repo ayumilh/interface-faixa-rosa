@@ -5,8 +5,6 @@ import Slider from "@mui/material/Slider";
 import Box from "@mui/material/Box";
 
 export default function ModalFiltro({ showModalFiltro, setShowModalFiltro }) {
-  if (!showModalFiltro) return null;
-
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [expandedSections, setExpandedSections] = useState({});
   const [filters, setFilters] = useState({
@@ -17,9 +15,11 @@ export default function ModalFiltro({ showModalFiltro, setShowModalFiltro }) {
     footSize: [35, 45],
     tamanhoPenis: [0, 40], // Novo filtro para "Tamanho do Pênis"
   });
-
+  
   // Função para fechar o modal ao pressionar a tecla 'Esc'
   useEffect(() => {
+    if (!showModalFiltro) return null;
+
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setShowModalFiltro(false);

@@ -1,6 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FaBell, FaSearch } from "react-icons/fa";
 import ModalBusca from "@/components/search/modalbusca";
 
@@ -18,14 +19,18 @@ export default function Navbar() {
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/">
-            <img
+            <Image
               src="/assets/Faixa-Rosa-Horizontal.png"
               alt="Logo"
+              width={160}
+              height={32}
               className="h-8 w-auto block lg:hidden"
             />
-            <img
+            <Image
               src="/assets/Faixa-Rosa-Horizontal.png"
               alt="Logo"
+              width={200}
+              height={40}
               className="h-10 w-auto hidden lg:block"
             />
           </Link>

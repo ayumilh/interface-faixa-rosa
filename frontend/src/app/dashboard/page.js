@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import LoginNavbar from "@/components/LoginNavbar"; // Certifique-se de que está importando o LoginNavbar correto
 import Modal from "@/components/dashboard/Modal";
+import Image from "next/image";
 import Metrics from "@/components/dashboard/Metrics";
 import MetricsMobile from "@/components/dashboard/MetricsMobile";
 import ProfileSettings from "@/components/dashboard/ProfileSettings";
@@ -64,9 +65,11 @@ const Dashboard = () => {
             <div className="p-6">
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
-                <img
+                <Image
                   src="/images/user.jpg"
                   alt="Usuário"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
@@ -106,9 +109,11 @@ const Dashboard = () => {
           {isMobile && (
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
-                <img
+                <Image
                   src="/images/user.jpg"
                   alt="Usuário"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>

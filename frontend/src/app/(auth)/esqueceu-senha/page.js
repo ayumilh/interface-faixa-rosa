@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function EsqueceuSenhaPage() {
   const [email, setEmail] = useState("");
@@ -53,9 +54,11 @@ export default function EsqueceuSenhaPage() {
     >
       <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg">
         <div className="text-center mb-6">
-          <img
+          <Image
             src="/assets/logofaixa.png"
             alt="Faixa Rosa Logo"
+            width={160}
+            height={64}
             className="mx-auto h-16"
           />
           <h2 className="text-2xl font-semibold text-pink-500 mt-4">

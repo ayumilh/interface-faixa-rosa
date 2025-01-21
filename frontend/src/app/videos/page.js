@@ -12,6 +12,7 @@ import {
   FaFemale 
 } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
+import Image from "next/image";
 import Footer from "@/components/search/footer";
 import Final from "@/components/search/final"; // Componente de Final
 
@@ -165,7 +166,7 @@ export default function AcompanhantesBrasil() {
           ) : (
             <>
               <div className="bg-white p-4 rounded-lg shadow-md">
-                <img src="/path/to/photo1.jpg" alt="Carla Dias" className="rounded-lg w-full h-56 object-cover" />
+                <Image src="" alt="Carla Dias" width={368} height={224} className="rounded-lg w-[256px] md:w-[324px] lg:w-[368px] h-56 object-cover" />
                 <h3 className="text-lg font-semibold mt-4">Carla Dias</h3>
                 <p className="text-sm text-gray-600 flex items-center">
                   <FaMapMarkerAlt className="mr-1" /> Salvador - BA
@@ -181,7 +182,7 @@ export default function AcompanhantesBrasil() {
               </div>
 
               <div className="bg-white p-4 rounded-lg shadow-md">
-                <img src="/path/to/photo2.jpg" alt="Juliana Mendes" className="rounded-lg w-full h-56 object-cover" />
+                <Image src="/path/to/photo2.jpg" alt="Juliana Mendes" width={368} height={224} className="rounded-lg w-full h-56 object-cover" />
                 <h3 className="text-lg font-semibold mt-4">Juliana Mendes</h3>
                 <p className="text-sm text-gray-600 flex items-center">
                   <FaMapMarkerAlt className="mr-1" /> Curitiba - PR
@@ -197,7 +198,7 @@ export default function AcompanhantesBrasil() {
               </div>
 
               <div className="bg-white p-4 rounded-lg shadow-md">
-                <img src="/path/to/photo3.jpg" alt="Patrícia Almeida" className="rounded-lg w-full h-56 object-cover" />
+                <Image src="/path/to/photo3.jpg" alt="Patrícia Almeida" width={368} height={224} className="rounded-lg w-full h-56 object-cover" />
                 <h3 className="text-lg font-semibold mt-4">Patrícia Almeida</h3>
                 <p className="text-sm text-gray-600 flex items-center">
                   <FaMapMarkerAlt className="mr-1" /> Fortaleza - CE

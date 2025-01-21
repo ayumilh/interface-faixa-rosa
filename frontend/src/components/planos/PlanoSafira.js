@@ -1,7 +1,4 @@
-// ./src/components/planos/PlanoSafira.js
-
 "use client";
-
 import React, { useState, useEffect, useCallback, memo } from "react";
 import {
   FaCheckCircle,
@@ -64,6 +61,7 @@ const BenefitItem = memo(({ text, hasBenefit = true }) => (
     )}
   </li>
 ));
+BenefitItem.displayName = 'BenefitItem';
 
 // Componente Modal genérico
 const Modal = memo(({ onClose, title, description, children, theme = "light" }) => {
@@ -112,6 +110,7 @@ const Modal = memo(({ onClose, title, description, children, theme = "light" }) 
     </div>
   );
 });
+Modal.displayName = 'Modal';
 
 // Componente ImageCarousel
 const ImageCarousel = memo(({ images, theme = "light" }) => {
@@ -187,6 +186,7 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
     </div>
   );
 });
+ImageCarousel.displayName = 'ImageCarousel';
 
 // Componente ModalContato
 const ModalContato = memo(
@@ -407,6 +407,7 @@ const ModalContato = memo(
     );
   }
 );
+ModalContato.displayName = 'ModalContato';
 
 // Componente CardSafiraLight
 const CardSafiraLight = memo(
@@ -544,6 +545,7 @@ const CardSafiraLight = memo(
     );
   }
 );
+CardSafiraLight.displayName = 'CardSafiraLight';
 
 // Componente CardDark para Plano Safira
 const CardDark = memo(
@@ -647,6 +649,7 @@ const CardDark = memo(
     );
   }
 );
+CardDark.displayName = 'CardDark';
 
 // Componente PlanoSafira com suporte a temas no modal de exemplo
 const PlanoSafira = () => {
@@ -713,7 +716,7 @@ const PlanoSafira = () => {
           </button>
 
           {/* Exemplo de Anúncio */}
-          <div className="mt-4 sm:mt-6 sm:-mt-2 flex justify-center">
+          <div className="mt-4 sm:-mt-2 flex justify-center">
           <button
               onClick={() => setModalOpen(true)}
               className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500 text-sm font-medium underline flex items-center justify-center hover:from-pink-600 hover:to-purple-600 transition duration-300 ease-in-out">

@@ -1,6 +1,7 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { FaWhatsapp } from "react-icons/fa";
+import Image from "next/image";
 
 export default function Stories({ stories }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -10,16 +11,24 @@ export default function Stories({ stories }) {
   const modalRef = useRef(null);
   const storyDuration = 10000;
 
-  const openStory = (index) => {
+  const openStory = useCallback((index) => {
     setSelectedStory(stories[index]);
     setCurrentIndex(index);
     setProgress(0);
-  };
+  }, [stories]);
 
   const closeModal = () => {
     setSelectedStory(null);
     setProgress(0);
   };
+
+  const nextStory = useCallback(() => {
+    if (currentIndex < stories.length - 1) {
+      openStory(currentIndex + 1);
+    } else {
+      closeModal();
+    }
+  }, [currentIndex, stories.length, openStory]);
 
   useEffect(() => {
     if (selectedStory && !isPaused) {
@@ -35,15 +44,7 @@ export default function Stories({ stories }) {
 
       return () => clearInterval(interval);
     }
-  }, [selectedStory, isPaused]);
-
-  const nextStory = () => {
-    if (currentIndex < stories.length - 1) {
-      openStory(currentIndex + 1);
-    } else {
-      closeModal();
-    }
-  };
+  }, [selectedStory, isPaused, nextStory]);
 
   const prevStory = () => {
     if (currentIndex > 0) {
@@ -71,9 +72,10 @@ export default function Stories({ stories }) {
                 className="w-20 h-20 rounded-full overflow-hidden border-4 border-gradient-to-r from-pink-500 to-purple-500 cursor-pointer hover:scale-105 transform transition-transform duration-300"
                 onClick={() => openStory(index)}
               >
-                <img
+                <Image
                   src={story.image}
                   alt={story.name}
+                  layout="fill"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -129,17 +131,21 @@ export default function Stories({ stories }) {
               onTouchStart={() => setIsPaused(true)}
               onTouchEnd={() => setIsPaused(false)}
             >
-              <img
+              <Image
                 src={selectedStory.image}
                 alt={selectedStory.name}
+                width={96}
+                height={96}
                 className="w-full h-auto object-contain"
               />
             </div>
 
             <div className="mt-4 flex flex-col items-center">
-              <img
+              <Image
                 src={selectedStory.profileImage}
                 alt={selectedStory.name}
+                width={96}
+                height={96}
                 className="w-24 h-24 rounded-full border-4 border-gradient-to-r from-pink-500 to-purple-500 mb-2"
               />
               <h3 className="text-xl md:text-2xl font-semibold text-white">

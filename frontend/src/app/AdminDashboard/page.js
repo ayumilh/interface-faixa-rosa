@@ -23,6 +23,7 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import Anunciantes from "@/components/AdminDashboard/Anunciantes";
 import Clientes from "@/components/AdminDashboard/Clientes";
 import EstatisticasERelatorios from "@/components/AdminDashboard/EstatisticasERelatorios";
+import Image from "next/image";
 
 // Componente Placeholder para seções não implementadas
 const Placeholder = ({ title, items = [] }) => (
@@ -371,9 +372,11 @@ const AdminDashboard = () => {
             <div className="p-6">
               {/* Perfil do Administrador */}
               <div className="flex items-center mb-6">
-                <img
+                <Image
                   src="/images/admin.jpg"
                   alt="Administrador"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
@@ -442,9 +445,11 @@ const AdminDashboard = () => {
           {isMobile && (
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
-                <img
+                <Image
                   src="/images/admin.jpg"
                   alt="Administrador"
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-full mr-3"
                 />
                 <div>

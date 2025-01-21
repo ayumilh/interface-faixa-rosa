@@ -46,10 +46,10 @@ export default function Termos() {
         </strong>
         , empresa legalmente constituída, com sede em Avenida Brig. Faria Lima,
         1811, Jardim Paulistano, São Paulo, CEP 01452-001, inscrita no
-        CNPJ/MF sob número 53.839.625/0001-08, doravante referida como "O Faixa
-        Rosa", e o usuário identificado no Cadastramento Eletrônico pelo seu
+        CNPJ/MF sob número 53.839.625/0001-08, doravante referida como &quot;O Faixa
+        Rosa&quot;, e o usuário identificado no Cadastramento Eletrônico pelo seu
         Código de <strong>VISITANTE ASSINANTE</strong>, doravante denominado
-        simplesmente como "VISITANTE/USUÁRIO".
+        simplesmente como &quot;VISITANTE/USUÁRIO&quot;.
       </p>
 
       <h2>OBJETO DOS TERMOS DE USO E SERVIÇOS</h2>
@@ -72,7 +72,7 @@ export default function Termos() {
       <h2>CÓDIGO DA ASSINATURA</h2>
       <p>
         3.1 <strong>O Faixa Rosa</strong> atribuirá ao VISITANTE ASSINANTE um
-        "Código de VISITANTE ASSINANTE" para identificação junto ao Serviço de
+        &quot;Código de VISITANTE ASSINANTE&quot; para identificação junto ao Serviço de
         Atendimento ao Cliente <strong>O Faixa Rosa</strong>, que servirá como
         código de identificação do usuário - ID.
       </p>
@@ -349,10 +349,10 @@ export default function Termos() {
         </strong>
         , empresa legalmente constituída, com sede em Avenida Brig. Faria Lima,
         1811, Jardim Paulistano, São Paulo, CEP 01452-001, inscrita no
-        CNPJ/MF sob número 53.839.625/0001-08, doravante referida como "O Faixa
-        Rosa", e o usuário identificado no Cadastramento Eletrônico pelo seu
+        CNPJ/MF sob número 53.839.625/0001-08, doravante referida como &quot;O Faixa
+        Rosa&quot;, e o usuário identificado no Cadastramento Eletrônico pelo seu
         Código de <strong>ANUNCIANTE ASSINANTE</strong>, doravante denominado
-        simplesmente como "ANUNCIANTE/ACOMPANHANTE".
+        simplesmente como &quot;ANUNCIANTE/ACOMPANHANTE&quot;.
       </p>
 
       <p>
@@ -893,7 +893,7 @@ export default function Termos() {
 
       <p>
         7.2 <strong>Os USUÁRIOS não devem utilizar a PLATAFORMA para fins diversos
-        daqueles estipulados neste instrumento, em especial:</strong>
+          daqueles estipulados neste instrumento, em especial:</strong>
       </p>
 
       <ul>
@@ -1122,7 +1122,7 @@ export default function Termos() {
         assinados.
       </p>
 
-      
+
 
       <h2>5. Banco de Dados</h2>
 
@@ -1221,9 +1221,9 @@ export default function Termos() {
         instrumento.
       </p>
 
-    
 
-     
+
+
       {/* Exemplo de Cláusula Destacada */}
       <div className="bg-pink-50 p-4 border-l-4 border-pink-600 mt-6 rounded">
         <h3 className="text-lg font-bold text-pink-600 mb-2">
@@ -1248,11 +1248,11 @@ export default function Termos() {
   );
 
   return (
-    
+
     <div className="flex flex-col min-h-screen bg-gray-100">
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-        <Navbar />
+          <Navbar />
 
           Termos de Uso e Serviços
         </h1>
@@ -1263,10 +1263,9 @@ export default function Termos() {
         <div className="flex justify-center space-x-4 mb-8">
           <button
             className={`px-6 py-2 rounded-full font-semibold transition 
-              ${
-                activeTab === "usuarios"
-                  ? "bg-pink-600 text-white transform scale-105"
-                  : "bg-white text-pink-600 border border-pink-600 hover:bg-pink-50"
+              ${activeTab === "usuarios"
+                ? "bg-pink-600 text-white transform scale-105"
+                : "bg-white text-pink-600 border border-pink-600 hover:bg-pink-50"
               }`}
             onClick={() => setActiveTab("usuarios")}
           >
@@ -1274,10 +1273,9 @@ export default function Termos() {
           </button>
           <button
             className={`px-6 py-2 rounded-full font-semibold transition 
-              ${
-                activeTab === "anunciantes"
-                  ? "bg-pink-600 text-white transform scale-105"
-                  : "bg-white text-pink-600 border border-pink-600 hover:bg-pink-50"
+              ${activeTab === "anunciantes"
+                ? "bg-pink-600 text-white transform scale-105"
+                : "bg-white text-pink-600 border border-pink-600 hover:bg-pink-50"
               }`}
             onClick={() => setActiveTab("anunciantes")}
           >

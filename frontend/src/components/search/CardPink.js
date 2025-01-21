@@ -38,9 +38,11 @@ const CardVIP = ({
     <>
       <div className="bg-pink border border-pink-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
         {images && images.length > 0 ? (
-          <img
+          <Image
             src={images[0]}
             alt={name}
+            width={320}
+            height={192}
             className="w-full h-48 object-cover rounded-md mb-3"
           />
         ) : (

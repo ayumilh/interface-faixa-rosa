@@ -1,10 +1,8 @@
-// src/components/Dashboard/MediaManagement.js
 "use client";
-
 import React, { useState, memo } from "react";
 import { FaPlus, FaCamera, FaVideo, FaEdit, FaSpinner } from "react-icons/fa";
 import Modal from "@/components/dashboard/Modal";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 const MediaManagement = memo(({ onUpload }) => {
   const [activeMedia, setActiveMedia] = useState("fotos");
@@ -65,6 +63,7 @@ const MediaManagement = memo(({ onUpload }) => {
     </div>
   );
 });
+MediaManagement.displayName = "MediaManagement";
 
 const UploadForm = ({ mediaType, onUpload, closeModal }) => {
   const [files, setFiles] = useState([]);

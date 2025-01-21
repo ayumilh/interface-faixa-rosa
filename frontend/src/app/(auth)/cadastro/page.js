@@ -32,6 +32,10 @@ export default function CadastroPage() {
         },
         body: JSON.stringify(payload),
       });
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
+        { email, password },
+        { withCredentials: true }
+      );
 
       const data = await response.json();
 

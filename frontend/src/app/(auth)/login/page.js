@@ -23,8 +23,6 @@ export default function AuthPage() {
     e.preventDefault();
     setLoading(true);
 
-    console.log({ email, password });
-
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
         { email, password },

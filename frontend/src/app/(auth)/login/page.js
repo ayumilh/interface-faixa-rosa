@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
+
+import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AuthContext } from "@/context/authContext";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import WithGoogle from "@/components/Auth/WithGoogle";
+import Cookies from "js-cookie";
+import { signIn } from 'next-auth/react';
 import Link from "next/link";
 
 export default function AuthPage() {
@@ -22,79 +27,125 @@ export default function AuthPage() {
 
   const router = useRouter();
 
+  const { login, isAuthenticated, currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (isAuthenticated && currentUser) {
+      toast.success("Login realizado com sucesso!");
+
+      if (currentUser.userType === "CONTRATANTE") {
+        router.push("/userDashboard");
+      } else if (currentUser.userType === "ACOMPANHANTE") {
+        router.push("/dashboard");
+      }
+    }
+  }, [isAuthenticated, currentUser, router]);
+
   const handleSubmit = async (e, type) => {
     e.preventDefault();
-    setLoading(true);
 
-    try {
-      let res;
-      if (type === "login") {
-        res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-          { email, password },
-          { withCredentials: true }
-        );
-      } else if (type === "register") {
-        res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
-          { firstName, lastName, email, password, phone, cpf, userType },
-          { withCredentials: true }
-        );
+    if (type === "login") {
+      setLoading(true);
+
+      const inputs = { email, password };
+      const response = await login(inputs);
+      if (!response) {
+        setLoading(false);
+        toast.error("Erro ao realizar login. Verifique suas credenciais.");
+        return;
       }
 
-      const data = res.data;
-
-      if (res.status !== 200 && res.status !== 201) {
-        throw new Error(data.message || "Erro ao realizar ação.");
+      // buscando o userId
+      const getUserId = Cookies.get('userId') ? JSON.parse(Cookies.get('userId')) : null;
+      if (getUserId === null) {
+        toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
+        return;
       }
+      console.log(getUserId);
 
-      if (type === "login") {
-        toast.success("Login realizado com sucesso!");
-        localStorage.setItem("token", data.token);
-
+      // vericação do next-auth
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false
+      });
+      if (result?.error) {
+        toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
+        return
+      } else {
+        const { userType } = response.user;
+        // Redireciona com base no userType
         if (userType === "CONTRATANTE") {
           router.push("/userDashboard");
         } else if (userType === "ACOMPANHANTE") {
           router.push("/dashboard");
         }
+      }
 
-      } else if (type === "register") {
+      setLoading(false);
+    } else if (type === "register") {
+      setLoading(true);
+
+      try {
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
+          { firstName, lastName, email, password, phone, cpf, userType },
+          { withCredentials: true }
+        );
+
+        const data = res.data;
+
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error(data.message || "Erro ao realizar ação.");
+        }
+
         toast.success("Cadastro realizado com sucesso!");
 
         setTimeout(() => {
           router.push("/login");
           toast.info("Por favor, faça login com suas credenciais.");
         }, 1200);
-      }
-    } catch (error) {
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            toast.error("Requisição inválida. Verifique os dados e tente novamente.");
-            // informar se ja tem email ou cpf cadastrado
-            break;
-          case 401:
-            toast.error("Não autorizado. Verifique suas credenciais.");
-            break;
-          case 403:
-            toast.error("Proibido. Você não tem permissão para realizar esta ação.");
-            break;
-          case 404:
-            toast.error("Recurso não encontrado.");
-            break;
-          case 500:
-            toast.error("Erro interno do servidor. Tente novamente mais tarde.");
-            break;
-          default:
-            toast.error(error.response.data.message || "Erro desconhecido.");
+      } catch (error) {
+        if (error.response) {
+          switch (error.response.status) {
+            case 400:
+              toast.error(
+                "Requisição inválida. Verifique os dados e tente novamente."
+              );
+              break;
+            case 401:
+              toast.error(
+                "Não autorizado. Verifique suas credenciais."
+              );
+              break;
+            case 403:
+              toast.error(
+                "Proibido. Você não tem permissão para realizar esta ação."
+              );
+              break;
+            case 404:
+              toast.error("Recurso não encontrado.");
+              break;
+            case 500:
+              toast.error(
+                "Erro interno do servidor. Tente novamente mais tarde."
+              );
+              break;
+            default:
+              toast.error(
+                error.response.data.message || "Erro desconhecido."
+              );
+          }
+        } else if (error.request) {
+          toast.error(
+            "Sem resposta do servidor. Verifique sua conexão."
+          );
+        } else {
+          toast.error(error.message);
         }
-      } else if (error.request) {
-        toast.error("Sem resposta do servidor. Verifique sua conexão.");
-      } else {
-        toast.error(error.message);
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
   };
   const handleLoginSubmit = (e) => handleSubmit(e, "login");
@@ -156,13 +207,13 @@ export default function AuthPage() {
     const value = e.target.value.trimStart();
     const regex = /[^0-9]/g;
     const sanitizedValue = sanitizeInput(value, regex);
-  
+
     setPhone(sanitizedValue);
-  
+
     if (value !== sanitizedValue) {
       setErrorsInput((prevErrors) => {
         const { phone, ...rest } = prevErrors;
-        return rest; 
+        return rest;
       });
       setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
     } else {
@@ -176,15 +227,15 @@ export default function AuthPage() {
 
   const handleEmailChange = (e) => {
     const value = e.target.value.trimStart();
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; 
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const sanitizedValue = sanitizeInput(value, /[^a-zA-Z0-9._@-]/g);
-  
+
     setEmail(sanitizedValue);
-  
+
     if (regex.test(sanitizedValue)) {
       setErrorsInput((prevErrors) => {
         const { email, ...rest } = prevErrors;
-        return rest; 
+        return rest;
       });
       setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
     } else {
@@ -202,7 +253,7 @@ export default function AuthPage() {
     const sanitizedValue = sanitizeInput(value, regex);
 
     setCpf(sanitizedValue);
-  
+
     if (value != sanitizedValue) {
       setErrorsInput((prevErrors) => {
         const { cpf, ...rest } = prevErrors;
@@ -220,13 +271,13 @@ export default function AuthPage() {
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
-  
+
     // Sanitiza o valor, permitindo apenas letras, números e caracteres especiais comuns para senhas
     const sanitizedValue = sanitizeInput(value, /[^a-zA-Z0-9!@#$%^&*]/g);
-  
+
     // Atualiza o estado com o valor sanitizado
     setPassword(sanitizedValue);
-  
+
     // Verifica a validade da senha
     if (sanitizedValue.length >= 8 && sanitizedValue.length <= 128) {
       // Senha válida
@@ -343,6 +394,8 @@ export default function AuthPage() {
               </div>
             </form>
 
+            <WithGoogle loginType="login" />
+
             <div className="text-center mt-4 text-sm">
               Novo no Faixa Rosa?{" "}
               <button
@@ -390,11 +443,10 @@ export default function AuthPage() {
                     pattern="[a-zA-ZÀ-ÿ\s'-]{3,50}"
                     title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
                     autoComplete="off"
-                    className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm transition duration-200 text-gray-800 ${
-                      errorsInput.firstName
-                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                        : 'border-gray-300 focus:ring-pink-500 focus:border-pink-500'
-                    }`}
+                    className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm transition duration-200 text-gray-800 ${errorsInput.firstName
+                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                      : 'border-gray-300 focus:ring-pink-500 focus:border-pink-500'
+                      }`}
                   />
                   {errorsInput.firstName && (
                     <p className="text-red-500 relative text-sm mt-1">{errorsInput.firstName}</p>
@@ -556,6 +608,8 @@ export default function AuthPage() {
                 </button>
               </div>
             </form>
+
+            <WithGoogle loginType="cadastro" />
 
             <div className="text-center mt-4 text-sm">
               Já tem uma conta?{" "}

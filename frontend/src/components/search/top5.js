@@ -7,16 +7,16 @@ export default function Top10() {
   const [isDesktop, setIsDesktop] = useState(false);
 
   const topAdvertisers = [
-    { id: 1, name: "Ana Silva", city: "São Paulo", image: "/images/ana.jpg" },
-    { id: 2, name: "Beatriz Costa", city: "Rio de Janeiro", image: "/images/beatriz.jpg" },
-    { id: 3, name: "Carla Mendes", city: "Belo Horizonte", image: "/images/carla.jpg" },
-    { id: 4, name: "Daniela Souza", city: "Porto Alegre", image: "/images/daniela.jpg" },
-    { id: 5, name: "Elena Rocha", city: "Curitiba", image: "/images/elena.jpg" },
-    { id: 6, name: "Fernanda Lima", city: "Brasília", image: "/images/fernanda.jpg" },
-    { id: 7, name: "Gabriela Santos", city: "Salvador", image: "/images/gabriela.jpg" },
-    { id: 8, name: "Heloísa Andrade", city: "Fortaleza", image: "/images/heloisa.jpg" },
-    { id: 9, name: "Isabela Ramos", city: "Manaus", image: "/images/isabela.jpg" },
-    { id: 10, name: "Juliana Oliveira", city: "Recife", image: "/images/juliana.jpg" },
+    { id: 1, name: "Ana Silva", city: "São Paulo", image: "/assets/images/albums/01.jpg" },
+    { id: 2, name: "Beatriz Costa", city: "Rio de Janeiro", image: "/assets/images/albums/01.jpg" },
+    { id: 3, name: "Carla Mendes", city: "Belo Horizonte", image: "/assets/images/albums/01.jpg" },
+    { id: 4, name: "Daniela Souza", city: "Porto Alegre", image: "/assets/images/albums/01.jpg" },
+    { id: 5, name: "Elena Rocha", city: "Curitiba", image: "/assets/images/albums/01.jpg" },
+    { id: 6, name: "Fernanda Lima", city: "Brasília", image: "/assets/images/albums/01.jpg" },
+    { id: 7, name: "Gabriela Santos", city: "Salvador", image: "/assets/images/albums/01.jpg" },
+    { id: 8, name: "Heloísa Andrade", city: "Fortaleza", image: "/assets/images/albums/01.jpg" },
+    { id: 9, name: "Isabela Ramos", city: "Manaus", image: "/assets/images/albums/01.jpg" },
+    { id: 10, name: "Juliana Oliveira", city: "Recife", image: "/assets/images/albums/01.jpg" },
   ];
 
   // Hook para detectar tamanho da tela
@@ -70,13 +70,16 @@ export default function Top10() {
                 key={advertiser.id}
                 className="w-full h-64 rounded-lg shadow-lg transform transition-all duration-500 hover:scale-105 bg-gradient-to-t from-gray-900 via-gray-800 to-transparent relative"
               >
-                <Image
-                  src={advertiser.image}
-                  alt={advertiser.name}
-                  layout="fill"
-                  objectFit="cover"
-                  className="w-full h-full object-cover rounded-lg opacity-90 hover:opacity-100"
-                />
+                {advertiser.image && (
+                  <Image
+                    src={advertiser.image}
+                    alt={`Foto de ${advertiser.name}`}
+                    layout="fill"
+                    objectFit="cover"
+                    priority
+                    className="w-full h-full object-cover rounded-lg opacity-90 hover:opacity-100"
+                  />
+                )}
                 <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent text-white p-4 rounded-b-lg">
                   <h3 className="text-xl font-semibold">{advertiser.name}</h3>
                   <p className="text-sm">{advertiser.city}</p>
@@ -90,14 +93,15 @@ export default function Top10() {
             {topAdvertisers.map((advertiser) => (
               <div
                 key={advertiser.id}
-                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                  advertiser.id === topAdvertisers[currentIndex].id ? "opacity-100" : "opacity-0"
-                }`}
+                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${advertiser.id === topAdvertisers[currentIndex].id ? "opacity-100" : "opacity-0"
+                  }`}
               >
                 <Image
                   src={advertiser.image}
-                  alt={advertiser.name}
+                  alt={`Foto de ${advertiser.name}`}
                   layout="fill"
+                  objectFit="cover"
+                  priority
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent text-white p-4">
@@ -133,9 +137,8 @@ export default function Top10() {
             {Array.from({ length: topAdvertisers.length - 5 }).map((_, index) => (
               <FaStar
                 key={index}
-                className={`mx-1 ${
-                  index === currentIndex ? "text-pink-800" : "text-gray-600"
-                }`}
+                className={`mx-1 ${index === currentIndex ? "text-pink-800" : "text-gray-600"
+                  }`}
               />
             ))}
           </div>

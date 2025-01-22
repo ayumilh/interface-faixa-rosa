@@ -2,7 +2,7 @@
 import { useContext } from "react";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/authContext"; 
+import { AuthContext } from '@/context/authContext';
 
 const WithGoogle = ({ loginType }) => {
   const { loginWithGoogle } = useContext(AuthContext);

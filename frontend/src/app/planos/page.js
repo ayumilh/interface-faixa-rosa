@@ -12,7 +12,7 @@ import PlanoRubi from "@/components/planos/PlanoRubi";
 import PlanoSafira from "@/components/planos/PlanoSafira";
 import PlanoPink from "@/components/planos/PlanoPink";
 import PlanoVip from "@/components/planos/PlanoVip";
-import Simular from "@components/planos/simular";
+import Simular from "@/components/planos/simular";
 import "@/app/planos/planos.css";
 
 export default function Planos() {

@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/authContext";
+import { AuthContext } from "@/context/authContext"; 
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";

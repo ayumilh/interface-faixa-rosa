@@ -22,31 +22,31 @@ const Charts = () => {
   const [error, setError] = useState(null);
 
   // Fetch data from API or database
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/dashboard/metrics");
-        if (!response.ok) {
-          throw new Error(`Erro HTTP: ${response.status}`);
-        }
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch("/api/dashboard/metrics");
+  //       if (!response.ok) {
+  //         throw new Error(`Erro HTTP: ${response.status}`);
+  //       }
 
-        const data = await response.json();
+  //       const data = await response.json();
 
-        // Atualizar os estados com os dados da API
-        setDataWhatsApp(data.whatsAppMetrics || []);
-        setDataTelegram(data.telegramMetrics || []);
-        setDataVisits(data.visitMetrics || []);
+  //       // Atualizar os estados com os dados da API
+  //       setDataWhatsApp(data.whatsAppMetrics || []);
+  //       setDataTelegram(data.telegramMetrics || []);
+  //       setDataVisits(data.visitMetrics || []);
 
-        setLoading(false);
-      } catch (error) {
-        console.error("Erro ao buscar métricas:", error);
-        setError(error.message || "Erro desconhecido");
-        setLoading(false);
-      }
-    };
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error("Erro ao buscar métricas:", error);
+  //       setError(error.message || "Erro desconhecido");
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   // Exibir mensagem de carregamento ou erro
   if (loading) {

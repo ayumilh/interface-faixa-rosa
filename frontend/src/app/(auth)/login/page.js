@@ -19,35 +19,87 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, type) => {
     e.preventDefault();
     setLoading(true);
 
+    console.log({ firstName, lastName, email, password, phone, cpf, userType });
+    console.log({ email, password });
+    console.log({ type });
+
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
-        { email, password },
-        { withCredentials: true }
-      );
+      let res;
+      if (type === "login") {
+        res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
+          { email, password },
+          { withCredentials: true }
+        );
+      } else if (type === "register") {
+        res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
+          { firstName, lastName, email, password, phone, cpf, userType },
+          { withCredentials: true }
+        );
+      }
 
       const data = res.data;
-      console.log(data);
 
       if (res.status !== 200) {
         throw new Error(data.message || "Erro no login");
       }
 
-      // Armazena o token no localStorage
-      // localStorage.setItem("token", data.token);
-      // toast.success("Login realizado com sucesso!");
-      // Redireciona para a página /search
-      // router.push("/search");
+      if (type === "login") {
+        localStorage.setItem("token", data.token);
+        toast.success("Login realizado com sucesso!");
+        router.push("/dashboard");  // userDashboard ou dashboard
+      } else if (type === "register") {
+        toast.success("Cadastro realizado com sucesso!");
+        setTimeout(() => {
+          router.push("/auth/login");
+          toast.info("Por favor, faça login com suas credenciais.");
+        }, 2000);
+      }
     } catch (error) {
-      toast.error(error.message);
-      console.error(error);
+      if (error.response) {
+        // Erros de resposta do servidor
+        switch (error.response.status) {
+          case 400:
+            toast.error("Requisição inválida. Verifique os dados e tente novamente.");
+            break;
+          case 401:
+            toast.error("Não autorizado. Verifique suas credenciais.");
+            break;
+          case 403:
+            toast.error("Proibido. Você não tem permissão para realizar esta ação.");
+            break;
+          case 404:
+            toast.error("Recurso não encontrado.");
+            break;
+          case 500:
+            toast.error("Erro interno do servidor. Tente novamente mais tarde.");
+            break;
+          default:
+            toast.error(error.response.data.message || "Erro desconhecido.");
+        }
+        toast.error(error.response.data.message || error.message);
+      } else if (error.request) {
+        setError("Sem resposta do servidor. Verifique sua conexão.");
+        toast.error("Sem resposta do servidor. Verifique sua conexão.");
+      } else {
+        setError(error.message);
+        toast.error(error.message);
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Para login
+  const handleLoginSubmit = (e) => handleSubmit(e, "login");
+
+  // Para cadastro
+  const handleRegisterSubmit = (e) => handleSubmit(e, "register");
 
   // Função para alternar entre as páginas de Login e Cadastro
   const toggleAuthMode = () => {
@@ -75,7 +127,7 @@ export default function AuthPage() {
                 Acesse sua conta
               </h2>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div>
                 <label
                   htmlFor="email"
@@ -177,7 +229,7 @@ export default function AuthPage() {
                 Crie sua conta
               </h2>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleRegisterSubmit} className="space-y-6">
               {/* Nome Completo */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -305,22 +357,20 @@ export default function AuthPage() {
                   <button
                     type="button"
                     onClick={() => setUserType("CONTRATANTE")}
-                    className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${
-                      userType === "CONTRATANTE"
-                        ? "bg-pink-500 text-white border-pink-500"
-                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                    }`}
+                    className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "CONTRATANTE"
+                      ? "bg-pink-500 text-white border-pink-500"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                      }`}
                   >
                     Contratante
                   </button>
                   <button
                     type="button"
                     onClick={() => setUserType("ACOMPANHANTE")}
-                    className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${
-                      userType === "ACOMPANHANTE"
-                        ? "bg-pink-500 text-white border-pink-500"
-                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                    }`}
+                    className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "ACOMPANHANTE"
+                      ? "bg-pink-500 text-white border-pink-500"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                      }`}
                   >
                     Acompanhante
                   </button>

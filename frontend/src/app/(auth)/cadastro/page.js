@@ -1,4 +1,3 @@
-// (auth)/cadastro/page.js
 "use client";
 import { useState } from "react";
 import { FaSpinner } from "react-icons/fa";
@@ -21,36 +20,25 @@ export default function CadastroPage() {
     e.preventDefault();
     setLoading(true);
 
-    const endpoint = "/api/auth/cadastro";
-    const payload = { firstName, lastName, email, password, phone, cpf, userType };
+    console.log({ firstName, lastName, email, password, phone, cpf, userType });
 
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
-        { email, password },
-        { withCredentials: true }
-      );
+      // const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
+      //   { firstName, lastName, email, password, phone, cpf, userType },
+      //   { withCredentials: true }
+      // );
 
-      const data = await response.json();
+      // if (response.status !== 200) {
+      //   throw new Error(response.data.message || "Erro no cadastro");
+      // }
+      // toast.success("Cadastro realizado com sucesso!");
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erro no cadastro");
-      }
-
-      toast.success("Cadastro realizado com sucesso!");
-      // Após cadastro bem-sucedido, redireciona para a página de login após um breve delay
-      setTimeout(() => {
-        router.push("/auth/login");
-        toast.info("Por favor, faça login com suas credenciais.");
-      }, 2000);
+      // setTimeout(() => {
+      //   router.push("/auth/login");
+      //   toast.info("Por favor, faça login com suas credenciais.");
+      // }, 2000);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
@@ -202,22 +190,20 @@ export default function CadastroPage() {
               <button
                 type="button"
                 onClick={() => setUserType("CONTRATANTE")}
-                className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${
-                  userType === "CONTRATANTE"
-                    ? "bg-pink-500 text-white border-pink-500"
-                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                }`}
+                className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "CONTRATANTE"
+                  ? "bg-pink-500 text-white border-pink-500"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
               >
                 Contratante
               </button>
               <button
                 type="button"
                 onClick={() => setUserType("ACOMPANHANTE")}
-                className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${
-                  userType === "ACOMPANHANTE"
-                    ? "bg-pink-500 text-white border-pink-500"
-                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                }`}
+                className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "ACOMPANHANTE"
+                  ? "bg-pink-500 text-white border-pink-500"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
               >
                 Acompanhante
               </button>

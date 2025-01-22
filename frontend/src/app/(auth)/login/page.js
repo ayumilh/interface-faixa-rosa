@@ -17,15 +17,14 @@ export default function AuthPage() {
   const [userType, setUserType] = useState("CONTRATANTE");
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [errorsInput, setErrorsInput] = useState({});
+  const [inputClass, setInputClass] = useState('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
+
   const router = useRouter();
 
   const handleSubmit = async (e, type) => {
     e.preventDefault();
     setLoading(true);
-
-    console.log({ firstName, lastName, email, password, phone, cpf, userType });
-    console.log({ email, password });
-    console.log({ type });
 
     try {
       let res;
@@ -45,30 +44,34 @@ export default function AuthPage() {
 
       const data = res.data;
 
-      if (res.status !== 200) {
-        throw new Error(data.message || "Erro no login");
+      if (res.status !== 200 && res.status !== 201) {
+        throw new Error(data.message || "Erro ao realizar ação.");
       }
 
       if (type === "login") {
-        localStorage.setItem("token", data.token);
         toast.success("Login realizado com sucesso!");
+        localStorage.setItem("token", data.token);
+
         if (userType === "CONTRATANTE") {
           router.push("/userDashboard");
         } else if (userType === "ACOMPANHANTE") {
           router.push("/dashboard");
         }
+
       } else if (type === "register") {
         toast.success("Cadastro realizado com sucesso!");
+
         setTimeout(() => {
-          router.push("/auth/login");
+          router.push("/login");
           toast.info("Por favor, faça login com suas credenciais.");
-        }, 2000);
+        }, 1200);
       }
     } catch (error) {
       if (error.response) {
         switch (error.response.status) {
           case 400:
             toast.error("Requisição inválida. Verifique os dados e tente novamente.");
+            // informar se ja tem email ou cpf cadastrado
             break;
           case 401:
             toast.error("Não autorizado. Verifique suas credenciais.");
@@ -86,26 +89,160 @@ export default function AuthPage() {
             toast.error(error.response.data.message || "Erro desconhecido.");
         }
       } else if (error.request) {
-        setError("Sem resposta do servidor. Verifique sua conexão.");
         toast.error("Sem resposta do servidor. Verifique sua conexão.");
       } else {
-        setError(error.message);
         toast.error(error.message);
       }
     } finally {
       setLoading(false);
     }
   };
-
-  // Para login
   const handleLoginSubmit = (e) => handleSubmit(e, "login");
-
-  // Para cadastro
   const handleRegisterSubmit = (e) => handleSubmit(e, "register");
+
 
   // Função para alternar entre as páginas de Login e Cadastro
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
+  };
+
+
+  // Função para sanitizar os inputs
+  const sanitizeInput = (value, regex, shouldTrim = true) => {
+    const sanitizedValue = shouldTrim ? value.trim().replace(regex, '') : value.replace(regex, '');
+    return sanitizedValue;
+  };
+
+  const handleFirstNameChange = (e) => {
+    const value = e.target.value.trimStart();
+    const regex = /[^a-zA-ZÀ-ÿ\s'-]/g;
+    const sanitizedValue = sanitizeInput(value, regex, false);
+
+    setFirstName(sanitizedValue);
+
+    if (sanitizedValue === '') {
+      setErrorsInput((prevErrors) => {
+        const { firstName, ...rest } = prevErrors;
+        return rest;
+      });
+    } else if (sanitizedValue.length <= 50) {
+      setErrorsInput((prevErrors) => {
+        const { firstName, ...rest } = prevErrors;
+        return rest; // Remove o erro do estado
+      });
+    } else {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        firstName: 'Nome inválido. Apenas letras, espaços, hifens e apóstrofos são permitidos.',
+      }));
+    }
+  };
+
+  const handleLastNameChange = (e) => {
+    const value = e.target.value.trimStart();
+    const regex = /[^a-zA-ZÀ-ÿ\s'-]/g;
+    const sanitizedValue = sanitizeInput(value, regex, false);
+
+    setLastName(sanitizedValue);
+
+    if (value !== sanitizedValue) {
+      setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
+    } else {
+      setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.trimStart();
+    const regex = /[^0-9]/g;
+    const sanitizedValue = sanitizeInput(value, regex);
+  
+    setPhone(sanitizedValue);
+  
+    if (value !== sanitizedValue) {
+      setErrorsInput((prevErrors) => {
+        const { phone, ...rest } = prevErrors;
+        return rest; 
+      });
+      setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
+    } else {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        phone: 'Número de telefone inválido. Apenas números são permitidos.',
+      }));
+      setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value.trimStart();
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; 
+    const sanitizedValue = sanitizeInput(value, /[^a-zA-Z0-9._@-]/g);
+  
+    setEmail(sanitizedValue);
+  
+    if (regex.test(sanitizedValue)) {
+      setErrorsInput((prevErrors) => {
+        const { email, ...rest } = prevErrors;
+        return rest; 
+      });
+      setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
+    } else {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        email: 'Email inválido. Por favor, insira um endereço de email válido.',
+      }));
+      setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
+    }
+  };
+
+  const handleCpfChange = (e) => {
+    const value = e.target.value.trimStart();
+    const regex = /[^0-9]/g;
+    const sanitizedValue = sanitizeInput(value, regex);
+
+    setCpf(sanitizedValue);
+  
+    if (value != sanitizedValue) {
+      setErrorsInput((prevErrors) => {
+        const { cpf, ...rest } = prevErrors;
+        return rest;
+      });
+      setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
+    } else {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        cpf: 'CPF inválido. Deve conter exatamente 11 números.',
+      }));
+      setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+  
+    // Sanitiza o valor, permitindo apenas letras, números e caracteres especiais comuns para senhas
+    const sanitizedValue = sanitizeInput(value, /[^a-zA-Z0-9!@#$%^&*]/g);
+  
+    // Atualiza o estado com o valor sanitizado
+    setPassword(sanitizedValue);
+  
+    // Verifica a validade da senha
+    if (sanitizedValue.length >= 8 && sanitizedValue.length <= 128) {
+      // Senha válida
+      setErrorsInput((prevErrors) => {
+        const { password, ...rest } = prevErrors;
+        return rest; // Remove o erro do estado
+      });
+      setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
+    } else {
+      // Senha inválida
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        password: 'Senha inválida. Deve conter entre 8 e 128 caracteres e apenas letras, números ou caracteres especiais.',
+      }));
+      setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
+    }
   };
 
   return (
@@ -142,7 +279,7 @@ export default function AuthPage() {
                   name="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
@@ -160,7 +297,7 @@ export default function AuthPage() {
                   name="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
@@ -246,10 +383,22 @@ export default function AuthPage() {
                     name="firstName"
                     type="text"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={handleFirstNameChange}
+                    maxLength={50}
+                    minLength={3}
                     required
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                    pattern="[a-zA-ZÀ-ÿ\s'-]{3,50}"
+                    title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
+                    autoComplete="off"
+                    className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm transition duration-200 text-gray-800 ${
+                      errorsInput.firstName
+                        ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-pink-500 focus:border-pink-500'
+                    }`}
                   />
+                  {errorsInput.firstName && (
+                    <p className="text-red-500 relative text-sm mt-1">{errorsInput.firstName}</p>
+                  )}
                 </div>
 
                 <div>
@@ -264,9 +413,14 @@ export default function AuthPage() {
                     name="lastName"
                     type="text"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={handleLastNameChange}
+                    maxLength={100}
+                    minLength={3}
                     required
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                    pattern="[a-zA-ZÀ-ÖØ-öø-ÿ\s'-]{3,100}"
+                    title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
+                    autoComplete="off"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -284,10 +438,11 @@ export default function AuthPage() {
                   name="phone"
                   type="text"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={handlePhoneChange}
                   required
                   maxLength={11}
                   minLength={11}
+                  pattern="\d{11}"
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
               </div>
@@ -305,7 +460,8 @@ export default function AuthPage() {
                   name="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  maxLength={320}
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
@@ -324,8 +480,10 @@ export default function AuthPage() {
                   name="cpf"
                   type="text"
                   value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
+                  onChange={handleCpfChange}
                   required
+                  maxLength={11}
+                  minLength={11}
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
               </div>
@@ -343,8 +501,10 @@ export default function AuthPage() {
                   name="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   required
+                  maxLength={128}
+                  minLength={8}
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
               </div>

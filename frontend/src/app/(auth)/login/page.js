@@ -52,7 +52,11 @@ export default function AuthPage() {
       if (type === "login") {
         localStorage.setItem("token", data.token);
         toast.success("Login realizado com sucesso!");
-        router.push("/dashboard");  // userDashboard ou dashboard
+        if (userType === "CONTRATANTE") {
+          router.push("/userDashboard");
+        } else if (userType === "ACOMPANHANTE") {
+          router.push("/dashboard");
+        }
       } else if (type === "register") {
         toast.success("Cadastro realizado com sucesso!");
         setTimeout(() => {
@@ -62,7 +66,6 @@ export default function AuthPage() {
       }
     } catch (error) {
       if (error.response) {
-        // Erros de resposta do servidor
         switch (error.response.status) {
           case 400:
             toast.error("Requisição inválida. Verifique os dados e tente novamente.");
@@ -82,7 +85,6 @@ export default function AuthPage() {
           default:
             toast.error(error.response.data.message || "Erro desconhecido.");
         }
-        toast.error(error.response.data.message || error.message);
       } else if (error.request) {
         setError("Sem resposta do servidor. Verifique sua conexão.");
         toast.error("Sem resposta do servidor. Verifique sua conexão.");
@@ -284,6 +286,8 @@ export default function AuthPage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
+                  maxLength={11}
+                  minLength={11}
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
               </div>

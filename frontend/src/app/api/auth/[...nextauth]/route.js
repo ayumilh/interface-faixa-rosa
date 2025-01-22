@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import Cookies from "js-cookie";
 import axios from 'axios';
 
 let tempPassword = '';
@@ -25,7 +24,7 @@ const nextAuthOptions = {
             email: credentials.email,
             password: credentials.password
           }, { withCredentials: true });
-          
+
           if (response.status === 200 && response.data.user) {
             return response.data.user;
           } else {

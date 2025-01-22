@@ -1,7 +1,7 @@
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContextProvider } from "@/context/authContext";
+import { AuthContextProvider } from "@/context/AuthContext";
 import NextAuthSessionProvider from "@/providers/sessionProvider";
 
 export const metadata = {

@@ -4,6 +4,7 @@ import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import WithGoogle from "@/components/Auth/WithGoogle";
 
 export default function CadastroPage() {
   const [email, setEmail] = useState("");
@@ -225,6 +226,8 @@ export default function CadastroPage() {
             </button>
           </div>
         </form>
+
+        <WithGoogle loginType="cadastro" />
 
         <div className="text-center mt-4 text-sm">
           Já tem uma conta?{" "}

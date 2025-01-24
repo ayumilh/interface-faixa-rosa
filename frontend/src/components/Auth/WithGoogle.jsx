@@ -19,7 +19,7 @@ const WithGoogle = ({ loginType }) => {
         <Image src="/icon/icon-google.svg" alt="Google Logo" width={42} height={42} />
         <span className="ml-2">Sign in with Google</span>
       </button>
-      {loginType === 'login' ? (
+      {/* {loginType === 'login' ? (
         <p className="font-medium text-sm md:text-base">
           Não tem uma conta? 
           <span className="text-blue-700 font-semibold cursor-pointer ml-1 hover:underline" onClick={() => router.push('cadastro')}>Criar conta!</span> 
@@ -28,7 +28,7 @@ const WithGoogle = ({ loginType }) => {
         <p className="text-blue-700 font-semibold cursor-pointer text-sm md:text-base hover:underline" onClick={() => router.push('login')}>
           Já tem uma conta? 
         </p>
-      )}
+      )} */}
     </div>
   )
 }

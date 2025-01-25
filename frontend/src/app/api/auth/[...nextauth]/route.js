@@ -41,33 +41,27 @@ const nextAuthOptions = {
     error: '/login',
   },
   callbacks: {
-    // async signIn({ user, account }) {
-    //   if (account.provider === 'google') {
-    //     tempPassword = generateRandomPassword();
-    //     const inputs = {
-    //       email: user.email,
-    //       senha: tempPassword
-    //     };
+    async signIn({ user, account }) {
+      if (account.provider === 'google') {
+        try {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+            email: user.email,
+            googleLogin: true
+          }, { withCredentials: true });
 
-    //     try {
-    //       const loginResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, true, { withCredentials: true });
-    //       console.log(loginResponse.data);
-    //       Cookies.set('userId', JSON.stringify(loginResponse.data));
-    //     } catch (registerError) {
-    //       await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`, inputs);
-    //     }
-    //   }
-
-    //   return user;
-    // },
-
-    // async session({ session, token }) {
-    //   if (token && token.provider === 'google') {
-    //     session.user.password = tempPassword;
-    //   }
-    //   return session;
-    // },
-
+          if (response.status === 200 && response.data.token) {
+            user.token = response.data.token;
+            return true;
+          } else {
+            return false;
+          }
+        } catch (error) {
+          return false;
+        }
+      }
+      return true;
+    },
+    
     session: async (session, user, token) => {
       session.user = user;
       if (token && token.provider === 'google') {

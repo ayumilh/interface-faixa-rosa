@@ -62,7 +62,33 @@ export const AuthContextProvider = ({ children }) => {
     };
 
     const loginWithGoogle = async () => {
-        await signIn("google", { callbackUrl: "/dashboard" });
+        try {
+            const response = await signIn("google", { callbackUrl: "/dashboard", redirect: false });
+            if (response && response.ok) {
+                const user = response.user;
+                const googleLogin = true;
+
+                // Chama o endpoint de login para gerar o token
+                const loginResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+                    email: user.email,
+                    googleLogin
+                }, { withCredentials: true });
+
+                const userData = loginResponse.data.user;
+                const token = loginResponse.data.token;
+
+                setCurrentUser(userData);
+                Cookies.set("userId", token, { expires: 1 });
+                setIsAuthenticated(true);
+                return userData;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error("Erro ao fazer login com Google:", error);
+            toast.error("Erro ao fazer login com Google.");
+            return null;
+        }
     };
 
     useEffect(() => {

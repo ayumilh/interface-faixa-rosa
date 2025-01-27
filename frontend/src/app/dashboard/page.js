@@ -26,9 +26,10 @@ import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { AuthContext } from '@/context/AuthContext';
 import { useSession } from "next-auth/react";
+import { checkSession } from '@/utils/checkSession'; 
 
-
-const Dashboard = () => {
+const Dashboard = async () => {
+  await checkSession();
   const { userInfo } = useContext(AuthContext);
   const { data: session } = useSession();
 

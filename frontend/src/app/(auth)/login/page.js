@@ -48,6 +48,8 @@ export default function AuthPage() {
       setLoading(true);
 
       const inputs = { email, password };
+
+      console.log(inputs);
       const response = await login(inputs);
       if (!response) {
         setLoading(false);

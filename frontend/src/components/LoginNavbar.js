@@ -7,7 +7,8 @@ import { Transition } from "@headlessui/react";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import Cookies from "js-cookie";
+import { useSession, signOut } from "next-auth/react";
 
 export default function LoginNavbar() {
   const { data: session } = useSession();
@@ -47,8 +48,8 @@ export default function LoginNavbar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    router.push("/login");
+    Cookies.remove("userId");
+    signOut({ callbackUrl: '/login' });
   };
 
   return (

@@ -89,8 +89,23 @@ export const AuthContextProvider = ({ children }) => {
 
         const fetchUserInfo = async () => {
             try {
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
-                    { withCredentials: true }
+                const token = Cookies.get("userId")
+                    ? JSON.parse(Cookies.get("userId")).token
+                    : null;
+
+                // Verifica se o token está presente
+                if (!token) {
+                    console.error("Token não encontrado. Usuário não autenticado.");
+                    return;
+                }
+                const res = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        withCredentials: true, // Inclui cookies na requisição, se necessário
+                    }
                 );
                 if (res.data.user && res.data.user.length > 0) {
                     setUserInfo(res.data.user);

@@ -1,6 +1,5 @@
-// src/app/AdminDashboard/page.js
 "use client";
-
+import { checkSession } from '@/utils/checkSession';
 import React, { useState } from "react";
 import {
   FaUsersCog,
@@ -41,7 +40,8 @@ const Placeholder = ({ title, items = [] }) => (
   </div>
 );
 
-const AdminDashboard = () => {
+const AdminDashboard = async () => {
+  await checkSession();
   const [activeMainTab, setActiveMainTab] = useState("usuarios");
   const [activeSubTab, setActiveSubTab] = useState("anunciantes"); // valor padrão
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -390,11 +390,10 @@ const AdminDashboard = () => {
                 {menuItems.map((item) => (
                   <li key={item.id}>
                     <div
-                      className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${
-                        activeMainTab === item.id
+                      className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${activeMainTab === item.id
                           ? "bg-gray-700 text-gray-300 scale-105"
                           : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
-                      }`}
+                        }`}
                       onClick={() => handleMainTabClick(item.id)}
                     >
                       <item.icon className="mr-3 text-lg" />
@@ -408,11 +407,10 @@ const AdminDashboard = () => {
                           <li
                             key={sub.id}
                             onClick={() => handleSubTabClick(sub.id)}
-                            className={`cursor-pointer text-sm text-gray-200 px-2 py-1 rounded transition-colors ${
-                              activeSubTab === sub.id
+                            className={`cursor-pointer text-sm text-gray-200 px-2 py-1 rounded transition-colors ${activeSubTab === sub.id
                                 ? "bg-gray-600 text-gray-100"
                                 : "hover:bg-gray-700 hover:text-gray-100"
-                            }`}
+                              }`}
                           >
                             {sub.label}
                           </li>
@@ -437,9 +435,8 @@ const AdminDashboard = () => {
 
         {/* Conteúdo Principal */}
         <main
-          className={`flex-1 container mx-auto px-4 py-8 mt-16 transition-all duration-300 ${
-            !isMobile ? "ml-64 lg:ml-72 xl:ml-80" : ""
-          }`}
+          className={`flex-1 container mx-auto px-4 py-8 mt-16 transition-all duration-300 ${!isMobile ? "ml-64 lg:ml-72 xl:ml-80" : ""
+            }`}
         >
           {/* Cabeçalho (Mobile) */}
           {isMobile && (
@@ -478,11 +475,10 @@ const AdminDashboard = () => {
                   {menuItems.map((item) => (
                     <li key={item.id}>
                       <div
-                        className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors duration-300 transform ${
-                          activeMainTab === item.id
+                        className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors duration-300 transform ${activeMainTab === item.id
                             ? "bg-gray-700 text-gray-300 scale-105"
                             : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
-                        }`}
+                          }`}
                         onClick={() => handleMainTabClick(item.id)}
                       >
                         <item.icon className="mr-3 text-lg" />
@@ -494,11 +490,10 @@ const AdminDashboard = () => {
                             <li
                               key={sub.id}
                               onClick={() => handleSubTabClick(sub.id)}
-                              className={`cursor-pointer text-sm text-gray-200 px-2 py-1 rounded transition-colors ${
-                                activeSubTab === sub.id
+                              className={`cursor-pointer text-sm text-gray-200 px-2 py-1 rounded transition-colors ${activeSubTab === sub.id
                                   ? "bg-gray-600 text-gray-100"
                                   : "hover:bg-gray-700 hover:text-gray-100"
-                              }`}
+                                }`}
                             >
                               {sub.label}
                             </li>

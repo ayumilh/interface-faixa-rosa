@@ -1,6 +1,6 @@
 "use client";
 // import { checkSession } from '@/utils/checkSession';
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   FaEdit,
   FaPhotoVideo,
@@ -24,11 +24,20 @@ import WorkingHours from "@/components/dashboard/WorkingHours";
 import CityManagement from "@/components/dashboard/CityManagement";
 import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import { AuthContext } from '@/context/AuthContext';
+import { useSession } from "next-auth/react";
+
 
 const Dashboard = () => {
+  const { userInfo } = useContext(AuthContext);
+  const { data: session } = useSession();
+
   const [activeTab, setActiveTab] = useState("metrics");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  console.log(userInfo);
+  console.log(session);
 
   // Detecta se está em mobile
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -73,7 +82,13 @@ const Dashboard = () => {
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-100">Nome do Usuário</h2>
+                  <span
+                    className="text-xl font-semibold text-gray-100"
+                    style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    title={session?.session?.user?.name}
+                  >
+                    {session?.session?.user?.name}
+                  </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
               </div>
@@ -83,11 +98,10 @@ const Dashboard = () => {
                 {menuTabs.map((tab) => (
                   <li
                     key={tab.id}
-                    className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${
-                      activeTab === tab.id
-                        ? "bg-gray-700 text-gray-300 scale-105"
-                        : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
-                    }`}
+                    className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${activeTab === tab.id
+                      ? "bg-gray-700 text-gray-300 scale-105"
+                      : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
+                      }`}
                     onClick={() => handleTabClick(tab.id)}
                   >
                     <tab.icon className="mr-3 text-lg transition-transform duration-300" />
@@ -101,9 +115,8 @@ const Dashboard = () => {
 
         {/* Conteúdo Principal */}
         <main
-          className={`flex-1 container mx-auto px-4 py-8 mt-16 transition-all duration-300 ${
-            !isMobile ? "ml-64 lg:ml-72 xl:ml-80" : ""
-          }`}
+          className={`flex-1 container mx-auto px-4 py-8 mt-16 transition-all duration-300 ${!isMobile ? "ml-64 lg:ml-72 xl:ml-80" : ""
+            }`}
         >
           {/* Cabeçalho do Usuário (Mobile) */}
           {isMobile && (
@@ -137,11 +150,10 @@ const Dashboard = () => {
                 {menuTabs.map((tab) => (
                   <li
                     key={tab.id}
-                    className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${
-                      activeTab === tab.id
-                        ? "bg-gray-700 text-gray-300 scale-105"
-                        : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
-                    }`}
+                    className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${activeTab === tab.id
+                      ? "bg-gray-700 text-gray-300 scale-105"
+                      : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
+                      }`}
                     onClick={() => handleTabClick(tab.id)}
                   >
                     <tab.icon className="mr-3 text-lg transition-transform duration-300" />
@@ -195,7 +207,7 @@ const Dashboard = () => {
         </Modal>
       )}
 
-  
+
     </div>
   );
 };

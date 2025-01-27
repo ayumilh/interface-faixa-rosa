@@ -11,6 +11,7 @@ export const AuthContext = createContext();
 export const AuthContextProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState();
+    const [userInfo, setUserInfo] = useState();
     const { data: session } = useSession();
 
     // usado no BtnSignOut
@@ -119,6 +120,7 @@ export const AuthContextProvider = ({ children }) => {
                 currentUser,
                 login,
                 loginWithGoogle,
+                userInfo,
                 setCurrentUser,
                 setIsAuthenticated,
                 isModalOpen,

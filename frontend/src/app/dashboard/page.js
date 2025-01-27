@@ -75,7 +75,7 @@ const Dashboard = () => {
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
                 <Image
-                  src="/images/user.jpg"
+                  src={session?.token?.picture || "/images/user.jpg"}
                   alt="Usuário"
                   width={48}
                   height={48}

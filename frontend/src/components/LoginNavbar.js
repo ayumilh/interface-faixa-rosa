@@ -128,7 +128,13 @@ export default function LoginNavbar() {
               className="flex items-center text-white hover:text-pink-500 transition focus:outline-none"
               onClick={toggleProfileMenu}
             >
-              <FaUserCircle className="w-8 h-8" />
+              <Image
+                src={session?.token?.picture || "/images/user.jpg"}
+                alt="Usuário"
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-full mr-3"
+              />
             </button>
 
             {/* Menu de Perfil */}

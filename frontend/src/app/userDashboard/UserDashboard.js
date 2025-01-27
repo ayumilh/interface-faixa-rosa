@@ -1,5 +1,4 @@
 "use client";
-import { checkSession } from '@/utils/checkSession';
 import React, { useState } from "react";
 import {
   FaTachometerAlt,
@@ -34,8 +33,7 @@ import UserImportantInfo from "@/components/userDashboard/UserImportantInfo";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import Image from "next/image";
 
-const UserDashboard = async () => {
-  await checkSession();
+const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("painel");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

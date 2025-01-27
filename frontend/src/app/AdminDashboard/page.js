@@ -1,5 +1,5 @@
 "use client";
-import { checkSession } from '@/utils/checkSession';
+// import { checkSession } from '@/utils/checkSession';
 import React, { useState } from "react";
 import {
   FaUsersCog,
@@ -40,8 +40,7 @@ const Placeholder = ({ title, items = [] }) => (
   </div>
 );
 
-const AdminDashboard = async () => {
-  await checkSession();
+const AdminDashboard = () => {
   const [activeMainTab, setActiveMainTab] = useState("usuarios");
   const [activeSubTab, setActiveSubTab] = useState("anunciantes"); // valor padrão
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

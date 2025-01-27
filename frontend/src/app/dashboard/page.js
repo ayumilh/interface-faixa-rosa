@@ -206,8 +206,6 @@ const Dashboard = () => {
           </div>
         </Modal>
       )}
-
-
     </div>
   );
 };

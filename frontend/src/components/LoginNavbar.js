@@ -7,8 +7,10 @@ import { Transition } from "@headlessui/react";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 export default function LoginNavbar() {
+  const { data: session } = useSession();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const profileRef = useRef();
@@ -141,8 +143,8 @@ export default function LoginNavbar() {
             >
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
                 <div className="px-4 py-2 border-b">
-                  <p className="text-gray-800 font-semibold">Nome do Usuário</p>
-                  <p className="text-sm text-gray-500">email@exemplo.com</p>
+                  <p className="text-gray-800 font-semibold">{session?.session?.user?.name}</p>
+                  <p className="text-sm text-gray-500">{session?.session?.user?.email}</p>
                 </div>
                 <Link href="/userDashboard" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                   Dashboard

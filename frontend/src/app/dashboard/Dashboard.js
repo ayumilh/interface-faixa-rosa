@@ -23,18 +23,14 @@ import WorkingHours from "@/components/dashboard/WorkingHours";
 import CityManagement from "@/components/dashboard/CityManagement";
 import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { AuthContext } from '@/context/AuthContext';
 import { useSession } from "next-auth/react";
 
 const Dashboard = () => {
-  const { userInfo } = useContext(AuthContext);
   const { data: session } = useSession();
-
   const [activeTab, setActiveTab] = useState("metrics");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  console.log(userInfo);
   console.log(session);
 
   // Detecta se está em mobile

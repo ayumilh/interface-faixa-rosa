@@ -17,7 +17,7 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
-import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import LoginNavbar from "@/components/LoginNavbar";
 import Modal from "@/components/dashboard/Modal";
 import UserMetrics from "@/components/userDashboard/UserMetrics";
@@ -34,11 +34,11 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import Image from "next/image";
 
 const UserDashboard = () => {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("painel");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const router = useRouter();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const menuTabs = [
@@ -77,14 +77,14 @@ const UserDashboard = () => {
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
                 <Image
-                  src="/images/user.jpg"
-                  alt="João Ribeiro"
+                  src={session?.token?.picture || "/images/user.jpg"}
+                  alt={session?.session?.user?.name || "Usuário"}
                   width={48}
                   height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-100">João Ribeiro</h2>
+                  <span className="text-xl font-semibold text-gray-100">{session?.session?.user?.name}</span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

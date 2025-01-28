@@ -31,63 +31,46 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (isAuthenticated && currentUser) {
-      toast.success("Login realizado com sucesso!");
-
-      if (currentUser.userType === "CONTRATANTE") {
-        router.push("/userDashboard");
-      } else if (currentUser.userType === "ACOMPANHANTE") {
-        router.push("/dashboard");
+      // Verifica se o toast já foi exibido
+      if (!sessionStorage.getItem("loginToastShown")) {
+        toast.success("Login realizado com sucesso!");
+        sessionStorage.setItem("loginToastShown", "true");
+        router.push(currentUser.userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
       }
     }
   }, [isAuthenticated, currentUser, router]);
 
   const handleSubmit = async (e, type) => {
     e.preventDefault();
+    setLoading(true);
 
     if (type === "login") {
-      setLoading(true);
+      try {
+        const response = await login({ email, password });
 
-      const inputs = { email, password };
-
-      console.log(inputs);
-      const response = await login(inputs);
-      if (!response) {
-        setLoading(false);
-        toast.error("Erro ao realizar login. Verifique suas credenciais.");
-        return;
-      }
-
-      // buscando o userId
-      const getUserId = Cookies.get('userId') ? JSON.parse(Cookies.get('userId')) : null;
-      if (getUserId === null) {
-        toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
-        return;
-      }
-      console.log(getUserId);
-
-      // vericação do next-auth
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false
-      });
-      if (result?.error) {
-        toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
-        return
-      } else {
-        const { userType } = response.user;
-        // Redireciona com base no userType
-        if (userType === "CONTRATANTE") {
-          router.push("/userDashboard");
-        } else if (userType === "ACOMPANHANTE") {
-          router.push("/dashboard");
+        // vericação do next-auth
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false
+        });
+        if (result?.error) {
+          toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
+          return
         }
+        if (response) {
+          const { userType } = response;
+          console.log(userType);
+          router.push(userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
+        }
+
+      } catch (error) {
+        toast.error(error.response?.data?.message || error.message);
+      } finally {
+        setLoading(false);
       }
 
-      setLoading(false);
     } else if (type === "register") {
-      setLoading(true);
-
       try {
         const res = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
@@ -98,7 +81,7 @@ export default function AuthPage() {
         const data = res.data;
 
         if (res.status !== 200 && res.status !== 201) {
-          throw new Error(data.message || "Erro ao realizar ação.");
+          toast.error(data.message || "Erro no cadastro");
         }
 
         toast.success("Cadastro realizado com sucesso!");

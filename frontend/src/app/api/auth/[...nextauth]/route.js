@@ -41,6 +41,25 @@ const nextAuthOptions = {
     error: '/login',
   },
   callbacks: {
+    // Callback para JWT
+    async jwt({ token, user }) {
+      if (user) {
+        // Adiciona o userType do backend ao token
+        token.userType = user.userType; // Certifique-se de que o backend retorne `userType`
+        token.id = user.id;
+        token.email = user.email;
+      }
+      return token;
+    },
+
+    // Callback para sessão
+    async session({ session, token }) {
+      // Adiciona userType e outras informações do token à sessão
+      session.user.userType = token.userType;
+      session.user.id = token.id;
+      return session;
+    },
+
     async signIn({ user, account }) {
       if (account.provider === 'google') {
         try {
@@ -49,10 +68,11 @@ const nextAuthOptions = {
             googleLogin: true
           }, { withCredentials: true });
 
-          if (response.status === 200 && response.data.token) {
-            user.token = response.data.token;
+          if (response.status === 200 && response.data.token && response.data.user) {
+            user.token = response.data.token; // Armazena o token no usuário
+            user.userType = response.data.user.userType || "CONTRATANTE"; // Define userType padrão se não existir
             return true;
-          } else {
+          }else {
             return false;
           }
         } catch (error) {
@@ -61,7 +81,7 @@ const nextAuthOptions = {
       }
       return true;
     },
-    
+
     session: async (session, user, token) => {
       session.user = user;
       if (token && token.provider === 'google') {

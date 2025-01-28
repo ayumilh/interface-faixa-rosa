@@ -39,6 +39,8 @@ const UserDashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  console.log(session);
+
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const menuTabs = [
@@ -84,7 +86,7 @@ const UserDashboard = () => {
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <span className="text-xl font-semibold text-gray-100">{session?.session?.user?.name}</span>
+                  <span className="text-xl font-semibold text-gray-100">{session?.token?.name}</span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
               </div>
@@ -119,14 +121,14 @@ const UserDashboard = () => {
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
                 <Image
-                  src="/images/user.jpg"
+                  src={session?.token?.picture || "/images/user.jpg"}
                   alt="João Ribeiro"
                   width={48}
                   height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">João Ribeiro</h2>
+                  <h2 className="text-lg font-semibold">{session?.token?.name}</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

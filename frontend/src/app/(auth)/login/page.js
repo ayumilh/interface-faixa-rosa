@@ -8,7 +8,6 @@ import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import WithGoogle from "@/components/Auth/WithGoogle";
-import Cookies from "js-cookie";
 import { signIn } from 'next-auth/react';
 import Link from "next/link";
 
@@ -60,7 +59,6 @@ export default function AuthPage() {
         }
         if (response) {
           const { userType } = response;
-          console.log(userType);
           router.push(userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
         }
 

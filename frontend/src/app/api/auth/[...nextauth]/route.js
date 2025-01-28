@@ -26,7 +26,11 @@ const nextAuthOptions = {
           }, { withCredentials: true });
 
           if (response.status === 200 && response.data.user) {
-            return response.data.user;
+            const { firstName, lastName, ...rest } = response.data.user;
+            return {
+              ...rest,
+              name: `${firstName} ${lastName}`.trim(), // Combina `firstName` e `lastName` em `name`
+            };
           } else {
             return null;
           }
@@ -48,6 +52,7 @@ const nextAuthOptions = {
         token.userType = user.userType; // Certifique-se de que o backend retorne `userType`
         token.id = user.id;
         token.email = user.email;
+        token.name = user.name;
       }
       return token;
     },
@@ -57,6 +62,7 @@ const nextAuthOptions = {
       // Adiciona userType e outras informações do token à sessão
       session.user.userType = token.userType;
       session.user.id = token.id;
+      session.user.name = token.name;
       return session;
     },
 
@@ -72,10 +78,10 @@ const nextAuthOptions = {
             user.token = response.data.token; // Armazena o token no usuário
             user.userType = response.data.user.userType || "CONTRATANTE"; // Define userType padrão se não existir
             return true;
-          }else {
+          } else {
             return false;
           }
-        } catch (error) {
+        } catch {
           return false;
         }
       }

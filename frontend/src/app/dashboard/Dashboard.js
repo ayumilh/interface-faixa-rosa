@@ -79,9 +79,9 @@ const Dashboard = () => {
                   <span
                     className="text-xl font-semibold text-gray-100"
                     style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    title={session?.session?.user?.name}
+                    title={session?.token?.name}
                   >
-                    {session?.session?.user?.name}
+                    {session?.token?.name}
                   </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
@@ -117,14 +117,14 @@ const Dashboard = () => {
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
                 <Image
-                  src="/images/user.jpg"
+                  src={session?.token?.picture || "/images/user.jpg"}
                   alt="Usuário"
                   width={48}
                   height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">Nome do Usuário</h2>
+                  <h2 className="text-lg font-semibold">{session?.token?.name}</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

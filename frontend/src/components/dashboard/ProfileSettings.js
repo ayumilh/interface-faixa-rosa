@@ -9,6 +9,7 @@ import {
   FaCrown,
   FaClock,
 } from "react-icons/fa";
+import ActivePlans from "./ActivePlans";
 
 // Constantes de Imagens Padrão
 const DEFAULT_PROFILE_IMAGE = "/assets/default-profile.png";
@@ -142,7 +143,8 @@ const ProfileSettings = ({ onUpdate }) => {
       </div>
   
       {/* Bloco 2: Planos Ativos */}
-      <div className="p-4 bg-white shadow-md rounded-lg">
+      <ActivePlans />
+      {/* <div className="p-4 bg-white shadow-md rounded-lg">
         <h2 className="text-lg font-semibold text-gray-700 text-center">Planos Ativos</h2>
         <ul className="mt-4 space-y-3">
           {activePlans.length > 0 ? (
@@ -158,7 +160,7 @@ const ProfileSettings = ({ onUpdate }) => {
             <li className="text-gray-500 text-sm text-center">Nenhum plano ativo</li>
           )}
         </ul>
-      </div>
+      </div> */}
   
       {/* Bloco 3: Expiração do Plano */}
       <div className="p-4 bg-white shadow-md rounded-lg">

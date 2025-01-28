@@ -31,8 +31,6 @@ const Dashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  console.log(session);
-
   // Detecta se está em mobile
   const isMobile = useMediaQuery("(max-width: 768px)");
 

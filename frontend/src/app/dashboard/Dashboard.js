@@ -69,9 +69,9 @@ const Dashboard = () => {
                 <Image
                   src={session?.token?.picture || "/images/user.jpg"}
                   alt="Usuário"
-                  width={48}
+                  width={120}
                   height={48}
-                  className="w-12 h-12 rounded-full mr-3"
+                  className="w-12 h-12 rounded-full mr-3 transition-all duration-300 hover:scale-110"
                 />
                 <div>
                   <span

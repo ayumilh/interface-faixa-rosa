@@ -5,6 +5,7 @@ import Image from "next/image";
 import { FaBell, FaUserCircle } from "react-icons/fa";
 import { MdLocationOn, MdVideoLibrary, MdRateReview } from "react-icons/md";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -47,7 +48,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
+    Cookies.remove("userId");
     setIsAuthenticated(false);
     router.push("/login");
   };
@@ -56,9 +57,12 @@ export default function Navbar() {
     <header className="w-full bg-white py-3 shadow-sm fixed top-0 left-0 z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div className="flex items-center">
-          <Link href="/">
-            <Image src="/assets/logofaixa.png" alt="Logo" width={40} height={40} className="h-10 w-auto" />
-          </Link>
+          <Image
+            src="/assets/logofaixa.png"
+            alt="Logo"
+            width={40} height={40}
+            className="h-10 w-auto"
+          />
         </div>
 
         {isAuthenticated ? (

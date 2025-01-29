@@ -1,10 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolling, setScrolling] = useState(false);
+  const { data: session } = useSession();
+  const router = useRouter();
 
   // Detecta rolagem para aplicar efeito na navbar
   useEffect(() => {
@@ -18,26 +23,28 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrolling ? "bg-[#FFFFFF]" : "bg-[#FFFFFF]"
-      }`}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolling ? "bg-[#FFFFFF]" : "bg-[#FFFFFF]"
+        }`}
     >
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center">
-          <img
+          <Image
             src="/assets/logofaixa.png"
             alt="Faixa Rosa"
+            width={120}
+            height={48}
             className="h-14 w-auto transition-all duration-300 hover:scale-110"
+            onClick={() => router.push("/")}
           />
         </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-6">
-          <button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <button onClick={() => router.push('/cadastro')} className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             Cadastro
           </button>
-          <button className="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-gray-300 hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <button onClick={() => router.push('/login')} className="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-gray-300 hover:shadow-xl transition-all duration-300 hover:scale-105">
             Login
           </button>
         </div>
@@ -100,12 +107,12 @@ export default function Navbar() {
             {/* Itens do Menu */}
             <ul className="text-center space-y-6">
               <li>
-                <button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <button onClick={() => router.push('/cadastro')} className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                   Cadastro
                 </button>
               </li>
               <li>
-                <button className="bg-gray-200 text-gray-800 text-lg font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-300 hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <button onClick={() => router.push('/login')} className="bg-gray-200 text-gray-800 text-lg font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-gray-300 hover:shadow-xl transition-all duration-300 hover:scale-105">
                   Login
                 </button>
               </li>

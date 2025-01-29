@@ -34,7 +34,6 @@ export const AuthContextProvider = ({ children }) => {
                 router.push("/adminDashboard");
                 break;
             default:
-                router.push("/");
                 break;
         }
     };

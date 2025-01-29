@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FaUserCircle, FaBell } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import { MdLocationOn, MdVideoLibrary, MdRateReview } from "react-icons/md";
 import { Transition } from "@headlessui/react";
 import { useState, useRef, useEffect } from "react";
@@ -52,14 +52,22 @@ export default function LoginNavbar() {
     signOut({ callbackUrl: '/login' });
   };
 
+  const handleLogoClick = () => {
+    router.push(session?.token?.userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
+  }
+
   return (
     <header className="w-full bg-pink-600 shadow-sm fixed top-0 left-0 z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center">
-            <Image src="/assets/FaixaRosaSombra.png" alt="Logo" width={48} height={48} className="h-12 w-auto mr-2" />
-          </Link>
+          <Image
+            src="/assets/FaixaRosaSombra.png"
+            alt="Logo"
+            width={120} height={48}
+            className="h-12 w-auto mr-2"
+            onClick={handleLogoClick}
+          />
         </div>
 
         {/* Right Side of Navbar */}

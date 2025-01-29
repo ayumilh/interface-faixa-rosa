@@ -3,26 +3,20 @@ import axios from "axios";
 import { searchUserId } from "@/utils/searchUserId";
 
 export default function ActivePlans() {
-    const [activePlan, setActivePlan] = useState(null); // Estado para armazenar o plano ativo
+    const [activePlan, setActivePlan] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserPlans = async () => {
             const token = searchUserId();
             try {
-                // Faz a chamada para a API de planos do usuário
                 const response = await axios.get("https://backend-faixa-rosa.vercel.app/api/plans/user-plans", {
                     headers: {
-                        Authorization: `Bearer ${token}`, // Inclui o token de autenticação, se necessário
+                        Authorization: `Bearer ${token}`,
                     },
                 });
-
-                console.log("Plano ativo:", response.data.plan); // Verifica a resposta no console
-
-                // Atualiza o estado com o plano ativo
-                setActivePlan(response.data.plan); // Supondo que "plan" seja um objeto único retornado pela API
+                setActivePlan(response.data.plan);
             } catch (error) {
-                console.error("Erro ao buscar plano ativo:", error);
                 setActivePlan(null);
             } finally {
                 setLoading(false);
@@ -47,7 +41,7 @@ export default function ActivePlans() {
                     <div className="text-center">
                         <p className="text-gray-500 text-sm mb-3">Nenhum plano ativo</p>
                         <button
-                            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition duration-200"
+                            className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition duration-200"
                         >
                             Assinar Plano Básico
                         </button>

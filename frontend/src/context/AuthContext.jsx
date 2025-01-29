@@ -65,30 +65,30 @@ export const AuthContextProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const getUserId = Cookies.get("userId");
-    
-            if (getUserId && getUserId.token) {
-                const decodedToken = jwtDecode(getUserId.token);
-                const userid = decodedToken.userid;
-    
+            const tokenId = Cookies.get("userId") || null;
+
+            if (tokenId) {
+                const decodedToken = jwtDecode(tokenId);
+                const userid = decodedToken.id;
+
                 try {
                     // Atualiza ou registra o `userid` no backend
                     await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/userId`, { userid });
-    
+
                     // Busca as informações completas do usuário
                     const res = await axios.get(
                         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
                         {
                             headers: {
-                                Authorization: `Bearer ${getUserId.token}`,
+                                Authorization: `Bearer ${tokenId}`,
                             },
                             withCredentials: true,
                         }
                     );
-    
+
                     if (res.data.user) {
                         setUserInfo(res.data.user);
-    
+
                         // Atualiza apenas se necessário
                         if (!currentUser || currentUser.id !== res.data.user.id) {
                             setCurrentUser(res.data.user);
@@ -103,26 +103,19 @@ export const AuthContextProvider = ({ children }) => {
                 }
             }
         };
-    
+
         if (!currentUser) {
             fetchUserData();
         }
     }, [currentUser, isAuthenticated]);
-    
+
 
     useEffect(() => {
-        if (session) {
-            // Atualiza o estado apenas se necessário
-            if (!currentUser) {
-                setCurrentUser(session.user);
-            }
-            if (!isAuthenticated) {
-                setIsAuthenticated(true);
-            }
-
-            redirectBasedOnUserType(session.token.userType || "CONTRATANTE");
+        if (session && !currentUser && session.token?.userType) {
+            setCurrentUser(session.user);
+            setIsAuthenticated(true);
         }
-    }, [session, currentUser, isAuthenticated]);
+    }, [session]);
 
     return (
         <AuthContext.Provider

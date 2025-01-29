@@ -16,20 +16,26 @@ const routePermissions = {
   ADMIN: ['/adminDashboard', '/userManagement'],
 };
 
+const publicRoutes = ['/planos'];
+
 export const checkSession = async (currentRoute) => {
   const session = await getServerSession(nextAuthOptions);
 
-  if (!session) {
-    redirect('/login'); // Redireciona para login se não estiver autenticado
+  // Permite acesso irrestrito às rotas públicas
+  if (publicRoutes.includes(currentRoute)) {
+    return session; // Retorna a sessão se existir, mas não redireciona
   }
 
-  const { userType } = session.token; // Obtém o tipo de usuário
+  // Para rotas privadas, verifica a autenticação
+  if (!session) {
+    redirect('/login'); // Redireciona para login se não autenticado
+  }
 
-  // Verifica se o usuário tem permissão para acessar a rota atual
+  const { userType } = session.token;
+
+  // Verifica permissão para acessar a rota
   const isAuthorized = routePermissions[userType]?.includes(currentRoute);
-
   if (!isAuthorized) {
-    // Redireciona para a rota padrão do `userType`
     redirect(defaultRoutes[userType] || '/login');
   }
 

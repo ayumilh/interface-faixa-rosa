@@ -505,7 +505,7 @@ const CardSafira = ({ selectedPlans }) => {
             <div className="flex items-center mt-1">
               <FaBirthdayCake
                 className="text-pink-500 mr-1"
-                aria-hidden="true"
+
               />
               <div
                 className={`${

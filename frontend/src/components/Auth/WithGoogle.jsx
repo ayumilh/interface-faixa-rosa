@@ -8,15 +8,15 @@ const WithGoogle = ({ loginType }) => {
   const { loginWithGoogle } = useContext(AuthContext);
   const router = useRouter();
 
-  const handleSignIn = async () => {      
+  const handleSignIn = async () => {
     await loginWithGoogle();
   }
 
   return (
     <div className="flex flex-col items-center">
       <p className="text-base md:text-lg font-medium">ou continuar com</p>
-      <button onClick={handleSignIn} className="mt-7 mb-7 flex items-center">
-        <Image src="/icon/icon-google.svg" alt="Google Logo" width={42} height={42} />
+      <button onClick={handleSignIn} className="mt-2 mb-3 flex items-center">
+        <Image src="/icon/icon-google.svg" alt="Google Logo" width={32} height={32} />
         <span className="ml-2">Sign in with Google</span>
       </button>
       {/* {loginType === 'login' ? (

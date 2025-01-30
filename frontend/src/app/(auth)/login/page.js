@@ -8,8 +8,15 @@ import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import WithGoogle from "@/components/Auth/WithGoogle";
+import { FaCheck } from "react-icons/fa";
 import { signIn } from 'next-auth/react';
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { TextField } from "@mui/material";
 import Link from "next/link";
+import { searchUserId } from "@/utils/searchUserId";
 
 export default function AuthPage() {
   const [email, setEmail] = useState("");
@@ -17,11 +24,16 @@ export default function AuthPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
+  const [dataNascimento, setDataNascimento] = useState(null);
   const [cpf, setCpf] = useState("");
+  const [isCpfValid, setIsCpfValid] = useState(null);
   const [userType, setUserType] = useState("CONTRATANTE");
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [errorsInput, setErrorsInput] = useState({});
+  const [loadingCpf, setLoadingCpf] = useState(null);
+  const [locale, setLocale] = useState("pt-br");
+  const [isFormValid, setIsFormValid] = useState(false);
   const [inputClass, setInputClass] = useState('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
 
   const router = useRouter();
@@ -38,6 +50,32 @@ export default function AuthPage() {
       }
     }
   }, [isAuthenticated, currentUser, router]);
+
+  // Detecta o idioma do usuário
+  useEffect(() => {
+    const userLocale = navigator.language.toLowerCase();
+    const supportedLocales = ["pt-br", "en", "es", "fr"];
+
+    if (supportedLocales.includes(userLocale)) {
+      setLocale(userLocale);
+    } else {
+      setLocale("pt-br"); // Padrão: Português
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsFormValid(
+      firstName.trim().length >= 3 &&
+      lastName.trim().length >= 3 &&
+      phone.length === 11 &&
+      email.includes("@") &&
+      cpf.length === 11 &&
+      dataNascimento &&
+      password.length >= 8 &&
+      userType !== "" &&
+      isCpfValid === true
+    );
+  }, [firstName, lastName, phone, email, cpf, dataNascimento, password, userType, isCpfValid]);
 
   const handleSubmit = async (e, type) => {
     e.preventDefault();
@@ -151,26 +189,28 @@ export default function AuthPage() {
     const value = e.target.value.trimStart();
     const regex = /[^a-zA-ZÀ-ÿ\s'-]/g;
     const sanitizedValue = sanitizeInput(value, regex, false);
-
+  
     setFirstName(sanitizedValue);
 
-    if (sanitizedValue === '') {
+    setErrorsInput((prevErrors) => {
+      const { firstName, ...rest } = prevErrors;
+      return rest;
+    });
+  };
+  const handleFirstNameBlur = () => {
+    if (firstName === '') {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        firstName: "Nome é obrigatório.",
+      }));
+    } else {
       setErrorsInput((prevErrors) => {
         const { firstName, ...rest } = prevErrors;
         return rest;
       });
-    } else if (sanitizedValue.length <= 50) {
-      setErrorsInput((prevErrors) => {
-        const { firstName, ...rest } = prevErrors;
-        return rest; // Remove o erro do estado
-      });
-    } else {
-      setErrorsInput((prevErrors) => ({
-        ...prevErrors,
-        firstName: 'Nome inválido. Apenas letras, espaços, hifens e apóstrofos são permitidos.',
-      }));
     }
   };
+
 
   const handleLastNameChange = (e) => {
     const value = e.target.value.trimStart();
@@ -179,10 +219,22 @@ export default function AuthPage() {
 
     setLastName(sanitizedValue);
 
-    if (value !== sanitizedValue) {
-      setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
+    setErrorsInput((prevErrors) => {
+      const { lastName, ...rest } = prevErrors;
+      return rest;
+    });
+  };
+  const handleLastNameBlur = () => {
+    if (lastName === '') {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        lastName: "Sobrenome é obrigatório.",
+      }));
     } else {
-      setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
+      setErrorsInput((prevErrors) => {
+        const { lastName, ...rest } = prevErrors;
+        return rest;
+      });
     }
   };
 
@@ -237,18 +289,27 @@ export default function AuthPage() {
 
     setCpf(sanitizedValue);
 
-    if (value != sanitizedValue) {
+    if (sanitizedValue.length < 11) {
+      // 🔥 Ainda digitando (não exibe erro)
+      setIsCpfValid(null);
       setErrorsInput((prevErrors) => {
         const { cpf, ...rest } = prevErrors;
         return rest;
       });
-      setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
-    } else {
-      setErrorsInput((prevErrors) => ({
-        ...prevErrors,
-        cpf: 'CPF inválido. Deve conter exatamente 11 números.',
-      }));
-      setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
+    } else if (sanitizedValue.length === 11) {
+      // 🔥 CPF completo → Agora validamos
+      if (!/^\d{11}$/.test(sanitizedValue)) {
+        setIsCpfValid(false);
+        setErrorsInput((prevErrors) => ({
+          ...prevErrors,
+          cpf: "CPF inválido. Deve conter exatamente 11 números.",
+        }));
+      } else {
+        setErrorsInput((prevErrors) => {
+          const { cpf, ...rest } = prevErrors;
+          return rest;
+        });
+      }
     }
   };
 
@@ -278,6 +339,64 @@ export default function AuthPage() {
       setInputClass('mt-1 block w-full px-4 py-2 border border-red-500 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 transition duration-200 text-gray-800');
     }
   };
+
+  // Função para verificar se o CPF é válido
+  const verifyCpf = async () => {
+    if (cpf.length !== 11 || !dataNascimento) {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        cpf: "CPF e data de nascimento são obrigatórios.",
+      }));
+      return;
+    }
+
+    console.log({ cpf, dataNascimento });
+
+    const token = searchUserId();
+
+    setLoadingCpf(true);
+    setIsCpfValid(null);
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-cpf`,
+        {
+          cpf: cpf,
+          data_nascimento: dataNascimento,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(response.data);
+
+      if (response.data.maior_de_idade) {
+        setIsCpfValid(true);
+        setErrorsInput((prevErrors) => {
+          const { cpf, ...rest } = prevErrors;
+          return rest;
+        });
+      } else {
+        setIsCpfValid(false);
+        setErrorsInput((prevErrors) => ({
+          ...prevErrors,
+          cpf: "CPF inválido ou menor de idade.",
+        }));
+      }
+    } catch (error) {
+      setIsCpfValid(false);
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        cpf: "Erro ao verificar CPF.",
+      }));
+    } finally {
+      setLoadingCpf(false);
+    }
+  };
+
 
   return (
     <div
@@ -404,8 +523,8 @@ export default function AuthPage() {
                 Crie sua conta
               </h2>
             </div>
-            <form onSubmit={handleRegisterSubmit} className="space-y-6">
-              {/* Nome Completo */}
+            <form onSubmit={handleRegisterSubmit} className="space-y-6 mb-6">
+              {/* Nome */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
@@ -420,16 +539,12 @@ export default function AuthPage() {
                     type="text"
                     value={firstName}
                     onChange={handleFirstNameChange}
+                    onBlur={handleFirstNameBlur}
                     maxLength={50}
-                    minLength={3}
                     required
-                    pattern="[a-zA-ZÀ-ÿ\s'-]{3,50}"
                     title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
                     autoComplete="off"
-                    className={`mt-1 block w-full px-4 py-2 border rounded-lg shadow-sm transition duration-200 text-gray-800 ${errorsInput.firstName
-                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
-                      : 'border-gray-300 focus:ring-pink-500 focus:border-pink-500'
-                      }`}
+                    className={inputClass}
                   />
                   {errorsInput.firstName && (
                     <p className="text-red-500 relative text-sm mt-1">{errorsInput.firstName}</p>
@@ -449,10 +564,9 @@ export default function AuthPage() {
                     type="text"
                     value={lastName}
                     onChange={handleLastNameChange}
+                    onBlur={handleLastNameBlur}
                     maxLength={100}
-                    minLength={3}
                     required
-                    pattern="[a-zA-ZÀ-ÖØ-öø-ÿ\s'-]{3,100}"
                     title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
                     autoComplete="off"
                     className={inputClass}
@@ -476,8 +590,7 @@ export default function AuthPage() {
                   onChange={handlePhoneChange}
                   required
                   maxLength={11}
-                  minLength={11}
-                  pattern="\d{11}"
+                  pattern="[0-9]{11}"
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
               </div>
@@ -502,6 +615,38 @@ export default function AuthPage() {
                 />
               </div>
 
+              {/* Data de Nascimento */}
+              <div>
+                <label htmlFor="data_nascimento" className="block text-sm font-medium text-gray-700">
+                  Data de Nascimento
+                </label>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
+                  <DatePicker
+                    value={dataNascimento ? dayjs(dataNascimento, "DD/MM/YYYY") : null}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        setDataNascimento(dayjs(newValue).format("DD/MM/YYYY"));
+                      }
+                    }}
+                    format="DD/MM/YYYY"
+                    disableFuture
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        variant: "outlined",
+                        error: !!errorsInput.dataNascimento,
+                        helperText: errorsInput.dataNascimento || "",
+                        className:
+                          "mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800",
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+                {errorsInput.dataNascimento && (
+                  <p className="text-red-500 text-sm mt-1">{errorsInput.dataNascimento}</p>
+                )}
+              </div>
+
               {/* CPF */}
               <div>
                 <label
@@ -510,17 +655,30 @@ export default function AuthPage() {
                 >
                   CPF
                 </label>
-                <input
-                  id="cpf"
-                  name="cpf"
-                  type="text"
-                  value={cpf}
-                  onChange={handleCpfChange}
-                  required
-                  maxLength={11}
-                  minLength={11}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-                />
+                <div className="relative">
+                  <input
+                    id="cpf"
+                    name="cpf"
+                    type="text"
+                    value={cpf}
+                    onChange={handleCpfChange}
+                    required
+                    maxLength={11}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                  />
+                  <button
+                    type="button"
+                    onClick={verifyCpf}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-pink-500 text-white px-3 py-1 rounded-md hover:bg-pink-600 transition duration-200"
+                  >
+                    {loadingCpf ? <FaSpinner className="animate-spin" /> : "Verificar"}
+                  </button>
+                </div>
+                {isCpfValid !== null && (
+                  <p className={`mt-1 text-sm ${isCpfValid ? "text-green-500" : "text-red-500"}`}>
+                    {isCpfValid ? "CPF válido e maior de idade" : "CPF inválido ou menor de idade"}
+                  </p>
+                )}
               </div>
 
               {/* Senha */}
@@ -539,7 +697,6 @@ export default function AuthPage() {
                   onChange={handlePasswordChange}
                   required
                   maxLength={128}
-                  minLength={8}
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                 />
               </div>
@@ -580,8 +737,10 @@ export default function AuthPage() {
               <div>
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition"
+                  disabled={!isFormValid || loading}
+                  className={`w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white 
+                    ${isFormValid ? "bg-pink-500 hover:bg-pink-600 focus:ring-pink-500" : "bg-pink-400 cursor-not-allowed"} 
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 transition`}
                 >
                   {loading ? (
                     <FaSpinner className="animate-spin h-5 w-5" />

@@ -4,6 +4,7 @@ import { FaInstagram, FaTwitter, FaTelegramPlane, FaWhatsapp } from "react-icons
 import { SiTiktok, SiYoutube } from "react-icons/si";
 import Link from "next/link";
 import { IoClose } from "react-icons/io5"; // Ícone de fechar
+import Image from "next/image";
 
 export default function Rodape() {
   const [showFAQ, setShowFAQ] = useState(false);

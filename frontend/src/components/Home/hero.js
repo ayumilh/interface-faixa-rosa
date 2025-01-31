@@ -412,9 +412,11 @@ const Hero = () => {
     <IconContext.Provider value={{ className: "inline-block" }}>
       <div className="relative bg-[#ebeff1] text-gray-900 py-16 md:py-24 lg:py-32 overflow-hidden">
         {/* Imagem de Fundo Gigante com Baixa Opacidade */}
-        <img
+        <Image
   src="/Logofaixabranco.png"
   alt="Logo Faixa Branco"
+  width={500} // Defina um tamanho adequado
+  height={500}
   className="absolute inset-0 w-full h-full object-cover opacity-80 z-0 rounded-lg shadow-[0_0_10px_#ff1493] animate-[pulseGlow_2s_infinite]"
 />
 

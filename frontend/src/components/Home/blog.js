@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { FaRegClock, FaFire } from "react-icons/fa";
+import Image from "next/image";
+
 
 export default function Blog() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -50,8 +52,13 @@ export default function Blog() {
       {/* Carrossel de Artigos para Mobile */}
       <div className="w-full max-w-xs md:hidden px-4">
         <div className=" bg-[#ebeff1]  rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300">
-          <img src={articles[currentIndex].image} alt={articles[currentIndex].title} className="w-full h-48 object-cover" />
-          <div className="p-4">
+        <Image
+  src={articles[currentIndex].image}
+  alt={articles[currentIndex].title}
+  width={600}
+  height={300}
+  className="w-full h-48 object-cover"
+/>          <div className="p-4">
             <h3 className="text-lg font-semibold text-gray-800 mb-2">{articles[currentIndex].title}</h3>
             <div className="flex items-center text-gray-500 text-sm mb-2">
               <FaFire className="text-pink-500 mr-1" />
@@ -81,8 +88,13 @@ export default function Blog() {
       <div className="hidden md:grid md:grid-cols-3 md:gap-6 md:w-full md:max-w-6xl ">
         {articles.map((article, index) => (
           <div key={index} className="relative  bg-[#ebeff1] rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-105">
-            <img src={article.image} alt={article.title} className="w-full h-48 object-cover" />
-            <div className="p-4">
+<Image
+  src={article.image}
+  alt={article.title}
+  width={600}
+  height={300}
+  className="w-full h-48 object-cover"
+/>            <div className="p-4">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">{article.title}</h3>
               <div className="flex items-center text-gray-500 text-sm mb-2">
                 <FaFire className="text-pink-500 mr-1" />

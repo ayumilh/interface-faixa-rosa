@@ -59,16 +59,18 @@ export default function Cookies() {
             </span>
           </div>
 
-          {/* Aviso de Concordância */}
-          <p className="text-xs text-gray-500 text-center mt-2">
-            Ao clicar em <strong>"Concordo"</strong>, você confirma que é maior de idade e concorda com nossa{" "}
-            <button
-              onClick={() => router.push("/termos")}
-              className="text-pink-500 font-semibold underline hover:text-pink-400 transition duration-200"
-            >
-              Política de Privacidade e Termos de Uso.
-            </button>
-          </p>
+        {/* Aviso de Concordância */}
+<p className="text-xs text-gray-500 text-center mt-2">
+  Ao clicar em <strong>&quot;Concordo&quot;</strong>, você confirma que é maior de idade e concorda com nossa{" "}
+  <button
+    onClick={() => router.push("/termos")}
+    className="text-pink-500 font-semibold underline hover:text-pink-400 transition duration-200"
+  >
+    Política de Privacidade e Termos de Uso.
+  </button>
+  .
+</p>
+
 
           {/* Botão de Concordância */}
           <div className="flex justify-center mt-6">

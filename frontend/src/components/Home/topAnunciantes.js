@@ -41,7 +41,7 @@ export default function TopAnunciantes() {
     }, 3000); // Muda a cada 3 segundos
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isDragging]);
 
   // Adiciona funcionalidade de arrastar com o mouse/touch
   useEffect(() => {

@@ -114,7 +114,7 @@ export const AuthContextProvider = ({ children }) => {
             setCurrentUser(session.user);
             setIsAuthenticated(true);
         }
-    }, [session]);
+    }, [session, currentUser]);
 
     return (
         <AuthContext.Provider

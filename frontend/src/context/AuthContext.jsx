@@ -40,7 +40,7 @@ export const AuthContextProvider = ({ children }) => {
 
     const login = async (inputs) => {
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
+            const res = await axios.post(`${process.env.local.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
                 inputs,
                 { withCredentials: true }
             );
@@ -72,11 +72,11 @@ export const AuthContextProvider = ({ children }) => {
 
                 try {
                     // Atualiza ou registra o `userid` no backend
-                    await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/userId`, { userid });
+                    await axios.post(`${process.env.local.NEXT_PUBLIC_BACKEND_URL}/api/userId`, { userid });
 
                     // Busca as informações completas do usuário
                     const res = await axios.get(
-                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
+                        `${process.env.local.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
                         {
                             headers: {
                                 Authorization: `Bearer ${tokenId}`,

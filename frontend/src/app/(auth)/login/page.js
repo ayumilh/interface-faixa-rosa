@@ -109,7 +109,7 @@ export default function AuthPage() {
     } else if (type === "register") {
       try {
         const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
+          `${process.env.local.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
           { firstName, lastName, email, password, phone, cpf, userType },
           { withCredentials: true }
         );
@@ -359,7 +359,7 @@ export default function AuthPage() {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-cpf`,
+        `${process.env.local.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-cpf`,
         {
           cpf: cpf,
           data_nascimento: dataNascimento,

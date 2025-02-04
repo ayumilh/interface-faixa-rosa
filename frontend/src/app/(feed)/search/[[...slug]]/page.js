@@ -1,11 +1,15 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+import { useParams, usePathname } from "next/navigation";
 import { FaSearch } from "react-icons/fa";
-import Navbar from "@/components/Navbar"; // Importe a Navbar
-import ModalBusca from "@/components/search/modalbusca"; // Importe o modal de busca
-import ModalFiltro from "@/components/search/modalfiltro"; // Importe o modal de filtro
-import Stories from "@/components/search/stories"; // 'Stories' com 'S' maiúsculo
-import Final from "@/components/search/final"; // Footer fixo
+
+// Componentes (certifique-se de que os caminhos estejam corretos)
+import Navbar from "@/components/Navbar";
+import ModalBusca from "@/components/search/modalbusca";
+import ModalFiltro from "@/components/search/modalfiltro";
+import Stories from "@/components/search/stories";
+import Final from "@/components/search/final";
 import CardVIP from "@/components/search/CardVIP";
 import CardVIPDark from "@/components/search/CardVIPDark";
 import CardPink from "@/components/search/CardPink";
@@ -16,17 +20,32 @@ import CardRubi from "@/components/search/CardRubi";
 import CardRubiDark from "@/components/search/CardRubiDark";
 
 export default function Search() {
+  const params = useParams(); // Para capturar o slug (catch-all)
+  const pathname = usePathname();
+
+  // Se você usar uma rota catch-all, o parâmetro será um array
+  let slugString = "";
+  if (params.slug) {
+    slugString = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
+  }
+
+  // Regex para extrair o padrão esperado: <base>-em-<cidade>-<estado>
+  const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
+
   const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [category, setCategory] = useState("mulher");
+  const [stateUF, setStateUF] = useState("");
+  const [category, setCategory] = useState("mulher"); // valor padrão
+  const [showModalBusca, setShowModalBusca] = useState(false);
+  const [showModalFiltro, setShowModalFiltro] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [cards, setCards] = useState([]);
+
+  // Arrays de exemplo para botões, filtros e stories
   const categories = [
     { label: "Mulheres", value: "mulher" },
     { label: "Homens", value: "homem" },
     { label: "Trans", value: "travesti" },
   ];
-  const [showModalBusca, setShowModalBusca] = useState(false);
-  const [showModalFiltro, setShowModalFiltro] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // Estado global para modo escuro (opcional)
   const filters = [
     "Fotos com rosto",
     "Online",
@@ -36,41 +55,6 @@ export default function Search() {
     "Tem local",
     "Acompanhante jovem",
   ];
-
-  const handleCategoryClick = (catValue) => {
-    setCategory(catValue);
-    // Construir a URL similar à função formatCityURL no ModalBusca
-    const basePath =
-      catValue === "mulher"
-        ? "acompanhantes-em"
-        : catValue === "homem"
-        ? "garotos-de-programa"
-        : "travestis-transex-transgenero";
-    const cityParam = city && state ? `-${city}-${state}` : "";
-    const formattedURL = `/${basePath}${cityParam}`
-      .replace(/ /g, "-")
-      .toLowerCase();
-    window.location.href = formattedURL;
-  };
-
-  const handleCitySelect = (cidade, estado) => {
-    setCity(cidade);
-    setState(estado);
-    setShowModalBusca(false);
-    // Atualizar a URL ao selecionar a cidade
-    const basePath =
-      category === "mulher"
-        ? "acompanhantes-em"
-        : category === "homem"
-        ? "garotos-de-programa"
-        : "travestis-transex-transgenero";
-    const formattedURL = `/${basePath}-${cidade}-${estado}`
-      .replace(/ /g, "-")
-      .toLowerCase();
-    window.location.href = formattedURL;
-  };
-
-  // Exemplo de stories
   const stories = [
     { image: "https://randomuser.me/api/portraits/women/10.jpg", name: "Aline" },
     { image: "https://randomuser.me/api/portraits/women/11.jpg", name: "Carla" },
@@ -79,9 +63,8 @@ export default function Search() {
     { image: "https://randomuser.me/api/portraits/women/14.jpg", name: "Natália" },
   ];
 
-  // Dados para os cartões na ordem desejada, incluindo versões light e dark
-  const cards = [
-    // Cartões "rubi"
+  // Dados fictícios para os cartões
+  const defaultCards = [
     {
       type: "rubi",
       dark: false,
@@ -100,24 +83,6 @@ export default function Search() {
       contact: true,
     },
     {
-      type: "rubi",
-      dark: true,
-      name: "Rafaela Dark",
-      price: "R$ 250/h",
-      reviews: 2,
-      location: "Jardins, São Paulo",
-      description: "Acompanhante premium com experiências únicas.",
-      images: [
-        "https://randomuser.me/api/portraits/women/28.jpg",
-        "https://randomuser.me/api/portraits/women/29.jpg",
-        "https://randomuser.me/api/portraits/women/30.jpg",
-        "https://randomuser.me/api/portraits/women/31.jpg",
-        "https://randomuser.me/api/portraits/women/32.jpg",
-      ],
-      contact: true,
-    },
-    // Cartões "safira"
-    {
       type: "safira",
       dark: false,
       name: "Sofia",
@@ -134,24 +99,6 @@ export default function Search() {
       ],
       contact: true,
     },
-    {
-      type: "safira",
-      dark: true,
-      name: "Sofia Dark",
-      price: "R$ 300/h",
-      reviews: 5,
-      location: "Pinheiros, São Paulo",
-      description: "Acompanhante sofisticada e elegante.",
-      images: [
-        "https://randomuser.me/api/portraits/women/38.jpg",
-        "https://randomuser.me/api/portraits/women/39.jpg",
-        "https://randomuser.me/api/portraits/women/40.jpg",
-        "https://randomuser.me/api/portraits/women/41.jpg",
-        "https://randomuser.me/api/portraits/women/42.jpg",
-      ],
-      contact: true,
-    },
-    // Cartões "pink"
     {
       type: "pink",
       dark: false,
@@ -170,24 +117,6 @@ export default function Search() {
       contact: true,
     },
     {
-      type: "pink",
-      dark: true,
-      name: "Camila Dark",
-      price: "R$ 200/h",
-      reviews: 3,
-      location: "Vila Madalena, São Paulo",
-      description: "Acompanhante divertida e carinhosa.",
-      images: [
-        "https://randomuser.me/api/portraits/women/48.jpg",
-        "https://randomuser.me/api/portraits/women/49.jpg",
-        "https://randomuser.me/api/portraits/women/50.jpg",
-        "https://randomuser.me/api/portraits/women/51.jpg",
-        "https://randomuser.me/api/portraits/women/52.jpg",
-      ],
-      contact: true,
-    },
-    // Cartões "vip"
-    {
       type: "vip",
       dark: false,
       name: "Isabela",
@@ -204,38 +133,79 @@ export default function Search() {
       ],
       contact: true,
     },
-    {
-      type: "vip",
-      dark: true,
-      name: "Isabela Dark",
-      price: "R$ 500/h",
-      reviews: 10,
-      location: "Itaim Bibi, São Paulo",
-      description: "Acompanhante VIP para eventos exclusivos.",
-      images: [
-        "https://randomuser.me/api/portraits/women/58.jpg",
-        "https://randomuser.me/api/portraits/women/59.jpg",
-        "https://randomuser.me/api/portraits/women/60.jpg",
-        "https://randomuser.me/api/portraits/women/61.jpg",
-        "https://randomuser.me/api/portraits/women/62.jpg",
-      ],
-      contact: true,
-    },
-    
-    
-    
-    // Adicione mais cartões conforme necessário...
   ];
 
+  useEffect(() => {
+    setCards(defaultCards);
+  }, []);
+
+  // Tenta extrair os parâmetros da URL (se o slug estiver no formato esperado)
+  useEffect(() => {
+    if (slugString) {
+      const match = slugString.match(regex);
+      if (match) {
+        // match[1] = base (ex: "acompanhantes" ou "garotos-de-programa" ou "travestis-transex-transgenero")
+        // match[2] = cidade (ex: "sao-paulo" – que pode ter hífens para espaços)
+        // match[3] = estado (ex: "sp")
+        const base = match[1];
+        const citySlug = match[2];
+        const uf = match[3];
+        const cityName = citySlug.replace(/-/g, " ");
+        setCity(cityName);
+        setStateUF(uf.toUpperCase());
+        if (base === "acompanhantes") {
+          setCategory("mulher");
+        } else if (base === "garotos-de-programa") {
+          setCategory("homem");
+        } else if (base === "travestis-transex-transgenero") {
+          setCategory("travesti");
+        }
+      } else {
+        console.error("Formato do slug inválido:", slugString);
+        // Aqui você pode definir um fallback – por exemplo, redirecionar para a página de busca padrão
+        // window.location.href = "/search";
+      }
+    }
+  }, [slugString]);
+
+  // Handler para alterar a categoria (ao clicar nos botões)
+  const handleCategoryClick = (catValue) => {
+    setCategory(catValue);
+    let basePath = "";
+    if (catValue === "mulher") {
+      basePath = "acompanhantes-em";
+    } else if (catValue === "homem") {
+      basePath = "garotos-de-programa-em";
+    } else if (catValue === "travesti") {
+      basePath = "travestis-transex-transgenero-em";
+    }
+    const cityParam = city ? `-${city.replace(/\s+/g, "-")}-${stateUF}` : "";
+    const formattedURL = `/search/${basePath}${cityParam}`.toLowerCase();
+    window.location.href = formattedURL;
+  };
+
+  // Handler para quando o usuário selecionar uma cidade no ModalBusca
+  const handleCitySelect = (cidade, estado) => {
+    setCity(cidade);
+    setStateUF(estado);
+    setShowModalBusca(false);
+    let basePath = "";
+    if (category === "mulher") {
+      basePath = "acompanhantes-em";
+    } else if (category === "homem") {
+      basePath = "garotos-de-programa-em";
+    } else if (category === "travesti") {
+      basePath = "travestis-transex-transgenero-em";
+    }
+    const formattedURL = `/search/${basePath}-${cidade.replace(/\s+/g, "-")}-${estado}`.toLowerCase();
+    window.location.href = formattedURL;
+  };
+
   return (
-    <div
-      className={`min-h-screen ${
-        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"
-      }`}
-    >
+    <div className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"}`}>
       <Navbar />
 
-      {/* Toggle para Modo Escuro (opcional) */}
+      {/* Toggle para Modo Escuro */}
       <div className="fixed top-4 right-4">
         <button
           onClick={() => setDarkMode(!darkMode)}
@@ -245,7 +215,7 @@ export default function Search() {
         </button>
       </div>
 
-      {/* Header */}
+      {/* Header com imagem de fundo */}
       <div
         className="w-full h-40 sm:h-60 bg-cover bg-center relative flex flex-col justify-center items-center mt-8"
         style={{ backgroundImage: 'url("/assets/images/background.jpg")' }}
@@ -259,15 +229,12 @@ export default function Search() {
       <div className="relative -mt-14 w-full max-w-4xl mx-auto p-4">
         <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
           <form className="flex flex-col md:flex-row gap-4 w-full">
-            <div
-              className="relative flex-1 flex items-center cursor-pointer"
-              onClick={() => setShowModalBusca(true)}
-            >
+            <div className="relative flex-1 flex items-center cursor-pointer" onClick={() => setShowModalBusca(true)}>
               <FaSearch className="w-5 h-5 text-gray-500 mr-2" />
               <input
                 id="city"
                 type="text"
-                value={city ? `${city}, ${state}` : "Busque por cidade..."}
+                value={city && stateUF ? `${city}, ${stateUF}` : "Busque por cidade..."}
                 className="w-full bg-gray-200 rounded-full px-6 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 transition cursor-pointer"
                 readOnly
               />
@@ -279,9 +246,7 @@ export default function Search() {
                   type="button"
                   onClick={() => handleCategoryClick(cat.value)}
                   className={`px-4 py-2 sm:px-6 sm:py-2 rounded-full text-sm font-medium ${
-                    category === cat.value
-                      ? "bg-pink-500 text-white"
-                      : "bg-gray-100 text-gray-800"
+                    category === cat.value ? "bg-pink-500 text-white" : "bg-gray-100 text-gray-800"
                   } transition transform hover:scale-105`}
                 >
                   {cat.label}
@@ -294,9 +259,7 @@ export default function Search() {
 
       {/* Filtros em Rolagem Horizontal */}
       <div className="w-full max-w-7xl mx-auto mt-8 px-4">
-        <h3 className="text-lg font-semibold text-gray-600 mb-4">
-          Filtros rápidos
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-600 mb-4">Filtros rápidos</h3>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {filters.map((filter) => (
             <button
@@ -315,16 +278,16 @@ export default function Search() {
         </div>
       </div>
 
-      {/* Stories com Scroll Horizontal */}
+      {/* Stories */}
       <div className="w-full max-w-7xl mx-auto mt-6 px-4">
         <Stories stories={stories} />
       </div>
 
-      {/* Resultados da Busca */}
+      {/* Grid de Cartões */}
       <div className="mt-6 w-full max-w-7xl mx-auto px-4">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
           <h2 className="text-lg font-semibold text-gray-800 text-center sm:text-left">
-            Resultados para {category} em {city ? `${city}, ${state}` : "sua cidade"}:
+            Resultados para {category} em {city && stateUF ? `${city}, ${stateUF}` : "sua cidade"}:
           </h2>
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">
             <button className="text-gray-700 text-sm">Ordenar</button>
@@ -336,11 +299,8 @@ export default function Search() {
             </button>
           </div>
         </div>
-
-        {/* Grid de Cartões */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card, index) => {
-            // Escolher o componente com base no tipo e na flag dark
             let CardComponent;
             switch (card.type) {
               case "rubi":
@@ -355,11 +315,10 @@ export default function Search() {
               case "vip":
                 CardComponent = card.dark ? CardVIPDark : CardVIP;
                 break;
-             
-              
-                
+              default:
+                CardComponent = CardVIP;
+                break;
             }
-
             return (
               <div key={index}>
                 <CardComponent
@@ -382,15 +341,16 @@ export default function Search() {
         showModalBusca={showModalBusca}
         setShowModalBusca={setShowModalBusca}
         onCitySelect={handleCitySelect}
-        category={category} // Passa a categoria selecionada
+        category={category}
       />
       <ModalFiltro
         showModalFiltro={showModalFiltro}
         setShowModalFiltro={setShowModalFiltro}
-        category={category} // Passa a categoria selecionada
-        city={city} // Passa a cidade selecionada
+        category={category}
+        city={city}
       />
-      {/* Footer fixo */}
+
+      {/* Footer */}
       <Final />
     </div>
   );

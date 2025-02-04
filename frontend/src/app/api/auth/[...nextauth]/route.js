@@ -6,7 +6,7 @@ import axios from 'axios';
 let tempPassword = '';
 
   const nextAuthOptions = {
-    secret: process.env.local.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
       GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID,
@@ -20,7 +20,7 @@ let tempPassword = '';
         },
         async authorize(credentials, req) {
           try {
-            const response = await axios.post(`${process.env.local.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
               email: credentials.email,
               password: credentials.password
             }, { withCredentials: true });
@@ -69,7 +69,7 @@ let tempPassword = '';
       async signIn({ user, account }) {
         if (account.provider === 'google') {
           try {
-            const response = await axios.post(`${process.env.local.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
               email: user.email,
               googleLogin: true
             }, { withCredentials: true });

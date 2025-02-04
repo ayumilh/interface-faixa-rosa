@@ -19,7 +19,7 @@ const anunciantes = [
 
 export default function TopAnunciantes() {
   const scrollRef = useRef(null);
-  let isDragging = false; // Flag para verificar se o usuário está arrastando
+  let isDragging = useRef(false); // Flag para verificar se o usuário está arrastando
 
   // Rola automaticamente no desktop
   useEffect(() => {

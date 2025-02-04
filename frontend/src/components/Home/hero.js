@@ -13,6 +13,7 @@ import {
   IconContext,
 } from "phosphor-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import PropTypes from "prop-types";
 import Image from 'next/image';
 
@@ -193,7 +194,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
         setSuggestions([]);
       }
     },
-    [normalizeText]
+    []
   );
 
   const handleCityInput = (value) => {

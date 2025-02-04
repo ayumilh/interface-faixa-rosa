@@ -211,7 +211,7 @@ export default function PerfilPage() {
               <div className="mt-16 md:mt-20 px-4 md:px-6">
                 <div className="text-center md:text-left text-gray-900 flex items-center justify-center md:justify-start space-x-2">
                   <h2 className="text-xl md:text-2xl font-bold">Melissa Nascimento</h2>
-                  <Link className="flex items-center space-x-1">
+                  <Link href="#" className="flex items-center space-x-1">
                     <span className={`w-2 h-2 rounded-full ${getStatusColor()} ${getStatusAnimation()}`}></span>
                     <p className={`text-sm ${status === "online" ? "text-green-500" : "text-gray-500"}`}>
                       {status === "online" ? "Online agora" : "Offline há 30 minutos"}

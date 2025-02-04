@@ -14,6 +14,7 @@ import {
 } from "phosphor-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PropTypes from "prop-types";
+import Image from 'next/image';
 
 // Definições de conteúdo para o Modal Informativo
 const modalContent = {
@@ -232,28 +233,29 @@ const ModalBusca = ({ isOpen, onClose }) => {
     }
   };
 
-  // Constrói a URL baseando-se na categoria e na cidade/estado
-  const formatCityURL = (cityName, state) => {
-    let basePath = "";
-    switch (category) {
-      case "mulher":
-        basePath = "acompanhantes-em";
-        break;
-      case "homem":
-        basePath = "garotos-de-programa-em";
-        break;
-      case "travesti":
-        basePath = "travestis-transex-transgenero-em";
-        break;
-      default:
-        basePath = "acompanhantes-em"; // Valor padrão
-    }
-    const formattedCity = `${basePath}-${cityName}-${state}`
-      .replace(/ /g, "-")
-      .toLowerCase();
-    // Redireciona para a URL resultante
-    window.location.href = `/${formattedCity}`;
-  };
+// Constrói a URL baseando-se na categoria e na cidade/estado
+const formatCityURL = (cityName, state) => {
+  let basePath = "";
+  switch (category) {
+    case "mulher":
+      basePath = "acompanhantes-em";
+      break;
+    case "homem":
+      basePath = "garotos-de-programa-em";
+      break;
+    case "travesti":
+      basePath = "travestis-transex-transgenero-em";
+      break;
+    default:
+      basePath = "acompanhantes-em"; // Valor padrão
+  }
+  const formattedCity = `${basePath}-${cityName}-${state}`
+    .replace(/ /g, "-")
+    .toLowerCase();
+  // Redireciona para a URL resultante com prefixo /search/
+  window.location.href = `/search/${formattedCity}`;
+};
+
 
   return (
     <AnimatePresence>

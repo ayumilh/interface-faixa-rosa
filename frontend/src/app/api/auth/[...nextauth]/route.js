@@ -18,6 +18,7 @@ const nextAuthOptions = {
         password: { label: "password", type: "password" }
       },
       async authorize(credentials, req) {
+        if (!credentials) return null
         try {
           await axios.post(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
@@ -34,11 +35,12 @@ const nextAuthOptions = {
           console.log("Resposta do backend:", response.data);
 
           if (response.status === 200 && response.data.token) {
-            const { firstName, lastName, ...rest } = response.data.user;
             return {
-              ...rest,
-              token: response.data.token,
-              name: `${firstName} ${lastName}`.trim(),
+              id: res.data.user.id,
+              name: `${res.data.user.firstName} ${res.data.user.lastName}`,
+              email: res.data.user.email,
+              token: res.data.token,
+              userType: res.data.user.userType,
             };
           } else {
             return null;

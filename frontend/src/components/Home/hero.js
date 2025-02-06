@@ -15,7 +15,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import PropTypes from "prop-types";
-import Image from 'next/image';
 
 // Definições de conteúdo para o Modal Informativo
 const modalContent = {

@@ -80,29 +80,31 @@ const nextAuthOptions = {
       console.log("Sessão ativa:", session);
       return session;
     },
-
     async signIn({ user, account }) {
-      if (account.provider === 'google') {
-        try {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
-            email: user.email,
-            googleLogin: true
-          }, { withCredentials: true });
-
-          if (response.status === 200 && response.data.token && response.data.user) {
-            user.token = response.data.token; // Armazena o token no usuário
-            user.userType = response.data.user.userType || "CONTRATANTE"; // Define userType padrão se não existir
-            return true;
-          } else {
-            return false;
-          }
-        } catch {
-          return false;
-        }
-      }
-      console.log("Tentando login com:", account?.provider, user);
-      return true;
+      return true; // Confirme o login apenas se o `authorize` retornar o usuário
     },
+    // async signIn({ user, account }) {
+    //   if (account.provider === 'google') {
+    //     try {
+    //       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+    //         email: user.email,
+    //         googleLogin: true
+    //       }, { withCredentials: true });
+
+    //       if (response.status === 200 && response.data.token && response.data.user) {
+    //         user.token = response.data.token; // Armazena o token no usuário
+    //         user.userType = response.data.user.userType || "CONTRATANTE"; // Define userType padrão se não existir
+    //         return true;
+    //       } else {
+    //         return false;
+    //       }
+    //     } catch {
+    //       return false;
+    //     }
+    //   }
+    //   console.log("Tentando login com:", account?.provider, user);
+    //   return true;
+    // },
     session: async (session, user, token) => {
       session.user = user;
       if (token && token.provider === 'google') {

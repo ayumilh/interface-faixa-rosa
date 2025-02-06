@@ -72,7 +72,7 @@ const nextAuthOptions = {
     // Callback para sessão
     async session({ session, token }) {
       // Adiciona userType e outras informações do token à sessão
-      session.accessToken = token.accessToken;
+      session.token = token.accessToken;
       session.user = {
         id: token.id,
         email: token.email,

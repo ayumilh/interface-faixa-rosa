@@ -40,6 +40,9 @@ const nextAuthOptions = {
       },
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
   pages: {
     signIn: '/login',
     error: '/login',
@@ -87,7 +90,6 @@ const nextAuthOptions = {
       }
       return true;
     },
-    secret: process.env.NEXTAUTH_SECRET,
     session: async (session, user, token) => {
       session.user = user;
       if (token && token.provider === 'google') {

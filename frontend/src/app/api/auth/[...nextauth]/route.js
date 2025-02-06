@@ -23,18 +23,25 @@ const nextAuthOptions = {
           const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
             email: credentials.email,
             password: credentials.password
-          }, { withCredentials: true });
+          }, { 
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${process.env.NEXTAUTH_SECRET}`
+            } 
+          },
+
+        );
 
           if (response.status === 200 && response.data.user) {
             const { firstName, lastName, ...rest } = response.data.user;
             return {
               ...rest,
-              name: `${firstName} ${lastName}`.trim(), // Combina `firstName` e `lastName` em `name`
+              name: `${firstName} ${lastName}`.trim(),
             };
           } else {
             return null;
           }
-        } catch (error) {
+        } catch {
           return null;
         }
       },

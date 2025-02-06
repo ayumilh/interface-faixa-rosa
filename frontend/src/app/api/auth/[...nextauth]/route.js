@@ -36,11 +36,11 @@ const nextAuthOptions = {
 
           if (response.status === 200 && response.data.token) {
             return {
-              id: res.data.user.id,
-              name: `${res.data.user.firstName} ${res.data.user.lastName}`,
-              email: res.data.user.email,
-              token: res.data.token,
-              userType: res.data.user.userType,
+              id: response.data.user.id,
+              name: `${response.data.user.firstName} ${response.data.user.lastName}`,
+              email: response.data.user.email,
+              token: response.data.token,
+              userType: response.data.user.userType,
             };
           } else {
             return null;

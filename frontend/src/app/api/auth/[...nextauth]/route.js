@@ -20,7 +20,7 @@ const nextAuthOptions = {
       async authorize(credentials, req) {
         if (!credentials) return null
         try {
-          await axios.post(
+          const response = await axios.post(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
             {
               email: credentials.email,

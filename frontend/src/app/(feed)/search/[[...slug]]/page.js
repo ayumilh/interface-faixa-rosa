@@ -137,7 +137,7 @@ export default function Search() {
 
   useEffect(() => {
     setCards(defaultCards);
-  }, []);
+  }, [defaultCards]);
 
   // Tenta extrair os parâmetros da URL (se o slug estiver no formato esperado)
   useEffect(() => {

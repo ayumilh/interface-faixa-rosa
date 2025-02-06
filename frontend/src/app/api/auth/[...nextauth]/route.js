@@ -57,6 +57,7 @@ const nextAuthOptions = {
         token.email = user.email;
         token.name = user.name;
       }
+      console.log("Token JWT gerado:", token);
       return token;
     },
 
@@ -66,6 +67,7 @@ const nextAuthOptions = {
       session.user.userType = token.userType;
       session.user.id = token.id;
       session.user.name = token.name;
+      console.log("Sessão ativa:", session);
       return session;
     },
 
@@ -88,6 +90,7 @@ const nextAuthOptions = {
           return false;
         }
       }
+      console.log("Tentando login com:", account?.provider, user);
       return true;
     },
     session: async (session, user, token) => {

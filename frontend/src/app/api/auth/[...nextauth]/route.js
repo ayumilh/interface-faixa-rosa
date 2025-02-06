@@ -4,7 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import axios from 'axios';
 
 let tempPassword = '';
-
 const nextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -20,22 +19,23 @@ const nextAuthOptions = {
       },
       async authorize(credentials, req) {
         try {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
-            email: credentials.email,
-            password: credentials.password
-          }, { 
-            withCredentials: true,
-            headers: {
-              Authorization: `Bearer ${process.env.NEXTAUTH_SECRET}`
-            } 
-          },
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
+            {
+              email: credentials.email,
+              password: credentials.password
+            },
+            { withCredentials: true },
+            { headers: { 'Content-Type': 'application/json' } }
+          );
 
-        );
+          console.log("Resposta do backend:", response.data);
 
-          if (response.status === 200 && response.data.user) {
+          if (response.status === 200 && response.data.token) {
             const { firstName, lastName, ...rest } = response.data.user;
             return {
               ...rest,
+              token: response.data.token,
               name: `${firstName} ${lastName}`.trim(),
             };
           } else {
@@ -50,19 +50,16 @@ const nextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  pages: {
-    signIn: '/login',
-    error: '/login',
-  },
   callbacks: {
     // Callback para JWT
     async jwt({ token, user }) {
       if (user) {
         // Adiciona o userType do backend ao token
-        token.userType = user.userType; // Certifique-se de que o backend retorne `userType`
+        token.accessToken = user.token;
         token.id = user.id;
-        token.email = user.email;
         token.name = user.name;
+        token.email = user.email;
+        token.userType = user.userType; // Certifique-se de que o backend retorne `userType`
       }
       console.log("Token JWT gerado:", token);
       return token;
@@ -71,9 +68,13 @@ const nextAuthOptions = {
     // Callback para sessão
     async session({ session, token }) {
       // Adiciona userType e outras informações do token à sessão
-      session.user.userType = token.userType;
-      session.user.id = token.id;
-      session.user.name = token.name;
+      session.accessToken = token.accessToken;
+      session.user = {
+        id: token.id,
+        email: token.email,
+        userType: token.userType,
+        name: token.name,
+      };
       console.log("Sessão ativa:", session);
       return session;
     },
@@ -108,6 +109,10 @@ const nextAuthOptions = {
 
       return session;
     },
+  },
+  pages: {
+    signIn: '/login',
+    error: '/login',
   },
 };
 

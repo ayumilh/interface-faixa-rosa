@@ -19,14 +19,16 @@ const nextAuthOptions = {
       },
       async authorize(credentials, req) {
         try {
-          const response = await axios.post(
+          await axios.post(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
             {
               email: credentials.email,
               password: credentials.password
             },
-            { withCredentials: true },
-            { headers: { 'Content-Type': 'application/json' } }
+            {
+              withCredentials: true,
+              headers: { 'Content-Type': 'application/json' }
+            }
           );
 
           console.log("Resposta do backend:", response.data);

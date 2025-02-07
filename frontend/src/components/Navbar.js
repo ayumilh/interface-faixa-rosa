@@ -48,7 +48,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    Cookies.remove("userId");
+    Cookies.remove("token");
     setIsAuthenticated(false);
     router.push("/login");
   };

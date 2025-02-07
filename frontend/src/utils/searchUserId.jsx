@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 
 export const searchUserId = () => {
-    const tokenId = Cookies.get("userId") || null;
+    const tokenId = Cookies.get("token") || null;
 
     if (tokenId) {
         return tokenId

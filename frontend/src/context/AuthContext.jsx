@@ -64,7 +64,7 @@ export const AuthContextProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const tokenId = Cookies.get("userId") || null;
+            const tokenId = Cookies.get("token") || null;
 
             if (tokenId) {
                 const decodedToken = jwtDecode(tokenId);

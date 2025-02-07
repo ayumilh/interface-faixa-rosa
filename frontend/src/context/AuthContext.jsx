@@ -72,7 +72,7 @@ export const AuthContextProvider = ({ children }) => {
 
                 try {
                     // Atualiza ou registra o `userid` no backend
-                    await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/userId`, { userid });
+                    await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/userId`, { userid });
 
                     // Busca as informações completas do usuário
                     const res = await axios.get(

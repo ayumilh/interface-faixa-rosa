@@ -51,6 +51,16 @@ const nextAuthOptions = {
       },
     }),
   ],
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "None", 
+        secure: true,
+      },
+    },
+  },
   callbacks: {
     // Callback para JWT
     async jwt({ token, user }) {

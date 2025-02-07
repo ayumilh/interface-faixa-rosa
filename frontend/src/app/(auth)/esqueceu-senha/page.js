@@ -13,38 +13,38 @@ export default function EsqueceuSenhaPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    // setLoading(true);
 
-    const endpoint = "/api/auth/esqueceu-senha";
-    const payload = { email };
+    // const endpoint = "/api/auth/esqueceu-senha";
+    // const payload = { email };
 
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    // try {
+    //   const response = await fetch(endpoint, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(payload),
+    //   });
 
-      const data = await response.json();
+    //   const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Erro ao solicitar redefinição de senha");
-      }
+    //   if (!response.ok) {
+    //     throw new Error(data.message || "Erro ao solicitar redefinição de senha");
+    //   }
 
-      toast.success("E-mail de redefinição de senha enviado com sucesso!");
-      // Após o sucesso, você pode redirecionar o usuário ou limpar o formulário
-      setEmail("");
-      // Opcionalmente, redirecionar para a página de login após um breve delay
-      setTimeout(() => {
-        router.push("/auth/login");
-      }, 3000);
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
+    //   toast.success("E-mail de redefinição de senha enviado com sucesso!");
+    //   // Após o sucesso, você pode redirecionar o usuário ou limpar o formulário
+    //   setEmail("");
+    //   // Opcionalmente, redirecionar para a página de login após um breve delay
+    //   setTimeout(() => {
+    //     router.push("/auth/login");
+    //   }, 3000);
+    // } catch (error) {
+    //   toast.error(error.message);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (

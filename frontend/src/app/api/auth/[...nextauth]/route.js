@@ -51,9 +51,6 @@ const nextAuthOptions = {
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
   callbacks: {
     // Callback para JWT
     async jwt({ token, user }) {
@@ -72,14 +69,12 @@ const nextAuthOptions = {
     // Callback para sessão
     async session({ session, token }) {
       // Adiciona userType e outras informações do token à sessão
-      session.token = token.accessToken;
       session.user = {
         id: token.id,
         email: token.email,
         userType: token.userType,
         name: token.name,
       };
-      console.log("Sessão ativa:", session);
       return session;
     },
     async signIn({ user, account }) {

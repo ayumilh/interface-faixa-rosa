@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import axios from "axios";
 
 let tempPassword = '';
 const nextAuthOptions = {
@@ -19,13 +20,12 @@ const nextAuthOptions = {
       async authorize(credentials, req) {
         if (!credentials) return null
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, {
-            method: 'POST',
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, credentials, {
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(credentials)
           });
-          const user = await response.json();
-          if (response.ok && user) {
+          
+          if (response.status === 200 && response.data) {
+            const user = response.data.user;
             return user;
           } else {
             return null;

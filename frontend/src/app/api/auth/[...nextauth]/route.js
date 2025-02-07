@@ -39,17 +39,17 @@ const nextAuthOptions = {
   session: {
     jwt: true,
   },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        domain: ".faixarosa.com",
-        httpOnly: true,
-        sameSite: "None",
-        secure: true,
-      },
-    },
-  },
+  // cookies: {
+  //   sessionToken: {
+  //     name: `next-auth.session-token`,
+  //     options: {
+  //       domain: ".faixarosa.com",
+  //       httpOnly: true,
+  //       sameSite: "None",
+  //       secure: true,
+  //     },
+  //   },
+  // },
   callbacks: {
     async jwt({ token, user }) {
       token.accessToken = user.token;
@@ -71,9 +71,9 @@ const nextAuthOptions = {
       };
       return session;
     },
-    async signIn({ user, account }) {
-      return true; // Confirme o login apenas se o `authorize` retornar o usuário
-    },
+    // async signIn({ user, account }) {
+    //   return true; // Confirme o login apenas se o `authorize` retornar o usuário
+    // },
     // async signIn({ user, account }) {
     //   if (account.provider === 'google') {
     //     try {
@@ -101,7 +101,7 @@ const nextAuthOptions = {
       if (token && token.provider === 'google') {
         session.user.password = tempPassword;
       }
-
+      console.log("Sessão gerada:", session);
       return session;
     },
   },

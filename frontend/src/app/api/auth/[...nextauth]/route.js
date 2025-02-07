@@ -21,7 +21,7 @@ const nextAuthOptions = {
         if (!credentials) return null
         try {
           const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
             {
               email: credentials.email,
               password: credentials.password
@@ -92,7 +92,7 @@ const nextAuthOptions = {
     // async signIn({ user, account }) {
     //   if (account.provider === 'google') {
     //     try {
-    //       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+    //       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, {
     //         email: user.email,
     //         googleLogin: true
     //       }, { withCredentials: true });

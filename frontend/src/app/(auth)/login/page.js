@@ -473,7 +473,7 @@ export default function AuthPage() {
                 </div>
                 <div className="text-sm">
                   <Link
-                    href="/auth/esqueceu-senha"
+                    href="#"
                     className="font-medium text-pink-500 hover:text-pink-600"
                   >
                     Esqueceu sua senha?

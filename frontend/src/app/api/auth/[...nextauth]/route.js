@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import axios from 'axios';
 
 let tempPassword = '';
 const nextAuthOptions = {
@@ -20,28 +19,14 @@ const nextAuthOptions = {
       async authorize(credentials, req) {
         if (!credentials) return null
         try {
-          const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
-            {
-              email: credentials.email,
-              password: credentials.password
-            },
-            {
-              withCredentials: true,
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
-
-          console.log("Resposta do backend:", response.data);
-
-          if (response.status === 200 && response.data.token) {
-            return {
-              id: response.data.user.id,
-              name: `${response.data.user.firstName} ${response.data.user.lastName}`,
-              email: response.data.user.email,
-              token: response.data.token,
-              userType: response.data.user.userType,
-            };
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(credentials)
+          });
+          const user = await response.json();
+          if (response.ok && user) {
+            return user;
           } else {
             return null;
           }

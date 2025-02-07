@@ -18,11 +18,13 @@ const nextAuthOptions = {
         password: { label: "password", type: "password" }
       },
       async authorize(credentials, req) {
+        console.log("Tentando login com:", credentials);
         if (!credentials) return null
         try {
           const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, credentials, {
             headers: { 'Content-Type': 'application/json' },
           });
+          console.log("Resposta do login:", response);
           
           if (response.status === 200 && response.data) {
             const user = response.data.user;
@@ -73,31 +75,31 @@ const nextAuthOptions = {
       };
       return session;
     },
-    // async signIn({ user, account }) {
-    //   return true; 
-    // },
     async signIn({ user, account }) {
-      if (account.provider === 'google') {
-        try {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, {
-            email: user.email,
-            googleLogin: true
-          }, { withCredentials: true });
-
-          if (response.status === 200 && response.data.token && response.data.user) {
-            user.token = response.data.token; // Armazena o token no usuário
-            user.userType = response.data.user.userType || "CONTRATANTE"; // Define userType padrão se não existir
-            return true;
-          } else {
-            return false;
-          }
-        } catch {
-          return false;
-        }
-      }
-      console.log("Tentando login com:", account?.provider, user);
-      return true;
+      return true; 
     },
+    // async signIn({ user, account }) {
+    //   if (account.provider === 'google') {
+    //     try {
+    //       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, {
+    //         email: user.email,
+    //         googleLogin: true
+    //       }, { withCredentials: true });
+
+    //       if (response.status === 200 && response.data.token && response.data.user) {
+    //         user.token = response.data.token; // Armazena o token no usuário
+    //         user.userType = response.data.user.userType || "CONTRATANTE"; // Define userType padrão se não existir
+    //         return true;
+    //       } else {
+    //         return false;
+    //       }
+    //     } catch {
+    //       return false;
+    //     }
+    //   }
+    //   console.log("Tentando login com:", account?.provider, user);
+    //   return true;
+    // },
     session: async (session, user, token) => {
       session.user = user;
       if (token && token.provider === 'google') {
@@ -108,8 +110,8 @@ const nextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/auth/login',
-    error: '/auth/login',
+    signIn: '/login',
+    error: '/login',
   },
 };
 

@@ -52,13 +52,14 @@ const nextAuthOptions = {
   // },
   callbacks: {
     async jwt({ token, user }) {
-      token.accessToken = user.token;
-      token.id = user.id;
-      token.name = user.name;
-      token.email = user.email;
-      token.userType = user.userType;
-
-      console.log("Token JWT gerado:", token);
+      if (user) {
+        token.accessToken = user.token;
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.userType = user.userType;
+        console.log("Token JWT gerado:", token);
+      }
       return token;
     },
 

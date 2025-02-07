@@ -40,11 +40,10 @@ export const AuthContextProvider = ({ children }) => {
 
     const login = async (inputs) => {
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
-                inputs,
-                { withCredentials: true }
-            );
-            Cookies.set("userId", res.data.token);
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, credentials, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+            console.log("Resposta do login:", res);
             if (!currentUser || currentUser.id !== res.data.user.id) {
                 setCurrentUser(res.data.user);
             }

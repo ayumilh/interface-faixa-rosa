@@ -15,7 +15,7 @@ export default function EsqueceuSenhaPage() {
     e.preventDefault();
     // setLoading(true);
 
-    // const endpoint = "/api/auth/esqueceu-senha";
+    // const endpoint = "/api/user/esqueceu-senha";
     // const payload = { email };
 
     // try {

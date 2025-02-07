@@ -24,7 +24,7 @@ export default function CadastroPage() {
     console.log({ firstName, lastName, email, password, phone, cpf, userType });
 
     try {
-      // const response = await axios.post(`${process..env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`,
+      // const response = await axios.post(`${process..env.NEXT_PUBLIC_BACKEND_URL}/api/user/register`,
       //   { firstName, lastName, email, password, phone, cpf, userType },
       //   { withCredentials: true }
       // );

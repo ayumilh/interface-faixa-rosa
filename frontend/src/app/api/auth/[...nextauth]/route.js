@@ -26,6 +26,7 @@ const nextAuthOptions = {
           
           if (response.status === 200 && response.data) {
             const user = response.data.user;
+            user.token = response.data.token;
             return user;
           } else {
             return null;

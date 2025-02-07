@@ -40,17 +40,17 @@ const nextAuthOptions = {
   session: {
     jwt: true,
   },
-  // cookies: {
-  //   sessionToken: {
-  //     name: `next-auth.session-token`,
-  //     options: {
-  //       domain: ".faixarosa.com",
-  //       httpOnly: true,
-  //       sameSite: "None",
-  //       secure: true,
-  //     },
-  //   },
-  // },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        domain: ".faixarosa.com",
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+      },
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

@@ -72,9 +72,9 @@ const nextAuthOptions = {
       };
       return session;
     },
-    // async signIn({ user, account }) {
-    //   return true; // Confirme o login apenas se o `authorize` retornar o usuário
-    // },
+    async signIn({ user, account }) {
+      return true; 
+    },
     // async signIn({ user, account }) {
     //   if (account.provider === 'google') {
     //     try {

@@ -51,34 +51,33 @@ const nextAuthOptions = {
       },
     }),
   ],
+  session: {
+    jwt: true,
+  },
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
       options: {
+        domain: ".faixarosa.com",
         httpOnly: true,
-        sameSite: "None", 
+        sameSite: "None",
         secure: true,
       },
     },
   },
   callbacks: {
-    // Callback para JWT
     async jwt({ token, user }) {
-      if (user) {
-        // Adiciona o userType do backend ao token
-        token.accessToken = user.token;
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.userType = user.userType; // Certifique-se de que o backend retorne `userType`
-      }
+      token.accessToken = user.token;
+      token.id = user.id;
+      token.name = user.name;
+      token.email = user.email;
+      token.userType = user.userType;
+
       console.log("Token JWT gerado:", token);
       return token;
     },
 
-    // Callback para sessão
     async session({ session, token }) {
-      // Adiciona userType e outras informações do token à sessão
       session.user = {
         id: token.id,
         email: token.email,

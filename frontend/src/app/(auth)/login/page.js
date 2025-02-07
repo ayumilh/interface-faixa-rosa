@@ -82,8 +82,11 @@ export default function AuthPage() {
     setLoading(true);
 
     if (type === "login") {
+      console.log({ email, password });
       try {
         const response = await login({ email, password });
+
+        console.log(response);
 
         // vericação do next-auth
         const result = await signIn('credentials', {

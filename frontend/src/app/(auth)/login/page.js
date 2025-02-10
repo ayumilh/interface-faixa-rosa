@@ -487,7 +487,7 @@ export default function AuthPage() {
               </div>
             </form>
 
-            <WithGoogle loginType="login" />
+            {/* <WithGoogle loginType="login" /> */}
 
             <div className="text-center mt-4 text-sm">
               Novo no Faixa Rosa?{" "}
@@ -742,7 +742,7 @@ export default function AuthPage() {
               </div>
             </form>
 
-            <WithGoogle loginType="cadastro" />
+            {/* <WithGoogle loginType="cadastro" /> */}
 
             <div className="text-center mt-4 text-sm">
               Já tem uma conta?{" "}

@@ -4,12 +4,10 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { useSession, signIn } from "next-auth/react";
 
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
-    const { data: session } = useSession();
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
@@ -21,40 +19,23 @@ export const AuthContextProvider = ({ children }) => {
         setIsModalOpen(!isModalOpen);
     };
 
-    // Redireciona o usuário com base no tipo
-    const redirectBasedOnUserType = (userType) => {
-        switch (userType) {
-            case "CONTRATANTE":
-                router.push("/userDashboard");
-                break;
-            case "ACOMPANHANTE":
-                router.push("/dashboard");
-                break;
-            case "ADMIN":
-                router.push("/adminDashboard");
-                break;
-            default:
-                break;
-        }
-    };
-
     const login = async (inputs) => {
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
-                inputs, 
+                inputs,
                 {
-                    withCredentials: true,  // Permite cookies e sessões autenticadas
+                    withCredentials: true,
                     headers: {
-                        "Content-Type": "application/json", // Certifique-se de que o backend aceita JSON
-                        "Accept": "application/json", // Garante que a resposta esperada seja JSON
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
                     }
                 }
             );
 
-            if (!res.data.token || !res.data.user) {
-                return null;
-            }
+            Cookies.set("userToken", res.data.token, { expires: 1 });
 
+            if (!res.data.token || !res.data.user) return null;
+            
             if (!currentUser || currentUser.id !== res.data.user.id) {
                 setCurrentUser(res.data.user);
             }
@@ -71,8 +52,11 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
-    const loginWithGoogle = async () => {
-        await signIn("google", { callbackUrl: "/dashboard" });
+    const logout = () => {
+        Cookies.remove("token");
+        setCurrentUser(null);
+        setIsAuthenticated(false);
+        router.push("/login");
     };
 
     useEffect(() => {
@@ -123,11 +107,26 @@ export const AuthContextProvider = ({ children }) => {
 
 
     useEffect(() => {
-        if (session && !currentUser && session.token?.userType) {
-            setCurrentUser(session.user);
-            setIsAuthenticated(true);
-        }
-    }, [session, currentUser]);
+        const checkAuth = async () => {
+            const token = Cookies.get("token");
+
+            if (token && !currentUser) {
+                try {
+                    const decodedToken = jwtDecode(token);
+
+                    setCurrentUser(decodedToken);
+                    setIsAuthenticated(true);
+                } catch (error) {
+                    setIsAuthenticated(false);
+                    setCurrentUser(null);
+                    Cookies.remove("token");
+                }
+            }
+        };
+
+        checkAuth();
+    }, [currentUser]);
+
 
     return (
         <AuthContext.Provider
@@ -135,7 +134,7 @@ export const AuthContextProvider = ({ children }) => {
                 isAuthenticated,
                 currentUser,
                 login,
-                loginWithGoogle,
+                logout,
                 userInfo,
                 setCurrentUser,
                 setIsAuthenticated,

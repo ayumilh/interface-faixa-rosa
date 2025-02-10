@@ -17,7 +17,6 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
-import { useSession } from "next-auth/react";
 import LoginNavbar from "@/components/LoginNavbar";
 import Modal from "@/components/dashboard/Modal";
 import UserMetrics from "@/components/userDashboard/UserMetrics";
@@ -34,7 +33,6 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import Image from "next/image";
 
 const UserDashboard = () => {
-  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("painel");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -79,14 +77,14 @@ const UserDashboard = () => {
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
                 <Image
-                  src={session?.token?.picture || "/images/user.jpg"}
-                  alt={session?.session?.user?.name || "Usuário"}
+                  src={"/images/user.jpg"}
+                  alt={"Usuário"}
                   width={48}
                   height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <span className="text-xl font-semibold text-gray-100">{session?.token?.name}</span>
+                  <span className="text-xl font-semibold text-gray-100">Nome</span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
               </div>
@@ -121,14 +119,14 @@ const UserDashboard = () => {
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
                 <Image
-                  src={session?.token?.picture || "/images/user.jpg"}
+                  src={"/images/user.jpg"}
                   alt="João Ribeiro"
                   width={48}
                   height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">{session?.token?.name}</h2>
+                  <h2 className="text-lg font-semibold">Nome do usuario</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

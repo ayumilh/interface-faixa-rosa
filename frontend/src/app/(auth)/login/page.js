@@ -87,20 +87,6 @@ export default function AuthPage() {
         
         if(response?.token) {
           console.log("Resposta do context-login:", response);
-          
-          // vericação do next-auth
-          const result = await signIn('credentials', {
-            email,
-            password,
-            redirect: false
-          });
-
-          if (result?.error) {
-            toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
-            return
-          }
-
-          console.log("Resposta do next-auth:", result);
 
           // Redireciona o usuário com base no tipo
           const { userType } = response;

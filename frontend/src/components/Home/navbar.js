@@ -8,7 +8,6 @@ import Image from "next/image";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolling, setScrolling] = useState(false);
-  const { data: session } = useSession();
   const router = useRouter();
 
   // Detecta rolagem para aplicar efeito na navbar

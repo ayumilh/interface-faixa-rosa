@@ -1,6 +1,6 @@
-import { getServerSession } from 'next-auth';
+import Cookies from 'js-cookie';
+import jwt from 'jsonwebtoken';
 import { redirect } from 'next/navigation';
-import { nextAuthOptions } from '../app/api/auth/[...nextauth]/route';
 
 // Rotas padrão para cada tipo de usuário
 const defaultRoutes = {
@@ -19,28 +19,37 @@ const routePermissions = {
 const publicRoutes = ['/planos'];
 
 export const checkSession = async (currentRoute) => {
-  const session = await getServerSession(nextAuthOptions);
+  try {
+    const token = Cookies.get('userToken');
+    console.log("Token encontrado no servidor:", token);
 
-  console.log("Sessão carregada:", session);
+    if (!token) {
+      console.log("⚠️ Token não encontrado, redirecionando para login...");
+      return { redirectTo: '/login' };
+    }
 
-  // Permite acesso irrestrito às rotas públicas
-  if (publicRoutes.includes(currentRoute)) {
-    return session; // Retorna a sessão se existir, mas não redireciona
+    // Decodifica o token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ Usuário autenticado:", decoded);
+
+    // Permite acesso irrestrito às rotas públicas
+    if (publicRoutes.includes(currentRoute)) {
+      return { user: decoded };
+    }
+
+    const { userType } = decoded;
+
+    // Verifica permissão para acessar a rota
+    const isAuthorized = routePermissions[userType]?.includes(currentRoute);
+    if (!isAuthorized) {
+      console.log(`Usuário ${userType} sem permissão para acessar ${currentRoute}, redirecionando...`);
+      return { redirectTo: defaultRoutes[userType] || '/login' };
+    }
+
+    return { user: decoded };
+
+  } catch (error) {
+    console.error("🚨 Erro ao verificar sessão:", error);
+    return { redirectTo: '/login' };
   }
-
-  // Para rotas privadas, verifica a autenticação
-  if (!session || !session.user || !session.user.accessToken) {
-    console.log("Usuário não autenticado, redirecionando para login...");
-    redirect('/login');
-  }
-
-  const { userType } = session.user;
-
-  // Verifica permissão para acessar a rota
-  const isAuthorized = routePermissions[userType]?.includes(currentRoute);
-  if (!isAuthorized) {
-    redirect(defaultRoutes[userType] || '/login');
-  }
-
-  return session;
 };

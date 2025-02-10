@@ -2,7 +2,6 @@ import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContextProvider } from "@/context/AuthContext";
-import NextAuthSessionProvider from "@/providers/sessionProvider";
 
 export const metadata = {
   title: "Faixa Rosa",
@@ -19,7 +18,6 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="antialiased">
-        <NextAuthSessionProvider>
           <AuthContextProvider>
             {children}
             <ToastContainer
@@ -35,7 +33,6 @@ export default function RootLayout({ children }) {
               theme="colored"
             />
           </AuthContextProvider>
-        </NextAuthSessionProvider>
       </body>
     </html>
   );

@@ -8,15 +8,26 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Cookies from "js-cookie";
-import { useSession, signOut } from "next-auth/react";
+import { searchUserId } from "@/utils/searchUserId";
 
 export default function LoginNavbar() {
-  const { data: session } = useSession();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const profileRef = useRef();
+  const [user, setUser] = useState(null);
   const notificationsRef = useRef();
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await searchUserId(); 
+      if (userData) {
+        setUser(userData);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   // Fechar os menus ao clicar fora
   useEffect(() => {
@@ -48,12 +59,11 @@ export default function LoginNavbar() {
   };
 
   const handleLogout = () => {
-    Cookies.remove("userId");
-    signOut({ callbackUrl: '/login' });
+    Cookies.remove("token");
   };
 
   const handleLogoClick = () => {
-    router.push(session?.token?.userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
+    router.push(user.userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
   }
 
   return (
@@ -138,7 +148,7 @@ export default function LoginNavbar() {
               onClick={toggleProfileMenu}
             >
               <Image
-                src={session?.token?.picture || "/images/user.jpg"}
+                src={"/images/user.jpg"}
                 alt="Usuário"
                 width={48}
                 height={48}
@@ -158,8 +168,8 @@ export default function LoginNavbar() {
             >
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
                 <div className="px-4 py-2 border-b">
-                  <p className="text-gray-800 font-semibold">{session?.session?.user?.name}</p>
-                  <p className="text-sm text-gray-500">{session?.session?.user?.email}</p>
+                  {/* <p className="text-gray-800 font-semibold">{session?.session?.user?.name}</p>
+                  <p className="text-sm text-gray-500">{session?.session?.user?.email}</p> */}
                 </div>
                 <Link href="/userDashboard" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                   Dashboard

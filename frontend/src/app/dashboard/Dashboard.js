@@ -23,10 +23,8 @@ import WorkingHours from "@/components/dashboard/WorkingHours";
 import CityManagement from "@/components/dashboard/CityManagement";
 import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { useSession } from "next-auth/react";
 
 const Dashboard = () => {
-  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("metrics");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -67,7 +65,7 @@ const Dashboard = () => {
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
                 <Image
-                  src={session?.token?.picture || "/images/user.jpg"}
+                  src={"/images/user.jpg"}
                   alt="Usuário"
                   width={120}
                   height={48}
@@ -77,9 +75,8 @@ const Dashboard = () => {
                   <span
                     className="text-xl font-semibold text-gray-100"
                     style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    title={session?.token?.name}
                   >
-                    {session?.token?.name}
+                    Nome do Usuário
                   </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
@@ -115,14 +112,14 @@ const Dashboard = () => {
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
                 <Image
-                  src={session?.token?.picture || "/images/user.jpg"}
+                  src={"/images/user.jpg"}
                   alt="Usuário"
                   width={48}
                   height={48}
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">{session?.token?.name}</h2>
+                  <h2 className="text-lg font-semibold">Nome do usuario</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

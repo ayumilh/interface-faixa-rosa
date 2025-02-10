@@ -13,7 +13,7 @@ const nextAuthOptions = {
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: "email", type: "email" },
+        email: { label: "email", type: "text" },
         password: { label: "password", type: "password" }
       },
       async authorize(credentials, req) {

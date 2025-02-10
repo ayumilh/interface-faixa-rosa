@@ -54,6 +54,7 @@ export const AuthContextProvider = ({ children }) => {
 
     const logout = () => {
         Cookies.remove("token");
+        Cookies.remove("userToken");
         setCurrentUser(null);
         setIsAuthenticated(false);
         router.push("/login");
@@ -68,10 +69,8 @@ export const AuthContextProvider = ({ children }) => {
                 const userid = decodedToken.id;
 
                 try {
-                    // Atualiza ou registra o `userid` no backend
                     await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/userId`, { userid });
 
-                    // Busca as informações completas do usuário
                     const res = await axios.get(
                         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
                         {
@@ -85,7 +84,6 @@ export const AuthContextProvider = ({ children }) => {
                     if (res.data.user) {
                         setUserInfo(res.data.user);
 
-                        // Atualiza apenas se necessário
                         if (!currentUser || currentUser.id !== res.data.user.id) {
                             setCurrentUser(res.data.user);
                         }

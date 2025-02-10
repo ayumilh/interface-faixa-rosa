@@ -16,7 +16,6 @@ const routePermissions = {
 const publicRoutes = ['/planos'];
 
 export const checkSession = async (currentRoute) => {
-  // Aguarda a API assíncrona corretamente
   const { cookies } = await import('next/headers');
   const cookieStore = cookies();
   const userToken = cookieStore.get('userToken');
@@ -31,7 +30,7 @@ export const checkSession = async (currentRoute) => {
 
   let session;
   try {
-    session = jwtDecode(userToken.value); // Decodifica o JWT corretamente
+    session = jwtDecode(userToken.value);
   } catch (error) {
     console.error('Erro ao decodificar o token:', error);
     redirect('/login');

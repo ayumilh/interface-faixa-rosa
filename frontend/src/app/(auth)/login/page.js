@@ -84,11 +84,10 @@ export default function AuthPage() {
     if (type === "login") {
       try {
         const response = await login({ email, password });
-        
-        if(response?.token) {
+
+        if (response?.token) {
           console.log("Resposta do context-login:", response);
 
-          // Redireciona o usuário com base no tipo
           const { userType } = response;
           router.push(userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
         }
@@ -98,10 +97,21 @@ export default function AuthPage() {
         setLoading(false);
       }
     } else if (type === "register") {
+      const formatDateToISO = (dateString) => {
+        // Divide a string no formato "DD/MM/YYYY"
+        const [day, month, year] = dateString.split("/");
+        // Retorna no formato "YYYY-MM-DD"
+        return `${year}-${month}-${day}`;
+      };
+      
+      const formattedBirthDate = dataNascimento ? formatDateToISO(dataNascimento) : undefined;
+      
+      console.log({ firstName, lastName, email, password, phone, cpf, formattedBirthDate, userType });
       try {
+
         const res = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/register`,
-          { firstName, lastName, email, password, phone, cpf, userType },
+          { firstName, lastName, email, password, phone, cpf, birthDate: formattedBirthDate, userType },
           { withCredentials: true }
         );
 
@@ -180,7 +190,7 @@ export default function AuthPage() {
     const value = e.target.value.trimStart();
     const regex = /[^a-zA-ZÀ-ÿ\s'-]/g;
     const sanitizedValue = sanitizeInput(value, regex, false);
-  
+
     setFirstName(sanitizedValue);
 
     setErrorsInput((prevErrors) => {

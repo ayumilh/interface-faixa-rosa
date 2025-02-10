@@ -1,5 +1,6 @@
 "use client";
 
+import { useContext } from "react";
 import Link from "next/link";
 import { FaBell } from "react-icons/fa";
 import { MdLocationOn, MdVideoLibrary, MdRateReview } from "react-icons/md";
@@ -7,8 +8,8 @@ import { Transition } from "@headlessui/react";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Cookies from "js-cookie";
 import { searchUserId } from "@/utils/searchUserId";
+import { AuthContext } from "@/context/AuthContext";
 
 export default function LoginNavbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -17,6 +18,7 @@ export default function LoginNavbar() {
   const [user, setUser] = useState(null);
   const notificationsRef = useRef();
   const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -59,7 +61,7 @@ export default function LoginNavbar() {
   };
 
   const handleLogout = () => {
-    Cookies.remove("token");
+    logout();
   };
 
   const handleLogoClick = () => {

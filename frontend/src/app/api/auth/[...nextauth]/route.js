@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import axios from "axios";
 
 const nextAuthOptions = {
+  debug: true,
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({

@@ -109,6 +109,7 @@ const nextAuthOptions = {
     signIn: '/login',
     error: '/login',
   },
+  csrf: false
 };
 
 const handler = NextAuth(nextAuthOptions);

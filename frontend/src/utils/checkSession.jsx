@@ -1,15 +1,12 @@
-import Cookies from 'js-cookie';
-import jwt from 'jsonwebtoken';
 import { redirect } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
-// Rotas padrão para cada tipo de usuário
 const defaultRoutes = {
   CONTRATANTE: '/userDashboard',
   ACOMPANHANTE: '/dashboard',
   ADMIN: '/adminDashboard',
 };
 
-// Rotas permitidas para cada tipo de usuário
 const routePermissions = {
   CONTRATANTE: ['/userDashboard'],
   ACOMPANHANTE: ['/dashboard'],
@@ -19,37 +16,33 @@ const routePermissions = {
 const publicRoutes = ['/planos'];
 
 export const checkSession = async (currentRoute) => {
-  try {
-    const token = Cookies.get('userToken');
-    console.log("Token encontrado no servidor:", token);
+  // Aguarda a API assíncrona corretamente
+  const { cookies } = await import('next/headers');
+  const cookieStore = cookies();
+  const userToken = cookieStore.get('userToken');
 
-    if (!token) {
-      console.log("⚠️ Token não encontrado, redirecionando para login...");
-      return { redirectTo: '/login' };
-    }
-
-    // Decodifica o token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("✅ Usuário autenticado:", decoded);
-
-    // Permite acesso irrestrito às rotas públicas
-    if (publicRoutes.includes(currentRoute)) {
-      return { user: decoded };
-    }
-
-    const { userType } = decoded;
-
-    // Verifica permissão para acessar a rota
-    const isAuthorized = routePermissions[userType]?.includes(currentRoute);
-    if (!isAuthorized) {
-      console.log(`Usuário ${userType} sem permissão para acessar ${currentRoute}, redirecionando...`);
-      return { redirectTo: defaultRoutes[userType] || '/login' };
-    }
-
-    return { user: decoded };
-
-  } catch (error) {
-    console.error("🚨 Erro ao verificar sessão:", error);
-    return { redirectTo: '/login' };
+  if (publicRoutes.includes(currentRoute)) {
+    return userToken ? { token: userToken.value } : null;
   }
+
+  if (!userToken) {
+    redirect('/login');
+  }
+
+  let session;
+  try {
+    session = jwtDecode(userToken.value); // Decodifica o JWT corretamente
+  } catch (error) {
+    console.error('Erro ao decodificar o token:', error);
+    redirect('/login');
+  }
+
+  const { userType } = session;
+
+  const isAuthorized = routePermissions[userType]?.includes(currentRoute);
+  if (!isAuthorized) {
+    redirect(defaultRoutes[userType] || '/login');
+  }
+
+  return session;
 };

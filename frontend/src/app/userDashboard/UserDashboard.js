@@ -37,8 +37,6 @@ const UserDashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  console.log(session);
-
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const menuTabs = [

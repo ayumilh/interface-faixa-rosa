@@ -40,28 +40,14 @@ const nextAuthOptions = {
       },
     }),
   ],
-  session: {
-    jwt: true,
-  },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        domain: ".faixarosa.com",
-        httpOnly: true,
-        sameSite: "None",
-        secure: true,
-      },
-    },
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.token;
+        token.accessToken = user.token || null;
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
-        token.userType = user.userType;
+        token.userType = user.userType || "CONTRATANTE"; 
         console.log("Token JWT gerado:", token);
       }
       return token;
@@ -101,14 +87,6 @@ const nextAuthOptions = {
     //   console.log("Tentando login com:", account?.provider, user);
     //   return true;
     // },
-    session: async (session, user, token) => {
-      session.user = user;
-      if (token && token.provider === 'google') {
-        session.user.password = tempPassword;
-      }
-      console.log("Sessão gerada:", session);
-      return session;
-    },
   },
   pages: {
     signIn: '/login',

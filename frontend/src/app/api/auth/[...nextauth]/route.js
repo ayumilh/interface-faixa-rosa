@@ -3,7 +3,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import axios from "axios";
 
-let tempPassword = '';
 const nextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -18,36 +17,31 @@ const nextAuthOptions = {
         password: { label: "password", type: "password" }
       },
       async authorize(credentials, req) {
-        console.log("Tentando login com:", credentials);
-        if (!credentials) return null
-        try {
-          const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, credentials, {
-            headers: { 'Content-Type': 'application/json' },
-            withCredentials: true,
-          });
-          console.log("Resposta do login:", response);
-          
-          if (response.status === 200 && response.data) {
-            const user = response.data.user;
-            user.token = response.data.token;
-            return user;
-          } else {
-            return null;
-          }
-        } catch {
+        console.log("Autenticando no NextAuth:", credentials);
+
+        if (!credentials?.token) {
+          console.error("Erro: Token JWT não foi recebido!");
           return null;
         }
+
+        return {
+          id: credentials.id,
+          name: credentials.firstName + " " + credentials.lastName,
+          email: credentials.email,
+          userType: credentials.userType,
+          token: credentials.token,
+        };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.token || null;
+        token.accessToken = user.token;
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
-        token.userType = user.userType || "CONTRATANTE"; 
+        token.userType = user.userType || "CONTRATANTE";
         console.log("Token JWT gerado:", token);
       }
       return token;
@@ -59,11 +53,12 @@ const nextAuthOptions = {
         email: token.email,
         userType: token.userType,
         name: token.name,
+        accessToken: token.accessToken,
       };
       return session;
     },
     async signIn({ user, account }) {
-      return true; 
+      return true;
     },
     // async signIn({ user, account }) {
     //   if (account.provider === 'google') {

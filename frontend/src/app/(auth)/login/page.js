@@ -82,33 +82,40 @@ export default function AuthPage() {
     setLoading(true);
 
     if (type === "login") {
-      console.log({ email, password });
       try {
         const response = await login({ email, password });
+        
+        if(response?.token) {
+          console.log("Resposta do context-login:", response);
+          
+          // vericação do next-auth
+          const result = await signIn('credentials', {
+            email,
+            password,
+            token: response.token,
+            id: response.user.id,
+            firstName: response.user.firstName,
+            lastName: response.user.lastName,
+            userType: response.user.userType,
+            redirect: false
+          });
 
-        console.log(response);
+          if (result?.error) {
+            toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
+            return
+          }
 
-        // vericação do next-auth
-        const result = await signIn('credentials', {
-          email,
-          password,
-          redirect: false
-        });
-        if (result?.error) {
-          toast.error('Usuário não encontrado. Por favor, verifique as informações inseridas e tente novamente');
-          return
-        }
-        if (response) {
+          console.log("Resposta do next-auth:", result);
+
+          // Redireciona o usuário com base no tipo
           const { userType } = response;
           router.push(userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
         }
-
       } catch (error) {
         toast.error(error.response?.data?.message || error.message);
       } finally {
         setLoading(false);
       }
-
     } else if (type === "register") {
       try {
         const res = await axios.post(

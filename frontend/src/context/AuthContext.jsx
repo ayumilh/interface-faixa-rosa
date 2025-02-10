@@ -39,7 +39,6 @@ export const AuthContextProvider = ({ children }) => {
     };
 
     const login = async (inputs) => {
-        console.log("Inputs do login:", inputs);
         try {
             const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
                 inputs, 
@@ -51,8 +50,6 @@ export const AuthContextProvider = ({ children }) => {
                     }
                 }
             );
-
-            console.log("Resposta do login:", res.data);
 
             if (!res.data.token || !res.data.user) {
                 return null;

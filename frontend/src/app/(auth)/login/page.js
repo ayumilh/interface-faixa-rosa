@@ -92,11 +92,6 @@ export default function AuthPage() {
           const result = await signIn('credentials', {
             email,
             password,
-            token: response.token,
-            id: response.user.id,
-            firstName: response.user.firstName,
-            lastName: response.user.lastName,
-            userType: response.user.userType,
             redirect: false
           });
 

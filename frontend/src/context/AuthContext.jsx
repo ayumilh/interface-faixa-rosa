@@ -39,18 +39,35 @@ export const AuthContextProvider = ({ children }) => {
     };
 
     const login = async (inputs) => {
+        console.log("Inputs do login:", inputs);
         try {
-            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, credentials, {
-                headers: { 'Content-Type': 'application/json' },
-            });
-            console.log("Resposta do login:", res);
+            const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
+                inputs, 
+                {
+                    withCredentials: true,  // Permite cookies e sessões autenticadas
+                    headers: {
+                        "Content-Type": "application/json", // Certifique-se de que o backend aceita JSON
+                        "Accept": "application/json", // Garante que a resposta esperada seja JSON
+                    }
+                }
+            );
+
+            console.log("Resposta do login:", res.data);
+
+            if (!res.data.token || !res.data.user) {
+                return null;
+            }
+
             if (!currentUser || currentUser.id !== res.data.user.id) {
                 setCurrentUser(res.data.user);
             }
             if (!isAuthenticated) {
                 setIsAuthenticated(true);
             }
-            return res.data.user;
+            return {
+                user: res.data.user,
+                token: res.data.token,
+            }
         } catch {
             setIsAuthenticated(false);
             return null;

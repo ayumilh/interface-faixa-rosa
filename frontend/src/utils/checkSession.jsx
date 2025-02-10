@@ -21,17 +21,20 @@ const publicRoutes = ['/planos'];
 export const checkSession = async (currentRoute) => {
   const session = await getServerSession(nextAuthOptions);
 
+  console.log("Sessão carregada:", session);
+
   // Permite acesso irrestrito às rotas públicas
   if (publicRoutes.includes(currentRoute)) {
     return session; // Retorna a sessão se existir, mas não redireciona
   }
 
   // Para rotas privadas, verifica a autenticação
-  if (!session) {
-    redirect('/login'); // Redireciona para login se não autenticado
+  if (!session || !session.user || !session.user.accessToken) {
+    console.log("Usuário não autenticado, redirecionando para login...");
+    redirect('/login');
   }
 
-  const { userType } = session.token;
+  const { userType } = session.user;
 
   // Verifica permissão para acessar a rota
   const isAuthorized = routePermissions[userType]?.includes(currentRoute);

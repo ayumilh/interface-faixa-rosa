@@ -23,6 +23,7 @@ const nextAuthOptions = {
         try {
           const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, credentials, {
             headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
           });
           console.log("Resposta do login:", response);
           

@@ -19,10 +19,19 @@ const nextAuthOptions = {
       async authorize(credentials, req) {
         console.log("Autenticando no NextAuth:", credentials);
         try {
-          const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`, {
-            email: credentials.email,
-            password: credentials.password
-          }, { withCredentials: true });
+          const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
+            {
+              email: credentials.email,
+              password: credentials.password,
+            },
+            {
+              withCredentials: true,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
           const user = res.data;
           console.log("Usuário autenticado pelo backend:", user);
@@ -37,7 +46,7 @@ const nextAuthOptions = {
             name: `${user.user.firstName} ${user.user.lastName}`,
             email: user.user.email,
             userType: user.user.userType || "CONTRATANTE",
-            token: user.token,
+            accessToken: user.token,
           };
         } catch (error) {
           console.error("Erro ao autenticar no backend:", error.response?.data || error.message);
@@ -49,7 +58,7 @@ const nextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.token;
+        token.accessToken = user.accessToken;
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;

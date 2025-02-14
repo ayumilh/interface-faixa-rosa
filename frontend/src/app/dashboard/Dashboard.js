@@ -139,7 +139,7 @@ const Dashboard = () => {
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">Nome do usuario</h2>
+                  <h2 className="text-lg font-semibold">{user.firstName} {user.lastName}</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

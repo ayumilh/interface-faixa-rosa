@@ -2,8 +2,9 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 import {
   FaMapMarkerAlt,
   FaDollarSign,
@@ -20,6 +21,7 @@ import {
 } from "react-icons/fa";
 import Modal from "@/components/dashboard/Modal";
 import ModalBusca from "@/components/search/modalbuscaconvenio";
+import Cookies from "js-cookie";
 
 const CityManagement = ({ onUpdate }) => {
   const {
@@ -73,6 +75,46 @@ const CityManagement = ({ onUpdate }) => {
       console.error("Erro ao buscar intermediações", error);
     }
   };
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userToken = Cookies.get("userToken");
+
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/locations`,
+          {
+            headers: { Authorization: `Bearer ${userToken}` },
+          }
+        );
+        
+        if (response.status === 200) {
+          const data = response.data;
+
+          setSelectedCity(data.city);
+          setSelectedUF(data.state);
+          setValue("city", `${data.city} - ${data.state}`);
+
+          const attendedLocations = data.attendedLocations.map((loc) => loc.name);
+          const amenities = data.amenities;
+
+          setIntermediaries((prev) => ({
+            ...prev,
+            localities: attendedLocations,
+            amenities: amenities || [],
+          }));
+        } else {
+          console.error("Erro ao buscar dados:", data.error);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar locais:", error);
+      }
+    };
+
+    fetchData();
+  }, [setValue]);
+
 
   const handleSelectCity = (cityName, uf) => {
     setSelectedCity(cityName);

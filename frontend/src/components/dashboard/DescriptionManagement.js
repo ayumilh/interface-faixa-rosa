@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import {
@@ -13,6 +14,7 @@ import {
   FaChevronUp,
   FaInfoCircle,
 } from "react-icons/fa";
+import Cookies from "js-cookie";
 
 // Opções para o multi-select de idiomas
 const languageOptions = [
@@ -23,10 +25,10 @@ const languageOptions = [
   { value: "Mandarim", label: "Mandarim" },
 ];
 
-// Opções para Genitália
+// Opções para os selects
 const genitaliaOptions = [
-  { value: "Possui Vagina", label: "Possui Vagina" },
-  { value: "Possui Penis", label: "Possui Penis" },
+  { value: "NATURAL", label: "Natural" },
+  { value: "CIRURGIA", label: "Cirurgicamente Modificada" },
 ];
 
 const DescriptionManagement = () => {
@@ -35,49 +37,137 @@ const DescriptionManagement = () => {
   const [videoPending, setVideoPending] = useState(false);
   const [isVideoApproved, setIsVideoApproved] = useState(false);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(true);
+  const [videoFile, setVideoFile] = useState(null);
 
   const {
     register,
     handleSubmit,
-    reset,
-    control,
+    setValue,
+    getValues,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      description: "",
-      genero: "",
-      genitalia: "",
-      peso: "",
-      altura: "",
-      etnia: "",
-      olhos: "",
-      estiloCabelo: "",
-      tamanhoCabelo: "",
-      tamanhoPe: "",
-      silicone: "",
-      tatuagens: "",
-      piercings: "",
-      fumante: "",
-      idiomas: [],
-    },
-  });
+  } = useForm();
 
-  const onSubmit = (data) => {
-    console.log("Dados Atualizados:", data);
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3000);
-    reset(data);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userToken = Cookies.get("userToken");
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
+          {
+            headers: { Authorization: `Bearer ${userToken}` },
+          }
+        );
+
+        if (response.status === 200) {
+          const data = response.data;
+          console.log("Dados carregados:", data);
+
+          // Preenchendo os campos do formulário com os dados recebidos
+          setValue("description", data.description || "");
+          setValue("gender", data.characteristics?.gender || "");
+          setValue("genitalia", data.characteristics?.genitalia || "");
+          setValue("weight", data.characteristics?.weight || "");
+          setValue("height", data.characteristics?.height || "");
+          setValue("ethnicity", data.characteristics?.ethnicity || "");
+          setValue("eyeColor", data.characteristics?.eyeColor || "");
+          setValue("hairStyle", data.characteristics?.hairStyle || "");
+          setValue("hairLength", data.characteristics?.hairLength || "");
+          setValue("shoeSize", data.characteristics?.shoeSize || "");
+          setValue("hasSilicone", data.characteristics?.hasSilicone || false);
+          setValue("hasTattoos", data.characteristics?.hasTattoos || false);
+          setValue("hasPiercings", data.characteristics?.hasPiercings || false);
+          setValue("smoker", data.characteristics?.smoker || false);
+
+          // Se houver um vídeo já armazenado, marca como aprovado
+          if (data.characteristics?.comparisonMedia) {
+            setIsVideoApproved(true);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar os dados:", error);
+      }
+    };
+
+    fetchData();
+  }, [setValue]);
+
+  const handleSubmitForm = async (data) => {
+    try {
+      const userToken = Cookies.get("userToken");
+
+      // Converte valores corretamente
+      const processedData = {
+        ...data,
+        weight: parseFloat(data.weight) || 0,
+        height: parseInt(data.height, 10) || 0,
+        shoeSize: parseInt(data.shoeSize, 10) || 0,
+        hasSilicone: data.hasSilicone === "true",
+        hasTattoos: data.hasTattoos === "true",
+        hasPiercings: data.hasPiercings === "true",
+        smoker: data.smoker === "true",
+        hasComparisonMedia: videoFile ? true : false, // Envia booleano corretamente
+      };
+
+      const formData = new FormData();
+      Object.keys(processedData).forEach(key => {
+        console.log("key", key);
+        formData.append(key, processedData[key]);
+      });
+
+      let response;
+
+      if (videoFile) {
+        // ✅ Se houver vídeo, usa FormData (multipart/form-data)
+        formData.append("comparisonMedia", videoFile);
+
+        response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data", // Apenas se houver vídeo
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+      } else {
+        // ✅ Se não houver vídeo, envia JSON normal (application/json)
+        response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          processedData,
+          {
+            headers: {
+              "Content-Type": "application/json", // JSON puro se não houver vídeo
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+      }
+
+      if (response.status !== 200) {
+        throw new Error(response.data.error || "Erro ao atualizar o perfil");
+      }
+
+      alert("Perfil atualizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error);
+      alert(error.message || "Ocorreu um erro ao atualizar o perfil.");
+    }
   };
+
+
 
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
+
     if (file) {
       console.log("Vídeo enviado:", file.name);
       setVideoUploaded(true);
       setVideoPending(true);
-      // Aqui você pode adicionar lógica para enviar o vídeo para o servidor
+      setVideoFile(file);
     }
   };
+
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-lg shadow-md mt-8 max-w-7xl mx-auto">
@@ -88,7 +178,7 @@ const DescriptionManagement = () => {
         </h2>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-8">
         {/* Seção de Descrição */}
         <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
@@ -103,9 +193,8 @@ const DescriptionManagement = () => {
               id="description"
               rows="4"
               placeholder="Adicione ou edite sua descrição aqui..."
-              className={`w-full p-3 border ${
-                errors.description ? "border-red-500" : "border-gray-300"
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-400 transition duration-300`}
+              className={`w-full p-3 border ${errors.description ? "border-red-500" : "border-gray-300"
+                } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-400 transition duration-300`}
             ></textarea>
             {errors.description && (
               <span className="text-red-500 text-sm mt-2 block">
@@ -190,25 +279,24 @@ const DescriptionManagement = () => {
               {/* Gênero */}
               <div>
                 <label
-                  htmlFor="genero"
+                  htmlFor="gender"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Gênero
                 </label>
                 <select
-                  {...register("genero", { required: true })}
-                  id="genero"
-                  className={`w-full p-2 border ${
-                    errors.genero ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("gender", { required: true })}
+                  id="gender"
+                  className={`w-full p-2 border ${errors.gender ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Mulher Cisgênero">Mulher Cisgênero</option>
-                  <option value="Homem Cisgênero">Homem Cisgênero</option>
-                  <option value="Mulher Trans">Mulher Trans</option>
-                  <option value="Homem Trans">Homem Trans</option>
+                  <option value="MULHER_CISGENERO">Mulher Cisgênero</option>
+                  <option value="HOMEM_CISGENERO">Homem Cisgênero</option>
+                  <option value="MULHER_TRANS">Mulher Trans</option>
+                  <option value="HOMEM_TRANS">Homem Trans</option>
                 </select>
-                {errors.genero && (
+                {errors.gender && (
                   <span className="text-red-500 text-sm mt-2 block">
                     Por favor, selecione o gênero.
                   </span>
@@ -226,9 +314,8 @@ const DescriptionManagement = () => {
                 <select
                   {...register("genitalia", { required: true })}
                   id="genitalia"
-                  className={`w-full p-2 border ${
-                    errors.genitalia ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  className={`w-full p-2 border ${errors.genitalia ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
                   {genitaliaOptions.map((option) => (
@@ -247,26 +334,25 @@ const DescriptionManagement = () => {
               {/* Peso */}
               <div>
                 <label
-                  htmlFor="peso"
+                  htmlFor="weight"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Peso (kg)
                 </label>
                 <input
-                  {...register("peso", {
+                  {...register("weight", {
                     required: true,
                     pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
                   })}
                   type="text"
-                  id="peso"
+                  id="weight"
                   placeholder="Ex: 70"
-                  className={`w-full p-2 border ${
-                    errors.peso ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-400 transition duration-300`}
+                  className={`w-full p-2 border ${errors.weight ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-400 transition duration-300`}
                 />
-                {errors.peso && (
+                {errors.weight && (
                   <span className="text-red-500 text-sm mt-2">
-                    Por favor, insira um peso válido.
+                    Por favor, insira um weight válido.
                   </span>
                 )}
               </div>
@@ -274,26 +360,25 @@ const DescriptionManagement = () => {
               {/* Altura */}
               <div>
                 <label
-                  htmlFor="altura"
+                  htmlFor="height"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Altura (cm)
                 </label>
                 <input
-                  {...register("altura", {
+                  {...register("height", {
                     required: true,
                     pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
                   })}
                   type="text"
-                  id="altura"
+                  id="height"
                   placeholder="Ex: 170"
-                  className={`w-full p-2 border ${
-                    errors.altura ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-400 transition duration-300`}
+                  className={`w-full p-2 border ${errors.height ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 placeholder-gray-400 transition duration-300`}
                 />
-                {errors.altura && (
+                {errors.height && (
                   <span className="text-red-500 text-sm mt-2">
-                    Por favor, insira uma altura válida.
+                    Por favor, insira uma height válida.
                   </span>
                 )}
               </div>
@@ -301,29 +386,28 @@ const DescriptionManagement = () => {
               {/* Etnia */}
               <div>
                 <label
-                  htmlFor="etnia"
+                  htmlFor="ethnicity"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Etnia
                 </label>
                 <select
-                  {...register("etnia", { required: true })}
-                  id="etnia"
-                  className={`w-full p-2 border ${
-                    errors.etnia ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("ethnicity", { required: true })}
+                  id="ethnicity"
+                  className={`w-full p-2 border ${errors.ethnicity ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Branca">Branca</option>
-                  <option value="Preta">Preta</option>
-                  <option value="Parda">Parda</option>
-                  <option value="Amarela">Amarela</option>
-                  <option value="Indígena">Indígena</option>
+                  <option value="BRANCA">Branca</option>
+                  <option value="LATINA">Latina</option>
+                  <option value="MULATA">Mulata</option>
+                  <option value="NEGRA">Negra</option>
+                  <option value="ORIENTAl">Oriental</option>
                   <option value="Outra">Outra</option>
                 </select>
-                {errors.etnia && (
+                {errors.ethnicity && (
                   <span className="text-red-500 text-sm mt-2">
-                    Por favor, selecione a etnia.
+                    Por favor, selecione a ethnicity.
                   </span>
                 )}
               </div>
@@ -331,29 +415,28 @@ const DescriptionManagement = () => {
               {/* Cor dos Olhos */}
               <div>
                 <label
-                  htmlFor="olhos"
+                  htmlFor="eyeColor"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Cor dos Olhos
                 </label>
                 <select
-                  {...register("olhos", { required: true })}
-                  id="olhos"
-                  className={`w-full p-2 border ${
-                    errors.olhos ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("eyeColor", { required: true })}
+                  id="eyeColor"
+                  className={`w-full p-2 border ${errors.eyeColor ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Castanhos">Castanhos</option>
-                  <option value="Azuis">Azuis</option>
-                  <option value="Verdes">Verdes</option>
-                  <option value="Cinzas">Cinzas</option>
-                  <option value="Pretos">Pretos</option>
-                  <option value="Outros">Outros</option>
+                  <option value="CASTANHOS">Castanhos</option>
+                  <option value="AZUIS">Azuis</option>
+                  <option value="VERDES">Verdes</option>
+                  <option value="CINZAS">Cinzas</option>
+                  <option value="PRETOS">Pretos</option>
+                  <option value="OUTROS">Outros</option>
                 </select>
-                {errors.olhos && (
+                {errors.eyeColor && (
                   <span className="text-red-500 text-sm mt-2">
-                    Por favor, selecione a cor dos olhos.
+                    Por favor, selecione a cor dos eyeColor.
                   </span>
                 )}
               </div>
@@ -361,28 +444,25 @@ const DescriptionManagement = () => {
               {/* Estilo de Cabelo */}
               <div>
                 <label
-                  htmlFor="estiloCabelo"
+                  htmlFor="hairStyle"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Estilo de Cabelo
                 </label>
                 <select
-                  {...register("estiloCabelo", { required: true })}
-                  id="estiloCabelo"
-                  className={`w-full p-2 border ${
-                    errors.estiloCabelo ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("hairStyle", { required: true })}
+                  id="hairStyle"
+                  className={`w-full p-2 border ${errors.hairStyle ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Curto">Curto</option>
-                  <option value="Médio">Médio</option>
-                  <option value="Longo">Longo</option>
-                  <option value="Ondulado">Ondulado</option>
-                  <option value="Liso">Liso</option>
-                  <option value="Cacheado">Cacheado</option>
-                  <option value="Outro">Outro</option>
+                  <option value="ONDULADO">Ondulado</option>
+                  <option value="LISO">Liso</option>
+                  <option value="CACHEADO">Cacheado</option>
+                  <option value="CRESPO">Crespo</option>
+                  <option value="RASPADO">Raspado</option>
                 </select>
-                {errors.estiloCabelo && (
+                {errors.hairStyle && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione o estilo de cabelo.
                   </span>
@@ -392,24 +472,23 @@ const DescriptionManagement = () => {
               {/* Tamanho de Cabelo */}
               <div>
                 <label
-                  htmlFor="tamanhoCabelo"
+                  htmlFor="hairLength"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Tamanho de Cabelo
                 </label>
                 <select
-                  {...register("tamanhoCabelo", { required: true })}
-                  id="tamanhoCabelo"
-                  className={`w-full p-2 border ${
-                    errors.tamanhoCabelo ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("hairLength", { required: true })}
+                  id="hairLength"
+                  className={`w-full p-2 border ${errors.hairLength ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Curto">Curto</option>
-                  <option value="Médio">Médio</option>
-                  <option value="Longo">Longo</option>
+                  <option value="CURTO">Curto</option>
+                  <option value="MEDIO">Médio</option>
+                  <option value="LONGO">Longo</option>
                 </select>
-                {errors.tamanhoCabelo && (
+                {errors.hairLength && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione o tamanho de cabelo.
                   </span>
@@ -418,18 +497,15 @@ const DescriptionManagement = () => {
 
               {/* Tamanho do Pé */}
               <div>
-                <label
-                  htmlFor="tamanhoPe"
-                  className="block text-gray-800 font-medium mb-2"
-                >
+                <label htmlFor="footSize" className="block text-gray-800 font-medium mb-2">
                   Tamanho do Pé
                 </label>
                 <select
-                  {...register("tamanhoPe", { required: true })}
-                  id="tamanhoPe"
-                  className={`w-full p-2 border ${
-                    errors.tamanhoPe ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("footSize", { required: true })}
+                  id="footSize"
+                  defaultValue={getValues("footSize")} // Define o valor inicial
+                  className={`w-full p-2 border ${errors.footSize ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
                   {Array.from({ length: 14 }, (_, i) => i + 35).map((size) => (
@@ -439,7 +515,7 @@ const DescriptionManagement = () => {
                   ))}
                   <option value="Outro">Outro</option>
                 </select>
-                {errors.tamanhoPe && (
+                {errors.footSize && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione um tamanho de pé válido.
                   </span>
@@ -449,23 +525,22 @@ const DescriptionManagement = () => {
               {/* Possui Silicone */}
               <div>
                 <label
-                  htmlFor="silicone"
+                  htmlFor="hasSilicone"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Possui Silicone?
                 </label>
                 <select
-                  {...register("silicone", { required: true })}
-                  id="silicone"
-                  className={`w-full p-2 border ${
-                    errors.silicone ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("hasSilicone", { required: true })}
+                  id="hasSilicone"
+                  className={`w-full p-2 border ${errors.hasSilicone ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Sim">Sim</option>
-                  <option value="Não">Não</option>
+                  <option value="true">Sim</option>
+                  <option value="false">Não</option>
                 </select>
-                {errors.silicone && (
+                {errors.hasSilicone && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione uma opção.
                   </span>
@@ -475,23 +550,22 @@ const DescriptionManagement = () => {
               {/* Possui Tatuagens */}
               <div>
                 <label
-                  htmlFor="tatuagens"
+                  htmlFor="hasTattoos"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Possui Tatuagens?
                 </label>
                 <select
-                  {...register("tatuagens", { required: true })}
-                  id="tatuagens"
-                  className={`w-full p-2 border ${
-                    errors.tatuagens ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("hasTattoos", { required: true })}
+                  id="hasTattoos"
+                  className={`w-full p-2 border ${errors.hasTattoos ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Sim">Sim</option>
-                  <option value="Não">Não</option>
+                  <option value="true">Sim</option>
+                  <option value="false">Não</option>
                 </select>
-                {errors.tatuagens && (
+                {errors.hasTattoos && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione uma opção.
                   </span>
@@ -501,23 +575,22 @@ const DescriptionManagement = () => {
               {/* Possui Piercings */}
               <div>
                 <label
-                  htmlFor="piercings"
+                  htmlFor="hasPiercings"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Possui Piercings?
                 </label>
                 <select
-                  {...register("piercings", { required: true })}
-                  id="piercings"
-                  className={`w-full p-2 border ${
-                    errors.piercings ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("hasPiercings", { required: true })}
+                  id="hasPiercings"
+                  className={`w-full p-2 border ${errors.hasPiercings ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Sim">Sim</option>
-                  <option value="Não">Não</option>
+                  <option value="true">Sim</option>
+                  <option value="false">Não</option>
                 </select>
-                {errors.piercings && (
+                {errors.hasPiercings && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione uma opção.
                   </span>
@@ -527,23 +600,22 @@ const DescriptionManagement = () => {
               {/* Fumante */}
               <div>
                 <label
-                  htmlFor="fumante"
+                  htmlFor="smoker"
                   className="block text-gray-800 font-medium mb-2"
                 >
                   Fumante?
                 </label>
                 <select
-                  {...register("fumante", { required: true })}
-                  id="fumante"
-                  className={`w-full p-2 border ${
-                    errors.fumante ? "border-red-500" : "border-gray-300"
-                  } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
+                  {...register("smoker", { required: true })}
+                  id="smoker"
+                  className={`w-full p-2 border ${errors.smoker ? "border-red-500" : "border-gray-300"
+                    } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  <option value="Sim">Sim</option>
-                  <option value="Não">Não</option>
+                  <option value="true">Sim</option>
+                  <option value="false">Não</option>
                 </select>
-                {errors.fumante && (
+                {errors.smoker && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione uma opção.
                   </span>
@@ -551,7 +623,7 @@ const DescriptionManagement = () => {
               </div>
 
               {/* Idiomas */}
-              <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+              {/* <div className="col-span-1 sm:col-span-2 lg:col-span-3">
                 <label className="block text-gray-800 font-medium mb-2">
                   Idiomas
                 </label>
@@ -613,7 +685,7 @@ const DescriptionManagement = () => {
                     {errors.idiomas.message}
                   </span>
                 )}
-              </div>
+              </div> */}
             </div>
           )}
 

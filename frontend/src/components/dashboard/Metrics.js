@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   FaWhatsapp,
   FaTelegram,
@@ -9,6 +10,7 @@ import {
   FaExclamationCircle,
 } from "react-icons/fa";
 import Charts from "@/components/dashboard/Charts";
+import Cookies from "js-cookie";
 
 const Metrics = ({ userName, userCity, userState }) => {
   const [contactConfig, setContactConfig] = useState({
@@ -18,6 +20,7 @@ const Metrics = ({ userName, userCity, userState }) => {
   });
   const [updated, setUpdated] = useState(false);
   const [error, setError] = useState("");
+  const userToken = Cookies.get("userToken");
 
   const formatPhoneNumber = (value) => {
     const cleanedValue = value.replace(/\D/g, "");
@@ -29,6 +32,38 @@ const Metrics = ({ userName, userCity, userState }) => {
       ? cleanedValue.replace(/^(\d{2})(\d{4})$/, "($1) $2")
       : formattedValue;
   };
+
+  // Requisição para buscar dados de contato
+  useEffect(() => {
+    const fetchContactData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/contact`,
+          {
+            headers: { Authorization: `Bearer ${userToken}` },
+          }
+        );
+        const { contact } = response.data;
+
+        setContactConfig({
+          whatsapp: {
+            number: formatPhoneNumber(contact.whatsappNumber),
+            message: contact.whatsappMessage || "",
+          },
+          telegram: {
+            username: contact.telegramUsername || "",
+            message: contact.telegramMessage || "",
+          },
+          phone: formatPhoneNumber(contact.phoneNumber),
+        });
+
+      } catch (error) {
+        setError("Erro ao carregar os dados de contato.");
+      }
+    };
+
+    fetchContactData();
+  }, []);
 
   const handleConfigChange = (e, platform, field) => {
     let value = e.target.value;
@@ -57,7 +92,7 @@ const Metrics = ({ userName, userCity, userState }) => {
   return (
     <div className="hidden md:block bg-white p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
       <h2 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center">
-        Configuração de Contatos
+        Configuração de Contato
       </h2>
 
       {/* Gráfico Responsivo para Desktop */}

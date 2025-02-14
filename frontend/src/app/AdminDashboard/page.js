@@ -23,6 +23,7 @@ import Anunciantes from "@/components/AdminDashboard/Anunciantes";
 import Clientes from "@/components/AdminDashboard/Clientes";
 import EstatisticasERelatorios from "@/components/AdminDashboard/EstatisticasERelatorios";
 import Image from "next/image";
+import { AuthContext } from "@/context/AuthContext";
 
 // Componente Placeholder para seções não implementadas
 const Placeholder = ({ title, items = [] }) => (
@@ -46,6 +47,7 @@ const AdminDashboard = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { logout } = useContext(AuthContext);
 
   // Definição do Menu Principal e Sub-itens
   const menuItems = [
@@ -143,9 +145,7 @@ const AdminDashboard = () => {
   };
 
   const handleLogout = () => {
-    // Lógica de logout
-    alert("Logout realizado!");
-    // Por exemplo: router.push("/login");
+    logout();
   };
 
   const handleModalToggle = () => {
@@ -390,8 +390,8 @@ const AdminDashboard = () => {
                   <li key={item.id}>
                     <div
                       className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${activeMainTab === item.id
-                          ? "bg-gray-700 text-gray-300 scale-105"
-                          : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
+                        ? "bg-gray-700 text-gray-300 scale-105"
+                        : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
                         }`}
                       onClick={() => handleMainTabClick(item.id)}
                     >
@@ -407,8 +407,8 @@ const AdminDashboard = () => {
                             key={sub.id}
                             onClick={() => handleSubTabClick(sub.id)}
                             className={`cursor-pointer text-sm text-gray-200 px-2 py-1 rounded transition-colors ${activeSubTab === sub.id
-                                ? "bg-gray-600 text-gray-100"
-                                : "hover:bg-gray-700 hover:text-gray-100"
+                              ? "bg-gray-600 text-gray-100"
+                              : "hover:bg-gray-700 hover:text-gray-100"
                               }`}
                           >
                             {sub.label}
@@ -475,8 +475,8 @@ const AdminDashboard = () => {
                     <li key={item.id}>
                       <div
                         className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm transition-colors duration-300 transform ${activeMainTab === item.id
-                            ? "bg-gray-700 text-gray-300 scale-105"
-                            : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
+                          ? "bg-gray-700 text-gray-300 scale-105"
+                          : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
                           }`}
                         onClick={() => handleMainTabClick(item.id)}
                       >
@@ -490,8 +490,8 @@ const AdminDashboard = () => {
                               key={sub.id}
                               onClick={() => handleSubTabClick(sub.id)}
                               className={`cursor-pointer text-sm text-gray-200 px-2 py-1 rounded transition-colors ${activeSubTab === sub.id
-                                  ? "bg-gray-600 text-gray-100"
-                                  : "hover:bg-gray-700 hover:text-gray-100"
+                                ? "bg-gray-600 text-gray-100"
+                                : "hover:bg-gray-700 hover:text-gray-100"
                                 }`}
                             >
                               {sub.label}

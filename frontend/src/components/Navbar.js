@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FaBell, FaUserCircle } from "react-icons/fa";
 import { MdLocationOn, MdVideoLibrary, MdRateReview } from "react-icons/md";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { AuthContext } from "@/context/AuthContext";
 
 export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,6 +13,7 @@ export default function Navbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -48,9 +49,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    Cookies.remove("token");
-    setIsAuthenticated(false);
-    router.push("/login");
+    logout();
   };
 
   return (

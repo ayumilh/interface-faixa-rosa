@@ -20,11 +20,18 @@ export default function LoginNavbar() {
   const router = useRouter();
   const { logout } = useContext(AuthContext);
 
+  // Buscar dados do usuário
   useEffect(() => {
     const fetchUser = async () => {
-      const userData = await searchUserId(); 
-      if (userData) {
-        setUser(userData);
+      try {
+        const userData = await searchUserId();
+        console.log("Dados do usuário recuperados do cookie:", userData);
+
+        if (userData) {
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
       }
     };
 
@@ -170,8 +177,14 @@ export default function LoginNavbar() {
             >
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
                 <div className="px-4 py-2 border-b">
-                  {/* <p className="text-gray-800 font-semibold">{session?.session?.user?.name}</p>
-                  <p className="text-sm text-gray-500">{session?.session?.user?.email}</p> */}
+                  {user ? (
+                    <>
+                      <p className="text-gray-800 font-semibold">{user.firstName} {user.lastName}</p>
+                      <p className="text-sm text-gray-500">{user.email}</p>
+                    </>
+                  ) : (
+                    <p className="text-gray-500">Carregando usuário...</p>
+                  )}
                 </div>
                 <Link href="/userDashboard" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                   Dashboard

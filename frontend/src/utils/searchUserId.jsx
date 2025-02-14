@@ -3,11 +3,10 @@ import { jwtDecode } from "jwt-decode";
 
 export const searchUserId = async () => {
     try {
-        const token = Cookies.get("token");
+        const token = Cookies.get("userToken");
 
         if (token) {
             const decodedToken = jwtDecode(token); 
-            console.log("Dados do usuário recuperados do cookie:", decodedToken);
 
             return {
                 id: decodedToken.id,

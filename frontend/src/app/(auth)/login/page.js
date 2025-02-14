@@ -351,8 +351,6 @@ export default function AuthPage() {
       return;
     }
 
-    console.log({ cpf, dataNascimento });
-
     const token = searchUserId();
 
     setLoadingCpf(true);

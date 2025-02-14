@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaEdit,
   FaPhotoVideo,
@@ -23,11 +23,31 @@ import WorkingHours from "@/components/dashboard/WorkingHours";
 import CityManagement from "@/components/dashboard/CityManagement";
 import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import { searchUserId } from "@/utils/searchUserId";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("metrics");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Buscar dados do usuário
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await searchUserId();
+        console.log("Dados do usuário recuperados do cookie:", userData);
+
+        if (userData) {
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do usuário:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   // Detecta se está em mobile
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -76,7 +96,7 @@ const Dashboard = () => {
                     className="text-xl font-semibold text-gray-100"
                     style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    Nome do Usuário
+                    {user ? `${user.firstName} ${user.lastName}` : "Carregando..."}
                   </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>

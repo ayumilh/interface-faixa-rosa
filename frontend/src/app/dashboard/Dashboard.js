@@ -36,8 +36,6 @@ const Dashboard = () => {
     const fetchUser = async () => {
       try {
         const userData = await searchUserId();
-        console.log("Dados do usuário recuperados do cookie:", userData);
-
         if (userData) {
           setUser(userData);
         }
@@ -139,7 +137,7 @@ const Dashboard = () => {
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">{user.firstName} {user.lastName}</h2>
+                  <h2 className="text-lg font-semibold">{user ? `${user.firstName} ${user.lastName}` : "Carregando..."}</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

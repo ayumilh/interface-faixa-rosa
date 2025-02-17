@@ -1,66 +1,60 @@
 // src/dashboard/ServicesManagement.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const ServicesManagement = () => {
-  const allServices = [
-    { nome: 'Sexo anal com preservativo', descricao: 'Aceita receber penetração anal com preservativo de seus clientes.' },
-    { nome: 'Sexo vaginal com preservativo', descricao: 'Faz penetração vaginal com preservativo em seus clientes.' },
-    { nome: 'Beijo na boca', descricao: 'Realiza beijo na boca com seus clientes.' },
-    { nome: 'Sexo oral com preservativo', descricao: 'Realiza sexo oral com preservativo em seus clientes.' },
-    { nome: 'Striptease', descricao: 'Tira a roupa de forma lenta e sensual, normalmente com dança.' },
-    { nome: 'Masturbação', descricao: 'Realiza masturbação em seus clientes.' },
-    { nome: 'Massagem tradicional', descricao: 'Realiza massagem relaxante em seus clientes.' },
-    { nome: 'Massagem tântrica', descricao: 'Realiza massagem tântrica que expande a sensibilidade sexual.' },
-    { nome: 'Sexo virtual', descricao: 'Sexo à distância por meio de texto, áudio e vídeo online. Sem contato físico.' },
-    { nome: 'Acompanhante', descricao: 'Companhia para encontros, festas e eventos.' },
-    { nome: 'Viagem', descricao: 'Aceita viajar com seus clientes.' },
-    { nome: 'Sexo oral sem preservativo', descricao: 'Atividade em que o sexo oral é realizado sem o uso de preservativo.' },
-    { nome: 'Dupla penetração', descricao: 'Prática que envolve a penetração simultânea em duas áreas do corpo.' },
-    { nome: 'Tripla penetração', descricao: 'Prática que envolve a penetração simultânea em três áreas do corpo.' },
-    { nome: 'Dominação', descricao: 'Envolve o controle e a submissão de uma pessoa sobre a outra.' },
-    { nome: 'Uso de roupas de fantasia/uniformes', descricao: 'Prática onde um dos participantes veste roupas específicas ou uniformes.' },
-    { nome: 'Fazer roleplay', descricao: 'Envolve atuar ou fingir ser outra pessoa em um cenário fictício.' },
-    { nome: 'Penetração com acessórios sexuais', descricao: 'Uso de brinquedos ou acessórios durante a penetração.' },
-    { nome: 'Utiliza acessórios eróticos', descricao: 'Inclui o uso de brinquedos eróticos diversos.' },
-    { nome: 'Permite filmagem', descricao: 'Consente que a relação seja filmada com consentimento claro.' },
-    { nome: 'Beijo grego', descricao: 'Prática que envolve a estimulação oral da região anal.' },
-    { nome: 'Sexo com voyeurismo/ser voyeur', descricao: 'Ato de observar ou ser observado durante relações sexuais.' },
-    { nome: 'Podolatria', descricao: 'Atração sexual por pés, onde os pés são o foco principal da excitação.' },
-    { nome: 'Bondage', descricao: 'Prática de amarração consensual com cordas para restrição.' },
-    { nome: 'Sadomasoquismo', descricao: 'Atividades que envolvem dor ou humilhação consensual.' },
-    { nome: 'Fisting', descricao: 'Introdução de uma mão inteira na vagina ou no ânus durante o ato sexual.' },
-    { nome: 'Facefuck', descricao: 'Ato de penetração oral intensa e profunda.' },
-    { nome: 'Quirofilia', descricao: 'Excitação sexual causada pelas mãos.' },
-    { nome: 'Squirt', descricao: 'Ejaculação feminina durante o clímax.' },
-    { nome: 'Chuva dourada', descricao: 'Prática de urinar no parceiro durante o ato sexual.' },
-    { nome: 'Chuva marrom', descricao: 'Prática de defecar no parceiro.' },
-    { nome: 'Trampling', descricao: 'Ato de pisotear outra pessoa com os pés como forma de excitação sexual.' },
-  ];
-
   // Estado para controlar os serviços com oferecimento e preço
-  const [services, setServices] = useState(
-    allServices.map((service) => ({ ...service, oferecido: false, preco: 20 }))
-  );
+  const [services, setServices] = useState();
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const token = Cookies.get("userToken")
+
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/services`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+        if (response.data.services) {
+          setServices(
+            response.data.services.map(service => ({
+              id: service.id,
+              nome: service.name,
+              descricao: service.description,
+              oferecido: service.isOffered,
+              preco: service.price || 20,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Erro ao buscar serviços:", error);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   // Função para alternar a oferta de um serviço
   const toggleService = (index) => {
     setServices((prev) =>
       prev.map((service, i) =>
         i === index
-          ? { 
-              ...service, 
-              oferecido: !service.oferecido, 
-              preco: !service.oferecido ? 20 : 20 // Define preço inicial ao oferecer
-            }
+          ? {
+            ...service,
+            oferecido: !service.oferecido,
+            preco: !service.oferecido ? 20 : service.preco
+          }
           : service
       )
     );
   };
 
-  // Função para atualizar o preço de um serviço
   const updatePrice = (index, price) => {
     setServices((prev) =>
       prev.map((service, i) =>
@@ -70,8 +64,9 @@ const ServicesManagement = () => {
   };
 
   // Separar serviços oferecidos e não oferecidos
-  const servicosOferecidos = services.filter((service) => service.oferecido);
-  const servicosNaoOferecidos = services.filter((service) => !service.oferecido);
+  const servicosOferecidos = services ? services.filter(service => service.oferecido) : [];
+  const servicosNaoOferecidos = services ? services.filter(service => !service.oferecido) : [];
+
 
   // Gerar opções de preço de 20 a 999 com incrementos de 10
   const precoOptions = Array.from({ length: 98 }, (_, i) => 20 + i * 10);
@@ -105,10 +100,10 @@ const ServicesManagement = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-                      <FaTimesCircle
-                        className="text-red-500 text-xl cursor-pointer"
+                      <FaCheckCircle
+                        className="text-green-500 text-xl cursor-pointer"
                         onClick={() => toggleService(services.findIndex(s => s.nome === service.nome))}
-                        title="Não oferece mais este serviço"
+                        title="Oferecer este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2" dangerouslySetInnerHTML={{ __html: service.descricao }}></p>
@@ -161,10 +156,11 @@ const ServicesManagement = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-                      <FaCheckCircle
-                        className="text-green-500 text-xl cursor-pointer"
+
+                      <FaTimesCircle
+                        className="text-red-500 text-xl cursor-pointer"
                         onClick={() => toggleService(services.findIndex(s => s.nome === service.nome))}
-                        title="Oferecer este serviço"
+                        title="Não oferece mais este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2" dangerouslySetInnerHTML={{ __html: service.descricao }}></p>

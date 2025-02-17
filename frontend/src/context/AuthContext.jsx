@@ -62,7 +62,7 @@ export const AuthContextProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const tokenId = Cookies.get("token") || null;
+            const tokenId = Cookies.get("userToken") || null;
 
             if (tokenId) {
                 const decodedToken = jwtDecode(tokenId);
@@ -106,7 +106,7 @@ export const AuthContextProvider = ({ children }) => {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const token = Cookies.get("token");
+            const token = Cookies.get("userToken");
 
             if (token && !currentUser) {
                 try {

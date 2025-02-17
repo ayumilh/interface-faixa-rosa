@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FaMoneyBillWave,
   FaCreditCard,
@@ -9,45 +9,82 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Slider from 'rc-slider';
 import Image from 'next/image';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 import 'rc-slider/assets/index.css';
 
 const FinancialControl = () => {
-  // Lista de serviços disponíveis
-  const allServices = [
-    { nome: '1 hora', descricao: 'Serviço de 1 hora.' },
-    { nome: '2 horas', descricao: 'Serviço de 2 horas.' },
-    { nome: '4 horas', descricao: 'Serviço de 4 horas.' },
-    { nome: 'Diária', descricao: 'Serviço diário.' },
-    { nome: '30 minutos', descricao: 'Serviço de 30 minutos.', realizado: false },
-    { nome: '15 minutos', descricao: 'Serviço de 15 minutos.', realizado: false },
-    { nome: 'Diária de viagem', descricao: 'Serviço diário durante viagens.', realizado: false },
-  ];
-
-  // Lista de formas de pagamento disponíveis
-  const allPaymentMethods = [
-    { nome: 'DINHEIRO', icon: <FaMoneyBillWave className="text-3xl text-black" /> },
-    { nome: 'PIX', icon: <Image src="/assets/pix-icon.png" alt="Pix Icon" width={32} height={32} className="w-8 h-8" /> },
-    { nome: 'CRÉDITO', icon: <FaCreditCard className="text-3xl text-black" /> },
-    { nome: 'DÉBITO', icon: <FaCcMastercard className="text-3xl text-black" /> },
-  ];
-
   // Estado para gerenciar serviços
-  const [services, setServices] = useState(
-    allServices.map((service) => ({
-      ...service,
-      realizado: service.realizado || false,
-      preco: service.realizado ? 50 : null, // Preço inicial de R$ 50
-      customPreco: false, // Estado para determinar se é preço customizado
-    }))
-  );
+  const [services, setServices] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
 
-  // Estado para gerenciar formas de pagamento
-  const [paymentMethods, setPaymentMethods] = useState(
-    allPaymentMethods.map((method) => ({
-      ...method,
-      aceito: false,
-    }))
-  );
+  // Buscar dados financeiros
+  useEffect(() => {
+    const fetchFinancialData = async () => {
+      const token = Cookies.get("userToken");
+
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/finance`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log("Dados financeiros recebidos:", response.data);
+
+        // Atualizando os métodos de pagamento
+        if (response.data.paymentMethods) {
+          setPaymentMethods(
+            response.data.paymentMethods.map(method => ({
+              nome: method.nome, // Nome do método de pagamento
+              aceito: method.aceito, // Se está aceito ou não
+              icon: getPaymentIcon(method.nome), // Obtém o ícone correto para cada método
+            }))
+          );
+        }
+
+        // Atualizando os horários de serviço
+        if (response.data.timedServices) {
+          setServices(
+            response.data.timedServices.map(service => ({
+              id: service.id,
+              nome: service.name,
+              descricao: service.description,
+              realizado: service.isAvailable, // Define se o serviço está disponível
+              preco: service.price ?? service.defaultPrice, // Usa o preço definido ou o preço padrão
+              customPreco: service.price !== null, // Define se o preço foi customizado
+              isOffered: service.isAvailable, // Mantém a compatibilidade com o estado atual
+            }))
+          );
+        }
+
+      } catch (error) {
+        console.error("Erro ao buscar dados financeiros:", error);
+      }
+    };
+
+    fetchFinancialData();
+  }, []);
+
+
+  const getPaymentIcon = (nome) => {
+    switch (nome) {
+      case "PIX":
+        return <Image src="/assets/pix-icon.png" alt="Pix Icon" width={32} height={32} className="w-8 h-8" />;
+      case "CARTAO_CREDITO":
+        return <FaCreditCard className="text-3xl text-black" />;
+      case "DÉBITO":
+        return <FaCcMastercard className="text-3xl text-black" />;
+      case "DINHEIRO":
+        return <FaMoneyBillWave className="text-3xl text-black" />;
+      
+      default:
+        return null;
+    }
+  };
 
   // Função para alternar a realização de um serviço
   const toggleService = (index) => {
@@ -55,11 +92,11 @@ const FinancialControl = () => {
       prev.map((service, i) =>
         i === index
           ? {
-              ...service,
-              realizado: !service.realizado,
-              preco: !service.realizado ? 50 : null, // Reseta o preço ao desmarcar
-              customPreco: false, // Reseta o estado de preço customizado
-            }
+            ...service,
+            realizado: !service.realizado,
+            preco: !service.realizado ? 50 : null, // Reseta o preço ao desmarcar
+            customPreco: false, // Reseta o estado de preço customizado
+          }
           : service
       )
     );
@@ -124,9 +161,9 @@ const FinancialControl = () => {
           <AnimatePresence>
             {servicosOferecidos.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {servicosOferecidos.map((service, index) => (
+                {servicosOferecidos.map((service) => (
                   <motion.div
-                    key={service.nome}
+                    key={service.id}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
@@ -134,10 +171,10 @@ const FinancialControl = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-                      <FaTimesCircle
-                        className="text-red-500 text-xl cursor-pointer"
-                        onClick={() => toggleService(services.findIndex((s) => s.nome === service.nome))}
-                        title="Não oferece mais este serviço"
+                      <FaCheckCircle
+                        className="text-green-500 text-xl cursor-pointer"
+                        onClick={() => toggleService(services.findIndex((s) => s.id === service.id))}
+                        title="Oferecer este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2">{service.descricao}</p>
@@ -160,12 +197,9 @@ const FinancialControl = () => {
                               )
                             );
                           } else {
-                            // Atualizar o preço e desmarcar como preço customizado
                             setServices((prev) =>
-                              prev.map((s, i) =>
-                                i === services.findIndex((s) => s.nome === service.nome)
-                                  ? { ...s, preco: Number(value), customPreco: false }
-                                  : s
+                              prev.map((s) =>
+                                s.id === service.id ? { ...s, preco: Number(value), customPreco: false } : s
                               )
                             );
                           }
@@ -227,7 +261,7 @@ const FinancialControl = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {servicosNaoOferecidos.map((service, index) => (
                   <motion.div
-                    key={service.nome}
+                    key={service.id}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
@@ -235,10 +269,10 @@ const FinancialControl = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-                      <FaCheckCircle
-                        className="text-green-500 text-xl cursor-pointer"
-                        onClick={() => toggleService(services.findIndex((s) => s.nome === service.nome))}
-                        title="Oferecer este serviço"
+                      <FaTimesCircle
+                        className="text-red-500 text-xl cursor-pointer"
+                        onClick={() => toggleService(services.findIndex((s) => s.id === service.id))}
+                        title="Não oferece mais este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2">{service.descricao}</p>
@@ -261,26 +295,31 @@ const FinancialControl = () => {
         <section>
           <h2 className="text-xl font-semibold text-black mb-4">Formas de Pagamento</h2>
           <div className="flex flex-wrap justify-start space-x-6">
-            {paymentMethods.map((method, index) => (
-              <motion.div
-                key={index}
-                className="flex flex-col items-center mb-4"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.2 }}
-              >
-                <div
-                  className={`cursor-pointer flex flex-col items-center transition-opacity duration-300 ${
-                    method.aceito ? 'opacity-100' : 'opacity-50'
-                  }`}
-                  onClick={() => togglePaymentMethod(index)}
-                  title={method.aceito ? 'Desmarcar' : 'Marcar'}
+            {paymentMethods.length > 0 ? (
+              paymentMethods.map((method, index) => (
+                <motion.div
+                  key={method.nome}
+                  className="flex flex-col items-center mb-4"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.2 }}
                 >
-                  {method.icon}
-                  <span className="mt-2 text-sm font-medium text-black">{method.nome}</span>
-                </div>
-              </motion.div>
-            ))}
+                  <div
+                    className={`cursor-pointer flex flex-col items-center transition-opacity duration-300 ${method.aceito ? 'opacity-100' : 'opacity-50'
+                      }`}
+                    onClick={() => togglePaymentMethod(index)}
+                    title={method.aceito ? 'Desmarcar' : 'Marcar'}
+                  >
+                    {method.icon}
+                    <span className="mt-2 text-sm font-medium text-black">
+                    {method.nome === "CARTAO_CREDITO" ? "CRÉDITO" : method.nome}
+                    </span>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <p className="text-gray-600">Nenhuma forma de pagamento disponível.</p>
+            )}
           </div>
           {/* Instrução sobre a Opacidade */}
           <p className="mt-4 text-gray-600 text-sm">

@@ -14,79 +14,79 @@ import Cookies from 'js-cookie';
 import 'rc-slider/assets/index.css';
 
 const FinancialControl = () => {
-  // Estado para gerenciar serviços
   const [services, setServices] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
+  const [pendingUpdates, setPendingUpdates] = useState(false);
 
-  // Buscar dados financeiros
-  useEffect(() => {
-    const fetchFinancialData = async () => {
-      const token = Cookies.get("userToken");
+  // Executa ao carregar o componente**
+  const fetchFinancialData = async () => {
+    const token = Cookies.get("userToken");
 
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/finance`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/finance`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Dados financeiros recebidos:", response.data);
+
+      // Atualizando os métodos de pagamento
+      if (response.data.paymentMethods) {
+        setPaymentMethods(
+          response.data.paymentMethods.map(method => ({
+            nome: method.nome,
+            aceito: method.aceito,
+            icon: getPaymentIcon(method.nome),
+          }))
         );
-
-        console.log("Dados financeiros recebidos:", response.data);
-
-        // Atualizando os métodos de pagamento
-        if (response.data.paymentMethods) {
-          setPaymentMethods(
-            response.data.paymentMethods.map(method => ({
-              nome: method.nome, // Nome do método de pagamento
-              aceito: method.aceito, // Se está aceito ou não
-              icon: getPaymentIcon(method.nome), // Obtém o ícone correto para cada método
-            }))
-          );
-        }
-
-        // Atualizando os horários de serviço
-        if (response.data.timedServices) {
-          setServices(
-            response.data.timedServices.map(service => ({
-              id: service.id,
-              nome: service.name,
-              descricao: service.description,
-              realizado: service.isAvailable, // Define se o serviço está disponível
-              preco: service.price ?? service.defaultPrice, // Usa o preço definido ou o preço padrão
-              customPreco: service.price !== null, // Define se o preço foi customizado
-              isOffered: service.isAvailable, // Mantém a compatibilidade com o estado atual
-            }))
-          );
-        }
-
-      } catch (error) {
-        console.error("Erro ao buscar dados financeiros:", error);
       }
-    };
 
+      // Atualizando os serviços corretamente
+      if (response.data.timedServices) {
+        setServices(
+          response.data.timedServices.map(service => ({
+            id: service.id,
+            nome: service.name,
+            descricao: service.description,
+            preco: service.price ?? service.defaultPrice,
+            customPreco: service.price !== null,
+            realizado: service.isOffered ?? false,
+            isOffered: service.isOffered ?? false,
+          }))
+        );
+      }
+
+    } catch (error) {
+      console.error("Erro ao buscar dados financeiros:", error);
+    }
+  };
+
+
+  // Executa ao carregar o componente**
+  useEffect(() => {
     fetchFinancialData();
   }, []);
-
 
   const getPaymentIcon = (nome) => {
     switch (nome) {
       case "PIX":
         return <Image src="/assets/pix-icon.png" alt="Pix Icon" width={32} height={32} className="w-8 h-8" />;
-      case "CARTAO_CREDITO":
-        return <FaCreditCard className="text-3xl text-black" />;
-      case "DÉBITO":
-        return <FaCcMastercard className="text-3xl text-black" />;
       case "DINHEIRO":
         return <FaMoneyBillWave className="text-3xl text-black" />;
-      
+      case "CARTAO_CREDITO":
+        return <FaCreditCard className="text-3xl text-black" />;
+      case "DEBITO":
+        return <FaCcMastercard className="text-3xl text-black" />;
       default:
         return null;
     }
   };
 
-  // Função para alternar a realização de um serviço
+  // Alternar um serviço entre oferecido e não oferecido
   const toggleService = (index) => {
     setServices((prev) =>
       prev.map((service, i) =>
@@ -94,33 +94,86 @@ const FinancialControl = () => {
           ? {
             ...service,
             realizado: !service.realizado,
-            preco: !service.realizado ? 50 : null, // Reseta o preço ao desmarcar
-            customPreco: false, // Reseta o estado de preço customizado
+            isOffered: !service.realizado,
           }
           : service
       )
     );
+    setPendingUpdates(true);
   };
 
-  // Função para atualizar o preço de um serviço
+
+  // Atualiza o preço de um serviço
   const updatePrice = (index, value) => {
     setServices((prev) =>
       prev.map((service, i) =>
         i === index ? { ...service, preco: value } : service
       )
     );
+    setPendingUpdates(true);
   };
 
-  // Função para alternar a aceitação de uma forma de pagamento
+  // Alternar aceitação de forma de pagamento
   const togglePaymentMethod = (index) => {
     setPaymentMethods((prev) =>
       prev.map((method, i) =>
         i === index ? { ...method, aceito: !method.aceito } : method
       )
     );
+    setPendingUpdates(true);
   };
 
-  // Separar serviços oferecidos e não oferecidos
+  // Aplicar todas as alterações no backend
+  const applyUpdates = async () => {
+    const token = Cookies.get("userToken");
+    if (!token) {
+      console.error("Token não encontrado");
+      return;
+    }
+
+    try {
+      // Gerando a estrutura correta dos serviços oferecidos
+      const updatedServices = services.map(s => ({
+        id: s.id,
+        price: s.realizado ? s.preco || s.defaultPrice : null,
+        isOffered: s.realizado,
+      }));
+
+      // Gerando a estrutura correta dos métodos de pagamento
+      const updatedPaymentMethods = paymentMethods.map(m => ({
+        nome: m.nome,
+        aceito: m.aceito,
+      }));
+
+      // Criando o payload final
+      const payload = {
+        paymentMethods: updatedPaymentMethods,
+        timedServices: updatedServices,
+      };
+
+      console.log("Payload enviado ao backend:", JSON.stringify(payload, null, 2));
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/finance/update`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("✅ Atualizações aplicadas com sucesso!", response.data);
+
+      // Recarregar os dados do backend para confirmar a atualização
+      fetchFinancialData();
+      setPendingUpdates(false);
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+    }
+  };
+
+  // Separar serviços oferecidos e não oferecidos**
   const servicosOferecidos = services.filter((service) => service.realizado);
   const servicosNaoOferecidos = services.filter((service) => !service.realizado);
 
@@ -171,10 +224,10 @@ const FinancialControl = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-                      <FaCheckCircle
-                        className="text-green-500 text-xl cursor-pointer"
+                      <FaTimesCircle
+                        className="text-red-500 text-xl cursor-pointer"
                         onClick={() => toggleService(services.findIndex((s) => s.id === service.id))}
-                        title="Oferecer este serviço"
+                        title="Não oferece mais este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2">{service.descricao}</p>
@@ -269,10 +322,10 @@ const FinancialControl = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-                      <FaTimesCircle
-                        className="text-red-500 text-xl cursor-pointer"
+                      <FaCheckCircle
+                        className="text-green-500 text-xl cursor-pointer"
                         onClick={() => toggleService(services.findIndex((s) => s.id === service.id))}
-                        title="Não oferece mais este serviço"
+                        title="Oferecer este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2">{service.descricao}</p>
@@ -312,7 +365,7 @@ const FinancialControl = () => {
                   >
                     {method.icon}
                     <span className="mt-2 text-sm font-medium text-black">
-                    {method.nome === "CARTAO_CREDITO" ? "CRÉDITO" : method.nome}
+                      {method.nome === "CARTAO_CREDITO" ? "CRÉDITO" : method.nome === "DEBITO" ? "DÉBITO" : method.nome}
                     </span>
                   </div>
                 </motion.div>
@@ -326,6 +379,16 @@ const FinancialControl = () => {
             As formas de pagamento aceitas estão com opacidade total. Clique em um ícone para alternar sua aceitação, reduzindo a opacidade se não forem aceitas.
           </p>
         </section>
+
+        {/* Botão Aplicar Alterações */}
+        {pendingUpdates && (
+          <button
+            onClick={applyUpdates}
+            className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
+          >
+            Aplicar Alterações
+          </button>
+        )}
       </div>
     </motion.div>
   );

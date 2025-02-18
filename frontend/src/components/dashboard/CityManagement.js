@@ -1,7 +1,4 @@
-// src/components/Dashboard/CityManagement.js
-
 "use client";
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -14,10 +11,14 @@ import {
   FaBuilding,
   FaWifi,
   FaHome,
-  FaShower,
-  FaParking,
+  FaUtensils,
+  FaPlane,
+  FaGlassMartini,
+  FaGlassCheers,
   FaBed,
+  FaShower,
   FaCouch,
+  FaParking
 } from "react-icons/fa";
 import Modal from "@/components/dashboard/Modal";
 import ModalBusca from "@/components/search/modalbuscaconvenio";
@@ -52,30 +53,20 @@ const CityManagement = ({ onUpdate }) => {
   // Função para buscar locais atendidos e comodidades
   const fetchIntermediaries = async (cityName, uf) => {
     try {
-      // Integre com sua API ou backend para obter dados reais
       const data = {
-        localities: [
-          "A domicílio",
-          "Festas e Eventos",
-          "Hotéis",
-          "Local Próprio",
-          "Motéis",
-        ],
-        amenities: [
-          "Wi-Fi",
-          "Chuveiro",
-          "Ar-condicionado",
-          "Estacionamento",
-          "Frigobar",
-          "Preservativos",
-        ],
+        localities: ["A domicílio", "Festas e Eventos", "Hotéis", "Local Próprio", "Motéis"],
+        amenities: ["Wi-Fi", "Chuveiro", "Ar-condicionado", "Estacionamento", "Frigobar", "Preservativos"],
       };
-      setIntermediaries(data);
+
+      setIntermediaries((prev) => ({
+        ...prev,
+        localities: prev.localities.length ? prev.localities : data.localities,
+        amenities: prev.amenities.length ? prev.amenities : data.amenities,
+      }));
     } catch (error) {
       console.error("Erro ao buscar intermediações", error);
     }
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,7 +79,7 @@ const CityManagement = ({ onUpdate }) => {
             headers: { Authorization: `Bearer ${userToken}` },
           }
         );
-        
+
         if (response.status === 200) {
           const data = response.data;
 
@@ -120,61 +111,162 @@ const CityManagement = ({ onUpdate }) => {
     setSelectedCity(cityName);
     setSelectedUF(uf);
     setValue("city", `${cityName} - ${uf}`);
-    fetchIntermediaries(cityName, uf);
-  };
 
-  const onSubmitCityChange = () => {
-    setIsConfirmModalOpen(true);
+    fetchIntermediaries(cityName, uf).then(() => {
+      setIntermediaries((prev) => ({
+        localities: prev.localities.length ? prev.localities : prev.localities,
+        amenities: prev.amenities.length ? prev.amenities : prev.amenities,
+      }));
+    });
   };
 
   const confirmCityChange = () => {
     console.log("Cidade alterada para:", selectedCity, selectedUF);
-    console.log("Intermediações:", intermediaries);
-    // Integre com o backend para finalizar a troca de cidade
+
     onUpdate({
       city: `${selectedCity} - ${selectedUF}`,
-      ...intermediaries,
+      localities: intermediaries.localities,
+      amenities: intermediaries.amenities,
     });
+
     setIsConfirmModalOpen(false);
-    reset();
-    setSelectedCity("");
-    setSelectedUF("");
-    setIntermediaries({
-      localities: [],
-      amenities: [],
+  };
+
+  const LOCATION_ENUMS = {
+    "A domicílio": "A_DOMICILIO",
+    "Festas e Eventos": "FESTAS_EVENTOS",
+    "Hotéis": "HOTEIS",
+    "Local Próprio": "LOCAL_PROPRIO",
+    "Motéis": "MOTEIS",
+    "Viagens": "VIAGENS",
+    "Club de Swing": "CLUB_DE_SWING",
+    "Jantares": "JANTARES",
+    "Despedida de Solteiro": "DESPEDIDA_SOLTEIRO",
+  };
+
+  const AMENITIES_ENUMS = {
+    "Wi-Fi": "WIFI",
+    "Chuveiro": "CHUVEIRO",
+    "Ar-condicionado": "AR_CONDICIONADO",
+    "Estacionamento": "ESTACIONAMENTO",
+    "Frigobar": "FRIGOBAR",
+    "Preservativos": "PRESERVATIVOS",
+  };
+
+  const updateLocationsAndAmenities = async () => {
+    try {
+      const userToken = Cookies.get("userToken");
+
+      // Função para formatar os valores corretamente (maiúsculas, sem acento e com _)
+      const formatEnum = (str) =>
+        str
+          .toUpperCase()
+          .replace(/\s/g, "_")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+      // Converte os valores para os ENUMs esperados pelo backend
+      const locations = intermediaries.localities.map(formatEnum);
+      const amenities = intermediaries.amenities.map(formatEnum);
+
+      // Verifica se houve mudanças nos arrays
+      const hasLocalitiesChanged =
+        intermediaries.localities.length !== locations.length ||
+        intermediaries.localities.some((loc) => !locations.includes(formatEnum(loc)));
+
+      const hasAmenitiesChanged =
+        intermediaries.amenities.length !== amenities.length ||
+        intermediaries.amenities.some((amenity) => !amenities.includes(formatEnum(amenity)));
+
+      // Garante que os valores sejam enviados corretamente
+      const payload = {
+        city: selectedCity,
+        state: selectedUF,
+        locations: locations.length > 0 ? locations.map((loc) => ({ name: loc })) : intermediaries.localities.map((loc) => ({ name: formatEnum(loc) })),
+        amenities: amenities.length > 0 ? amenities : intermediaries.amenities.map(formatEnum),
+      };
+
+      console.log("Payload FINAL para o Backend:", JSON.stringify(payload, null, 2));
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/locations/update`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${userToken}` },
+        }
+      );
+
+      console.log("Atualização bem-sucedida!", response.data);
+      alert("Dados atualizados com sucesso!");
+
+      // Atualiza o estado corretamente sem sobrescrever os valores existentes
+      setIntermediaries((prev) => ({
+        localities: hasLocalitiesChanged ? locations : prev.localities,
+        amenities: hasAmenitiesChanged ? amenities : prev.amenities,
+      }));
+
+      setShowLocalitiesModal(false);
+      setShowAmenitiesModal(false);
+      setIsConfirmModalOpen(false);
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      if (error.response) {
+        console.error("Detalhes do erro da API:", error.response.data);
+        alert(`Erro: ${JSON.stringify(error.response.data)}`);
+      } else {
+        alert("Erro ao atualizar. Tente novamente.");
+      }
+    }
+  };
+
+
+  // Atualiza corretamente os valores no estado antes de salvar
+  const handleLocalityChange = (value) => {
+    setIntermediaries((prev) => {
+      // Verifica se o valor já é um ENUM (caso já tenha sido convertido antes)
+      const enumValue = LOCATION_ENUMS[value] || value;
+
+      if (!Object.values(LOCATION_ENUMS).includes(enumValue)) {
+        console.error(`Erro: O local '${value}' não tem um ENUM correspondente.`);
+        return prev;
+      }
+
+      const updatedLocalities = prev.localities.includes(enumValue)
+        ? prev.localities.filter((loc) => loc !== enumValue)
+        : [...prev.localities, enumValue];
+
+      console.log("Localidades Atualizadas:", updatedLocalities);
+      return { ...prev, localities: updatedLocalities };
     });
   };
 
-  // Função para lidar com a seleção de Localidades
-  const handleLocalityChange = (label) => {
-    let updated = intermediaries.localities.includes(label)
-      ? intermediaries.localities.filter((loc) => loc !== label)
-      : [...intermediaries.localities, label];
-    setIntermediaries((prev) => ({
-      ...prev,
-      localities: updated,
-    }));
+  const handleAmenityChange = (value) => {
+    setIntermediaries((prev) => {
+      const enumValue = AMENITIES_ENUMS[value] || value; // Converte para ENUM se necessário
+
+      if (!Object.values(AMENITIES_ENUMS).includes(enumValue)) {
+        console.error(`Erro: A comodidade '${value}' não tem um ENUM correspondente.`);
+        return prev;
+      }
+
+      const updatedAmenities = prev.amenities.includes(enumValue)
+        ? prev.amenities.filter((amenity) => amenity !== enumValue)
+        : [...prev.amenities, enumValue];
+
+      console.log("Comodidades Atualizadas:", updatedAmenities);
+      return { ...prev, amenities: updatedAmenities };
+    });
   };
 
-  // Função para lidar com a seleção de Comodidades
-  const handleAmenityChange = (label) => {
-    let updated = intermediaries.amenities.includes(label)
-      ? intermediaries.amenities.filter((amenity) => amenity !== label)
-      : [...intermediaries.amenities, label];
-    setIntermediaries((prev) => ({
-      ...prev,
-      amenities: updated,
-    }));
-  };
-
+  // Salva os valores corretamente antes de enviar ao backend
   const handleSaveLocalities = () => {
-    setShowLocalitiesModal(false);
-    setValue("localities", intermediaries.localities);
+    console.log("Salvando locais selecionados:", intermediaries.localities);
+    updateLocationsAndAmenities();
   };
 
   const handleSaveAmenities = () => {
-    setShowAmenitiesModal(false);
-    setValue("amenities", intermediaries.amenities);
+    console.log("Salvando comodidades selecionadas:", intermediaries.amenities);
+    updateLocationsAndAmenities();
   };
 
   return (
@@ -190,7 +282,13 @@ const CityManagement = ({ onUpdate }) => {
           <FaMapMarkerAlt className="text-pink-500 mr-2" />
           Alterar Cidade
         </h3>
-        <form onSubmit={handleSubmit(onSubmitCityChange)} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            updateLocationsAndAmenities(); // Agora altera a cidade e locais juntos
+          }}
+          className="space-y-6"
+        >
           {/* Campo Cidade */}
           <div>
             <label className="block text-gray-700 mb-2 flex items-center">
@@ -203,6 +301,7 @@ const CityManagement = ({ onUpdate }) => {
                 id="city"
                 {...register("city", { required: true })}
                 placeholder="Selecione uma cidade"
+                value={selectedCity ? `${selectedCity} - ${selectedUF}` : ""}
                 readOnly
                 className="w-full p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 bg-gray-100 cursor-not-allowed"
               />
@@ -224,9 +323,8 @@ const CityManagement = ({ onUpdate }) => {
 
           <button
             type="submit"
-            className={`w-full bg-pink-500 text-white py-3 rounded-lg hover:bg-pink-600 transition flex items-center justify-center ${
-              !selectedCity ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`w-full bg-pink-500 text-white py-3 rounded-lg hover:bg-pink-600 transition flex items-center justify-center ${!selectedCity ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             disabled={!selectedCity}
           >
             <FaDollarSign className="mr-2" />
@@ -342,18 +440,23 @@ const CityManagement = ({ onUpdate }) => {
         >
           <div className="flex flex-col gap-2">
             {[
-              { label: "A domicílio", icon: <FaHome className="mr-2 text-pink-500" /> },
-              { label: "Festas e Eventos", icon: <FaBuilding className="mr-2 text-pink-500" /> },
-              { label: "Hotéis", icon: <FaBuilding className="mr-2 text-pink-500" /> },
-              { label: "Local Próprio", icon: <FaHome className="mr-2 text-pink-500" /> },
-              { label: "Motéis", icon: <FaBed className="mr-2 text-pink-500" /> },
+              { label: "A domicílio", value: "A_DOMICILIO", icon: <FaHome className="mr-2 text-pink-500" /> },
+              { label: "Festas e Eventos", value: "FESTAS_EVENTOS", icon: <FaBuilding className="mr-2 text-pink-500" /> },
+              { label: "Hotéis", value: "HOTEIS", icon: <FaBuilding className="mr-2 text-pink-500" /> },
+              { label: "Local Próprio", value: "LOCAL_PROPRIO", icon: <FaHome className="mr-2 text-pink-500" /> },
+              { label: "Motéis", value: "MOTEIS", icon: <FaBed className="mr-2 text-pink-500" /> },
+              { label: "Viagens", value: "VIAGENS", icon: <FaPlane className="mr-2 text-pink-500" /> },
+              { label: "Club de Swing", value: "CLUB_DE_SWING", icon: <FaGlassMartini className="mr-2 text-pink-500" /> },
+              { label: "Jantares", value: "JANTARES", icon: <FaUtensils className="mr-2 text-pink-500" /> },
+              { label: "Despedida de Solteiro", value: "DESPEDIDA_SOLTEIRO", icon: <FaGlassCheers className="mr-2 text-pink-500" /> },
             ].map((item, index) => (
               <label key={index} className="flex items-center">
                 <input
                   type="checkbox"
                   className="mr-2"
-                  checked={intermediaries.localities.includes(item.label)}
-                  onChange={() => handleLocalityChange(item.label)}
+                  value={item.value} // Definindo o value conforme ENUM
+                  checked={intermediaries.localities.includes(item.value)} // Comparando com os valores vindos do backend
+                  onChange={() => handleLocalityChange(item.value)}
                 />
                 {item.icon}
                 {item.label}
@@ -387,19 +490,20 @@ const CityManagement = ({ onUpdate }) => {
         >
           <div className="flex flex-col gap-2">
             {[
-              { label: "Wi-Fi", icon: <FaWifi className="mr-2 text-pink-500" /> },
-              { label: "Chuveiro", icon: <FaShower className="mr-2 text-pink-500" /> },
-              { label: "Ar-condicionado", icon: <FaCouch className="mr-2 text-pink-500" /> },
-              { label: "Estacionamento", icon: <FaParking className="mr-2 text-pink-500" /> },
-              { label: "Frigobar", icon: <FaDollarSign className="mr-2 text-pink-500" /> },
-              { label: "Preservativos", icon: <FaBed className="mr-2 text-pink-500" /> },
+              { label: "Wi-Fi", value: "WIFI", icon: <FaWifi className="mr-2 text-pink-500" /> },
+              { label: "Chuveiro", value: "CHUVEIRO", icon: <FaShower className="mr-2 text-pink-500" /> },
+              { label: "Ar-condicionado", value: "AR_CONDICIONADO", icon: <FaCouch className="mr-2 text-pink-500" /> },
+              { label: "Estacionamento", value: "ESTACIONAMENTO", icon: <FaParking className="mr-2 text-pink-500" /> },
+              { label: "Frigobar", value: "FRIGOBAR", icon: <FaDollarSign className="mr-2 text-pink-500" /> },
+              { label: "Preservativos", value: "PRESERVATIVOS", icon: <FaBed className="mr-2 text-pink-500" /> },
             ].map((item, index) => (
               <label key={index} className="flex items-center">
                 <input
                   type="checkbox"
                   className="mr-2"
-                  checked={intermediaries.amenities.includes(item.label)}
-                  onChange={() => handleAmenityChange(item.label)}
+                  value={item.value} // Definindo o value conforme ENUM
+                  checked={intermediaries.amenities.includes(item.value)} // Comparando com os valores vindos do backend
+                  onChange={() => handleAmenityChange(item.value)}
                 />
                 {item.icon}
                 {item.label}

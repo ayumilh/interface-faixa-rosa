@@ -1,5 +1,3 @@
-// src/dashboard/ServicesManagement.js
-
 import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,26 +7,28 @@ import Cookies from 'js-cookie';
 const ServicesManagement = () => {
   // Estado para controlar os serviços com oferecimento e preço
   const [services, setServices] = useState();
+  const [pendingUpdates, setPendingUpdates] = useState(false);
 
   useEffect(() => {
     const fetchServices = async () => {
-      const token = Cookies.get("userToken")
+      const token = Cookies.get("userToken");
 
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/services`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          });
+          }
+        );
 
         if (response.data.services) {
           setServices(
-            response.data.services.map(service => ({
+            response.data.services.map((service) => ({
               id: service.id,
               nome: service.name,
               descricao: service.description,
-              oferecido: service.isOffered,
-              preco: service.price || 20,
+              oferecido: service.isOffered, // Garantindo que pega o estado correto do banco
+              preco: service.price ?? 20,
             }))
           );
         }
@@ -40,37 +40,74 @@ const ServicesManagement = () => {
     fetchServices();
   }, []);
 
-  // Função para alternar a oferta de um serviço
-  const toggleService = (index) => {
+  // Alternar um serviço entre oferecido e não oferecido
+  const toggleService = (id) => {
     setServices((prev) =>
-      prev.map((service, i) =>
-        i === index
+      prev.map((service) =>
+        service.id === id
           ? {
             ...service,
             oferecido: !service.oferecido,
-            preco: !service.oferecido ? 20 : service.preco
+            preco: !service.oferecido ? 20 : service.preco, // Define um preço padrão se for ativado
           }
           : service
       )
     );
+    setPendingUpdates(true);
   };
 
-  const updatePrice = (index, price) => {
+  // Atualizar o preço de um serviço específico
+  const updatePrice = (id, price) => {
     setServices((prev) =>
-      prev.map((service, i) =>
-        i === index ? { ...service, preco: price } : service
+      prev.map((service) =>
+        service.id === id ? { ...service, preco: price } : service
       )
     );
+    setPendingUpdates(true);
   };
 
   // Separar serviços oferecidos e não oferecidos
   const servicosOferecidos = services ? services.filter(service => service.oferecido) : [];
   const servicosNaoOferecidos = services ? services.filter(service => !service.oferecido) : [];
 
-
-  // Gerar opções de preço de 20 a 999 com incrementos de 10
+  // Opções de preço de 20 a 999 em incrementos de 10
   const precoOptions = Array.from({ length: 98 }, (_, i) => 20 + i * 10);
 
+  // Enviar as alterações para o backend via PUT
+  const applyUpdates = async () => {
+    const token = Cookies.get("userToken");
+    if (!token) {
+      console.error("Token não encontrado");
+      return;
+    }
+
+    try {
+      const payload = {
+        services: services.map((s) => ({
+          id: s.id,
+          isOffered: s.oferecido, // Atualizando corretamente
+          price: s.preco,
+        })),
+      };
+
+      console.log("Enviando atualização para o backend:", JSON.stringify(payload, null, 2));
+
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/services/update`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("✅ Atualizações aplicadas com sucesso!");
+      setPendingUpdates(false);
+    } catch (error) {
+      console.error("Erro ao atualizar serviços:", error);
+    }
+  };
   return (
     <div className="p-4 md:p-6 bg-gradient-to-r from-purple-100 to-blue-100 min-h-screen">
       <div className="max-w-6xl mx-auto">
@@ -92,7 +129,7 @@ const ServicesManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {servicosOferecidos.map((service, index) => (
                   <motion.div
-                    key={service.nome}
+                    key={service.id}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
@@ -100,10 +137,10 @@ const ServicesManagement = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-                      <FaCheckCircle
-                        className="text-green-500 text-xl cursor-pointer"
-                        onClick={() => toggleService(services.findIndex(s => s.nome === service.nome))}
-                        title="Oferecer este serviço"
+                      <FaTimesCircle
+                        className="text-red-500 text-xl cursor-pointer"
+                        onClick={() => toggleService(service.id)}
+                        title="Não oferece mais este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2" dangerouslySetInnerHTML={{ __html: service.descricao }}></p>
@@ -148,7 +185,7 @@ const ServicesManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {servicosNaoOferecidos.map((service, index) => (
                   <motion.div
-                    key={service.nome}
+                    key={service.id}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
@@ -156,11 +193,10 @@ const ServicesManagement = () => {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-medium text-gray-800">{service.nome}</h3>
-
-                      <FaTimesCircle
-                        className="text-red-500 text-xl cursor-pointer"
-                        onClick={() => toggleService(services.findIndex(s => s.nome === service.nome))}
-                        title="Não oferece mais este serviço"
+                      <FaCheckCircle
+                        className="text-green-500 text-xl cursor-pointer"
+                        onClick={() => toggleService(service.id)}
+                        title="Oferecer este serviço"
                       />
                     </div>
                     <p className="text-gray-600 mt-2" dangerouslySetInnerHTML={{ __html: service.descricao }}></p>
@@ -178,6 +214,14 @@ const ServicesManagement = () => {
             )}
           </AnimatePresence>
         </section>
+        {pendingUpdates && (
+          <button
+            onClick={applyUpdates}
+            className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
+          >
+            Aplicar Alterações
+          </button>
+        )}
       </div>
     </div>
   );

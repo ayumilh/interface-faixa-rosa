@@ -65,8 +65,6 @@ const FinancialControl = () => {
     }
   };
 
-
-  // Executa ao carregar o componente**
   useEffect(() => {
     fetchFinancialData();
   }, []);
@@ -101,7 +99,6 @@ const FinancialControl = () => {
     );
     setPendingUpdates(true);
   };
-
 
   // Atualiza o preço de um serviço
   const updatePrice = (index, value) => {
@@ -163,7 +160,7 @@ const FinancialControl = () => {
         }
       );
 
-      console.log("✅ Atualizações aplicadas com sucesso!", response.data);
+      console.log("Atualizações aplicadas com sucesso!", response.data);
 
       // Recarregar os dados do backend para confirmar a atualização
       fetchFinancialData();

@@ -1,44 +1,107 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaClock, FaTrash } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const WorkingHours = () => {
   // Estado para os horários de trabalho
-  const [workingHours, setWorkingHours] = useState([
-    { dia: "Segunda-feira", ativo: true, start: "09:00", end: "17:00", error: "" },
-    { dia: "Terça-feira", ativo: true, start: "09:00", end: "17:00", error: "" },
-    { dia: "Quarta-feira", ativo: true, start: "09:00", end: "17:00", error: "" },
-    { dia: "Quinta-feira", ativo: true, start: "09:00", end: "17:00", error: "" },
-    { dia: "Sexta-feira", ativo: true, start: "09:00", end: "17:00", error: "" },
-    { dia: "Sábado", ativo: false, start: "", end: "", error: "" },
-    { dia: "Domingo", ativo: false, start: "", end: "", error: "" },
-  ]);
-
-  // Estado para as exceções no calendário
+  const [workingHours, setWorkingHours] = useState([]);
+  const [originalHours, setOriginalHours] = useState([]);
   const [exceptions, setExceptions] = useState([]);
+  const [isUpdated, setIsUpdated] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-  // Função para atualizar os horários de trabalho
+  // Função para buscar os horários do backend
+  const fetchWorkingHours = async () => {
+    try {
+      const token = Cookies.get("userToken");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/schedule`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.schedule) {
+        console.log("Horários do backend:", response.data.schedule);
+        const formattedData = response.data.schedule.map((item) => ({
+          id: item.id,
+          dia: item.dayOfWeek,
+          ativo: item.isActive,
+          start: item.startTime,
+          end: item.endTime,
+          error: "",
+        }));
+        setWorkingHours(formattedData);
+        setOriginalHours(JSON.stringify(formattedData));
+      }
+    } catch (error) {
+      console.error("Erro ao buscar horários do backend:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchWorkingHours();
+  }, []);
+
   const handleHoursChange = (index, field, value) => {
     const updatedHours = [...workingHours];
     updatedHours[index][field] = value;
-
-    // Resetar o erro ao alterar os campos
     updatedHours[index].error = "";
 
-    // Validação: Horário de fim deve ser posterior ao horário de início
     if (field === "end" || field === "start") {
       const start = updatedHours[index].start;
       const end = updatedHours[index].end;
       if (start && end && start >= end) {
-        updatedHours[index].error = "O horário de término deve ser posterior ao horário de início.";
+        updatedHours[index].error =
+          "O horário de término deve ser posterior ao horário de início.";
       }
     }
 
     setWorkingHours(updatedHours);
+    setIsUpdated(JSON.stringify(updatedHours) !== JSON.stringify(originalHours));
   };
 
-  // Função para lidar com cliques no calendário
+  // Função para salvar alterações
+  const saveChanges = async () => {
+    setLoading(true);
+    setMessage("");
+
+    const token = Cookies.get("userToken");
+    const payload = {
+      schedule: workingHours.map(({ dia, start, end, ativo }) => ({
+        dayOfWeek: dia,
+        startTime: start,
+        endTime: end,
+        isActive: ativo,
+      })),
+    };
+
+    try {
+      await axios.put("https://www.faixarosa.com/api/companions/schedule/update", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setOriginalHours([...workingHours]);
+      setIsUpdated(false);
+      setMessage("Horários atualizados com sucesso! ");
+      setTimeout(async () => {
+        await fetchWorkingHours();
+      }, 2000);
+    } catch (error) {
+      setMessage("Erro ao salvar. Tente novamente. ");
+      console.error("Erro ao atualizar horários:", error);
+    }
+
+    setLoading(false);
+  };
+
+
   const handleDateClick = (date) => {
     const dateStr = date.toDateString();
     if (exceptions.includes(dateStr)) {
@@ -47,12 +110,12 @@ const WorkingHours = () => {
       setExceptions([...exceptions, dateStr]);
     }
   };
-
   // Subcomponente: DaySchedule
+
   const DaySchedule = ({ day, index }) => (
     <div
       className="border bg-white p-4 rounded-lg shadow-sm hover:shadow-md transform transition-transform duration-300 hover:scale-105"
-      key={day.dia}
+      key={day.id}
     >
       <div className="flex items-center mb-3">
         <input
@@ -75,9 +138,8 @@ const WorkingHours = () => {
               id={`start-${index}`}
               value={day.start}
               onChange={(e) => handleHoursChange(index, "start", e.target.value)}
-              className={`w-full p-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 ${
-                day.error ? "focus:ring-red-500" : "focus:ring-pink-500"
-              }`}
+              className={`w-full p-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 ${day.error ? "focus:ring-red-500" : "focus:ring-pink-500"
+                }`}
               aria-required="true"
             />
           </div>
@@ -90,9 +152,8 @@ const WorkingHours = () => {
               id={`end-${index}`}
               value={day.end}
               onChange={(e) => handleHoursChange(index, "end", e.target.value)}
-              className={`w-full p-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 ${
-                day.error ? "focus:ring-red-500" : "focus:ring-pink-500"
-              }`}
+              className={`w-full p-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 ${day.error ? "focus:ring-red-500" : "focus:ring-pink-500"
+                }`}
               aria-required="true"
             />
           </div>
@@ -104,22 +165,14 @@ const WorkingHours = () => {
 
   // Subcomponente: ExceptionCalendar
   const ExceptionCalendar = () => {
-    // Função para adicionar conteúdo aos tiles do calendário
     const tileContent = ({ date }) => {
       const dateStr = date.toDateString();
       if (exceptions.includes(dateStr)) {
-        return (
-          <FaTrash
-            className="text-red-500 inline ml-1"
-            aria-label="Exceção marcada"
-            title="Exceção marcada"
-          />
-        );
+        return <FaTrash className="text-red-500 inline ml-1" aria-label="Exceção marcada" />;
       }
       return null;
     };
 
-    // Função para adicionar classes aos tiles do calendário
     const tileClassName = ({ date }) => {
       const dateStr = date.toDateString();
       if (exceptions.includes(dateStr)) {
@@ -127,20 +180,6 @@ const WorkingHours = () => {
       }
       return "hover:bg-pink-100 hover:text-pink-500 transition-all duration-200";
     };
-
-    return (
-      <div className="w-full">
-        <Calendar
-          onClickDay={handleDateClick}
-          tileContent={tileContent}
-          tileClassName={tileClassName}
-          className="rounded-lg border shadow-lg text-gray-700 w-full"
-        />
-        <p className="text-sm text-gray-600 mt-2">
-          Clique em um dia no calendário para marcar como exceção. Dias marcados em vermelho não estarão disponíveis.
-        </p>
-      </div>
-    );
   };
 
   return (
@@ -152,17 +191,29 @@ const WorkingHours = () => {
         </h2>
       </header>
 
-      {/* Horários Semanais */}
       <section>
         <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Horários Semanais</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {workingHours.map((day, index) => (
-            <DaySchedule key={day.dia} day={day} index={index} />
+            <DaySchedule key={day.id} day={day} index={index} />
           ))}
         </div>
       </section>
 
-      {/* Calendário para Exceções */}
+      {isUpdated && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={saveChanges}
+            disabled={loading}
+            className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-400"
+          >
+            {loading ? "Salvando..." : "Salvar Alterações"}
+          </button>
+        </div>
+      )}
+
+      {/* {message && <p className="text-center mt-4 text-lg font-semibold text-gray-800">{message}</p>} */}
+
       <section className="mt-8 md:mt-12">
         <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Exceções de Horário</h3>
         <ExceptionCalendar />

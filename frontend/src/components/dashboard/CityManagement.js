@@ -157,14 +157,14 @@ const CityManagement = ({ onUpdate }) => {
     try {
       const userToken = Cookies.get("userToken");
 
-      // Função para formatar os valores corretamente (maiúsculas, sem acento e com _)
       const formatEnum = (str) =>
         str
           .toUpperCase()
+          .replace(/\sE\s/g, " ")
           .replace(/\s/g, "_")
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
-
+      
       // Converte os valores para os ENUMs esperados pelo backend
       const locations = intermediaries.localities.map(formatEnum);
       const amenities = intermediaries.amenities.map(formatEnum);

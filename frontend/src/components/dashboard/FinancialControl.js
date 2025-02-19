@@ -234,22 +234,23 @@ const FinancialControl = () => {
                       </label>
                       <select
                         className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                        value={service.preco}
+                        value={service.customPreco ? "Outro" : service.preco}
                         onChange={(e) => {
                           const value = e.target.value;
-                          if (value === 'Outro') {
-                            // Definir preço como o mínimo (50) e marcar como preço customizado
+                          if (value === "Outro") {
                             setServices((prev) =>
                               prev.map((s, i) =>
-                                i === services.findIndex((s) => s.nome === service.nome)
+                                i === services.findIndex((s) => s.id === service.id)
                                   ? { ...s, preco: 50, customPreco: true }
                                   : s
                               )
                             );
                           } else {
                             setServices((prev) =>
-                              prev.map((s) =>
-                                s.id === service.id ? { ...s, preco: Number(value), customPreco: false } : s
+                              prev.map((s, i) =>
+                                i === services.findIndex((s) => s.id === service.id)
+                                  ? { ...s, preco: Number(value), customPreco: false }
+                                  : s
                               )
                             );
                           }
@@ -262,27 +263,37 @@ const FinancialControl = () => {
                         ))}
                         <option value="Outro">Outro</option>
                       </select>
-                      {/* Mostrar slider se for preço customizado */}
-                      {shouldShowSlider(service) && (
+                      {/* Slider visível apenas quando "Outro" for selecionado */}
+                      {service.customPreco && (
                         <div className="mt-4">
                           <Slider
                             min={50}
                             max={20000}
-                            step={50} // Passos menores para reduzir a sensibilidade
+                            step={50}
                             value={service.preco}
-                            onChange={(value) => updatePrice(services.findIndex((s) => s.nome === service.nome), value)}
-                            railStyle={{ backgroundColor: '#d1d5db', height: 8 }}
+                            onChange={(value) => {
+                              setServices((prev) =>
+                                prev.map((s, i) =>
+                                  i === services.findIndex((s) => s.id === service.id)
+                                    ? { ...s, preco: value }
+                                    : s
+                                )
+                              );
+                            }}
+                            railStyle={{ backgroundColor: "#d1d5db", height: 8 }}
                             handleStyle={{
-                              borderColor: '#10b981',
+                              borderColor: "#10b981",
                               height: 24,
                               width: 24,
                               marginLeft: -12,
                               marginTop: -8,
-                              backgroundColor: '#10b981',
+                              backgroundColor: "#10b981",
                             }}
-                            trackStyle={{ backgroundColor: '#10b981', height: 8 }}
+                            trackStyle={{ backgroundColor: "#10b981", height: 8 }}
                           />
-                          <div className="mt-2 text-sm text-gray-600">R$ {service.preco.toLocaleString('pt-BR')}</div>
+                          <div className="mt-2 text-sm text-gray-600">
+                            R$ {service.preco.toLocaleString("pt-BR")}
+                          </div>
                         </div>
                       )}
                     </div>

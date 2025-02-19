@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaClock, FaTrash } from "react-icons/fa";
+import { FaClock, FaTrash, FaSave, FaCopy } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import axios from "axios";
@@ -10,6 +10,7 @@ const WorkingHours = () => {
   const [workingHours, setWorkingHours] = useState([]);
   const [originalHours, setOriginalHours] = useState([]);
   const [exceptions, setExceptions] = useState([]);
+  const [originalExceptions, setOriginalExceptions] = useState([]);
   const [isUpdated, setIsUpdated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -24,6 +25,15 @@ const WorkingHours = () => {
     { id: 7, dia: "Domingo", ativo: false, start: "", end: "" },
   ];
 
+  const daysOfWeekMap = {
+    "Monday": "Segunda-feira",
+    "Tuesday": "Terça-feira",
+    "Wednesday": "Quarta-feira",
+    "Thursday": "Quinta-feira",
+    "Friday": "Sexta-feira",
+    "Saturday": "Sábado",
+    "Sunday": "Domingo"
+  };
 
   // Função para buscar os horários do backend
   const fetchWorkingHours = async () => {
@@ -39,19 +49,25 @@ const WorkingHours = () => {
       );
 
       if (response.data.schedule) {
-        console.log("Horários do backend:", response.data.schedule);
-        const formattedData = response.data.schedule.map((item) => ({
-          id: item.id,
-          dia: item.dayOfWeek,
-          ativo: item.isActive,
-          start: item.startTime,
-          end: item.endTime,
-          error: "",
-        }));
+        const formattedData = defaultSchedule.map((defaultDay) => {
+          // Converter os nomes dos dias da semana do backend para português
+          const existingDay = response.data.schedule.find((item) => daysOfWeekMap[item.dayOfWeek] === defaultDay.dia);
+
+          return existingDay
+            ? {
+              id: existingDay.id,
+              dia: daysOfWeekMap[existingDay.dayOfWeek], // Convertendo para português
+              ativo: existingDay.isActive,
+              start: existingDay.startTime,
+              end: existingDay.endTime,
+              error: "",
+            }
+            : defaultDay;
+        });
+
         setWorkingHours(formattedData);
         setOriginalHours(JSON.stringify(formattedData));
-      }else {
-        console.log("Nenhum horário encontrado. Usando padrão.");
+      } else {
         setWorkingHours(defaultSchedule);
       }
     } catch (error) {
@@ -64,6 +80,32 @@ const WorkingHours = () => {
     fetchWorkingHours();
   }, []);
 
+  // Função para buscar as datas indisponíveis do backend
+  const fetchUnavailableDates = async () => {
+    try {
+      const token = Cookies.get("userToken");
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/unavailable-date`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+      if (response.data.unavailableDates) {
+        const formattedDates = response.data.unavailableDates.map(date => new Date(date).toDateString());
+        setExceptions(formattedDates);
+        setOriginalExceptions(JSON.stringify(formattedDates)); // Armazena o estado original
+      }
+    } catch (error) {
+      console.error("Erro ao buscar datas indisponíveis:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnavailableDates();
+  }, []);
+
   const handleHoursChange = (index, field, value) => {
     const updatedHours = [...workingHours];
     updatedHours[index][field] = value;
@@ -73,13 +115,23 @@ const WorkingHours = () => {
       const start = updatedHours[index].start;
       const end = updatedHours[index].end;
       if (start && end && start >= end) {
-        updatedHours[index].error =
-          "O horário de término deve ser posterior ao horário de início.";
+        updatedHours[index].error = "O horário de término deve ser posterior ao horário de início.";
       }
     }
 
     setWorkingHours(updatedHours);
     setIsUpdated(JSON.stringify(updatedHours) !== JSON.stringify(originalHours));
+  };
+
+  // Copia os horários de segunda para os outros dias
+  const copyMondayToAll = () => {
+    const updatedHours = workingHours.map((day, index) => {
+      if (index === 0) return day; // Mantém segunda-feira igual
+      return { ...day, ativo: workingHours[0].ativo, start: workingHours[0].start, end: workingHours[0].end };
+    });
+
+    setWorkingHours(updatedHours);
+    setIsUpdated(true);
   };
 
   // Função para salvar alterações
@@ -88,29 +140,57 @@ const WorkingHours = () => {
     setMessage("");
 
     const token = Cookies.get("userToken");
+
+    // Converter os nomes dos dias da semana corretamente
+    const daysOfWeek = {
+      "Segunda-feira": "Monday",
+      "Terça-feira": "Tuesday",
+      "Quarta-feira": "Wednesday",
+      "Quinta-feira": "Thursday",
+      "Sexta-feira": "Friday",
+      "Sábado": "Saturday",
+      "Domingo": "Sunday",
+    };
+
+    // Criar payload no formato correto
     const payload = {
       schedule: workingHours.map(({ dia, start, end, ativo }) => ({
-        dayOfWeek: dia,
-        startTime: start,
-        endTime: end,
-        isActive: ativo,
+        dayOfWeek: daysOfWeek[dia] || dia, // Se precisar converter para inglês, fazemos aqui
+        startTime: ativo && start ? start : "00:00", // Se não estiver ativo, garante "00:00"
+        endTime: ativo && end ? end : "00:00",
+        isActive: ativo, // O backend espera um booleano
       })),
     };
 
+    console.log("Payload enviado para o backend:", JSON.stringify(payload, null, 2));
+
     try {
-      await axios.put("https://www.faixarosa.com/api/companions/schedule/update", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/schedule/update`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      console.log("Resposta do backend:", response.data);
 
       setOriginalHours([...workingHours]);
       setIsUpdated(false);
-      setMessage("Horários atualizados com sucesso! ");
+      setMessage("Horários atualizados com sucesso!");
+
       setTimeout(async () => {
         await fetchWorkingHours();
       }, 2000);
     } catch (error) {
-      setMessage("Erro ao salvar. Tente novamente. ");
       console.error("Erro ao atualizar horários:", error);
+
+      if (error.response) {
+        console.error("Detalhes do erro do backend:", error.response.data);
+        setMessage(`Erro: ${JSON.stringify(error.response.data)}`);
+      } else {
+        setMessage("Erro ao salvar. Tente novamente.");
+      }
     }
 
     setLoading(false);
@@ -119,14 +199,51 @@ const WorkingHours = () => {
 
   const handleDateClick = (date) => {
     const dateStr = date.toDateString();
-    if (exceptions.includes(dateStr)) {
-      setExceptions(exceptions.filter((d) => d !== dateStr));
-    } else {
-      setExceptions([...exceptions, dateStr]);
-    }
-  };
-  // Subcomponente: DaySchedule
+    let updatedDates;
 
+    if (exceptions.includes(dateStr)) {
+      updatedDates = exceptions.filter(d => d !== dateStr);
+    } else {
+      updatedDates = [...exceptions, dateStr];
+    }
+
+    setExceptions(updatedDates);
+    setIsUpdated(JSON.stringify(updatedDates) !== originalExceptions);
+  };
+
+  // Função para salvar as datas indisponíveis no backend
+  const saveUnavailableDates = async () => {
+    setLoading(true);
+    setMessage("");
+
+    const token = Cookies.get("userToken");
+    const formattedDates = exceptions.map(date => {
+      const d = new Date(date);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    });
+
+    const payload = { unavailableDates: formattedDates };
+
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/unavailable-date/update`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+      setOriginalExceptions(JSON.stringify(exceptions));
+      setIsUpdated(false);
+      setMessage("Datas indisponíveis atualizadas com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar datas indisponíveis:", error);
+      setMessage("Erro ao salvar. Tente novamente.");
+    }
+
+    setLoading(false);
+  };
+
+  // Subcomponente: DaySchedule
   const DaySchedule = ({ day, index }) => (
     <div
       className="border bg-white p-4 rounded-lg shadow-sm hover:shadow-md transform transition-transform duration-300 hover:scale-105"
@@ -180,21 +297,23 @@ const WorkingHours = () => {
 
   // Subcomponente: ExceptionCalendar
   const ExceptionCalendar = () => {
-    const tileContent = ({ date }) => {
-      const dateStr = date.toDateString();
-      if (exceptions.includes(dateStr)) {
-        return <FaTrash className="text-red-500 inline ml-1" aria-label="Exceção marcada" />;
-      }
-      return null;
-    };
-
-    const tileClassName = ({ date }) => {
-      const dateStr = date.toDateString();
-      if (exceptions.includes(dateStr)) {
-        return "bg-red-100 border-red-500 text-gray-900 font-semibold";
-      }
-      return "hover:bg-pink-100 hover:text-pink-500 transition-all duration-200";
-    };
+    return (
+      <div className="mt-4 p-4 bg-white rounded-lg shadow-md">
+        <Calendar
+          onClickDay={handleDateClick}
+          tileContent={({ date }) => {
+            const dateStr = date.toDateString();
+            return exceptions.includes(dateStr) ? (
+              <FaTrash className="text-red-500 inline ml-1" aria-label="Exceção marcada" />
+            ) : null;
+          }}
+          tileClassName={({ date }) => {
+            const dateStr = date.toDateString();
+            return exceptions.includes(dateStr) ? "bg-red-100 border-red-500 text-gray-900 font-semibold" : "hover:bg-pink-100 hover:text-pink-500 transition-all duration-200";
+          }}
+        />
+      </div>
+    );
   };
 
   return (
@@ -208,6 +327,20 @@ const WorkingHours = () => {
 
       <section>
         <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Horários Semanais</h3>
+
+        {/* Botão para copiar segunda-feira para todos os dias */}
+        {workingHours[0]?.ativo && workingHours[0]?.start && workingHours[0]?.end && (
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={copyMondayToAll}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center"
+            >
+              <FaCopy className="mr-2" />
+              Preencher Todos os Dias
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {workingHours.map((day, index) => (
             <DaySchedule key={day.id} day={day} index={index} />
@@ -230,9 +363,30 @@ const WorkingHours = () => {
       {/* {message && <p className="text-center mt-4 text-lg font-semibold text-gray-800">{message}</p>} */}
 
       <section className="mt-8 md:mt-12">
-        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Exceções de Horário</h3>
+        <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Exceções de Dias</h3>
         <ExceptionCalendar />
+
+        {/* Botão de salvar alterações em datas indisponíveis */}
+        {JSON.stringify(exceptions) !== originalExceptions && (
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={saveUnavailableDates}
+              disabled={loading}
+              className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center"
+            >
+              {loading ? "Salvando..." : (
+                <>
+                  <FaSave className="mr-2" />
+                  Salvar Datas Indisponíveis
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {message && <p className="text-center mt-4 text-lg font-semibold text-gray-800">{message}</p>}
       </section>
+
     </div>
   );
 };

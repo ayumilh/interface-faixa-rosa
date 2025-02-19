@@ -7,7 +7,6 @@ import {
   FaTelegram,
   FaPhoneAlt,
   FaSave,
-  FaExclamationCircle,
 } from "react-icons/fa";
 import Charts from "@/components/dashboard/Charts";
 import Cookies from "js-cookie";
@@ -18,22 +17,30 @@ const Metrics = ({ userName, userCity, userState }) => {
     telegram: { username: "", message: "" },
     phone: "",
   });
+
   const [updated, setUpdated] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const userToken = Cookies.get("userToken");
 
-  const formatPhoneNumber = (value) => {
-    const cleanedValue = value.replace(/\D/g, "");
-    const formattedValue = cleanedValue.replace(
-      /^(\d{2})(\d{5})(\d{4})$/,
-      "($1) $2-$3"
-    );
-    return cleanedValue.length <= 10
-      ? cleanedValue.replace(/^(\d{2})(\d{4})$/, "($1) $2")
-      : formattedValue;
+  // Formatar número de telefone para exibição
+  const formatPhoneDisplay = (value) => {
+    const cleanedValue = value.replace(/\D/g, ""); // Remove tudo que não for número
+
+    if (cleanedValue.length === 11) {
+      return `(${cleanedValue.slice(0, 2)}) ${cleanedValue.slice(2, 7)}-${cleanedValue.slice(7)}`;
+    } else if (cleanedValue.length === 10) {
+      return `(${cleanedValue.slice(0, 2)}) ${cleanedValue.slice(2, 6)}-${cleanedValue.slice(6)}`;
+    }
+    return cleanedValue;
   };
 
-  // Requisição para buscar dados de contato
+  // Formatar número de telefone para envio (somente números)
+  const formatPhoneBackend = (value) => {
+    return value.replace(/\D/g, "");
+  };
+
+  // Buscar dados do backend
   useEffect(() => {
     const fetchContactData = async () => {
       try {
@@ -47,18 +54,18 @@ const Metrics = ({ userName, userCity, userState }) => {
 
         setContactConfig({
           whatsapp: {
-            number: formatPhoneNumber(contact.whatsappNumber),
+            number: formatPhoneDisplay(contact.whatsappNumber || ""),
             message: contact.whatsappMessage || "",
           },
           telegram: {
             username: contact.telegramUsername || "",
             message: contact.telegramMessage || "",
           },
-          phone: formatPhoneNumber(contact.phoneNumber),
+          phone: formatPhoneDisplay(contact.phoneNumber || ""),
         });
 
       } catch (error) {
-        setError("Erro ao carregar os dados de contato.");
+        setMessage("Erro ao carregar os dados de contato.");
       }
     };
 
@@ -68,8 +75,8 @@ const Metrics = ({ userName, userCity, userState }) => {
   const handleConfigChange = (e, platform, field) => {
     let value = e.target.value;
 
-    if (platform === "whatsapp" && field === "number") {
-      value = formatPhoneNumber(value);
+    if (field === "number") {
+      value = formatPhoneDisplay(value); // Formata para exibição
     }
 
     setContactConfig((prev) => ({
@@ -80,13 +87,40 @@ const Metrics = ({ userName, userCity, userState }) => {
   };
 
   const handlePhoneChange = (e) => {
-    const value = formatPhoneNumber(e.target.value);
+    const value = formatPhoneDisplay(e.target.value);
     setContactConfig((prev) => ({ ...prev, phone: value }));
     setUpdated(false);
   };
 
-  const saveConfig = () => {
-    setUpdated(true);
+  const saveConfig = async () => {
+    setLoading(true);
+    setMessage("");
+
+    const payload = {
+      whatsappNumber: formatPhoneBackend(contactConfig.whatsapp.number), // Limpa antes de enviar
+      whatsappMessage: contactConfig.whatsapp.message,
+      telegramUsername: contactConfig.telegram.username,
+      telegramMessage: contactConfig.telegram.message,
+      phoneNumber: formatPhoneBackend(contactConfig.phone), // Limpa antes de enviar
+    };
+
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/contact/update`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${userToken}` },
+        }
+      );
+
+      setMessage("Dados atualizados com sucesso!");
+      setUpdated(true);
+    } catch (error) {
+      console.error("Erro ao atualizar contatos:", error);
+      setMessage("Erro ao salvar os dados. Tente novamente.");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -115,12 +149,14 @@ const Metrics = ({ userName, userCity, userState }) => {
             type="text"
             placeholder="Número do WhatsApp (com DDD)"
             value={contactConfig.whatsapp.number}
+            maxLength={15}
             onChange={(e) => handleConfigChange(e, "whatsapp", "number")}
             className="w-full mb-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <textarea
             placeholder="Mensagem personalizada"
             value={contactConfig.whatsapp.message}
+            maxLength={200}
             onChange={(e) => handleConfigChange(e, "whatsapp", "message")}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
           ></textarea>
@@ -138,6 +174,7 @@ const Metrics = ({ userName, userCity, userState }) => {
           <input
             type="text"
             placeholder="Usuário do Telegram"
+            maxLength={50}
             value={contactConfig.telegram.username}
             onChange={(e) => handleConfigChange(e, "telegram", "username")}
             className="w-full mb-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -145,6 +182,7 @@ const Metrics = ({ userName, userCity, userState }) => {
           <textarea
             placeholder="Mensagem personalizada"
             value={contactConfig.telegram.message}
+            maxLength={200}
             onChange={(e) => handleConfigChange(e, "telegram", "message")}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           ></textarea>
@@ -159,6 +197,7 @@ const Metrics = ({ userName, userCity, userState }) => {
             type="text"
             placeholder="Número de telefone (com DDD)"
             value={contactConfig.phone}
+            maxLength={15}
             onChange={handlePhoneChange}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
           />
@@ -169,17 +208,18 @@ const Metrics = ({ userName, userCity, userState }) => {
       <div className="mt-8">
         <button
           onClick={saveConfig}
-          className="w-full flex items-center justify-center space-x-2 bg-pink-500 text-white px-4 py-2 rounded shadow hover:bg-pink-600 transition"
+          disabled={loading}
+          className={`w-full flex items-center justify-center space-x-2 px-4 py-2 rounded shadow transition ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-pink-500 hover:bg-pink-600 text-white"
+            }`}
         >
           <FaSave />
-          <span>Atualizar Contatos</span>
+          <span>{loading ? "Salvando..." : "Atualizar Contatos"}</span>
         </button>
       </div>
 
-      {/* Mensagem de Confirmação */}
-      {updated && (
-        <div className="bg-green-100 border-l-4 border-green-500 p-4 mt-4 rounded-md text-green-700">
-          Informações atualizadas com sucesso!
+      {message && (
+        <div className="mt-4 p-3 text-white text-center rounded-md shadow-md bg-green-500">
+          {message}
         </div>
       )}
     </div>

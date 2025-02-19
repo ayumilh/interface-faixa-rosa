@@ -14,6 +14,17 @@ const WorkingHours = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const defaultSchedule = [
+    { id: 1, dia: "Segunda-feira", ativo: false, start: "", end: "" },
+    { id: 2, dia: "Terça-feira", ativo: false, start: "", end: "" },
+    { id: 3, dia: "Quarta-feira", ativo: false, start: "", end: "" },
+    { id: 4, dia: "Quinta-feira", ativo: false, start: "", end: "" },
+    { id: 5, dia: "Sexta-feira", ativo: false, start: "", end: "" },
+    { id: 6, dia: "Sábado", ativo: false, start: "", end: "" },
+    { id: 7, dia: "Domingo", ativo: false, start: "", end: "" },
+  ];
+
+
   // Função para buscar os horários do backend
   const fetchWorkingHours = async () => {
     try {
@@ -39,9 +50,13 @@ const WorkingHours = () => {
         }));
         setWorkingHours(formattedData);
         setOriginalHours(JSON.stringify(formattedData));
+      }else {
+        console.log("Nenhum horário encontrado. Usando padrão.");
+        setWorkingHours(defaultSchedule);
       }
     } catch (error) {
       console.error("Erro ao buscar horários do backend:", error);
+      setWorkingHours(defaultSchedule);
     }
   };
 

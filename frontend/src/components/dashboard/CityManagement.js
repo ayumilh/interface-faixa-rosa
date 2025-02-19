@@ -166,7 +166,10 @@ const CityManagement = ({ onUpdate }) => {
           .replace(/[\u0300-\u036f]/g, "");
       
       // Converte os valores para os ENUMs esperados pelo backend
-      const locations = intermediaries.localities.map(formatEnum);
+      const locations = intermediaries.localities.map((loc) =>
+         formatEnum(loc)
+      );
+
       const amenities = intermediaries.amenities.map(formatEnum);
 
       // Verifica se houve mudanças nos arrays

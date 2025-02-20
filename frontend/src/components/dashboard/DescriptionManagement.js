@@ -73,10 +73,10 @@ const DescriptionManagement = () => {
           setValue("hairStyle", data.characteristics?.hairStyle || "");
           setValue("hairLength", data.characteristics?.hairLength || "");
           setValue("shoeSize", data.characteristics?.shoeSize || "");
-          setValue("hasSilicone", data.characteristics?.hasSilicone || false);
-          setValue("hasTattoos", data.characteristics?.hasTattoos || false);
-          setValue("hasPiercings", data.characteristics?.hasPiercings || false);
-          setValue("smoker", data.characteristics?.smoker || false);
+          setValue("hasSilicone", data.characteristics?.hasSilicone ? "true" : "false");
+          setValue("hasTattoos", data.characteristics?.hasTattoos ? "true" : "false");
+          setValue("hasPiercings", data.characteristics?.hasPiercings ? "true" : "false");
+          setValue("smoker", data.characteristics?.smoker ? "true" : "false");
 
           // Se houver um vídeo já armazenado, marca como aprovado
           if (data.characteristics?.comparisonMedia) {
@@ -95,49 +95,59 @@ const DescriptionManagement = () => {
     try {
       const userToken = Cookies.get("userToken");
 
-      // Converte valores corretamente
+      // ✅ Conversão correta dos valores para o formato esperado pelo backend
       const processedData = {
-        ...data,
-        weight: parseFloat(data.weight) || 0,
-        height: parseInt(data.height, 10) || 0,
-        shoeSize: parseInt(data.shoeSize, 10) || 0,
-        hasSilicone: data.hasSilicone === "true",
-        hasTattoos: data.hasTattoos === "true",
-        hasPiercings: data.hasPiercings === "true",
-        smoker: data.smoker === "true",
-        hasComparisonMedia: videoFile ? true : false, // Envia booleano corretamente
+        description: data.description || "",
+        gender: data.gender || "", // Required
+        genitalia: data.genitalia || null,
+        weight: data.weight ? Number(data.weight) : 0,
+        height: data.height ? Number(data.height) : 0,
+        ethnicity: data.ethnicity || "",
+        eyeColor: data.eyeColor || "",
+        hairStyle: data.hairStyle || "",
+        hairLength: data.hairLength || "",
+        shoeSize: data.shoeSize ? String(data.shoeSize) : "",
+        hasSilicone: data.hasSilicone === true || data.hasSilicone === "true",
+        hasTattoos: data.hasTattoos === true || data.hasTattoos === "true",
+        hasPiercings: data.hasPiercings === true || data.hasPiercings === "true",
+        smoker: data.smoker === true || data.smoker === "true",
+        hasComparisonMedia: Boolean(videoFile), // Se houver vídeo, é true
       };
 
-      const formData = new FormData();
-      Object.keys(processedData).forEach(key => {
-        console.log("key", key);
-        formData.append(key, processedData[key]);
-      });
+      console.log("Dados preparados para envio:", processedData);
 
       let response;
 
       if (videoFile) {
-        // ✅ Se houver vídeo, usa FormData (multipart/form-data)
+        // ✅ Envio com FormData apenas se houver vídeo
+        const formData = new FormData();
+        Object.keys(processedData).forEach((key) => {
+          formData.append(key, processedData[key]);
+        });
         formData.append("comparisonMedia", videoFile);
+
+        console.log("Enviando como FormData:", formData);
 
         response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data", // Apenas se houver vídeo
+              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${userToken}`,
             },
           }
         );
       } else {
-        // ✅ Se não houver vídeo, envia JSON normal (application/json)
+        // ✅ Envio como JSON normal se não houver vídeo
+        console.log("Enviando como JSON:", processedData);
+
         response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           processedData,
           {
             headers: {
-              "Content-Type": "application/json", // JSON puro se não houver vídeo
+              "Content-Type": "application/json",
               Authorization: `Bearer ${userToken}`,
             },
           }
@@ -151,10 +161,9 @@ const DescriptionManagement = () => {
       alert("Perfil atualizado com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
-      alert(error.message || "Ocorreu um erro ao atualizar o perfil.");
+      alert(error.response?.data?.error || "Ocorreu um erro ao atualizar o perfil.");
     }
   };
-
 
 
   const handleVideoUpload = (e) => {
@@ -501,20 +510,21 @@ const DescriptionManagement = () => {
                   Tamanho do Pé
                 </label>
                 <select
-                  {...register("footSize", { required: true })}
-                  id="footSize"
-                  defaultValue={getValues("footSize")} // Define o valor inicial
-                  className={`w-full p-2 border ${errors.footSize ? "border-red-500" : "border-gray-300"
+                  {...register("shoeSize", { required: true })}
+                  id="shoeSize"
+                  defaultValue={getValues("shoeSize") || ""}
+                  className={`w-full p-2 border ${errors.shoeSize ? "border-red-500" : "border-gray-300"
                     } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  {Array.from({ length: 14 }, (_, i) => i + 35).map((size) => (
+                  {Array.from({ length: 14 }, (_, i) => (i + 35).toString()).map((size) => ( // ✅ Convertendo para string
                     <option key={size} value={size}>
                       {size}
                     </option>
                   ))}
                   <option value="Outro">Outro</option>
                 </select>
+
                 {errors.footSize && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione um tamanho de pé válido.
@@ -608,6 +618,7 @@ const DescriptionManagement = () => {
                 <select
                   {...register("smoker", { required: true })}
                   id="smoker"
+                  defaultValue={getValues("smoker") || ""}
                   className={`w-full p-2 border ${errors.smoker ? "border-red-500" : "border-gray-300"
                     } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
@@ -615,6 +626,7 @@ const DescriptionManagement = () => {
                   <option value="true">Sim</option>
                   <option value="false">Não</option>
                 </select>
+
                 {errors.smoker && (
                   <span className="text-red-500 text-sm mt-2">
                     Por favor, selecione uma opção.

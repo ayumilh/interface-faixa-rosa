@@ -51,8 +51,7 @@ const DescriptionManagement = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
-          'http://localhost:4000/api/companions/description',
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
           {
             headers: { Authorization: `Bearer ${userToken}` },
           }
@@ -142,8 +141,7 @@ const DescriptionManagement = () => {
         }
 
         response = await axios.post(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
-          'http://localhost:4000/api/companions/description/update',
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           formData,
           {
             headers: {
@@ -158,8 +156,7 @@ const DescriptionManagement = () => {
         console.log("Enviando como JSON:", processedData);
 
         response = await axios.post(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
-          'http://localhost:4000/api/companions/description/update',
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           processedData,
           {
             headers: {

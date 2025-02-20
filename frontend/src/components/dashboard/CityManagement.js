@@ -199,7 +199,6 @@ const CityManagement = ({ onUpdate }) => {
         }
       );
 
-      console.log("Atualização bem-sucedida!", response.data);
       alert("Dados atualizados com sucesso!");
 
       // Atualiza o estado corretamente sem sobrescrever os valores existentes

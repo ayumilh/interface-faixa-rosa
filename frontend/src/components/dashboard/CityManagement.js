@@ -55,7 +55,7 @@ const CityManagement = ({ onUpdate }) => {
     try {
       const data = {
         localities: ["A domicílio", "Festas e Eventos", "Hotéis", "Local Próprio", "Motéis"],
-        amenities: ["Wi-Fi", "Chuveiro", "Ar-condicionado", "Estacionamento", "Frigobar", "Preservativos"],
+        amenities: ["WiFi", "Chuveiro", "Ar_condicionado", "Estacionamento", "Frigobar", "Preservativos"],
       };
 
       setIntermediaries((prev) => ({
@@ -145,9 +145,9 @@ const CityManagement = ({ onUpdate }) => {
   };
 
   const AMENITIES_ENUMS = {
-    "Wi-Fi": "WIFI",
+    "WiFi": "WIFI",
     "Chuveiro": "CHUVEIRO",
-    "Ar-condicionado": "AR_CONDICIONADO",
+    "Ar_condicionado": "AR_CONDICIONADO",
     "Estacionamento": "ESTACIONAMENTO",
     "Frigobar": "FRIGOBAR",
     "Preservativos": "PRESERVATIVOS",
@@ -492,9 +492,9 @@ const CityManagement = ({ onUpdate }) => {
         >
           <div className="flex flex-col gap-2">
             {[
-              { label: "Wi-Fi", value: "WIFI", icon: <FaWifi className="mr-2 text-pink-500" /> },
+              { label: "WiFi", value: "WIFI", icon: <FaWifi className="mr-2 text-pink-500" /> },
               { label: "Chuveiro", value: "CHUVEIRO", icon: <FaShower className="mr-2 text-pink-500" /> },
-              { label: "Ar-condicionado", value: "AR_CONDICIONADO", icon: <FaCouch className="mr-2 text-pink-500" /> },
+              { label: "Ar_condicionado", value: "AR_CONDICIONADO", icon: <FaCouch className="mr-2 text-pink-500" /> },
               { label: "Estacionamento", value: "ESTACIONAMENTO", icon: <FaParking className="mr-2 text-pink-500" /> },
               { label: "Frigobar", value: "FRIGOBAR", icon: <FaDollarSign className="mr-2 text-pink-500" /> },
               { label: "Preservativos", value: "PRESERVATIVOS", icon: <FaBed className="mr-2 text-pink-500" /> },

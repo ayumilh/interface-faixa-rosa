@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useForm, Controller } from "react-hook-form";
-import Select from "react-select";
+import { useForm } from "react-hook-form";
 import {
   FaEdit,
   FaIdCard,
@@ -52,7 +51,8 @@ const DescriptionManagement = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
+          'http://localhost:4000/api/companions/description',
           {
             headers: { Authorization: `Bearer ${userToken}` },
           }
@@ -78,9 +78,15 @@ const DescriptionManagement = () => {
           setValue("hasPiercings", data.characteristics?.hasPiercings ? "true" : "false");
           setValue("smoker", data.characteristics?.smoker ? "true" : "false");
 
-          // Se houver um vídeo já armazenado, marca como aprovado
+          // Verifica se o vídeo foi enviado mas ainda está aguardando aprovação
+          if (data.characteristics?.comparisonMedia === null && data.characteristics?.hasComparisonMedia === true) {
+            setVideoPending(true);
+          }
+
+          // Verifica se o vídeo foi aprovado e já está disponível
           if (data.characteristics?.comparisonMedia) {
             setIsVideoApproved(true);
+            setVideoUrl(data.characteristics.comparisonMedia);
           }
         }
       } catch (error) {
@@ -95,7 +101,7 @@ const DescriptionManagement = () => {
     try {
       const userToken = Cookies.get("userToken");
 
-      // ✅ Conversão correta dos valores para o formato esperado pelo backend
+      // Conversão correta dos valores para o formato esperado pelo backend
       const processedData = {
         description: data.description || "",
         gender: data.gender || "", // Required
@@ -111,7 +117,7 @@ const DescriptionManagement = () => {
         hasTattoos: data.hasTattoos === true || data.hasTattoos === "true",
         hasPiercings: data.hasPiercings === true || data.hasPiercings === "true",
         smoker: data.smoker === true || data.smoker === "true",
-        hasComparisonMedia: Boolean(videoFile), // Se houver vídeo, é true
+        hasComparisonMedia: Boolean(videoFile),
       };
 
       console.log("Dados preparados para envio:", processedData);
@@ -119,31 +125,41 @@ const DescriptionManagement = () => {
       let response;
 
       if (videoFile) {
-        // ✅ Envio com FormData apenas se houver vídeo
+        // Envio com FormData apenas se houver vídeo
         const formData = new FormData();
-        Object.keys(processedData).forEach((key) => {
-          formData.append(key, processedData[key]);
-        });
-        formData.append("comparisonMedia", videoFile);
 
-        console.log("Enviando como FormData:", formData);
+        Object.entries(processedData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            formData.append(key, value.toString());
+          }
+        });
+        
+        console.log("Arquivo de vídeo detectado:", videoFile.name);
+        formData.append("comparisonMedia", videoFile, videoFile.name);
+
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ": " + pair[1]);
+        }
 
         response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          'http://localhost:4000/api/companions/description/update',
           formData,
           {
             headers: {
               "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${userToken}`,
             },
+            timeout: 60000,
           }
         );
       } else {
-        // ✅ Envio como JSON normal se não houver vídeo
+        // Envio como JSON normal se não houver vídeo
         console.log("Enviando como JSON:", processedData);
 
         response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          'http://localhost:4000/api/companions/description/update',
           processedData,
           {
             headers: {
@@ -517,7 +533,7 @@ const DescriptionManagement = () => {
                     } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 transition duration-300`}
                 >
                   <option value="">Selecione</option>
-                  {Array.from({ length: 14 }, (_, i) => (i + 35).toString()).map((size) => ( // ✅ Convertendo para string
+                  {Array.from({ length: 14 }, (_, i) => (i + 35).toString()).map((size) => ( // Convertendo para string
                     <option key={size} value={size}>
                       {size}
                     </option>

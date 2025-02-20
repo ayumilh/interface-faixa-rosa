@@ -65,6 +65,7 @@ const ServicesManagement = () => {
     );
     setPendingUpdates(true);
   };
+  
 
   // Separar serviços oferecidos e não oferecidos
   const servicosOferecidos = services ? services.filter(service => service.oferecido) : [];
@@ -151,7 +152,7 @@ const ServicesManagement = () => {
                       <select
                         className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
                         value={service.preco}
-                        onChange={(e) => updatePrice(services.findIndex(s => s.nome === service.nome), e.target.value)}
+                        onChange={(e) => updatePrice(service.id, Number(e.target.value))} // ⬅️ Agora pega o ID correto
                       >
                         {precoOptions.map((preco) => (
                           <option key={preco} value={preco}>
@@ -159,6 +160,7 @@ const ServicesManagement = () => {
                           </option>
                         ))}
                       </select>
+
                     </div>
                   </motion.div>
                 ))}

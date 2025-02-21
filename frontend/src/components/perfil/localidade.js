@@ -1,14 +1,29 @@
-// components/perfil/Localidade.js
-
 import { useState } from 'react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 
-export default function Localidade() {
+export default function Localidade({ lugares, city, state }) {
   const [mostrarMais, setMostrarMais] = useState(false);
 
   const toggleMostrarMais = () => {
     setMostrarMais(!mostrarMais);
   };
+
+  // Função para formatar nomes corretamente: primeira letra maiúscula, restante minúsculo
+  const formatarNome = (nome) => {
+    return nome
+      .toLowerCase()
+      .replace('_', ' ') // Substitui underscore por espaço
+      .replace(/(^|\s)\S/g, (letra) => letra.toUpperCase()); // Capitaliza cada palavra
+  };
+
+  // Extrair e formatar os nomes das localidades
+  const locaisAtendidos = lugares?.map(loc => formatarNome(loc.location?.name)).join(', ') || "Localização não informada";
+  
+  // Extrair e formatar comodidades sem duplicatas
+  const todasComodidades = [...new Set(lugares?.flatMap(loc => loc.amenities) || [])]; 
+  const comodidadesFormatadas = todasComodidades
+    .map(amenity => formatarNome(amenity))
+    .join(', ') || "Nenhuma comodidade informada";
 
   return (
     <div className="p-4 md:p-6 bg-gradient-to-r from-white to-gray-100 rounded-lg shadow-lg border border-gray-200">
@@ -22,13 +37,13 @@ export default function Localidade() {
           <div className="mb-6">
             <p className="font-semibold text-gray-900">Locais que atendo</p>
             <p className="text-gray-700 hover:text-gray-900 transition-colors duration-300">
-              A domicílio, festas e eventos, hotéis, local próprio e motéis
+              {locaisAtendidos}
             </p>
           </div>
           <div className="mb-6">
             <p className="font-semibold text-gray-900">Comodidades do local</p>
             <p className="text-gray-700 hover:text-gray-900 transition-colors duration-300">
-              Ar-condicionado, Chuveiro, Frigobar, Estacionamento, Preservativos e Wi-Fi
+              {comodidadesFormatadas}
             </p>
           </div>
         </div>
@@ -37,24 +52,12 @@ export default function Localidade() {
         <div>
           <div className="mb-6">
             <p className="font-semibold text-gray-900">Minha localização</p>
-            <p className="text-gray-700 hover:text-gray-900 transition-colors duration-300">Moema, Zona Sul</p>
             <p className="text-pink-500 underline cursor-pointer hover:text-pink-600 transition-colors duration-300">
-              São Paulo - SP
+              {city} - {state}
             </p>
-            <p className="text-gray-500 italic">Localização não informada</p>
           </div>
           <div className="mb-6">
             <p className="font-semibold text-gray-900">Bairros que também atendo</p>
-            <p className="text-gray-700 hover:text-gray-900 transition-colors duration-300">
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Itaim</a>,{' '}
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Vila Mariana</a>,{' '}
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Vila Madalena</a>,{' '}
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Perdizes</a>,{' '}
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Brooklin Novo</a>,{' '}
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Jardins</a>,{' '}
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Barra Funda</a>,{' '}
-              <a href="#" className="text-pink-500 hover:text-pink-600 underline">Pinheiros</a>
-            </p>
           </div>
 
           {mostrarMais && (

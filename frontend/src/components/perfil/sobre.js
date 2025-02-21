@@ -1,9 +1,7 @@
-// components/perfil/Sobre.js
+import { useState } from "react";
+import { FaInfoCircle, FaCamera, FaIdCard, FaAlignLeft } from "react-icons/fa";
 
-import { useState } from 'react';
-import { FaInfoCircle, FaCamera, FaIdCard, FaAlignLeft } from 'react-icons/fa';
-
-export default function Sobre() {
+export default function Sobre({ physicalCharacteristics, description }) {
   const [mostrarMaisDescricao, setMostrarMaisDescricao] = useState(false);
   const [mostrarMaisCaracteristicas, setMostrarMaisCaracteristicas] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);
@@ -31,37 +29,32 @@ export default function Sobre() {
         <h2 className="text-xl font-semibold text-black flex items-center mb-2">
           <FaAlignLeft className="mr-2 text-pink-500" /> Descrição
         </h2>
-        <p className={`text-gray-700 ${!mostrarMaisDescricao ? 'line-clamp-3' : ''}`}>
-          Sou uma profissional dedicada a proporcionar momentos de relaxamento e prazer em um ambiente discreto e acolhedor. Ofereço diversas modalidades de massagens e experiências personalizadas. Sempre prezando pelo bem-estar e conforto de quem me visita. Cada detalhe é pensado para tornar o momento inesquecível, desde o atendimento exclusivo até a atenção às suas preferências. Sinta-se à vontade para explorar todas as possibilidades e descobrir como posso tornar o seu dia mais especial.
+        <p className={`text-gray-700 ${!mostrarMaisDescricao ? "line-clamp-3" : ""}`}>
+          {description}
         </p>
-        {/* Botão de ver mais/menos para mobile apenas */}
         <div className="mt-2 block md:hidden">
           <button onClick={toggleMostrarMaisDescricao} className="text-pink-500 font-bold hover:text-pink-600">
-            {mostrarMaisDescricao ? 'Ver menos ▲' : 'Ver mais ▼'}
+            {mostrarMaisDescricao ? "Ver menos ▲" : "Ver mais ▼"}
           </button>
         </div>
       </div>
 
-      {/* Título e ícones de informações */}
+      {/* Seção de mídia de comparação */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-black flex items-center">
           <FaCamera className="mr-2 text-pink-500" /> Mídia de comparação
         </h2>
-        {/* Ícone de informação que abre o modal */}
         <button onClick={abrirModal} className="text-pink-500 hover:text-pink-600 transition-colors duration-200">
           <FaInfoCircle className="cursor-pointer" />
         </button>
       </div>
 
-      {/* Modal */}
       {modalAberto && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md">
             <h3 className="text-lg text-black font-semibold mb-4">Informação sobre a Mídia de Comparação</h3>
             <p className="text-gray-700 mb-4">
-              Mídias de comparação é o sistema que a Faixa Rosa usa visando gerar mais credibilidade aos perfis.
-              Todas as mídias de comparação são analisadas por nossa equipe. Lembre-se: sempre que ficar com dúvida
-              se as mídias de algum acompanhante são verdadeiras, venha aqui e dê uma espiada para comparar.
+              Mídias de comparação são analisadas por nossa equipe para garantir credibilidade aos perfis. Caso tenha dúvidas sobre a veracidade de alguma mídia, consulte esta seção.
             </p>
             <button
               onClick={fecharModal}
@@ -73,7 +66,7 @@ export default function Sobre() {
         </div>
       )}
 
-      {/* Layout com vídeo e características físicas lado a lado */}
+      {/* Layout com vídeo e características físicas */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Seção de vídeo */}
         <div className="lg:w-1/3">
@@ -101,70 +94,64 @@ export default function Sobre() {
             <FaIdCard className="mr-2 text-pink-500" /> Características físicas
           </h3>
 
-          <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 text-black ${!mostrarMaisCaracteristicas && 'md:max-h-[600px] md:overflow-hidden'}`}>
+          <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 text-black ${!mostrarMaisCaracteristicas && "md:max-h-[600px] md:overflow-hidden"}`}>
             <div>
               <p className="font-bold">Gênero</p>
-              <p>Mulher</p>
-              <p className="text-sm text-gray-600">Mulher Cisgênero. Nasceu do sexo feminino e se identifica como mulher.</p>
+              <p>{physicalCharacteristics.gender === "MULHER_CISGENERO" ? "Mulher Cisgênero" : "Outro"}</p>
             </div>
             <div>
               <p className="font-bold">Genitália</p>
-              <p>Possui vagina</p>
+              <p>{physicalCharacteristics.genitalia === "NATURAL" ? "Natural" : "Modificada"}</p>
             </div>
             <div>
               <p className="font-bold">Peso</p>
-              <p>61 kg</p>
+              <p>{physicalCharacteristics.weight} kg</p>
             </div>
             <div>
               <p className="font-bold">Altura</p>
-              <p>1,65 m</p>
+              <p>{physicalCharacteristics.height / 100} m</p>
             </div>
             <div>
               <p className="font-bold">Etnia</p>
-              <p>Pardo</p>
+              <p>{physicalCharacteristics.ethnicity}</p>
             </div>
             <div>
               <p className="font-bold">Cor dos olhos</p>
-              <p>Azul</p>
+              <p>{physicalCharacteristics.eyeColor}</p>
             </div>
             <div>
               <p className="font-bold">Estilo de cabelo</p>
-              <p>Moreno</p>
+              <p>{physicalCharacteristics.hairStyle}</p>
             </div>
             <div>
-              <p className="font-bold">Tamanho de cabelo</p>
-              <p>Longo</p>
+              <p className="font-bold">Tamanho do cabelo</p>
+              <p>{physicalCharacteristics.hairLength}</p>
             </div>
-            <div className={mostrarMaisCaracteristicas ? 'block' : 'hidden md:block'}>
+            <div>
               <p className="font-bold">Tamanho do pé</p>
-              <p>36</p>
+              <p>{physicalCharacteristics.shoeSize}</p>
             </div>
-            <div className={mostrarMaisCaracteristicas ? 'block' : 'hidden md:block'}>
+            <div>
               <p className="font-bold">Silicone</p>
-              <p>Sim</p>
+              <p>{physicalCharacteristics.hasSilicone ? "Sim" : "Não"}</p>
             </div>
-            <div className={mostrarMaisCaracteristicas ? 'block' : 'hidden md:block'}>
+            <div>
               <p className="font-bold">Tatuagens</p>
-              <p>Não</p>
+              <p>{physicalCharacteristics.hasTattoos ? "Sim" : "Não"}</p>
             </div>
-            <div className={mostrarMaisCaracteristicas ? 'block' : 'hidden md:block'}>
+            <div>
               <p className="font-bold">Piercings</p>
-              <p>Não</p>
+              <p>{physicalCharacteristics.hasPiercings ? "Sim" : "Não"}</p>
             </div>
-            <div className={mostrarMaisCaracteristicas ? 'block' : 'hidden md:block'}>
+            <div>
               <p className="font-bold">Fumante</p>
-              <p>Não informado</p>
-            </div>
-            <div className={mostrarMaisCaracteristicas ? 'block' : 'hidden md:block'}>
-              <p className="font-bold">Idiomas</p>
-              <p>Espanhol, Inglês e Português</p>
+              <p>{physicalCharacteristics.smoker ? "Sim" : "Não"}</p>
             </div>
           </div>
 
-          {/* Botão de ver mais/menos para mobile apenas */}
           <div className="mt-4 block md:hidden">
             <button onClick={toggleMostrarMaisCaracteristicas} className="w-full text-center text-pink-500 font-bold hover:text-pink-600">
-              {mostrarMaisCaracteristicas ? 'Ver menos ▲' : 'Ver mais ▼'}
+              {mostrarMaisCaracteristicas ? "Ver menos ▲" : "Ver mais ▼"}
             </button>
           </div>
         </div>

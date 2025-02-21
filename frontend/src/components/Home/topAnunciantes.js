@@ -19,18 +19,27 @@ const anunciantes = [
 
 export default function TopAnunciantes() {
   const scrollRef = useRef(null);
-  let isDragging = useRef(false); // Flag para verificar se o usuário está arrastando
+  const isDragging = useRef(false); // Usar useRef para preservar o estado
+
+  const startDragging = (e) => {
+    isDragging.current = true;  // Atualizando via .current
+    startX = e.pageX || e.touches[0].pageX;
+    scrollLeft = slider.scrollLeft;
+  };
+
+  const stopDragging = () => {
+    isDragging.current = false;  // Atualizando via .current
+  };
 
   // Rola automaticamente no desktop
   useEffect(() => {
     const interval = setInterval(() => {
-      if (scrollRef.current && !isDragging) {
+      if (scrollRef.current && !isDragging.current) {  // Usando isDragging.current
         scrollRef.current.scrollBy({
-          left: 300, // Move 300px para a direita
+          left: 300,
           behavior: "smooth",
         });
 
-        // Se chegar ao final, volta para o início
         if (
           scrollRef.current.scrollLeft + scrollRef.current.clientWidth >=
           scrollRef.current.scrollWidth
@@ -38,10 +47,10 @@ export default function TopAnunciantes() {
           scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
         }
       }
-    }, 3000); // Muda a cada 3 segundos
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [isDragging]);
+  }, []);
 
   // Adiciona funcionalidade de arrastar com o mouse/touch
   useEffect(() => {
@@ -52,17 +61,17 @@ export default function TopAnunciantes() {
     if (!slider) return;
 
     const startDragging = (e) => {
-      isDragging = true;
+      isDragging.current = true;  // Usando .current
       startX = e.pageX || e.touches[0].pageX;
       scrollLeft = slider.scrollLeft;
     };
 
     const stopDragging = () => {
-      isDragging = false;
+      isDragging.current = false;  // Usando .current
     };
 
     const onDrag = (e) => {
-      if (!isDragging) return;
+      if (!isDragging.current) return;  // Acessando .current
       e.preventDefault();
       const x = e.pageX || e.touches[0].pageX;
       const walk = (x - startX) * 2; // Velocidade do arrasto
@@ -88,6 +97,7 @@ export default function TopAnunciantes() {
     };
   }, []);
 
+  
   return (
     <div className="bg-[#ebeff1] py-16 px-4">
       {/* Título da Seção */}

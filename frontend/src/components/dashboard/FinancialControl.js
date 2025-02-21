@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   FaMoneyBillWave,
   FaCreditCard,
@@ -19,7 +19,7 @@ const FinancialControl = () => {
   const [pendingUpdates, setPendingUpdates] = useState(false);
 
   // Executa ao carregar o componente**
-  const fetchFinancialData = async () => {
+  const fetchFinancialData = useCallback(async () => {
     const token = Cookies.get("userToken");
 
     try {
@@ -59,15 +59,14 @@ const FinancialControl = () => {
           }))
         );
       }
-
     } catch (error) {
       console.error("Erro ao buscar dados financeiros:", error);
     }
-  };
+  }, []); // A dependência é uma lista vazia para garantir que a função não seja recriada.
 
   useEffect(() => {
     fetchFinancialData();
-  }, []);
+  }, [fetchFinancialData]);
 
   const getPaymentIcon = (nome) => {
     switch (nome) {

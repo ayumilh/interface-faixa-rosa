@@ -30,9 +30,6 @@ export default function Search() {
     slugString = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
   }
 
-  // Regex para extrair os parâmetros da URL
-  const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
-
   const [city, setCity] = useState("");
   const [stateUF, setStateUF] = useState("");
   const [category, setCategory] = useState("mulher");
@@ -49,6 +46,7 @@ export default function Search() {
 
   // Capturar parâmetros da URL
   useEffect(() => {
+    const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
     if (slugString) {
       const match = slugString.match(regex);
       if (match) {
@@ -157,7 +155,6 @@ export default function Search() {
               } else {
                 CardComponent = CardVIP; // Se não for nenhum dos planos específicos, utiliza o CardVIP
               }
-              console.log("Card", card.id, card.name, card.plan?.name);
 
               return (
                 <Link href={`/perfil/${card.id}`} key={index}>

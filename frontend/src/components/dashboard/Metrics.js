@@ -70,7 +70,7 @@ const Metrics = ({ userName, userCity, userState }) => {
     };
 
     fetchContactData();
-  }, []);
+  }, [userToken]);
 
   const handleConfigChange = (e, platform, field) => {
     let value = e.target.value;

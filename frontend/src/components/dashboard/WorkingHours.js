@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaClock, FaTrash, FaSave, FaCopy } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -35,51 +35,53 @@ const WorkingHours = () => {
     "Sunday": "Domingo"
   };
 
-  // Função para buscar os horários do backend
-  const fetchWorkingHours = async () => {
-    try {
-      const token = Cookies.get("userToken");
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/schedule`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+  const WorkingHours = () => {  
+    const fetchWorkingHours = useCallback(async () => {
+      try {
+        const token = Cookies.get("userToken");
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/schedule`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        if (response.data.schedule) {
+          const formattedData = defaultSchedule.map((defaultDay) => {
+            const existingDay = response.data.schedule.find(
+              (item) => daysOfWeekMap[item.dayOfWeek] === defaultDay.dia
+            );
+  
+            return existingDay
+              ? {
+                  id: existingDay.id,
+                  dia: daysOfWeekMap[existingDay.dayOfWeek],
+                  ativo: existingDay.isActive,
+                  start: existingDay.startTime,
+                  end: existingDay.endTime,
+                  error: "",
+                }
+              : defaultDay;
+          });
+  
+          setWorkingHours(formattedData);
+          setOriginalHours(JSON.stringify(formattedData));
+        } else {
+          setWorkingHours(defaultSchedule);
         }
-      );
-
-      if (response.data.schedule) {
-        const formattedData = defaultSchedule.map((defaultDay) => {
-          // Converter os nomes dos dias da semana do backend para português
-          const existingDay = response.data.schedule.find((item) => daysOfWeekMap[item.dayOfWeek] === defaultDay.dia);
-
-          return existingDay
-            ? {
-              id: existingDay.id,
-              dia: daysOfWeekMap[existingDay.dayOfWeek], // Convertendo para português
-              ativo: existingDay.isActive,
-              start: existingDay.startTime,
-              end: existingDay.endTime,
-              error: "",
-            }
-            : defaultDay;
-        });
-
-        setWorkingHours(formattedData);
-        setOriginalHours(JSON.stringify(formattedData));
-      } else {
+      } catch (error) {
+        console.error("Erro ao buscar horários do backend:", error);
         setWorkingHours(defaultSchedule);
       }
-    } catch (error) {
-      console.error("Erro ao buscar horários do backend:", error);
-      setWorkingHours(defaultSchedule);
-    }
+    }, []);  // Use useCallback aqui para evitar mudanças desnecessárias
+  
+    useEffect(() => {
+      fetchWorkingHours();
+    }, [fetchWorkingHours]);  
   };
-
-  useEffect(() => {
-    fetchWorkingHours();
-  }, []);
-
+  
   // Função para buscar as datas indisponíveis do backend
   const fetchUnavailableDates = async () => {
     try {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { FaSearch } from "react-icons/fa";
+import Link from "next/link";
 
 // Componentes necessários
 import Navbar from "@/components/Navbar";
@@ -20,7 +21,7 @@ import CardRubi from "@/components/search/CardRubi";
 import CardRubiDark from "@/components/search/CardRubiDark";
 
 export default function Search() {
-  const params = useParams(); 
+  const params = useParams();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -76,6 +77,7 @@ export default function Search() {
     if (resultsParam) {
       try {
         const results = JSON.parse(resultsParam);
+        console.log("Resultados da API:", results);
         setCards(results);
       } catch (error) {
         console.error("Erro ao processar os resultados da API:", error);
@@ -90,7 +92,7 @@ export default function Search() {
       {/* Título */}
       <div className="w-full h-40 sm:h-60 bg-cover bg-center flex justify-center items-center mt-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-black text-center px-4">
-          Acompanhantes disponíveis em {decodeURIComponent(city)}, {stateUF}
+          {cards.length === 0 ? "Acompanhantes não encontradas" : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
         </h1>
       </div>
 
@@ -113,9 +115,8 @@ export default function Search() {
                 key={cat.value}
                 type="button"
                 onClick={() => setCategory(cat.value)}
-                className={`px-4 py-2 sm:px-6 sm:py-2 rounded-full text-sm font-medium ${
-                  category === cat.value ? "bg-pink-500 text-white" : "bg-gray-100 text-gray-800"
-                } transition transform hover:scale-105`}
+                className={`px-4 py-2 sm:px-6 sm:py-2 rounded-full text-sm font-medium ${category === cat.value ? "bg-pink-500 text-white" : "bg-gray-100 text-gray-800"
+                  } transition transform hover:scale-105`}
               >
                 {cat.label}
               </button>
@@ -145,21 +146,33 @@ export default function Search() {
             <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           ) : (
             cards.map((card, index) => {
-              const CardComponent =
-                card.profileStatus === "RUBI" ? CardRubi :
-                card.profileStatus === "SAFIRA" ? CardSafira :
-                card.profileStatus === "PINK" ? CardPink :
-                CardVIP;
+              let CardComponent;
+
+              if (card.plan?.name === "Plano Rubi") {
+                CardComponent = CardRubi;
+              } else if (card.plan?.name === "Plano Safira") {
+                CardComponent = CardSafira;
+              } else if (card.plan?.name === "Plano Pink") {
+                CardComponent = CardPink;
+              } else {
+                CardComponent = CardVIP; // Se não for nenhum dos planos específicos, utiliza o CardVIP
+              }
+              console.log("Card", card.id, card.name, card.plan?.name);
 
               return (
-                <CardComponent
-                  key={index}
-                  name={card.name}
-                  location={`${card.city}, ${card.state}`}
-                  description={card.description}
-                  images={card.media?.length > 0 ? card.media : ["/default-avatar.jpg"]}
-                  contact={true}
-                />
+                <Link href={`/perfil/${card.id}`} key={index}>
+                  <CardRubi
+                    key={index}
+                    name={card.name}
+                    age={card.age}
+                    location={`${card.city}, ${card.state}`}
+                    description={card.description}
+                    images={card.media?.length > 0 ? card.media : ["/default-avatar.jpg"]}
+                    contact={true}
+                    plan={card.plan}
+                    planType={card.planType}
+                  />
+                </Link>
               );
             })
           )}

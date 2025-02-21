@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from "@/components/Navbar";
 import Fotos from "@/components/perfil/fotos";
 import Videos from "@/components/perfil/videos";
@@ -24,13 +24,34 @@ import {
   FaSearch,
   FaRegCopy
 } from 'react-icons/fa';
-import Final from '@/components/search/final'; // Import do novo Footer
+import Final from '@/components/search/final';
+import { useParams } from 'next/navigation';
+import axios from 'axios';
 
-export default function PerfilPage() {
+export default function Perfil() {
+  const { id } = useParams();
+
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("fotos");
   const [status, setStatus] = useState("online"); // Status do usuário ("online", "offline")
   const [showModalBusca, setShowModalBusca] = useState(false); // Controle do modal de busca
   const [showModalNumero, setShowModalNumero] = useState(false); // Controle do modal de número
+  const [companionData, setCompanionData] = useState(null); // Para armazenar os dados da acompanhante
+
+  useEffect(() => {
+    setIsLoading(true);
+    axios.get(`http://localhost:4000/api/search/profile?id=${id}`)
+      .then((response) => {
+        setCompanionData(response.data);  // A resposta já vem como objeto JSON
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Erro ao buscar perfil:', error);
+        setIsLoading(false);
+      });
+  }, [id]);
+
+  console.log(companionData);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -43,6 +64,22 @@ export default function PerfilPage() {
   const getStatusAnimation = () => {
     return status === "online" ? "animate-pulse" : "";
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Carregando...</p> {/* Exibe uma mensagem enquanto carrega os dados */}
+      </div>
+    );
+  }
+
+  if (!companionData) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Perfil não encontrado.</p> {/* Exibe uma mensagem de erro se os dados não forem encontrados */}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f9fc', marginTop: '80px' }}>
@@ -97,10 +134,10 @@ export default function PerfilPage() {
             <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
               <div className="flex transition-transform transform">
                 {/* Imagens do carrossel */}
-                {[...Array(5)].map((_, index) => (
+                {companionData.media.map((mediaItem, index) => (
                   <div key={index} className="w-full h-48 bg-gray-200 flex-shrink-0">
                     <Image
-                      src={`/assets/foto${index + 1}.jpg`} // Substitua pelos caminhos das imagens reais
+                      src={mediaItem.url} // Usando a URL da mídia retornada da API
                       alt={`Foto ${index + 1}`}
                       layout="fill"
                       objectFit="cover"
@@ -123,7 +160,7 @@ export default function PerfilPage() {
 
               {/* Bolinhas indicadoras */}
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                {[...Array(5)].map((_, index) => (
+                {companionData.media.map((_, index) => (
                   <div key={index} className="w-2 h-2 bg-gray-400 rounded-full"></div>
                 ))}
               </div>
@@ -132,15 +169,15 @@ export default function PerfilPage() {
             {/* Imagem de perfil e nome */}
             <div className="flex flex-col items-center mb-4">
               <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
-                <Image
-                  src="/assets/mulher.png" // Caminho da imagem de perfil
+                {/* <Image
+                  src={companionData.profileImage} // Usando a imagem de perfil retornada da API
                   alt="Foto de perfil"
                   layout="fill"
                   objectFit="cover"
-                />
+                /> */}
                 <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
               </div>
-              <h2 className="text-xl text-black font-bold mt-2">Melissa</h2>
+              <h2 className="text-xl text-black font-bold mt-2">{companionData.name}</h2>
             </div>
 
             {/* Banner Google simulado */}
@@ -152,7 +189,7 @@ export default function PerfilPage() {
             <div className="bg-purple-100 p-4 rounded-md mb-4 shadow-inner flex items-center justify-between">
               <div>
                 <p className="font-semibold text-gray-800">Telefone:</p>
-                <p className="text-lg text-gray-900">(00) 00000-0000</p>
+                <p className="text-lg text-gray-900">{companionData.phone}</p> {/* Exibindo telefone retornado da API */}
               </div>
               <button className="text-gray-700 hover:text-gray-900">
                 <FaRegCopy className="text-xl" />
@@ -185,24 +222,24 @@ export default function PerfilPage() {
             <div className="lg:col-span-3 bg-white shadow rounded-lg overflow-hidden relative">
               {/* Banner de perfil */}
               <div className="relative h-56 bg-gray-200">
-                <Image
-                  src="/assets/banner-faixa.jpg" // Substitua pelo caminho da imagem do banner
+                {/* <Image
+                  src={companionData.bannerImage} // Usando a imagem do banner da API
                   alt="Banner de perfil"
                   layout="fill"
                   objectFit="cover"
                   className="opacity-90"
-                />
+                /> */}
               </div>
 
               {/* Foto de perfil: Usando posicionamento absoluto para sobrepor o banner */}
               <div className="absolute left-4 md:left-6 top-40 md:top-44 z-10">
                 <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
-                  <Image
-                    src="/assets/mulher.png" // Substitua pelo caminho da imagem de perfil
+                  {/* <Image
+                    src={companionData.profileImage}
                     alt="Foto de perfil"
                     layout="fill"
                     objectFit="cover"
-                  />
+                  /> */}
                   <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-lg" />
                 </div>
               </div>
@@ -210,7 +247,7 @@ export default function PerfilPage() {
               {/* Conteúdo posicionado abaixo da foto */}
               <div className="mt-16 md:mt-20 px-4 md:px-6">
                 <div className="text-center md:text-left text-gray-900 flex items-center justify-center md:justify-start space-x-2">
-                  <h2 className="text-xl md:text-2xl font-bold">Melissa Nascimento</h2>
+                  <h2 className="text-xl md:text-2xl font-bold">{companionData.name}</h2>
                   <Link href="#" className="flex items-center space-x-1">
                     <span className={`w-2 h-2 rounded-full ${getStatusColor()} ${getStatusAnimation()}`}></span>
                     <p className={`text-sm ${status === "online" ? "text-green-500" : "text-gray-500"}`}>
@@ -222,19 +259,19 @@ export default function PerfilPage() {
                 <div className="flex flex-col space-y-1 text-gray-700 mt-2">
                   <div className="flex items-center space-x-2">
                     <FaDollarSign />
-                    <p>R$500/h</p>
+                    <p>{companionData.plan.name} - R${companionData.plan.price}/h</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <FaMapMarkerAlt />
-                    <p>Local: São Paulo</p>
+                    <p>Local: {companionData.city} - {companionData.state}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <FaRegUser />
-                    <p>Idade: 25 anos</p>
+                    <p>Idade: {companionData.age} anos</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <FaMale />
-                    <p>Atende apenas homens</p>
+                    <p>Atende: {companionData.servicesOffered.filter(service => service.isOffered).length} serviços</p>
                   </div>
                 </div>
 
@@ -260,66 +297,65 @@ export default function PerfilPage() {
                     </div>
                   </div>
                 </div>
+              </div>
 
+              {/* Botões de ação e seções adicionais */}
+              <div className="mt-4 px-4 md:px-6 flex flex-wrap items-center justify-center md:justify-start space-x-2">
                 {/* Botões de ação */}
-                <div className="mt-4 px-4 md:px-6 flex flex-wrap items-center justify-center md:justify-start space-x-2">
-                  {/* Botão "Ver Contato" destacado para Mobile */}
-                  <button
-                    onClick={() => setShowModalNumero(true)}
-                    className="w-full md:w-auto p-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out flex items-center justify-center space-x-2 mb-2 md:mb-0"
-                  >
-                    <FaWhatsapp className="text-lg" />
-                    <span className="inline md:hidden font-semibold">Ver Contato</span>
-                    <span className="hidden md:inline">Ver Contato</span>
-                  </button>
+                <button
+                  onClick={() => setShowModalNumero(true)}
+                  className="w-full md:w-auto p-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out flex items-center justify-center space-x-2 mb-2 md:mb-0"
+                >
+                  <FaWhatsapp className="text-lg" />
+                  <span className="inline md:hidden font-semibold">Ver Contato</span>
+                  <span className="hidden md:inline">Ver Contato</span>
+                </button>
 
-                  {/* Outros Botões */}
-                  <button
-                    onClick={() => setShowModalNumero(true)}
-                    className="p-2 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 mb-2 md:mb-0"
-                  >
-                    <FaTelegram />
-                  </button>
-                  <button className="p-2 bg-pink-500 text-white rounded-full shadow-md hover:bg-pink-600 mb-2 md:mb-0">
-                    <FaShareAlt />
-                  </button>
-                  <button className="p-2 bg-gray-400 text-white rounded-full shadow-md hover:bg-gray-500 mb-2 md:mb-0">
-                    <FaEllipsisH />
-                  </button>
-                  <button className="p-2 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-600 flex items-center space-x-2 mb-2 md:mb-0">
-                    <FaUserPlus className="text-lg" />
-                    <span className="hidden md:inline">Seguir</span>
-                  </button>
-                </div>
+                {/* Outros Botões */}
+                <button
+                  onClick={() => setShowModalNumero(true)}
+                  className="p-2 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 mb-2 md:mb-0"
+                >
+                  <FaTelegram />
+                </button>
+                <button className="p-2 bg-pink-500 text-white rounded-full shadow-md hover:bg-pink-600 mb-2 md:mb-0">
+                  <FaShareAlt />
+                </button>
+                <button className="p-2 bg-gray-400 text-white rounded-full shadow-md hover:bg-gray-500 mb-2 md:mb-0">
+                  <FaEllipsisH />
+                </button>
+                <button className="p-2 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-600 flex items-center space-x-2 mb-2 md:mb-0">
+                  <FaUserPlus className="text-lg" />
+                  <span className="hidden md:inline">Seguir</span>
+                </button>
+              </div>
 
-                {/* Abas de navegação ajustadas para mobile */}
-                <div className="mt-6 px-4 md:px-6 border-b border-gray-300">
-                  <div className="flex flex-wrap space-x-4 text-gray-900 font-semibold justify-center md:justify-start">
-                    {['fotos', 'videos', 'sobre', 'localidade', 'serviços', 'valores'].map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={() => handleTabClick(tab)}
-                        className={`pb-2 capitalize ${
-                          activeTab === tab
-                            ? "text-pink-500 border-b-2 border-pink-500"
-                            : "hover:text-pink-500"
+              {/* Abas de navegação ajustadas para mobile */}
+              <div className="mt-6 px-4 md:px-6 border-b border-gray-300">
+                <div className="flex flex-wrap space-x-4 text-gray-900 font-semibold justify-center md:justify-start">
+                  {['fotos', 'videos', 'sobre', 'localidade', 'serviços', 'valores'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => handleTabClick(tab)}
+                      className={`pb-2 capitalize ${activeTab === tab
+                        ? "text-pink-500 border-b-2 border-pink-500"
+                        : "hover:text-pink-500"
                         }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
+                    >
+                      {tab}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
-                {/* Conteúdo da aba selecionada */}
-                <div className="mt-4 px-4 md:px-6">
-                  {activeTab === "fotos" && <Fotos />}
-                  {activeTab === "videos" && <Videos />}
-                  {activeTab === "sobre" && <Sobre />}
-                  {activeTab === "localidade" && <Localidade />}
-                  {activeTab === "serviços" && <Servicos />}
-                  {activeTab === "valores" && <Valores />}
-                </div>
+              {/* Conteúdo da aba selecionada */}
+              <div className="mt-4 px-4 md:px-6">
+                {activeTab === "fotos" && <Fotos />}
+                {activeTab === "videos" && <Videos />}
+                {activeTab === "sobre" && <Sobre />}
+                {activeTab === "localidade" && <Localidade />}
+                {activeTab === "serviços" && <Servicos />}
+                {activeTab === "valores" && <Valores />}
               </div>
             </div>
 
@@ -328,21 +364,18 @@ export default function PerfilPage() {
               <div className="bg-white rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-4 text-black">Mais acompanhantes</h3>
                 <div className="space-y-4 text-black">
-                  {[
-                    { name: 'Camila Ramos', price: 'R$750/h', location: 'Birigui', img: '/assets/acompanhante02.jpg' },
-                    { name: 'Alessandra Pinheiros', price: 'R$855/h', location: 'Valparaíso', img: '/assets/anunciante01.jpg' }
-                  ].map((profile, index) => (
+                  {[...Array(3)].map((_, index) => (
                     <div key={index} className="flex items-center">
                       <Image
-                        src={profile.img}
-                        alt={profile.name}
+                        src={`/assets/acompanhante0${index + 1}.jpg`}
+                        alt={`Acompanhante ${index + 1}`}
                         width={40}
                         height={40}
                         className="rounded-full"
                       />
                       <div className="ml-4">
-                        <p className="font-semibold">{profile.name}</p>
-                        <p className="text-gray-600 text-sm">{`${profile.price} • ${profile.location}`}</p>
+                        <p className="font-semibold">Camila Ramos</p>
+                        <p className="text-gray-600 text-sm">R$750/h • Birigui</p>
                       </div>
                     </div>
                   ))}
@@ -350,7 +383,7 @@ export default function PerfilPage() {
               </div>
               <div className="bg-white rounded-lg shadow p-4">
                 <Image
-                  src="/assets/banner-publi.jpg" // Substitua pelo caminho do banner promocional
+                  src="/assets/banner-publi.jpg"
                   alt="Banner promocional"
                   width={300}
                   height={250}

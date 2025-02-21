@@ -56,12 +56,15 @@ export default function Navbar() {
     <header className="w-full bg-white py-3 shadow-sm fixed top-0 left-0 z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div className="flex items-center">
-          <Image
-            src="/assets/logofaixa.png"
-            alt="Logo"
-            width={40} height={40}
-            className="h-10 w-auto"
-          />
+          <Link href="/">
+            <Image
+              src="/assets/logofaixa.png"
+              alt="Logo"
+              width={40}
+              height={40}
+              className="h-10 w-auto"
+            />
+          </Link>
         </div>
 
         {isAuthenticated ? (

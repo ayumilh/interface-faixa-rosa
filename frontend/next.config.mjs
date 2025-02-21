@@ -18,6 +18,10 @@ images: {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'faixa-rosa.s3.us-central-1.wasabisys.com',
+      },
     ],
   },
 };

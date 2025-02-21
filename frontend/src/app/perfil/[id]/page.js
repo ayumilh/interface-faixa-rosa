@@ -40,7 +40,7 @@ export default function Perfil() {
 
   useEffect(() => {
     setIsLoading(true);
-    axios.get(`http://localhost:4000/api/search/profile?id=${id}`)
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?id=${id}`)
       .then((response) => {
         setCompanionData(response.data);  // A resposta já vem como objeto JSON
         setIsLoading(false);

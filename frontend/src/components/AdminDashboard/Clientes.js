@@ -1,5 +1,4 @@
-// src/components/AdminDashboard/Clientes.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaComments,
   FaTrash,
@@ -9,18 +8,43 @@ import {
 } from "react-icons/fa";
 import Modal from "./Modal";
 import Tooltip from "../common/Tooltip";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const Clientes = () => {
   const [clientes, setClientes] = useState([
-    { id: 1, nome: "Carlos Oliveira", status: "Ativo", interacoes: 15, suporte: "Nenhuma" },
-    { id: 2, nome: "Daniela Souza", status: "Suspenso", interacoes: 8, suporte: "Problema de Pagamento" },
-    { id: 3, nome: "Fernando Lima", status: "Ativo", interacoes: 23, suporte: "Dúvidas sobre Uso" },
-    { id: 4, nome: "Gabriela Santos", status: "Ativo", interacoes: 5, suporte: "Nenhuma" },
-    { id: 5, nome: "Helena Costa", status: "Banido", interacoes: 0, suporte: "Violação de Políticas" },
+    // { id: 1, nome: "Carlos Oliveira", status: "Ativo", interacoes: 15, suporte: "Nenhuma" },
+    // { id: 2, nome: "Daniela Souza", status: "Suspenso", interacoes: 8, suporte: "Problema de Pagamento" },
+    // { id: 3, nome: "Fernando Lima", status: "Ativo", interacoes: 23, suporte: "Dúvidas sobre Uso" },
+    // { id: 4, nome: "Gabriela Santos", status: "Ativo", interacoes: 5, suporte: "Nenhuma" },
+    // { id: 5, nome: "Helena Costa", status: "Banido", interacoes: 0, suporte: "Violação de Políticas" },
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [modal, setModal] = useState({ isOpen: false, content: null });
+
+  useEffect(() => {
+    const fetchContratantes = async () => {
+      try {
+        const userToken = Cookies.get("userToken");
+        const response = await axios.get(
+          `http://localhost:4000/api/admin/users`,
+          {
+            headers: {
+              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInVzZXJUeXBlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoidGVzdGUiLCJpYXQiOjE3NDAyMjEzNDMsImV4cCI6MTc0MDMwNzc0M30.tSMnBEghq7jtiV88BbV2J1hrrfSFZUzpVJTjZlhkCBs`,
+            },
+          }
+        );
+        setClientes(response.data);
+        console.log("Contratantes:", response.data);
+      } catch (error) {
+        console.error("Erro ao buscar contratantes:", error);
+      }
+    };
+
+    fetchContratantes();
+  }, []);
+
 
   const atualizarStatusCliente = (clienteId, novoStatus) => {
     setClientes((prevClientes) =>
@@ -227,11 +251,13 @@ const Clientes = () => {
 
   const filteredClientes = clientes.filter((cliente) => {
     const query = searchQuery.toLowerCase();
+    const fullName = `${cliente.firstName} ${cliente.lastName}`.toLowerCase();
     return (
-      cliente.nome.toLowerCase().includes(query) ||
+      fullName.includes(query) ||
       cliente.id.toString().includes(query) ||
-      cliente.status.toLowerCase().includes(query) ||
-      cliente.suporte.toLowerCase().includes(query)
+      cliente.email.toLowerCase().includes(query) ||
+      cliente.phone.toLowerCase().includes(query) ||
+      cliente.cpf.toLowerCase().includes(query)
     );
   });
 
@@ -308,21 +334,19 @@ const Clientes = () => {
                   className="border-b hover:bg-gray-50 transition-colors"
                 >
                   <td className="py-4 px-4 text-gray-700">{cliente.id}</td>
-                  <td className="py-4 px-4 text-gray-700">{cliente.nome}</td>
-                  <td className="py-4 px-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[cliente.status]}`}>
-                      {cliente.status}
-                    </span>
+                  <td className="py-4 px-4 text-gray-700">
+                    {`${cliente.firstName} ${cliente.lastName}`}
                   </td>
-                  <td className="py-4 px-4 text-gray-700">{cliente.interacoes}</td>
-                  <td className="py-4 px-4 text-gray-700">{cliente.suporte}</td>
+                  <td className="py-4 px-4 text-gray-700">Status</td>
+                  <td className="py-4 px-4 text-gray-700">Interações</td>
+                  <td className="py-4 px-4 text-gray-700">Suporte</td>
                   <td className="py-4 px-4 text-center">
                     <div className="flex justify-center space-x-3">
                       <Tooltip content="Monitorar Interações">
                         <button
                           onClick={() => monitorarInteracoes(cliente.id)}
                           className="text-blue-600 hover:text-blue-800 transition"
-                          aria-label={`Monitorar Interações de ${cliente.nome}`}
+                          aria-label={`Monitorar Interações de ${cliente.firstName} ${cliente.lastName}`}
                         >
                           <FaComments size={18} />
                         </button>
@@ -332,7 +356,7 @@ const Clientes = () => {
                         <button
                           onClick={() => excluirConta(cliente.id)}
                           className="text-red-600 hover:text-red-800 transition"
-                          aria-label={`Excluir Conta de ${cliente.nome}`}
+                          aria-label={`Excluir Conta de ${cliente.firstName} ${cliente.lastName}`}
                         >
                           <FaTrash size={18} />
                         </button>
@@ -340,20 +364,21 @@ const Clientes = () => {
 
                       <Tooltip
                         content={
-                          cliente.status === "Banido" ? "Desbloquear Usuário" : "Bloquear/Banir Usuário"
+                          cliente.status === "Banido"
+                            ? "Desbloquear Usuário"
+                            : "Bloquear/Banir Usuário"
                         }
                       >
                         <button
                           onClick={() => bloquearUsuario(cliente.id)}
-                          className={`${
-                            cliente.status === "Banido"
+                          className={`${cliente.status === "Banido"
                               ? "text-green-600 hover:text-green-800"
                               : "text-yellow-600 hover:text-yellow-800"
-                          } transition`}
+                            } transition`}
                           aria-label={
                             cliente.status === "Banido"
-                              ? `Desbloquear ${cliente.nome}`
-                              : `Bloquear/Banir ${cliente.nome}`
+                              ? `Desbloquear ${cliente.firstName} ${cliente.lastName}`
+                              : `Bloquear/Banir ${cliente.firstName} ${cliente.lastName}`
                           }
                         >
                           <FaBan size={18} />
@@ -364,7 +389,7 @@ const Clientes = () => {
                         <button
                           onClick={() => atenderSuporte(cliente.id)}
                           className="text-green-600 hover:text-green-800 transition"
-                          aria-label={`Atender Suporte de ${cliente.nome}`}
+                          aria-label={`Atender Suporte de ${cliente.firstName} ${cliente.lastName}`}
                         >
                           <FaLifeRing size={18} />
                         </button>
@@ -376,7 +401,7 @@ const Clientes = () => {
             ) : (
               <tr>
                 <td colSpan="6" className="py-6 text-center text-gray-500">
-                  Nenhum cliente encontrado.
+                  Nenhum contratante encontrado.
                 </td>
               </tr>
             )}

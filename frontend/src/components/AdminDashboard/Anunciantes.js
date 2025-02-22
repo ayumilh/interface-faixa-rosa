@@ -1,5 +1,4 @@
-// src/components/AdminDashboard/Anunciantes.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaCheck,
   FaTimes,
@@ -12,29 +11,53 @@ import {
 } from "react-icons/fa";
 import Modal from "./Modal";
 import Tooltip from "../common/Tooltip";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const Anunciantes = () => {
   const [activeCategory, setActiveCategory] = useState("mulheres");
   const [modal, setModal] = useState({ isOpen: false, content: null });
+  const [anunciantes, setAnunciantes] = useState([]);
 
-  const mulheres = [
-    { id: 1, nome: "Ana Silva", plano: "Pink", status: "Aguardando Aprovação", documentos: "Pendente" },
-    { id: 2, nome: "Beatriz Gomes", plano: "Safira", status: "Ativa", documentos: "Verificado" },
-    { id: 3, nome: "Carla Torres", plano: "Rubi", status: "Desativada", documentos: "Verificado" },
-  ];
+  // const mulheres = [
+  //   { id: 1, nome: "Ana Silva", plano: "Pink", status: "Aguardando Aprovação", documentos: "Pendente" },
+  //   { id: 2, nome: "Beatriz Gomes", plano: "Safira", status: "Ativa", documentos: "Verificado" },
+  //   { id: 3, nome: "Carla Torres", plano: "Rubi", status: "Desativada", documentos: "Verificado" },
+  // ];
 
-  const homens = [
-    { id: 1, nome: "Daniel Souza", plano: "Pink", status: "Aguardando Aprovação", documentos: "Pendente" },
-    { id: 2, nome: "Eduardo Lima", plano: "Rubi", status: "Ativa", documentos: "Verificado" },
-    { id: 3, nome: "Felipe Melo", plano: "Safira", status: "Ativa", documentos: "Verificado" },
-  ];
+  // const homens = [
+  //   { id: 1, nome: "Daniel Souza", plano: "Pink", status: "Aguardando Aprovação", documentos: "Pendente" },
+  //   { id: 2, nome: "Eduardo Lima", plano: "Rubi", status: "Ativa", documentos: "Verificado" },
+  //   { id: 3, nome: "Felipe Melo", plano: "Safira", status: "Ativa", documentos: "Verificado" },
+  // ];
 
-  const trans = [
-    { id: 1, nome: "Gisele Amaral", plano: "Safira", status: "Ativa", documentos: "Verificado" },
-    { id: 2, nome: "Helena Ribeiro", plano: "Pink", status: "Aguardando Aprovação", documentos: "Pendente" },
-    { id: 3, nome: "Isadora Lopes", plano: "Rubi", status: "Desativada", documentos: "Verificado" },
-    { id: 4, nome: "Júlia Santos", plano: "Pink", status: "Ativa", documentos: "Verificado" },
-  ];
+  // const trans = [
+  //   { id: 1, nome: "Gisele Amaral", plano: "Safira", status: "Ativa", documentos: "Verificado" },
+  //   { id: 2, nome: "Helena Ribeiro", plano: "Pink", status: "Aguardando Aprovação", documentos: "Pendente" },
+  //   { id: 3, nome: "Isadora Lopes", plano: "Rubi", status: "Desativada", documentos: "Verificado" },
+  //   { id: 4, nome: "Júlia Santos", plano: "Pink", status: "Ativa", documentos: "Verificado" },
+  // ];
+
+  useEffect(() => {
+    const fetchAnunciantes = async () => {
+      try {
+        const userToken = Cookies.get("userToken");
+        const response = await axios.get(
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/acompanhante`,
+          `http://localhost:4000/api/admin/acompanhante`,
+          {
+            headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInVzZXJUeXBlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoidGVzdGUiLCJpYXQiOjE3NDAyMjEzNDMsImV4cCI6MTc0MDMwNzc0M30.tSMnBEghq7jtiV88BbV2J1hrrfSFZUzpVJTjZlhkCBs` },
+          }
+        );
+        setAnunciantes(response.data);
+        console.log("Anunciantes:", response.data);
+      } catch (error) {
+        console.error("Erro ao buscar anunciantes:", error);
+      }
+    };
+
+    fetchAnunciantes();
+  }, []);
 
   const handleAprovar = (anunciante) => {
     setModal({
@@ -42,7 +65,7 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">Aprovar Anunciante</h2>
-          <p>Deseja aprovar o cadastro de <strong>{anunciante.nome}</strong>?</p>
+          <p>Deseja aprovar o cadastro de <strong>{anunciante.name}</strong>?</p>
           <div className="mt-4 flex justify-end space-x-2">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -71,7 +94,7 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">Rejeitar Anunciante</h2>
-          <p>Deseja rejeitar o cadastro de <strong>{anunciante.nome}</strong>?</p>
+          <p>Deseja rejeitar o cadastro de <strong>{anunciante.name}</strong>?</p>
           <div className="mt-4 flex justify-end space-x-2">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -100,7 +123,7 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">Verificar Documentos</h2>
-          <p>Verifique os documentos de <strong>{anunciante.nome}</strong>.</p>
+          <p>Verifique os documentos de <strong>{anunciante.name}</strong>.</p>
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -120,10 +143,10 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">
-            {anunciante.status === "Ativa" ? "Desativar" : "Ativar"} Perfil
+            {anunciante.profileStatus === "Ativa" ? "Desativar" : "Ativar"} Perfil
           </h2>
           <p>
-            Deseja {anunciante.status === "Ativa" ? "desativar" : "ativar"} o perfil de <strong>{anunciante.nome}</strong>?
+            Deseja {anunciante.profileStatus  === "Ativa" ? "desativar" : "ativar"} o perfil de <strong>{anunciante.name}</strong>?
           </p>
           <div className="mt-4 flex justify-end space-x-2">
             <button
@@ -134,14 +157,14 @@ const Anunciantes = () => {
             </button>
             <button
               onClick={() => {
-                alert(`${anunciante.status === "Ativa" ? "Desativado" : "Ativado"} com sucesso!`);
+                alert(`${anunciante.profileStatus  === "Ativa" ? "Desativado" : "Ativado"} com sucesso!`);
                 setModal({ isOpen: false, content: null });
               }}
               className={`px-4 py-2 ${
-                anunciante.status === "Ativa" ? "bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700"
+                anunciante.profileStatus  === "Ativa" ? "bg-yellow-600 hover:bg-yellow-700" : "bg-green-600 hover:bg-green-700"
               } text-white rounded`}
             >
-              {anunciante.status === "Ativa" ? "Desativar" : "Ativar"}
+              {anunciante.profileStatus  === "Ativa" ? "Desativar" : "Ativar"}
             </button>
           </div>
         </>
@@ -155,7 +178,7 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">Editar Plano</h2>
-          <p>Editar o plano de <strong>{anunciante.nome}</strong>.</p>
+          <p>Editar o plano de <strong>{anunciante.name}</strong>.</p>
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -175,7 +198,7 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">Monitorar Postagens</h2>
-          <p>Monitorando postagens de <strong>{anunciante.nome}</strong>.</p>
+          <p>Monitorando postagens de <strong>{anunciante.name}</strong>.</p>
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -195,7 +218,7 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">Reportar Conteúdo Indevido</h2>
-          <p>Reportando conteúdo indevido de <strong>{anunciante.nome}</strong>.</p>
+          <p>Reportando conteúdo indevido de <strong>{anunciante.name}</strong>.</p>
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -215,7 +238,7 @@ const Anunciantes = () => {
       content: (
         <>
           <h2 className="text-xl font-semibold">Histórico de Atividades</h2>
-          <p>Visualizando histórico de <strong>{anunciante.nome}</strong>.</p>
+          <p>Visualizando histórico de <strong>{anunciante.name}</strong>.</p>
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -245,30 +268,30 @@ const Anunciantes = () => {
           <tbody>
             {anunciantes.map((anunciante) => (
               <tr key={anunciante.id} className="border-b hover:bg-gray-50">
-                <td className="py-4 px-4 text-gray-700">{anunciante.nome}</td>
-                <td className="py-4 px-4 text-gray-700">{anunciante.plano}</td>
+                <td className="py-4 px-4 text-gray-700">{anunciante.name}</td>
+                <td className="py-4 px-4 text-gray-700">{anunciante.plan?.name}</td>
                 <td className="py-4 px-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    anunciante.status === "Ativa"
+                    anunciante.profileStatus === "Ativa"
                       ? "bg-green-100 text-green-800"
                       : anunciante.status === "Aguardando Aprovação"
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-red-100 text-red-800"
                   }`}>
-                    {anunciante.status}
+                    {anunciante.profileStatus}
                   </span>
                 </td>
                 <td className="py-4 px-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    anunciante.documentos === "Verificado"
+                    anunciante.documentStatus === "Verificado"
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
                   }`}>
-                    {anunciante.documentos}
+                    {anunciante.documentStatus}
                   </span>
                 </td>
                 <td className="py-4 px-4 text-center space-x-2 flex justify-center">
-                  {anunciante.status === "Aguardando Aprovação" && (
+                  {anunciante.profileStatus === "Aguardando Aprovação" && (
                     <>
                       <Tooltip content="Aprovar">
                         <button
@@ -291,7 +314,7 @@ const Anunciantes = () => {
                     </>
                   )}
 
-                  {anunciante.documentos === "Pendente" && (
+                  {anunciante.documentStatus === "Pendente" && (
                     <Tooltip content="Verificar Documentos">
                       <button
                         onClick={() => handleVerificarDocumentos(anunciante)}
@@ -303,17 +326,17 @@ const Anunciantes = () => {
                     </Tooltip>
                   )}
 
-                  <Tooltip content={anunciante.status === "Ativa" ? "Desativar Perfil" : "Ativar Perfil"}>
+                  <Tooltip content={anunciante.profileStatus === "Ativa" ? "Desativar Perfil" : "Ativar Perfil"}>
                     <button
                       onClick={() => handleAtivarDesativar(anunciante)}
                       className={`${
-                        anunciante.status === "Ativa"
+                        anunciante.profileStatus === "Ativa"
                           ? "text-yellow-600 hover:text-yellow-800"
                           : "text-green-600 hover:text-green-800"
                       } transition`}
-                      aria-label={anunciante.status === "Ativa" ? "Desativar Perfil" : "Ativar Perfil"}
+                      aria-label={anunciante.profileStatus === "Ativa" ? "Desativar Perfil" : "Ativar Perfil"}
                     >
-                      {anunciante.status === "Ativa" ? <FaBan size={16} /> : <FaCheck size={16} />}
+                      {anunciante.profileStatus === "Ativa" ? <FaBan size={16} /> : <FaCheck size={16} />}
                     </button>
                   </Tooltip>
 
@@ -412,7 +435,7 @@ const Anunciantes = () => {
         </ul>
       </div>
 
-      <div className="flex flex-wrap space-x-4 mb-6 border-b">
+      {/* <div className="flex flex-wrap space-x-4 mb-6 border-b">
         {["mulheres", "homens", "trans"].map((categoria) => (
           <button
             key={categoria}
@@ -431,7 +454,9 @@ const Anunciantes = () => {
 
       {activeCategory === "mulheres" && renderTable(mulheres)}
       {activeCategory === "homens" && renderTable(homens)}
-      {activeCategory === "trans" && renderTable(trans)}
+      {activeCategory === "trans" && renderTable(trans)} */}
+
+      {renderTable(anunciantes)}
 
       {modal.isOpen && (
         <Modal onClose={() => setModal({ isOpen: false, content: null })}>

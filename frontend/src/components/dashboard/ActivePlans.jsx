@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { searchUserId } from "@/utils/searchUserId";
+import Cookies from "js-cookie";
 
 export default function ActivePlans() {
     const [activePlan, setActivePlan] = useState(null);
@@ -8,13 +9,16 @@ export default function ActivePlans() {
 
     useEffect(() => {
         const fetchUserPlans = async () => {
-            const token = searchUserId();
+            const token = Cookies.get("userToken");
             try {
-                const response = await axios.get("https://backend-faixa-rosa.vercel.app/api/plans/user-plans", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
                 setActivePlan(response.data.plan);
             } catch (error) {
                 setActivePlan(null);
@@ -29,7 +33,6 @@ export default function ActivePlans() {
     return (
         <div className="p-4 bg-white shadow-md rounded-lg">
             <h2 className="text-lg font-semibold text-gray-700 text-center">Planos Ativos</h2>
-
             <ul className="mt-4 space-y-3">
                 {loading ? (
                     <li className="text-gray-500 text-sm text-center">Carregando planos...</li>

@@ -37,6 +37,7 @@ const DescriptionManagement = () => {
   const [isVideoApproved, setIsVideoApproved] = useState(false);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(true);
   const [videoFile, setVideoFile] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
 
   const {
     register,
@@ -59,7 +60,6 @@ const DescriptionManagement = () => {
 
         if (response.status === 200) {
           const data = response.data;
-          console.log("Dados carregados:", data);
 
           // Preenchendo os campos do formulário com os dados recebidos
           setValue("description", data.description || "");
@@ -83,9 +83,9 @@ const DescriptionManagement = () => {
           }
 
           // Verifica se o vídeo foi aprovado e já está disponível
-          if (data.characteristics?.comparisonMedia) {
+          if (data.video && data.video.url) {
             setIsVideoApproved(true);
-            setVideoUrl(data.characteristics.comparisonMedia);
+            setVideoUrl(data.video.url);
           }
         }
       } catch (error) {
@@ -132,8 +132,7 @@ const DescriptionManagement = () => {
             formData.append(key, value.toString());
           }
         });
-        
-        console.log("Arquivo de vídeo detectado:", videoFile.name);
+
         formData.append("comparisonMedia", videoFile, videoFile.name);
 
         for (let pair of formData.entries()) {
@@ -183,7 +182,6 @@ const DescriptionManagement = () => {
     const file = e.target.files[0];
 
     if (file) {
-      console.log("Vídeo enviado:", file.name);
       setVideoUploaded(true);
       setVideoPending(true);
       setVideoFile(file);
@@ -234,12 +232,15 @@ const DescriptionManagement = () => {
               Mídia de Comparação (Vídeo)
             </h3>
           </div>
-          {isVideoApproved ? (
-            <div className="flex items-center space-x-3 bg-green-100 border border-green-300 text-green-700 p-4 rounded-lg shadow-sm transition duration-300">
-              <FaCheckCircle className="text-xl md:text-2xl" />
-              <p className="font-semibold">
-                Vídeo aprovado. Não pode ser alterado.
-              </p>
+          {isVideoApproved && videoUrl ? (
+            <div>
+              <video src={videoUrl} controls className="w-full max-h-64 object-cover" />
+              <div className="flex items-center space-x-3 bg-green-100 border border-green-300 text-green-700 p-4 rounded-lg shadow-sm transition duration-300 mt-2">
+                <FaCheckCircle className="text-xl md:text-2xl" />
+                <p className="font-semibold">
+                  Vídeo aprovado. Não pode ser alterado.
+                </p>
+              </div>
             </div>
           ) : videoPending ? (
             <div className="flex items-center space-x-3 bg-yellow-100 border border-yellow-300 text-yellow-700 p-4 rounded-lg shadow-sm transition duration-300">

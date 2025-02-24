@@ -2,29 +2,17 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import {
-  FaUpload,
-  FaPlusCircle,
-  FaCrown,
-  FaClock,
-} from "react-icons/fa";
+import { FaUpload, FaPlusCircle, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard, FaCheckCircle } from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
+import axios from "axios";
+import Cookies from "js-cookie";
 
-// Constantes de Imagens Padrão
-const DEFAULT_PROFILE_IMAGE = "/assets/default-profile.png";
-const DEFAULT_COVER_IMAGE = "/assets/default-cover.png";
-
-// Componente Principal
 const ProfileSettings = ({ onUpdate }) => {
-  const router = useRouter();
-  const [profileImage, setProfileImage] = useState(DEFAULT_PROFILE_IMAGE);
-  const [coverImage, setCoverImage] = useState(DEFAULT_COVER_IMAGE);
-  const [username, setUsername] = useState("");
-  const [age, setAge] = useState(25);
-  const [isAgeHidden, setIsAgeHidden] = useState(false);
+  const [documentFront, setDocumentFront] = useState(null);
+  const [documentBack, setDocumentBack] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [isReadyToSend, setIsReadyToSend] = useState(false);
 
-  const activePlans = ["Pink", "Safira", "Rubi"];
   const rankingPosition = 35;
   const planExpirationDate = useMemo(() => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), []);
   const [timeLeft, setTimeLeft] = useState("");
@@ -36,7 +24,7 @@ const ProfileSettings = ({ onUpdate }) => {
   // Estados para Modal de Upload
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
-  const [uploadType, setUploadType] = useState(""); // "story" ou "post"
+  const [uploadType, setUploadType] = useState("");
   const [caption, setCaption] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
@@ -70,6 +58,59 @@ const ProfileSettings = ({ onUpdate }) => {
 
     return () => clearInterval(interval);
   }, [planExpirationDate]);
+
+  useEffect(() => {
+    if (documentFront && documentBack) {
+      setIsReadyToSend(true);
+    }
+  }, [documentFront, documentBack]);
+
+  const handleFileUpload = (e, side) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+    if (side === "front") {
+      setDocumentFront(imageUrl);
+    } else {
+      setDocumentBack(imageUrl);
+    }
+  };
+
+  const handleSendDocuments = async () => {
+    if (!documentFront || !documentBack) return alert("Por favor, insira ambos os documentos.");
+
+    setUploading(true);
+    try {
+      const token = Cookies.get("userToken");
+      const formData = new FormData();
+      formData.append("fileFront", documentFront);
+      formData.append("fileBack", documentBack);
+      formData.append("type", "RG");
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/documents/upload`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setUploading(false);
+      if (response.status === 201) {
+        alert("Documentos enviados com sucesso!");
+      } else {
+        alert(response.data.error || "Erro ao enviar documentos.");
+      }
+    } catch (error) {
+      setUploading(false);
+      alert("Erro ao conectar ao servidor.");
+    }
+  };
+
 
   const handleImageChange = (e, type) => {
     const file = e.target.files[0];
@@ -125,26 +166,25 @@ const ProfileSettings = ({ onUpdate }) => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50 rounded-lg shadow-lg">
-    {/* Cabeçalho do Dashboard */}
-    <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-5 mb-8 space-y-4 sm:space-y-0">
-      <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 text-center">
-        Painel de Controle
-      </h1>
-      
-    </header>
-  
-    {/* Conteúdo Principal */}
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {/* Bloco 1: Ranking Nacional */}
-      <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
-        <h2 className="text-lg font-semibold text-gray-700 text-center">Ranking Nacional</h2>
-        <p className="text-4xl sm:text-5xl font-bold text-blue-600 mt-4">#{rankingPosition}</p>
-        <span className="text-sm text-gray-500 mt-2 text-center">Sua posição no ranking</span>
-      </div>
-  
-      {/* Bloco 2: Planos Ativos */}
-      <ActivePlans />
-      {/* <div className="p-4 bg-white shadow-md rounded-lg">
+      {/* Cabeçalho do Dashboard */}
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-5 mb-8 space-y-4 sm:space-y-0">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 text-center">
+          Painel de Controle
+        </h1>
+      </header>
+
+      {/* Conteúdo Principal */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Bloco 1: Ranking Nacional */}
+        <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
+          <h2 className="text-lg font-semibold text-gray-700 text-center">Ranking Nacional</h2>
+          <p className="text-4xl sm:text-5xl font-bold text-blue-600 mt-4">#{rankingPosition}</p>
+          <span className="text-sm text-gray-500 mt-2 text-center">Sua posição no ranking</span>
+        </div>
+
+        {/* Bloco 2: Planos Ativos */}
+        <ActivePlans />
+        {/* <div className="p-4 bg-white shadow-md rounded-lg">
         <h2 className="text-lg font-semibold text-gray-700 text-center">Planos Ativos</h2>
         <ul className="mt-4 space-y-3">
           {activePlans.length > 0 ? (
@@ -161,42 +201,44 @@ const ProfileSettings = ({ onUpdate }) => {
           )}
         </ul>
       </div> */}
-  
-      {/* Bloco 3: Expiração do Plano */}
-      <div className="p-4 bg-white shadow-md rounded-lg">
-        <h2 className="text-lg font-semibold text-gray-700 text-center">Expiração do Plano</h2>
-        <p className="text-2xl sm:text-3xl font-bold text-red-500 mt-4 text-center">
-          {timeLeft || "Indeterminado"}
-        </p>
-        {timeProgress > 0 && (
-          <div className="mt-6">
-            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-green-500 rounded-full transition-all"
-                style={{ width: `${timeProgress}%` }}
-              ></div>
+
+        {/* Bloco 3: Expiração do Plano */}
+        <div className="p-4 bg-white shadow-md rounded-lg">
+          <h2 className="text-lg font-semibold text-gray-700 text-center">Expiração do Plano</h2>
+          <p className="text-2xl sm:text-3xl font-bold text-red-500 mt-4 text-center">
+            {timeLeft || "Indeterminado"}
+          </p>
+          {timeProgress > 0 && (
+            <div className="mt-6">
+              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-green-500 rounded-full transition-all"
+                  style={{ width: `${timeProgress}%` }}
+                ></div>
+              </div>
+              <span className="block text-sm text-gray-500 mt-2 text-center">
+                Progresso do Plano
+              </span>
             </div>
-            <span className="block text-sm text-gray-500 mt-2 text-center">
-              Progresso do Plano
-            </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
 
-
-    
       {/* Cobertura e Imagem de Perfil */}
       <div className="relative mb-12">
         {/* Imagem de Capa */}
-        <div className="relative h-40 sm:h-56 w-full rounded-lg overflow-hidden shadow-md">
-          <Image
-            src={coverImage}
-            alt="Capa do Perfil"
-            layout="fill"
-            objectFit="cover"
-            className="transform scale-100 hover:scale-110 transition-transform duration-500"
-          />
+        <div className="bg-white mt-8 relative h-40 sm:h-56 w-full rounded-lg overflow-hidden shadow-md">
+          {/* {coverImage ? (
+            <Image
+              src={coverImage}
+              alt="Capa do Perfil"
+              layout="fill"
+              objectFit="cover"
+              className="transform scale-100 hover:scale-110 transition-transform duration-500"
+            />
+          ) : (
+            <FaImage className="text-gray-400 text-6xl" />
+          )} */}
           <label className="absolute top-2 right-2 bg-white bg-opacity-80 text-pink-500 px-3 py-1 rounded-lg cursor-pointer shadow-md flex items-center text-sm hover:bg-opacity-90 transition">
             <FaUpload className="mr-1" />
             Alterar Capa
@@ -211,13 +253,17 @@ const ProfileSettings = ({ onUpdate }) => {
         </div>
         {/* Imagem de Perfil */}
         <div className="absolute bottom-[-40px] left-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 rounded-full overflow-hidden w-32 h-32 border-4 border-white shadow-lg">
-          <Image
-            src={profileImage}
-            alt="Foto de Perfil"
-            layout="fill"
-            objectFit="cover"
-            className="transform scale-100 hover:scale-105 transition-transform duration-500"
-          />
+          {/* {profileImage ? (
+            <Image
+              src={profileImage}
+              alt="Foto de Perfil"
+              layout="fill"
+              objectFit="cover"
+              className="transform scale-100 hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <FaUserCircle className="text-gray-400 text-6xl" />
+          )} */}
           <label className="absolute bottom-2 right-2 bg-white bg-opacity-80 text-pink-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-opacity-90 transition">
             <FaUpload size={16} />
             <input
@@ -230,6 +276,73 @@ const ProfileSettings = ({ onUpdate }) => {
           </label>
         </div>
       </div>
+
+      {/* Seção de Upload de Documento */}
+      <div className="mt-16">
+        <h3 className="text-2xl font-semibold mb-6">Verificação de Identidade</h3>
+        <p className="text-gray-600 mb-4 text-center sm:text-left">
+          Faça o upload do seu RG (Frente e Verso) para verificação
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 justify-center">
+          {/* Upload da Frente */}
+          <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
+            {documentFront ? (
+              <img
+                src={documentFront}
+                alt="Documento Frente"
+                className="w-full h-auto object-contain rounded-md"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <FaIdCard className="text-4xl text-gray-400 mb-2" />
+                <span className="text-sm">{documentFront ? "Alterar Frente" : "Enviar Frente"}</span>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleFileUpload(e, "front")}
+              aria-label="Upload Frente do RG"
+            />
+          </label>
+
+          {/* Upload do Verso */}
+          <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
+            {documentBack ? (
+              <img
+                src={documentBack}
+                alt="Documento Verso"
+                className="w-full h-auto object-contain rounded-md"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <FaIdCard className="text-4xl text-gray-400 mb-2" />
+                <span className="text-sm">{documentBack ? "Alterar Verso" : "Enviar Verso"}</span>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleFileUpload(e, "back")}
+              aria-label="Upload Verso do RG"
+            />
+          </label>
+        </div>
+
+        {documentFront && documentBack && (
+          <div className="text-center mt-6">
+            <button
+              className="px-6 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition"
+              onClick={handleSendDocuments}
+            >
+              Enviar Documentos
+            </button>
+          </div>
+        )}
+      </div>
+
 
       {/* Seção de Stories */}
       <div className="mt-16">
@@ -406,9 +519,8 @@ const ProfileSettings = ({ onUpdate }) => {
               </button>
               <button
                 onClick={handleUpload}
-                className={`px-4 py-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition flex items-center ${
-                  isUploading ? "cursor-not-allowed" : ""
-                }`}
+                className={`px-4 py-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition flex items-center ${isUploading ? "cursor-not-allowed" : ""
+                  }`}
                 disabled={isUploading}
               >
                 {isUploading && (

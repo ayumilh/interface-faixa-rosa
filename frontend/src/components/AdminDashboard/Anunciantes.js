@@ -43,10 +43,9 @@ const Anunciantes = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/acompanhante`,
-          `http://localhost:4000/api/admin/acompanhante`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/acompanhante`,
           {
-            headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInVzZXJUeXBlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoidGVzdGUiLCJpYXQiOjE3NDAyMjEzNDMsImV4cCI6MTc0MDMwNzc0M30.tSMnBEghq7jtiV88BbV2J1hrrfSFZUzpVJTjZlhkCBs` },
+            headers: { Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInVzZXJUeXBlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoidGVzdGUiLCJpYXQiOjE3NDA0MjYwNzQsImV4cCI6MTc0MDUxMjQ3NH0.-Nur3BkP7daexxdIPnRXKX8mLU5UenjVlwtNkBCfXXI` },
           }
         );
         setAnunciantes(response.data);

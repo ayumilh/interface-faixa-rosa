@@ -1,9 +1,10 @@
+import { cookies } from 'next/headers';
 import { checkSession } from "@/utils/checkSession";
 import Dashboard from "./Dashboard";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-  const session = await checkSession('/dashboard');
+  const session = await checkSession(cookies());
 
   if (!session) {
     redirect('/login');

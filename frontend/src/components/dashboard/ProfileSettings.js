@@ -287,9 +287,11 @@ const ProfileSettings = ({ onUpdate }) => {
           {/* Upload da Frente */}
           <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
             {documentFront ? (
-              <img
+              <Image
                 src={documentFront}
                 alt="Documento Frente"
+                width={200}
+                height={200}
                 className="w-full h-auto object-contain rounded-md"
               />
             ) : (
@@ -310,9 +312,11 @@ const ProfileSettings = ({ onUpdate }) => {
           {/* Upload do Verso */}
           <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
             {documentBack ? (
-              <img
+              <Image
                 src={documentBack}
                 alt="Documento Verso"
+                width={200}
+                height={200}
                 className="w-full h-auto object-contain rounded-md"
               />
             ) : (

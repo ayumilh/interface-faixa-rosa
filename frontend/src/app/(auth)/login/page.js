@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import Image from "next/image";
 import WithGoogle from "@/components/Auth/WithGoogle";
 import { FaCheck } from "react-icons/fa";
-import { signIn } from 'next-auth/react';
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";

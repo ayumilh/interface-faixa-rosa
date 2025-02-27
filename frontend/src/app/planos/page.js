@@ -1,8 +1,16 @@
-import { checkSession } from "@/utils/checkSession";
-import Planos from "./Planos";
+import { cookies } from 'next/headers';
+import { checkSession } from '@/utils/checkSession';
+import { redirect } from 'next/navigation';  // Importando o redirect do next/navigation
+import Planos from './Planos';
 
+const PlanosPage = async () => {
+  const session = await checkSession(cookies());
 
-export default async function PlanosPage() {
-  await checkSession('/planos'); 
+  if (!session) {
+    redirect('/login');
+  }
+
   return <Planos />;
-}
+};
+
+export default PlanosPage;

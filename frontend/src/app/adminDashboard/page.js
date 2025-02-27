@@ -3,10 +3,10 @@ import { redirect } from "next/navigation";
 import DashboardContent from "@/components/adminDashboard/DashboardContent";
 
 export default async function AdminDashboard() {
-  const session = await checkSession('/dashboard');
+  const session = await checkSession('/adminDashboard');
 
   if (!session) {
-    return redirect('/login');
+    redirect('/login');
   }
 
   return <DashboardContent />;

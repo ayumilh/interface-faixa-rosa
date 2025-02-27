@@ -17,11 +17,11 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import LoginNavbar from "@/components/LoginNavbar";
-import Modal from "@/components/AdminDashboard/Modal";
+import Modal from "@/components/adminDashboard/Modal";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import Anunciantes from "@/components/AdminDashboard/Anunciantes";
-import Clientes from "@/components/AdminDashboard/Clientes";
-import EstatisticasERelatorios from "@/components/AdminDashboard/EstatisticasERelatorios";
+import Anunciantes from "@/components/adminDashboard/Anunciantes";
+import Clientes from "@/components/adminDashboard/Clientes";
+import EstatisticasERelatorios from "@/components/adminDashboard/EstatisticasERelatorios";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
 

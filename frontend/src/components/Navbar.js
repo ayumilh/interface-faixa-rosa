@@ -138,7 +138,7 @@ export default function Navbar() {
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
                   <p className="px-4 py-2 text-gray-800 font-semibold">
-                    {user?.firstName} {user?.lastName}
+                    {user?.userName}
                   </p>
                   <Link href="/user-area" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                     Área do Usuário

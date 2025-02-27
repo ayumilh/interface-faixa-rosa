@@ -23,6 +23,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [userName, setUserName] = useState("");
   const [phone, setPhone] = useState("");
   const [dataNascimento, setDataNascimento] = useState(null);
   const [cpf, setCpf] = useState("");
@@ -53,7 +54,7 @@ export default function AuthPage() {
       } else if (currentUser.userType === "ACOMPANHANTE") {
         router.push("/dashboard");
       } else if (currentUser.userType === "ADMIN") {
-        router.push("/adminDashboard"); 
+        router.push("/adminDashboard");
       } else {
         console.warn("Tipo de usuário desconhecido.");
         router.push("/login");
@@ -75,6 +76,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     setIsFormValid(
+      userName.trim().length >= 3 &&
       firstName.trim().length >= 3 &&
       lastName.trim().length >= 3 &&
       phone.length === 11 &&
@@ -85,11 +87,12 @@ export default function AuthPage() {
       userType !== "" &&
       isCpfValid === true
     );
-  }, [firstName, lastName, phone, email, cpf, dataNascimento, password, userType, isCpfValid]);
+  }, [userName, firstName, lastName, phone, email, cpf, dataNascimento, password, userType, isCpfValid]);
 
   const handleSubmit = async (e, type) => {
     e.preventDefault();
     setLoading(true);
+    console.log({ email, password, firstName, lastName, phone, cpf, dataNascimento, userType, userName });
 
     if (type === "login") {
       try {
@@ -122,15 +125,15 @@ export default function AuthPage() {
         // Retorna no formato "YYYY-MM-DD"
         return `${year}-${month}-${day}`;
       };
-      
+
       const formattedBirthDate = dataNascimento ? formatDateToISO(dataNascimento) : undefined;
-      
-      console.log({ firstName, lastName, email, password, phone, cpf, formattedBirthDate, userType });
+
+      console.log({ firstName, lastName, email, password, phone, cpf, formattedBirthDate, userType, userName });
       try {
 
         const res = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/register`,
-          { firstName, lastName, email, password, phone, cpf, birthDate: formattedBirthDate, userType },
+          { userName, firstName, lastName, email, password, phone, cpf, birthDate: formattedBirthDate, userType },
           { withCredentials: true }
         );
 
@@ -231,6 +234,33 @@ export default function AuthPage() {
     }
   };
 
+  const handleUserNameChange = (e) => {
+    const value = e.target.value.trimStart();
+    const regex = /[^a-zA-ZÀ-ÿ\s0-9&_-]/g;
+
+    const sanitizedValue = sanitizeInput(value, regex, false);
+
+    setUserName(sanitizedValue);
+
+    setErrorsInput((prevErrors) => {
+      const { userName, ...rest } = prevErrors;
+      return rest;
+    });
+  };
+  const handleUserNameBlur = () => {
+    if (userName === '') {
+      setErrorsInput((prevErrors) => ({
+        ...prevErrors,
+        userName: "UserName é obrigatório.",
+      }));
+    } else {
+      setErrorsInput((prevErrors) => {
+        const { userName, ...rest } = prevErrors;
+        return rest;
+      });
+    }
+  };
+
 
   const handleLastNameChange = (e) => {
     const value = e.target.value.trimStart();
@@ -310,14 +340,14 @@ export default function AuthPage() {
     setCpf(sanitizedValue);
 
     if (sanitizedValue.length < 11) {
-      // 🔥 Ainda digitando (não exibe erro)
+      // Ainda digitando (não exibe erro)
       setIsCpfValid(null);
       setErrorsInput((prevErrors) => {
         const { cpf, ...rest } = prevErrors;
         return rest;
       });
     } else if (sanitizedValue.length === 11) {
-      // 🔥 CPF completo → Agora validamos
+      // CPF completo → Agora validamos
       if (!/^\d{11}$/.test(sanitizedValue)) {
         setIsCpfValid(false);
         setErrorsInput((prevErrors) => ({
@@ -590,6 +620,27 @@ export default function AuthPage() {
                     className={inputClass}
                   />
                 </div>
+              </div>
+
+              {/* userName */}
+              <div>
+                <label
+                  htmlFor="userName"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Nome de Usuário
+                </label>
+                <input
+                  id="userName"
+                  name="userName"
+                  type="text"
+                  value={userName}
+                  onChange={handleUserNameChange}
+                  onBlur={handleUserNameBlur}
+                  required
+                  maxLength={50}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                />
               </div>
 
               {/* Telefone */}

@@ -58,7 +58,7 @@ const Anunciantes = () => {
             try {
                 setIsLoading(true);
                 await axios.post(
-                    `https://www.faixarosa.com/api/admin/companion/${anunciante.id}/documents/approve`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/documents/approve`,
                     {},
                     {
                         headers: {
@@ -157,8 +157,7 @@ const Anunciantes = () => {
         const aprovarPerfil = async () => {
             try {
                 await axios.post(
-                    //`https://www.faixarosa.com/api/admin/companion/${anunciante.id}/approve`,
-                    `http://localhost:4000/api/admin/companion/${anunciante.id}/approve`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/approve`,
                     {},
                     {
                         headers: {
@@ -177,8 +176,7 @@ const Anunciantes = () => {
         const rejeitarPerfil = async () => {
             try {
                 await axios.post(
-                    // `https://www.faixarosa.com/api/admin/companion/${anunciante.id}/reject`,
-                    `http://localhost:4000/api/admin/companion/${anunciante.id}/reject`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/reject`,
                     {},
                     {
                         headers: {
@@ -197,8 +195,7 @@ const Anunciantes = () => {
         const suspenderPerfil = async () => {
             try {
                 await axios.post(
-                    // `http://localhost:4000/api/admin/companion/${anunciante.id}/suspend`,
-                    `http://localhost:4000/api/admin/companion/${anunciante.id}/suspend`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/suspend`,
                     {},
                     {
                         headers: {
@@ -285,7 +282,7 @@ const Anunciantes = () => {
     const handleMonitorarPostagens = async (anunciante) => {
         try {
             const response = await axios.get(
-                `http://localhost:4000/api/admin/companion/${anunciante.id}/posts`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/posts`,
                 {
                     headers: { Authorization: `Bearer ${userToken}` },
                 }
@@ -318,7 +315,7 @@ const Anunciantes = () => {
                                             />
                                         ) : (
                                             )} */}
-                                            <p className="text-sm text-gray-500">Nenhuma mídia disponível</p>
+                                        <p className="text-sm text-gray-500">Nenhuma mídia disponível</p>
 
                                         <p className="text-xs text-gray-500 mt-2">
                                             Criado em: {new Date(post.createdAt).toLocaleString()}
@@ -343,7 +340,27 @@ const Anunciantes = () => {
 
         } catch (error) {
             console.error("Erro ao buscar postagens:", error);
-            alert("Erro ao buscar postagens.");
+            // Exibe uma mensagem de erro suave caso haja falha ao buscar os dados
+            setModal({
+                isOpen: true,
+                content: (
+                    <>
+                        <h2 className="text-xl font-semibold">Monitorar Postagens</h2>
+                        <p className="mb-2">Postagens de <strong>{anunciante.name}</strong>:</p>
+                        <div className="max-h-60 overflow-y-auto border p-2 rounded">
+                            <p className="text-gray-500">Não foi possível carregar as postagens. Tente novamente mais tarde.</p>
+                        </div>
+                        <div className="mt-4 flex justify-end">
+                            <button
+                                onClick={() => setModal({ isOpen: false, content: null })}
+                                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                            >
+                                Fechar
+                            </button>
+                        </div>
+                    </>
+                ),
+            });
         }
     };
 
@@ -371,21 +388,21 @@ const Anunciantes = () => {
     const handleVerHistorico = async (anunciante) => {
         try {
             const response = await axios.get(
-                `http://localhost:4000/api/admin/companion/${anunciante.id}/activity`, 
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/activity`,
                 {
                     headers: { Authorization: `Bearer ${userToken}` },
                 }
             );
-    
+
             const history = response.data;
-    
+
             setModal({
                 isOpen: true,
                 content: (
                     <>
                         <h2 className="text-xl font-semibold">Histórico de Atividades</h2>
                         <p className="mb-2">Visualizando histórico de <strong>{anunciante.name}</strong>:</p>
-    
+
                         <div className="max-h-60 overflow-y-auto border p-2 rounded bg-gray-50">
                             {history.length > 0 ? (
                                 history.map((event, index) => (
@@ -401,7 +418,7 @@ const Anunciantes = () => {
                                 <p className="text-gray-500">Nenhuma atividade encontrada.</p>
                             )}
                         </div>
-    
+
                         <div className="mt-4 flex justify-end">
                             <button
                                 onClick={() => setModal({ isOpen: false, content: null })}
@@ -413,12 +430,34 @@ const Anunciantes = () => {
                     </>
                 ),
             });
-    
+
         } catch (error) {
             console.error("Erro ao buscar histórico de atividades:", error);
-            alert("Erro ao buscar histórico de atividades.");
+            // Aqui, não exibimos um erro de alerta, pois o foco é mostrar a mensagem personalizada
+            setModal({
+                isOpen: true,
+                content: (
+                    <>
+                        <h2 className="text-xl font-semibold">Histórico de Atividades</h2>
+                        <p className="mb-2">Visualizando histórico de <strong>{anunciante.name}</strong>:</p>
+
+                        <div className="max-h-60 overflow-y-auto border p-2 rounded bg-gray-50">
+                            <p className="text-gray-500">Não foi possível carregar o histórico. Tente novamente mais tarde.</p>
+                        </div>
+
+                        <div className="mt-4 flex justify-end">
+                            <button
+                                onClick={() => setModal({ isOpen: false, content: null })}
+                                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                            >
+                                Fechar
+                            </button>
+                        </div>
+                    </>
+                ),
+            });
         }
-    };    
+    };
 
     const renderTable = (anunciantes) => {
         return (

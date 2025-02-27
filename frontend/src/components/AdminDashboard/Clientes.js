@@ -22,7 +22,7 @@ const Clientes = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          `http://localhost:4000/api/admin/users`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/users`,
           {
             headers: {
               Authorization: `Bearer ${userToken}`,

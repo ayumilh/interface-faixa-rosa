@@ -14,10 +14,11 @@ export const searchUserId = async () => {
                 lastName: decodedToken.lastName,
                 email: decodedToken.email,
                 userType: decodedToken.userType,
+                userName: decodedToken.userName,
             };
         }
 
-        return null; // 🔥 Se não existir, retorna `null`
+        return null; 
     } catch (error) {
         console.error("Erro ao recuperar os dados do cookie:", error);
         return null;

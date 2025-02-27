@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaTachometerAlt,
   FaStar,
@@ -31,13 +31,31 @@ import UserSupport from "@/components/userDashboard/UserSupport";
 import UserImportantInfo from "@/components/userDashboard/UserImportantInfo";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import Image from "next/image";
+import { searchUserId } from "@/utils/searchUserId";
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("painel");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
   const isMobile = useMediaQuery("(max-width: 768px)");
+
+    // Buscar dados do usuário
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const userData = await searchUserId();
+          if (userData) {
+            setUser(userData);
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados do usuário:", error);
+        }
+      };
+  
+      fetchUser();
+    }, []);
 
   const menuTabs = [
     { id: "painel", label: "Seu painel", icon: FaTachometerAlt },
@@ -82,7 +100,7 @@ const UserDashboard = () => {
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <span className="text-xl font-semibold text-gray-100">Nome</span>
+                  <span className="text-xl font-semibold text-gray-100">{user ? `${user.userName}` : "Carregando..."}</span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

@@ -94,7 +94,7 @@ const Dashboard = () => {
                     className="text-xl font-semibold text-gray-100"
                     style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    {user ? `${user.firstName} ${user.lastName}` : "Carregando..."}
+                    {user ? `${user.userName}` : "Carregando..."}
                   </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
@@ -137,7 +137,7 @@ const Dashboard = () => {
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">{user ? `${user.firstName} ${user.lastName}` : "Carregando..."}</h2>
+                  <h2 className="text-lg font-semibold">{user ? `${user.userName}` : "Carregando..."}</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

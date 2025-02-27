@@ -43,9 +43,8 @@ export default function Perfil() {
       try {
         setIsLoading(true);  // Define o estado como carregando
         const response = await axios.get(
-          `http://localhost:4000/api/search/profile?id=${id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?id=${id}`,
         );
-        console.log('Dados do perfil:', response.data);
         setCompanionData(response.data);  // Armazena os dados no estado
         setIsLoading(false);
       } catch (error) {

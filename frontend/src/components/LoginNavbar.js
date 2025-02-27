@@ -179,7 +179,7 @@ export default function LoginNavbar() {
                 <div className="px-4 py-2 border-b">
                   {user ? (
                     <>
-                      <p className="text-gray-800 font-semibold">{user.firstName} {user.lastName}</p>
+                      <p className="text-gray-800 font-semibold">{user.userName}</p>
                       <p className="text-sm text-gray-500">{user.email}</p>
                     </>
                   ) : (

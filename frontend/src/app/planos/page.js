@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';  // Importando o redirect do next/na
 import Planos from './Planos';
 
 const PlanosPage = async () => {
-  const session = await checkSession(cookies());
+  const session = await checkSession('/planos');
 
   if (!session) {
     redirect('/login');

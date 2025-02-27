@@ -4,7 +4,7 @@ import UserDashboard from "./UserDashboard";
 import { redirect } from "next/navigation";
 
 export default async function UserDashboardPage() {
-  const session = await checkSession(cookies());
+  const session = await checkSession('/userDashboard');
 
   if (!session) {
     redirect('/login');

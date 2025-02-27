@@ -135,9 +135,6 @@ const DescriptionManagement = () => {
 
         formData.append("comparisonMedia", videoFile, videoFile.name);
 
-        for (let pair of formData.entries()) {
-          console.log(pair[0] + ": " + pair[1]);
-        }
 
         response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,

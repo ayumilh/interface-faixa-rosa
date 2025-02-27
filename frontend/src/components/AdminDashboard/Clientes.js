@@ -12,13 +12,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const Clientes = () => {
-  const [clientes, setClientes] = useState([
-    // { id: 1, nome: "Carlos Oliveira", status: "Ativo", interacoes: 15, suporte: "Nenhuma" },
-    // { id: 2, nome: "Daniela Souza", status: "Suspenso", interacoes: 8, suporte: "Problema de Pagamento" },
-    // { id: 3, nome: "Fernando Lima", status: "Ativo", interacoes: 23, suporte: "Dúvidas sobre Uso" },
-    // { id: 4, nome: "Gabriela Santos", status: "Ativo", interacoes: 5, suporte: "Nenhuma" },
-    // { id: 5, nome: "Helena Costa", status: "Banido", interacoes: 0, suporte: "Violação de Políticas" },
-  ]);
+  const [clientes, setClientes] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [modal, setModal] = useState({ isOpen: false, content: null });
@@ -31,12 +25,11 @@ const Clientes = () => {
           `http://localhost:4000/api/admin/users`,
           {
             headers: {
-              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInVzZXJUeXBlIjoiQURNSU4iLCJmaXJzdE5hbWUiOiJBZG1pbiIsImxhc3ROYW1lIjoidGVzdGUiLCJpYXQiOjE3NDAyMjEzNDMsImV4cCI6MTc0MDMwNzc0M30.tSMnBEghq7jtiV88BbV2J1hrrfSFZUzpVJTjZlhkCBs`,
+              Authorization: `Bearer ${userToken}`,
             },
           }
         );
         setClientes(response.data);
-        console.log("Contratantes:", response.data);
       } catch (error) {
         console.error("Erro ao buscar contratantes:", error);
       }

@@ -10,23 +10,18 @@ const defaultRoutes = {
 
 const routePermissions = {
   CONTRATANTE: ['/userDashboard'],
-  ACOMPANHANTE: ['/dashboard'], // Acompanhantes só podem acessar /dashboard
-  ADMIN: ['/adminDashboard', '/userManagement'],
+  ACOMPANHANTE: ['/dashboard'],
+  ADMIN: ['/adminDashboard'],
 };
 
-const publicRoutes = ['/planos', '/login', '/register']; // Adicionando mais rotas públicas
+const publicRoutes = ['/planos', '/login', '/register'];
 
 export const checkSession = async (currentRoute) => {
   try {
     const cookieStore = cookies();
     const userToken = cookieStore.get('userToken');
 
-    if (publicRoutes.includes(currentRoute)) {
-      return userToken ? { token: userToken.value } : null;
-    }
-
     if (!userToken) {
-      console.warn("Usuário não autenticado. Redirecionando para login.");
       redirect('/login');
       return null;
     }
@@ -34,7 +29,6 @@ export const checkSession = async (currentRoute) => {
     let session;
     try {
       session = jwtDecode(userToken.value);
-      console.log("Token Decodificado:", session);
 
       if (!session.userType) {
         console.error("Erro: userType não encontrado no token.");
@@ -48,8 +42,10 @@ export const checkSession = async (currentRoute) => {
     }
 
     const userType = session.userType.trim().toUpperCase();
-    console.log("Tipo de usuário:", userType);
-    console.log("Página sendo acessada:", currentRoute);
+
+    if (publicRoutes.includes(currentRoute)) {
+      return session;
+    }
 
     if (!Object.keys(routePermissions).includes(userType)) {
       console.error("Tipo de usuário inválido ou sem permissões.");
@@ -57,10 +53,19 @@ export const checkSession = async (currentRoute) => {
       return null;
     }
 
-    // BLOQUEANDO ADMIN DASHBOARD E USER DASHBOARD PARA ACOMPANHANTES     
     if (userType === "ACOMPANHANTE" && (currentRoute === "/adminDashboard" || currentRoute === "/userDashboard")) {
-      console.warn(`BLOQUEADO: Acompanhante tentou acessar ${currentRoute}. Redirecionando...`);
-      redirect('/dashboard'); // Redireciona acompanhante para seu próprio painel
+      console.warn(`BLOQUEADO: Acompanhante tentou acessar ${currentRoute}.`);
+      redirect('/dashboard');
+      return null;
+    }
+
+    if (userType === "ADMIN" && currentRoute !== "/adminDashboard") {
+      redirect('/adminDashboard');
+      return null;
+    }
+
+    if (userType === "CONTRATANTE" && currentRoute !== "/userDashboard") {
+      redirect('/userDashboard');
       return null;
     }
 
@@ -73,6 +78,7 @@ export const checkSession = async (currentRoute) => {
 
     return session;
   } catch (error) {
+    console.error("Erro inesperado:", error);
     redirect('/login');
     return null;
   }

@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-reactStrictMode: true,
-env: {
-  NEXTAUTH_URL: 'https://faixarosa.com', // URL do seu site
-},
-images: {
+  reactStrictMode: true,
+  env: {
+    NEXTAUTH_URL: 'https://faixarosa.com', // URL do seu site
+  },
+  images: {
+    domains: ['s3.us-central-1.wasabisys.com', 'faixa-rosa.s3.us-central-1.wasabisys.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -21,6 +22,10 @@ images: {
       {
         protocol: 'https',
         hostname: 'faixa-rosa.s3.us-central-1.wasabisys.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 's3.us-central-1.wasabisys.com',
       },
     ],
   },

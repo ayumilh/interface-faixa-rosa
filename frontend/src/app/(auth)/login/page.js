@@ -46,7 +46,17 @@ export default function AuthPage() {
       if (!sessionStorage.getItem("loginToastShown")) {
         toast.success("Login realizado com sucesso!");
         sessionStorage.setItem("loginToastShown", "true");
-        router.push(currentUser.userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
+      }
+
+      if (currentUser.userType === "CONTRATANTE") {
+        router.push("/userDashboard");
+      } else if (currentUser.userType === "ACOMPANHANTE") {
+        router.push("/dashboard");
+      } else if (currentUser.userType === "ADMIN") {
+        router.push("/adminDashboard"); 
+      } else {
+        console.warn("Tipo de usuário desconhecido.");
+        router.push("/login");
       }
     }
   }, [isAuthenticated, currentUser, router]);
@@ -89,7 +99,16 @@ export default function AuthPage() {
           console.log("Resposta do context-login:", response);
 
           const { userType } = response;
-          router.push(userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
+          if (userType === "CONTRATANTE") {
+            router.push("/userDashboard");
+          } else if (userType === "ACOMPANHANTE") {
+            router.push("/dashboard");
+          } else if (userType === "ADMIN") {
+            router.push("/adminDashboard");
+          } else {
+            console.warn("Tipo de usuário desconhecido.");
+            router.push("/login");
+          }
         }
       } catch (error) {
         toast.error(error.response?.data?.message || error.message);

@@ -39,21 +39,24 @@ export default function Perfil() {
   const [companionData, setCompanionData] = useState(null); // Para armazenar os dados da acompanhante
 
   useEffect(() => {
-    setIsLoading(true);
-    axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?id=${id}`
-    )
-      .then((response) => {
-        setCompanionData(response.data);  // A resposta já vem como objeto JSON
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);  // Define o estado como carregando
+        const response = await axios.get(
+          `http://localhost:4000/api/search/profile?id=${id}`
+        );
+        console.log('Dados do perfil:', response.data);
+        setCompanionData(response.data);  // Armazena os dados no estado
         setIsLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Erro ao buscar perfil:', error);
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchProfile();
   }, [id]);
 
-  console.log(companionData);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -224,24 +227,37 @@ export default function Perfil() {
             <div className="lg:col-span-3 bg-white shadow rounded-lg overflow-hidden relative">
               {/* Banner de perfil */}
               <div className="relative h-56 bg-gray-200">
-                {/* <Image
-                  src={companionData.bannerImage} // Usando a imagem do banner da API
-                  alt="Banner de perfil"
-                  layout="fill"
-                  objectFit="cover"
-                  className="opacity-90"
-                /> */}
+                {companionData.bannerImage ? (
+                  <Image
+                    src={companionData.bannerImage}
+                    alt="Foto de perfil"
+                    width={1200}
+                    height={300}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500">Sem foto</span>
+                  </div>
+                )}
               </div>
 
               {/* Foto de perfil: Usando posicionamento absoluto para sobrepor o banner */}
               <div className="absolute left-4 md:left-6 top-40 md:top-44 z-10">
                 <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
-                  {/* <Image
-                    src={companionData.profileImage}
-                    alt="Foto de perfil"
-                    layout="fill"
-                    objectFit="cover"
-                  /> */}
+                  {companionData.profileImage ? (
+                    <Image
+                      src={companionData.profileImage}
+                      alt="Foto de perfil"
+                      width={150}
+                      height={150}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500">Sem foto</span>
+                    </div>
+                  )}
                   <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-lg" />
                 </div>
               </div>

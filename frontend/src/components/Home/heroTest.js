@@ -212,7 +212,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
     const estadoFormatado = cidade.microrregiao.mesorregiao.UF.sigla.toLowerCase();
 
     try {
-      const response = await fetch(`/api/acompanhantes?cidade=${cidadeFormatada}&estado=${estadoFormatado}`);
+      const response = await fetch(`/api/companion?cidade=${cidadeFormatada}&estado=${estadoFormatado}`);
 
       if (!response.ok) throw new Error("Erro ao buscar acompanhantes");
 

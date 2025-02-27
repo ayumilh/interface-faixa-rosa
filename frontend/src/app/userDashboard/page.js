@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import { checkSession } from "@/utils/checkSession";
 import UserDashboard from "./UserDashboard";
 import { redirect } from "next/navigation";

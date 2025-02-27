@@ -1,13 +1,12 @@
-import { cookies } from 'next/headers';
 import { redirect } from "next/navigation";
 import { checkSession } from "@/utils/checkSession";
-import AdminDashboard from "./AdminDashboard";
+import AdminDashboard from "./AdminDashboard.js";
 
 export default async function AdminDashboardPage() {
   const session = await checkSession('/adminDashboard');
 
   if (!session) {
-    redirect('/login');
+    return redirect('/login');
   }
 
   return <AdminDashboard />;

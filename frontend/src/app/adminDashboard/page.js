@@ -1,6 +1,6 @@
 import { checkSession } from "@/utils/checkSession";
-import Dashboard from "./Dashboard";
 import { redirect } from "next/navigation";
+import DashboardContent from "@/components/adminDashboard/DashboardContent";
 
 export default async function DashboardPage() {
   const session = await checkSession('/dashboard');
@@ -9,5 +9,5 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  return <Dashboard />;
+  return <DashboardContent />;
 }

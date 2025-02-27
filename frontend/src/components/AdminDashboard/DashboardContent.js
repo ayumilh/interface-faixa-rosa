@@ -41,7 +41,7 @@ const Placeholder = ({ title, items = [] }) => (
   </div>
 );
 
-const AdminDashboard = () => {
+const DashboardContent = () => {
   const [activeMainTab, setActiveMainTab] = useState("usuarios");
   const [activeSubTab, setActiveSubTab] = useState("anunciantes"); // valor padrão
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -552,4 +552,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default DashboardContent;

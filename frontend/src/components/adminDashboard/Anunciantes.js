@@ -258,21 +258,81 @@ const Anunciantes = () => {
         });
     };
 
+    const [planos, setPlanos] = useState([]);
+    const [planosExtras, setPlanosExtras] = useState([]);
+    const [selectedPlano, setSelectedPlano] = useState("");
+    const [selectedPlanoExtra, setSelectedPlanoExtra] = useState(null);
+
+    // Carregar planos e planos extras
+    useEffect(() => {
+        const fetchPlanos = async () => {
+            try {
+                const response = await axios.get('http://localhost:4000/api/plans');
+                const planosData = response.data;
+                console.log("Planos carregados:", planosData);  // Verifique se os dados estão corretos
+                setPlanos(planosData.filter(plano => plano.isBasic)); // Filtra os planos básicos
+                setPlanosExtras(planosData.filter(plano => !plano.isBasic)); // Filtra os planos extras
+            } catch (error) {
+                console.error("Erro ao carregar planos:", error);
+            }
+        };
+
+        fetchPlanos();
+    }, []);
 
     const handleEditarPlano = (anunciante) => {
+        console.log("Editar plano de:", anunciante);  // Verifique se o nome do anunciante está correto
+
+        setSelectedPlano(anunciante.plan?.id || "");
+
+        const handleAtualizarPlano = async (selectedPlano) => {
+            console.log("ID do plano selecionado:", selectedPlano);  // Verifique se o ID do plano está correto
+            if (!selectedPlano) {
+                console.log("Selecione um plano antes de atualizar");
+                return;  // Se o plano não for selecionado, não faça nada
+            }
+
+            try {
+                // Atualiza o plano básico
+                await axios.put(
+                    `http://localhost:4000/api/admin/companion/${anunciante.id}/update-plan`,
+                    { planId: selectedPlano },  // Garantir que o selectedPlano seja um número
+                    {
+                        headers: {
+                            Authorization: `Bearer ${userToken}`,  // Certifique-se de incluir o token aqui
+                        }
+                    }
+                );
+                alert("Plano básico atualizado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao atualizar o plano:", error);
+            }
+        };
+
         setModal({
             isOpen: true,
             content: (
                 <>
-                    <h2 className="text-xl font-semibold">Editar Plano</h2>
-                    <p>Editar o plano de <strong>{anunciante.name}</strong>.</p>
-                    <div className="mt-4 flex justify-end">
-                        <button
-                            onClick={() => setModal({ isOpen: false, content: null })}
-                            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                    <h2 className="text-xl font-semibold">Editar Plano de {anunciante.name}</h2>
+                    <div className="mt-4">
+                        <label htmlFor="planoBasico" className="block text-sm font-medium text-gray-700">Plano Básico</label>
+                        <select
+                            id="planoBasico"
+                            value={selectedPlano}  // Vincule o value ao estado selecionado
+                            onChange={(e) => {
+                                const selectedValue = e.target.value;
+                                console.log("Plano selecionado:", selectedValue);  // Verifique o valor do ID
+                                handleAtualizarPlano(selectedValue);  // Passa o ID do plano diretamente para a função
+                            }}
+                            className="mt-1 block w-full border-gray-300 rounded-md"
                         >
-                            Fechar
-                        </button>
+                            <option value="">Selecione um plano básico</option>
+                            {planos.map((plano) => (
+                                <option key={plano.id} value={plano.id}>  {/* O value é o ID do plano */}
+                                    {plano.name} - {plano.price} R$
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </>
             ),
@@ -363,7 +423,6 @@ const Anunciantes = () => {
             });
         }
     };
-
 
     const handleReportarConteudo = (anunciante) => {
         setModal({

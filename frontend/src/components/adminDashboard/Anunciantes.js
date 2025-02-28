@@ -267,7 +267,10 @@ const Anunciantes = () => {
     useEffect(() => {
         const fetchPlanos = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/api/plans');
+                const response = await axios.get(
+                    // 'http://localhost:4000/api/plans'
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans`,
+                );
                 const planosData = response.data;
                 console.log("Planos carregados:", planosData);  // Verifique se os dados estão corretos
                 setPlanos(planosData.filter(plano => plano.isBasic)); // Filtra os planos básicos
@@ -295,7 +298,8 @@ const Anunciantes = () => {
             try {
                 // Atualiza o plano básico
                 await axios.put(
-                    `http://localhost:4000/api/admin/companion/${anunciante.id}/update-plan`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/update-plan`,
+                    // `http://localhost:4000/api/admin/companion/${anunciante.id}/update-plan`,
                     { planId: selectedPlano },  // Garantir que o selectedPlano seja um número
                     {
                         headers: {

@@ -157,10 +157,10 @@ export default function Search() {
               }
 
               return (
-                <Link href={`/perfil/${card.id}`} key={index}>
+                <Link href={`/perfil/${card.userName}`} key={index}>
                   <CardRubi
                     key={index}
-                    name={card.name}
+                    userName={card.userName}
                     age={card.age}
                     location={`${card.city}, ${card.state}`}
                     description={card.description}

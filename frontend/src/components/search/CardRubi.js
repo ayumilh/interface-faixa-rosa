@@ -34,7 +34,7 @@ const ImageCarousel = ({ images }) => {
 
   return (
     <div className="relative">
-      {images.length > 0 ? (
+      {Array.isArray(images) && images.length > 0 ? ( // Verifica se images é um array e tem elementos
         <>
           <Image
             src={images[currentIndex].url} // Usando diretamente o array de imagens
@@ -62,22 +62,19 @@ const ImageCarousel = ({ images }) => {
             {images.map((_, index) => (
               <span
                 key={index}
-                className={`w-3 h-3 rounded-full ${
-                  index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'
-                } transition-all`}
+                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'} transition-all`}
               ></span>
             ))}
           </div>
         </>
       ) : (
         <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
-          Sem imagem disponível
+          Nenhuma imagem disponível
         </div>
       )}
     </div>
   );
 };
-
 
 const ModalContato = ({
   name,
@@ -157,11 +154,10 @@ const ModalContato = ({
                 {images.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      index === currentIndexModal
+                    className={`w-3 h-3 rounded-full ${index === currentIndexModal
                         ? 'bg-gray-700'
                         : 'bg-gray-300'
-                    } transition-all`}
+                      } transition-all`}
                   ></span>
                 ))}
               </div>
@@ -175,8 +171,8 @@ const ModalContato = ({
 
         {/* Foto de perfil e nome */}
         <div className="flex flex-col items-center mb-4">
-        <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-red-600 via-pink-500 to-red-600 hover:from-pink-600 hover:via-red-500 hover:to-pink-600 shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105">
-        <Image
+          <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-red-600 via-pink-500 to-red-600 hover:from-pink-600 hover:via-red-500 hover:to-pink-600 shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105">
+            <Image
               src={images[0] || '/assets/default-profile.png'}
               alt="Foto de perfil"
               layout="fill"
@@ -243,7 +239,7 @@ const ModalContato = ({
 
 
 const CardRubi = ({
-  name,
+  userName,
   age,
   location,
   description,
@@ -254,7 +250,7 @@ const CardRubi = ({
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
-  console.log('CardRubi', { name, age, location, description, images, contact, plan, planType });
+  console.log('CardRubi', { userName, age, location, description, images, contact, plan, planType });
 
   const handleOpenModal = () => {
     setShowModalNumero(true);
@@ -269,7 +265,7 @@ const CardRubi = ({
 
       {/* Nome e Status */}
       <div className="flex justify-between items-center mb-3">
-        <h3 className="text-xl font-bold text-red-600">{name}</h3>
+        <h3 className="text-xl font-bold text-red-600">{userName}</h3>
         <div className="flex items-center">
           <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
           <span className="text-sm text-green-600">Online</span>
@@ -307,8 +303,8 @@ const CardRubi = ({
         <div className="border-l border-gray-300 pl-4">
           <p className="text-black mb-2">{description}</p>
           <p className="text-black font-semibold mb-1">Plano:</p>
-          <p className="text-black">Plano: {plan.name}</p>
-          <p className="text-black">Tamanho: {planType.size}</p>
+          <p className="text-black">Plano: {plan ? plan.name : 'Não informado'}</p>
+          <p className="text-black">Tamanho: {planType ? planType.size : 'Não informado'}</p>
         </div>
       </div>
 

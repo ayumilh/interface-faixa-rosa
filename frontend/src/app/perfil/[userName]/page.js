@@ -29,7 +29,7 @@ import { useParams } from 'next/navigation';
 import axios from 'axios';
 
 export default function Perfil() {
-  const { id } = useParams();
+  const { userName } = useParams();
 
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("fotos");
@@ -43,7 +43,7 @@ export default function Perfil() {
       try {
         setIsLoading(true);  // Define o estado como carregando
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?id=${id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`,
         );
         setCompanionData(response.data);  // Armazena os dados no estado
         setIsLoading(false);
@@ -54,7 +54,7 @@ export default function Perfil() {
     };
 
     fetchProfile();
-  }, [id]);
+  }, [userName]);
 
 
   const handleTabClick = (tab) => {
@@ -181,7 +181,7 @@ export default function Perfil() {
                 /> */}
                 <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
               </div>
-              <h2 className="text-xl text-black font-bold mt-2">{companionData.name}</h2>
+              <h2 className="text-xl text-black font-bold mt-2">{companionData.userName}</h2>
             </div>
 
             {/* Banner Google simulado */}
@@ -264,7 +264,7 @@ export default function Perfil() {
               {/* Conteúdo posicionado abaixo da foto */}
               <div className="mt-16 md:mt-20 px-4 md:px-6">
                 <div className="text-center md:text-left text-gray-900 flex items-center justify-center md:justify-start space-x-2">
-                  <h2 className="text-xl md:text-2xl font-bold">{companionData.name}</h2>
+                  <h2 className="text-xl md:text-2xl font-bold">{companionData.userName}</h2>
                   <Link href="#" className="flex items-center space-x-1">
                     <span className={`w-2 h-2 rounded-full ${getStatusColor()} ${getStatusAnimation()}`}></span>
                     <p className={`text-sm ${status === "online" ? "text-green-500" : "text-gray-500"}`}>
@@ -276,7 +276,7 @@ export default function Perfil() {
                 <div className="flex flex-col space-y-1 text-gray-700 mt-2">
                   <div className="flex items-center space-x-2">
                     <FaDollarSign />
-                    <p>{companionData.plan.name} - R${companionData.plan.price}/h</p>
+                    <p>{companionData.plan ? `${companionData.plan.name} - R$${companionData.plan.price}/h` : 'Plano não disponível'}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <FaMapMarkerAlt />

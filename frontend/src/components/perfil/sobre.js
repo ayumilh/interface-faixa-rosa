@@ -97,56 +97,69 @@ export default function Sobre({ physicalCharacteristics, description }) {
           <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 text-black ${!mostrarMaisCaracteristicas && "md:max-h-[600px] md:overflow-hidden"}`}>
             <div>
               <p className="font-bold">Gênero</p>
-              <p>{physicalCharacteristics.gender === "MULHER_CISGENERO" ? "Mulher Cisgênero" : "Outro"}</p>
+              <p>
+                {physicalCharacteristics && physicalCharacteristics.gender
+                  ? physicalCharacteristics.gender === "MULHER_CISGENERO"
+                    ? "Mulher Cisgênero"
+                    : "Outro"
+                  : "Não informado"}
+              </p>
             </div>
             <div>
               <p className="font-bold">Genitália</p>
-              <p>{physicalCharacteristics.genitalia === "NATURAL" ? "Natural" : "Modificada"}</p>
+              <p>
+                {physicalCharacteristics && physicalCharacteristics.genitalia
+                  ? physicalCharacteristics.genitalia === "NATURAL"
+                    ? "Natural"
+                    : "Modificada"
+                  : "Não informado"}
+              </p>
             </div>
             <div>
               <p className="font-bold">Peso</p>
-              <p>{physicalCharacteristics.weight} kg</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.weight ? `${physicalCharacteristics.weight} kg` : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Altura</p>
-              <p>{physicalCharacteristics.height / 100} m</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.height ? `${physicalCharacteristics.height / 100} m` : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Etnia</p>
-              <p>{physicalCharacteristics.ethnicity}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.ethnicity ? physicalCharacteristics.ethnicity : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Cor dos olhos</p>
-              <p>{physicalCharacteristics.eyeColor}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.eyeColor ? physicalCharacteristics.eyeColor : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Estilo de cabelo</p>
-              <p>{physicalCharacteristics.hairStyle}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.hairStyle ? physicalCharacteristics.hairStyle : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Tamanho do cabelo</p>
-              <p>{physicalCharacteristics.hairLength}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.hairLength ? physicalCharacteristics.hairLength : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Tamanho do pé</p>
-              <p>{physicalCharacteristics.shoeSize}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.shoeSize ? physicalCharacteristics.shoeSize : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Silicone</p>
-              <p>{physicalCharacteristics.hasSilicone ? "Sim" : "Não"}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.hasSilicone !== undefined ? (physicalCharacteristics.hasSilicone ? "Sim" : "Não") : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Tatuagens</p>
-              <p>{physicalCharacteristics.hasTattoos ? "Sim" : "Não"}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.hasTattoos !== undefined ? (physicalCharacteristics.hasTattoos ? "Sim" : "Não") : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Piercings</p>
-              <p>{physicalCharacteristics.hasPiercings ? "Sim" : "Não"}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.hasPiercings !== undefined ? (physicalCharacteristics.hasPiercings ? "Sim" : "Não") : "Não informado"}</p>
             </div>
             <div>
               <p className="font-bold">Fumante</p>
-              <p>{physicalCharacteristics.smoker ? "Sim" : "Não"}</p>
+              <p>{physicalCharacteristics && physicalCharacteristics.smoker !== undefined ? (physicalCharacteristics.smoker ? "Sim" : "Não") : "Não informado"}</p>
             </div>
+
           </div>
 
           <div className="mt-4 block md:hidden">

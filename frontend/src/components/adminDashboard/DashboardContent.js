@@ -1,5 +1,4 @@
 "use client";
-// import { checkSession } from '@/utils/checkSession';
 import React, { useState, useContext } from "react";
 import {
   FaUsersCog,
@@ -24,6 +23,8 @@ import Clientes from "@/components/adminDashboard/Clientes";
 import EstatisticasERelatorios from "@/components/adminDashboard/EstatisticasERelatorios";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
+import GerenciamentoDePlanos from "./planos/GerenciamentoDePlanos";
+import GerenciamentoDeAssinaturas from "./planos/GerenciamentoDeAssinaturas";
 
 // Componente Placeholder para seções não implementadas
 const Placeholder = ({ title, items = [] }) => (
@@ -74,7 +75,10 @@ const DashboardContent = () => {
       id: "planos",
       label: "Planos e Assinaturas",
       icon: FaCogs,
-      subItems: [],
+      subItems: [
+        { id: "gerPlanos", label: "Gerenciamento de Planos" },
+        { id: "gerAssinaturas", label: "Gerenciamento de Assinaturas" },
+      ],
     },
     {
       id: "pagamentos",
@@ -83,31 +87,9 @@ const DashboardContent = () => {
       subItems: [],
     },
     {
-      id: "moderacao",
-      label: "Moderação e Segurança",
-      icon: FaShieldAlt,
-      subItems: [
-        { id: "anti_fraude", label: "Ferramentas Anti-Fraude" },
-        { id: "denuncias", label: "Denúncias e Moderação" },
-        { id: "logs", label: "Logs de Atividades" },
-      ],
-    },
-    {
       id: "estatisticas",
       label: "Estatísticas e Relatórios",
       icon: FaChartLine,
-      subItems: [],
-    },
-    {
-      id: "marketing",
-      label: "Marketing",
-      icon: FaBullhorn,
-      subItems: [],
-    },
-    {
-      id: "personalizacao",
-      label: "Personalização da Plataforma",
-      icon: FaPalette,
       subItems: [],
     },
     {
@@ -115,16 +97,6 @@ const DashboardContent = () => {
       label: "Suporte e Atendimento",
       icon: FaLifeRing,
       subItems: [],
-    },
-    {
-      id: "ferramentas",
-      label: "Ferramentas Exclusivas",
-      icon: FaWrench,
-      subItems: [
-        { id: "seo_analytics", label: "SEO e Analytics" },
-        { id: "geolocalizacao", label: "Geolocalização" },
-        { id: "notificacoes", label: "Notificações" },
-      ],
     },
   ];
 
@@ -201,18 +173,14 @@ const DashboardContent = () => {
 
     // Planos e Assinaturas
     if (activeMainTab === "planos") {
-      return (
-        <Placeholder
-          title="Planos e Assinaturas"
-          items={[
-            "Criação/Edição/Exclusão de Planos",
-            "Controle de Valores e Períodos",
-            "Monitoramento de Pagamentos de Assinaturas",
-            "Notificações de Renovação",
-            "Descontos/Cupons",
-          ]}
-        />
-      );
+      if (activeSubTab === "gerPlanos") {
+        return <GerenciamentoDePlanos />;
+      } else if (activeSubTab === "gerAssinaturas") {
+        return <GerenciamentoDeAssinaturas />;
+      } else {
+        // Se nenhum subTab for selecionado, exibir algo padrão
+        return <div className="p-4">Selecione uma opção de Planos e Assinaturas.</div>;
+      }
     }
 
     // Pagamentos
@@ -371,13 +339,6 @@ const DashboardContent = () => {
             <div className="p-6">
               {/* Perfil do Administrador */}
               <div className="flex items-center mb-6">
-                <Image
-                  src="/images/admin.jpg"
-                  alt="Administrador"
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-full mr-3"
-                />
                 <div>
                   <h2 className="text-xl font-semibold text-gray-100">Administração</h2>
                   <p className="text-gray-400 text-sm">Painel de Controle</p>

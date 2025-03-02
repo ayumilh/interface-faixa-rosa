@@ -184,24 +184,7 @@ const ProfileSettings = ({ onUpdate }) => {
 
         {/* Bloco 2: Planos Ativos */}
         <ActivePlans />
-        {/* <div className="p-4 bg-white shadow-md rounded-lg">
-        <h2 className="text-lg font-semibold text-gray-700 text-center">Planos Ativos</h2>
-        <ul className="mt-4 space-y-3">
-          {activePlans.length > 0 ? (
-            activePlans.map((plan, index) => (
-              <li
-                key={index}
-                className="px-4 py-2 bg-blue-50 text-blue-800 font-medium rounded-lg text-sm shadow-sm text-center"
-              >
-                {plan}
-              </li>
-            ))
-          ) : (
-            <li className="text-gray-500 text-sm text-center">Nenhum plano ativo</li>
-          )}
-        </ul>
-      </div> */}
-
+  
         {/* Bloco 3: Expiração do Plano */}
         <div className="p-4 bg-white shadow-md rounded-lg">
           <h2 className="text-lg font-semibold text-gray-700 text-center">Expiração do Plano</h2>

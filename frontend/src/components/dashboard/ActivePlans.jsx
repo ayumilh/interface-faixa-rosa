@@ -7,8 +7,10 @@ import { FaCheckCircle } from "react-icons/fa";
 export default function ActivePlans() {
     const [activePlan, setActivePlan] = useState(null);
     const [extraPlans, setExtraPlans] = useState([]);
+    const [allPlans, setAllPlans] = useState([]); // Estado para armazenar todos os planos assinados
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isPlansModalOpen, setIsPlansModalOpen] = useState(false); // Estado para abrir/fechar o modal de todos os planos
     const [planToManage, setPlanToManage] = useState(null);
     const [newPlanDetails, setNewPlanDetails] = useState({
         name: "",
@@ -31,12 +33,21 @@ export default function ActivePlans() {
                 const { plan, subscriptions } = response.data;
 
                 setActivePlan(plan);
-                const extraPlans = subscriptions.filter((sub) => sub.isExtra);
-                setExtraPlans(extraPlans);
+
+                // Filtrando e extraindo apenas os dados de 'extraPlan' dos subscriptions
+                const extraPlansData = subscriptions
+                    .filter((sub) => sub.isExtra) // Filtra os planos extras
+                    .map((sub) => sub.extraPlan); // Acessa apenas a propriedade extraPlan de cada subscription
+
+                setExtraPlans(extraPlansData); // Atualiza o estado com os dados de extraPlan
                 setNewPlanDetails({
                     name: plan.name,
                     planType: plan.planType,
                 });
+
+                // Armazenar todos os planos assinados
+                setAllPlans([plan, ...extraPlansData]);
+
             } catch (error) {
                 setActivePlan(null);
                 setExtraPlans([]);
@@ -59,138 +70,112 @@ export default function ActivePlans() {
         setIsModalOpen(false);
     };
 
+    const handlePlanExtraClick = (extraPlanData) => {
+        setPlanToManage(extraPlanData);
+        setNewPlanDetails({
+            name: extraPlanData.name,
+            planType: extraPlanData,
+        });
+        setIsPlansModalOpen(false); // Fecha o modal de todos os planos
+        setIsModalOpen(true); // Abre o modal de gerenciamento do plano
+    };
+
+    // Função para abrir o modal de "Planos Assinados" e fechar o modal de "Gerenciamento"
+    const togglePlansModal = () => {
+        setIsPlansModalOpen(!isPlansModalOpen); // Alterna entre abrir e fechar o modal de planos
+        if (isPlansModalOpen) {
+            setIsModalOpen(false); // Fecha o modal de gerenciamento quando o modal de planos for aberto
+        }
+    };
+
+    // Função para abrir o modal de "Gerenciamento do Plano" e fechar o modal de "Planos Assinados"
+    const toggleManagePlanModal = () => {
+        setIsModalOpen(!isModalOpen); // Alterna entre abrir e fechar o modal de gerenciamento
+        if (isModalOpen) {
+            setIsPlansModalOpen(false); // Fecha o modal de planos quando o modal de gerenciamento for aberto
+        }
+    };
+
     return (
         <div className="p-6 bg-white shadow-lg rounded-xl">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">Gerenciamento de Planos</h2>
+            <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">Planos</h2>
 
             {/* Modal de Gerenciamento do Plano */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg">
-                        <button
-                            onClick={() => setIsModalOpen(false)}
-                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
-                        >
-                            ✕
-                        </button>
-                        <h3 className="text-2xl font-semibold text-gray-700 mb-6 text-center">Gerenciar Plano</h3>
+                    <div className={`bg-white p-8 rounded-xl shadow-xl w-full max-w-lg ${activePlan.isBasic ? 'bg-blue-50' : 'bg-pink-50'}`}>
+                        <div className="relative flex items-center justify-between">
+                            <h3 className="text-2xl font-semibold text-gray-700 mb-6">Gerenciar Plano</h3>
+                            <button onClick={toggleManagePlanModal} className="absolute top-2 right-3 font-semibold text-gray-500 hover:text-gray-700 text-xl">✕</button>
+                        </div>
                         <div className="space-y-4">
-                            <div>
-                                <label className="block text-gray-700">Nome do Plano</label>
-                                <p className="w-full p-3 border border-gray-300 rounded-lg shadow-sm">{newPlanDetails.name}</p>
-                            </div>
+                            {loading ? (
+                                <p className="text-gray-500 text-center">Carregando plano...</p>
+                            ) : planToManage ? (
+                                <div className={`p-6 rounded-xl shadow-md ${planToManage.isBasic ? 'bg-blue-50' : 'bg-pink-50'}`}>
+                                    <h3 className={`text-2xl font-semibold ${planToManage.isBasic ? 'text-blue-800' : 'text-pink-800'}  mb-4 text-center`}>{planToManage.name}</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <ul className="list-disc pl-6 mt-2">
+                                                {planToManage?.hasContact && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Contato com clientes</li>}
+                                                {planToManage?.canHideAge && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Esconder idade</li>}
+                                                {planToManage?.hasDarkMode && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Modo escuro</li>}
+                                                {planToManage?.hasPublicReviews && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Reviews públicos</li>}
+                                                {planToManage?.hasStories && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Stories</li>}
+                                            </ul>
+                                        </div>
 
-                            {/* Exibição das Funcionalidades em Lista com ícones de check */}
-                            <div>
-                                <label className="block text-gray-700">Funcionalidades do Plano</label>
-                                <ul className="list-disc pl-6">
-                                    {newPlanDetails?.planType?.accessDashboard && (
-                                        <li className="flex items-center">
-                                            <FaCheckCircle className="text-green-500 mr-2" /> Acesso ao Dashboard
-                                        </li>
-                                    )}
-                                    {newPlanDetails?.planType?.accessMetrics && (
-                                        <li className="flex items-center">
-                                            <FaCheckCircle className="text-green-500 mr-2" /> Acesso às Métricas
-                                        </li>
-                                    )}
-                                    {newPlanDetails?.planType?.accessConvenio && (
-                                        <li className="flex items-center">
-                                            <FaCheckCircle className="text-green-500 mr-2" /> Acesso ao Convênio
-                                        </li>
-                                    )}
-                                    {newPlanDetails?.planType?.cityChangeAllowed && (
-                                        <li className="flex items-center">
-                                            <FaCheckCircle className="text-green-500 mr-2" /> Mudança de Cidade Permitida
-                                        </li>
-                                    )}
-                                    {newPlanDetails?.planType?.isDarkMode && (
-                                        <li className="flex items-center">
-                                            <FaCheckCircle className="text-green-500 mr-2" /> Modo Escuro
-                                        </li>
-                                    )}
-                                    <li className="flex items-center">
-                                        <FaCheckCircle className="text-green-500 mr-2" /> {newPlanDetails?.planType?.points} Pontos de Listagem
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div className="flex justify-center gap-4 mt-6">
-                                <button
-                                    onClick={handleManagePlan}
-                                    className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600"
-                                >
-                                    Salvar Alterações
-                                </button>
-                                <button
-                                    onClick={handleDeactivatePlan}
-                                    className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600"
-                                >
-                                    Desativar Plano
-                                </button>
-                                <button
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="px-6 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600"
-                                >
-                                    Fechar
-                                </button>
-                            </div>
+                                        <div className="flex justify-center gap-4 mt-6">
+                                            <button onClick={handleManagePlan} className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600">Gerenciar Plano</button>
+                                            <button onClick={handleDeactivatePlan} className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600">Desativar Plano</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center">
+                                    <p className="text-gray-500">Nenhum plano extra selecionado</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Planos Ativos e Extras */}
-            <div className="space-y-4">
-                {loading ? (
-                    <p className="text-gray-500 text-center">Carregando planos...</p>
-                ) : activePlan ? (
-                    <div className="bg-blue-50 p-4 rounded-lg shadow-md flex justify-between items-center">
-                        <h3 className="text-xl font-semibold text-blue-800">{activePlan.name}</h3>
-                        <div className="flex justify-between items-center">
-                            <button
-                                onClick={() => {
-                                    setPlanToManage(activePlan);
-                                    setNewPlanDetails({ name: activePlan.name, planType: activePlan.planType });
-                                    setIsModalOpen(true);
-                                }}
-                                className="text-blue-500 hover:text-blue-700"
-                            >
-                                <IoIosArrowForward size={24} />
-                            </button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="text-center">
-                        <p className="text-gray-500">Nenhum plano ativo</p>
-                        <button className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg mt-4">Assinar Plano Básico</button>
-                    </div>
-                )}
+            {/* Botão para abrir o modal com todos os planos assinados */}
+            <button
+                onClick={togglePlansModal}
+                className="px-6 py-2 bg-pink-600 text-white font-semibold rounded-md mt-4 shadow-md hover:bg-pink-700 transition-colors ease-in-out"
+            >
+                Ver Todos os Planos Assinados
+            </button>
 
-                {extraPlans.length > 0 && (
-                    <div>
-                        <ul className="space-y-3">
-                            {extraPlans.map((sub, index) => (
-                                <li key={index} className="bg-pink-50 p-4 rounded-lg shadow-md flex justify-between items-center">
-                                    <h4 className="text-lg font-semibold text-pink-800">{sub.extraPlan.name}</h4>
-                                    <div className="flex justify-between items-center">
+            {/* Modal mostrando todos os planos assinados */}
+            {isPlansModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg">
+                        <div className="relative flex items-center justify-between">
+                            <h3 className="text-2xl font-semibold text-gray-700 mb-6">Todos os Planos</h3>
+                            <button onClick={togglePlansModal} className="absolute top-2 right-3 font-semibold text-gray-500 hover:text-gray-700 text-xl">✕</button>
+                        </div>
+                        <div className="space-y-4">
+                            <ul className="space-y-3">
+                                {allPlans.map((plan, index) => (
+                                    <li key={index} className={`p-4 rounded-lg shadow-md flex justify-between items-center ${plan.isBasic ? 'bg-blue-50' : 'bg-pink-50'}`}>
+                                        <h4 className={`text-sm font-semibold ${plan.isBasic ? 'text-blue-800' : 'text-pink-800'}`}>{plan.name}</h4>
                                         <button
-                                            onClick={() => {
-                                                setPlanToManage(sub.extraPlan);
-                                                setNewPlanDetails({ name: sub.extraPlan.name, planType: sub.extraPlan.planType });
-                                                setIsModalOpen(true);
-                                            }}
-                                            className="text-pink-500 hover:text-pink-700"
+                                            onClick={() => handlePlanExtraClick(plan)}
+                                            className={`text-sm font-semibold ${plan.isBasic ? 'text-blue-500 hover:text-blue-700' : 'text-pink-500 hover:text-pink-700'}`}
                                         >
                                             <IoIosArrowForward size={20} />
                                         </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                                    </li>
+
+                                ))}
+                            </ul>
+                        </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 }

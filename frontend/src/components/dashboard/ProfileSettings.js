@@ -192,18 +192,16 @@ const ProfileSettings = ({ onUpdate }) => {
             {timeLeft || "Indeterminado"}
           </p>
           {timeProgress > 0 && (
-            <div className="mt-6">
-              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-500 rounded-full transition-all"
-                  style={{ width: `${timeProgress}%` }}
-                ></div>
-              </div>
-              <span className="block text-sm text-gray-500 mt-2 text-center">
-                Progresso do Plano
-              </span>
-            </div>
-          )}
+                    <div className="mt-6">
+                        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-green-500 rounded-full transition-all"
+                                style={{ width: `${timeProgress}%` }}
+                            ></div>
+                        </div>
+                        <span className="block text-sm text-gray-500 mt-2 text-center">Progresso do Plano</span>
+                    </div>
+                )}
         </div>
       </div>
 

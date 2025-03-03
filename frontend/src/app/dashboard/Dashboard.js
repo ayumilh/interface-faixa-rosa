@@ -10,7 +10,7 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
-import LoginNavbar from "@/components/LoginNavbar"; // Certifique-se de que está importando o LoginNavbar correto
+import Navbar from "@/components/Navbar";
 import Modal from "@/components/dashboard/Modal";
 import Image from "next/image";
 import Metrics from "@/components/dashboard/Metrics";
@@ -73,7 +73,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Navbar Superior */}
-      <LoginNavbar />
+      <Navbar />
 
       <div className="flex flex-1">
         {/* Barra Lateral (Desktop) - Fixa */}

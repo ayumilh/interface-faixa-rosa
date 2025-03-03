@@ -87,7 +87,7 @@ export default function Perfil() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f9fc', marginTop: '80px' }}>
-      <Navbar />
+      <Navbar bgColor='white' />
 
       {/* Campo de busca estilizado */}
       <div className="relative w-full max-w-md mb-6 mx-auto">

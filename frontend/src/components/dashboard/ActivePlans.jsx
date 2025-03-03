@@ -7,10 +7,10 @@ import { FaCheckCircle } from "react-icons/fa";
 export default function ActivePlans() {
     const [activePlan, setActivePlan] = useState(null);
     const [extraPlans, setExtraPlans] = useState([]);
-    const [allPlans, setAllPlans] = useState([]); // Estado para armazenar todos os planos assinados
+    const [allPlans, setAllPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isPlansModalOpen, setIsPlansModalOpen] = useState(false); // Estado para abrir/fechar o modal de todos os planos
+    const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
     const [planToManage, setPlanToManage] = useState(null);
     const [newPlanDetails, setNewPlanDetails] = useState({
         name: "",
@@ -34,18 +34,16 @@ export default function ActivePlans() {
 
                 setActivePlan(plan);
 
-                // Filtrando e extraindo apenas os dados de 'extraPlan' dos subscriptions
                 const extraPlansData = subscriptions
-                    .filter((sub) => sub.isExtra) // Filtra os planos extras
-                    .map((sub) => sub.extraPlan); // Acessa apenas a propriedade extraPlan de cada subscription
+                    .filter((sub) => sub.isExtra)
+                    .map((sub) => sub.extraPlan);
 
-                setExtraPlans(extraPlansData); // Atualiza o estado com os dados de extraPlan
+                setExtraPlans(extraPlansData);
                 setNewPlanDetails({
                     name: plan.name,
                     planType: plan.planType,
                 });
 
-                // Armazenar todos os planos assinados
                 setAllPlans([plan, ...extraPlansData]);
 
             } catch (error) {
@@ -76,23 +74,22 @@ export default function ActivePlans() {
             name: extraPlanData.name,
             planType: extraPlanData,
         });
-        setIsPlansModalOpen(false); // Fecha o modal de todos os planos
-        setIsModalOpen(true); // Abre o modal de gerenciamento do plano
+        setIsPlansModalOpen(false);
+        setIsModalOpen(true);
     };
 
-    // Função para abrir o modal de "Planos Assinados" e fechar o modal de "Gerenciamento"
     const togglePlansModal = () => {
-        setIsPlansModalOpen(!isPlansModalOpen); // Alterna entre abrir e fechar o modal de planos
+        setIsPlansModalOpen(!isPlansModalOpen);
         if (isPlansModalOpen) {
-            setIsModalOpen(false); // Fecha o modal de gerenciamento quando o modal de planos for aberto
+            setIsModalOpen(false);
         }
     };
 
-    // Função para abrir o modal de "Gerenciamento do Plano" e fechar o modal de "Planos Assinados"
+
     const toggleManagePlanModal = () => {
-        setIsModalOpen(!isModalOpen); // Alterna entre abrir e fechar o modal de gerenciamento
+        setIsModalOpen(!isModalOpen);
         if (isModalOpen) {
-            setIsPlansModalOpen(false); // Fecha o modal de planos quando o modal de gerenciamento for aberto
+            setIsPlansModalOpen(false);
         }
     };
 

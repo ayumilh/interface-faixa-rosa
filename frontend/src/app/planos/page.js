@@ -7,7 +7,7 @@ const PlanosPage = async () => {
   const session = await checkSession('/planos');
 
   if (!session) {
-    redirect('/login');
+    redirect('/');
   }
 
   return <Planos />;

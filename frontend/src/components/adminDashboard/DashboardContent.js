@@ -15,7 +15,7 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
-import LoginNavbar from "@/components/LoginNavbar";
+import Navbar from "@/components/Navbar";
 import Modal from "@/components/adminDashboard/Modal";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import Anunciantes from "@/components/adminDashboard/Anunciantes";
@@ -330,7 +330,7 @@ const DashboardContent = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Navbar Superior */}
-      <LoginNavbar />
+      <Navbar />
 
       <div className="flex flex-1 relative">
         {/* Barra Lateral (Desktop) */}

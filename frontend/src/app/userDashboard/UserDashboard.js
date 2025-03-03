@@ -17,7 +17,7 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
-import LoginNavbar from "@/components/LoginNavbar";
+import Navbar from "@/components/Navbar";
 import Modal from "@/components/dashboard/Modal";
 import UserMetrics from "@/components/userDashboard/UserMetrics";
 import UserMetricsMobile from "@/components/userDashboard/UserMetricsMobile";
@@ -83,7 +83,7 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Navbar Superior */}
-      <LoginNavbar />
+      <Navbar />
 
       <div className="flex flex-1">
         {/* Barra Lateral (Desktop) - Fixa */}

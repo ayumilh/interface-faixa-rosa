@@ -6,7 +6,7 @@ export default async function AdminDashboard() {
   const session = await checkSession('/adminDashboard');
 
   if (!session) {
-    redirect('/login');
+    redirect('/');
   }
 
   return <DashboardContent />;

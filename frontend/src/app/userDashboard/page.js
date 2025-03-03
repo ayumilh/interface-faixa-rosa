@@ -6,7 +6,7 @@ export default async function UserDashboardPage() {
   const session = await checkSession('/userDashboard');
 
   if (!session) {
-    redirect('/login');
+    redirect('/');
   }
 
   return <UserDashboard />;

@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaCheckCircle } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function ActivePlans() {
     const [activePlan, setActivePlan] = useState(null);

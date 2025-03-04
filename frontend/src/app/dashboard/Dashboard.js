@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FaEdit,
   FaPhotoVideo,
@@ -24,12 +24,14 @@ import CityManagement from "@/components/dashboard/CityManagement";
 import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { searchUserId } from "@/utils/searchUserId";
+import { AuthContext } from "@/context/AuthContext";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("metrics");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const { userInfo } = useContext(AuthContext);
 
   // Buscar dados do usuário
   useEffect(() => {
@@ -82,13 +84,15 @@ const Dashboard = () => {
             <div className="p-6">
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
-                <Image
-                  src={"/images/user.jpg"}
-                  alt="Usuário"
-                  width={120}
-                  height={48}
-                  className="w-12 h-12 rounded-full mr-3 transition-all duration-300 hover:scale-110"
-                />
+                <div className="mr-4">
+                  <Image
+                    src={userInfo?.companion?.profileImage || null}
+                    alt="Perfil"
+                    width={40}
+                    height={40}
+                    className="w-10 h-10 object-cover rounded-full"
+                  />
+                </div>
                 <div>
                   <span
                     className="text-xl font-semibold text-gray-100"

@@ -28,7 +28,7 @@ export default function GerenciamentoDeAssinaturas() {
     // Buscar assinaturas ativas
     const fetchSubscriptions = async () => {
         try {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/subscriptions`, {
+            const response = await axios.get(`${API_URL}/api/admin/subscriptions`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setCompanions(response.data);

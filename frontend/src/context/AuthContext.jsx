@@ -11,7 +11,7 @@ export const AuthContextProvider = ({ children }) => {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
-    const [userInfo, setUserInfo] = useState();
+    const [userInfo, setUserInfo] = useState(null);
 
     // usado no BtnSignOut
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,7 +36,7 @@ export const AuthContextProvider = ({ children }) => {
             Cookies.set("userToken", res.data.token, { expires: 1 });
 
             if (!res.data.token || !res.data.user) return null;
-            
+
             if (!currentUser || currentUser.id !== res.data.user.id) {
                 setCurrentUser(res.data.user);
             }
@@ -78,10 +78,8 @@ export const AuthContextProvider = ({ children }) => {
                             headers: {
                                 Authorization: `Bearer ${tokenId}`,
                             },
-                            withCredentials: true,
                         }
                     );
-
                     if (res.data.user) {
                         setUserInfo(res.data.user);
 

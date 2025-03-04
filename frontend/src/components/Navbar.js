@@ -1,8 +1,7 @@
 "use client";
-
 import { useContext, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { FaBell, FaUserCircle } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import { MdLocationOn, MdVideoLibrary, MdRateReview } from "react-icons/md";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
@@ -18,9 +17,8 @@ export default function Navbar({ bgColor = "pink" }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
-  const { logout } = useContext(AuthContext);
+  const { logout, userInfo } = useContext(AuthContext);
 
-  // Fetch user data if logged in
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -164,9 +162,17 @@ export default function Navbar({ bgColor = "pink" }) {
                 title="Abrir menu de perfil"
               >
                 <div className="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold shadow-md">
-                  {user?.userName?.charAt(0).toUpperCase()}
+                  {/* Usando a imagem de perfil do usuário */}
+                  <Image
+                    src={userInfo?.companion?.profileImage} // Se não houver imagem, usar uma imagem padrão
+                    alt="Perfil"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover rounded-full"
+                  />
                 </div>
               </button>
+
 
 
               {/* Menu de Perfil */}

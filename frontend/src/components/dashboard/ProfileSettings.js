@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useContext } from "react";
 import Image from "next/image";
 import { FaUpload, FaPlusCircle, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard, FaCheckCircle } from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { AuthContext } from "@/context/AuthContext";
 
 const ProfileSettings = ({ onUpdate }) => {
   const [documentFront, setDocumentFront] = useState(null);
   const [documentBack, setDocumentBack] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [isReadyToSend, setIsReadyToSend] = useState(false);
+  const { userInfo } = useContext(AuthContext);
 
   const rankingPosition = 35;
   const planExpirationDate = useMemo(() => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), []);
@@ -184,7 +186,7 @@ const ProfileSettings = ({ onUpdate }) => {
 
         {/* Bloco 2: Planos Ativos */}
         <ActivePlans />
-  
+
         {/* Bloco 3: Expiração do Plano */}
         <div className="p-4 bg-white shadow-md rounded-lg">
           <h2 className="text-lg font-semibold text-gray-700 text-center">Expiração do Plano</h2>
@@ -192,16 +194,16 @@ const ProfileSettings = ({ onUpdate }) => {
             {timeLeft || "Indeterminado"}
           </p>
           {timeProgress > 0 && (
-                    <div className="mt-6">
-                        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-green-500 rounded-full transition-all"
-                                style={{ width: `${timeProgress}%` }}
-                            ></div>
-                        </div>
-                        <span className="block text-sm text-gray-500 mt-2 text-center">Progresso do Plano</span>
-                    </div>
-                )}
+            <div className="mt-6">
+              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-green-500 rounded-full transition-all"
+                  style={{ width: `${timeProgress}%` }}
+                ></div>
+              </div>
+              <span className="block text-sm text-gray-500 mt-2 text-center">Progresso do Plano</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -209,17 +211,19 @@ const ProfileSettings = ({ onUpdate }) => {
       <div className="relative mb-12">
         {/* Imagem de Capa */}
         <div className="bg-white mt-8 relative h-40 sm:h-56 w-full rounded-lg overflow-hidden shadow-md">
-          {/* {coverImage ? (
+          {userInfo?.companion?.bannerImage ? (
             <Image
-              src={coverImage}
+              src={userInfo?.companion?.bannerImage}
               alt="Capa do Perfil"
               layout="fill"
               objectFit="cover"
+              width={1920}
+              height={640}
               className="transform scale-100 hover:scale-110 transition-transform duration-500"
             />
           ) : (
             <FaImage className="text-gray-400 text-6xl" />
-          )} */}
+          )}
           <label className="absolute top-2 right-2 bg-white bg-opacity-80 text-pink-500 px-3 py-1 rounded-lg cursor-pointer shadow-md flex items-center text-sm hover:bg-opacity-90 transition">
             <FaUpload className="mr-1" />
             Alterar Capa
@@ -232,19 +236,22 @@ const ProfileSettings = ({ onUpdate }) => {
             />
           </label>
         </div>
+
         {/* Imagem de Perfil */}
         <div className="absolute bottom-[-40px] left-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 rounded-full overflow-hidden w-32 h-32 border-4 border-white shadow-lg">
-          {/* {profileImage ? (
+          {userInfo?.companion?.profileImage ? (
             <Image
-              src={profileImage}
+              src={userInfo?.companion?.profileImage}
               alt="Foto de Perfil"
               layout="fill"
+              width={128}
+              height={128}
               objectFit="cover"
               className="transform scale-100 hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <FaUserCircle className="text-gray-400 text-6xl" />
-          )} */}
+          )}
           <label className="absolute bottom-2 right-2 bg-white bg-opacity-80 text-pink-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-opacity-90 transition">
             <FaUpload size={16} />
             <input
@@ -257,6 +264,7 @@ const ProfileSettings = ({ onUpdate }) => {
           </label>
         </div>
       </div>
+
 
       {/* Seção de Upload de Documento */}
       <div className="mt-16">

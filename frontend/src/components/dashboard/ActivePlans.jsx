@@ -105,7 +105,6 @@ export default function ActivePlans() {
     };
 
     const handleCancelDeactivate = () => {
-        // Fecha o modal de confirmação sem fazer nada
         setIsConfirmationModalOpen(false);
         setIsExtraPlanConfirmationModalOpen(false);
     };

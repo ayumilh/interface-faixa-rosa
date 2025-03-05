@@ -22,7 +22,8 @@ import {
   FaUserPlus,
   FaMale,
   FaSearch,
-  FaRegCopy
+  FaRegCopy,
+  FaFire,
 } from 'react-icons/fa';
 import Final from '@/components/search/final';
 import { useParams } from 'next/navigation';
@@ -31,6 +32,7 @@ import axios from 'axios';
 export default function Perfil() {
   const { userName } = useParams();
 
+  const [maisAcompanhantes, setMaisAcompanhantes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("fotos");
   const [status, setStatus] = useState("online"); // Status do usuário ("online", "offline")
@@ -41,12 +43,22 @@ export default function Perfil() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        setIsLoading(true);  // Define o estado como carregando
+        setIsLoading(true);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`,
+          `http://localhost:4000/api/search/profile?userName=${userName}`
         );
-        setCompanionData(response.data);  // Armazena os dados no estado
+        setCompanionData(response.data);
         setIsLoading(false);
+
+        // Buscar mais acompanhantes com base na cidade e estado
+        const city = response.data.city;
+        const state = response.data.state;
+
+        const acompanhantesResponse = await axios.get(
+          `http://localhost:4000/api/search/companion-city?cidade=${city}&estado=${state}`
+        );
+
+        setMaisAcompanhantes(acompanhantesResponse.data);
       } catch (error) {
         console.error('Erro ao buscar perfil:', error);
         setIsLoading(false);
@@ -55,6 +67,7 @@ export default function Perfil() {
 
     fetchProfile();
   }, [userName]);
+
 
 
   const handleTabClick = (tab) => {
@@ -72,7 +85,7 @@ export default function Perfil() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p>Carregando...</p> {/* Exibe uma mensagem enquanto carrega os dados */}
+        <FaFire className="animate-pulse text-pink-500" size={50} />
       </div>
     );
   }
@@ -90,7 +103,7 @@ export default function Perfil() {
       <Navbar bgColor='white' />
 
       {/* Campo de busca estilizado */}
-      <div className="relative w-full max-w-md mb-6 mx-auto">
+      {/* <div className="relative w-full max-w-md mb-6 mx-auto">
         <input
           type="text"
           placeholder="Buscar acompanhantes por cidade"
@@ -104,7 +117,7 @@ export default function Perfil() {
         >
           <FaSearch size={16} />
         </button>
-      </div>
+      </div> */}
 
       {/* Modal de busca */}
       {showModalBusca && (
@@ -173,12 +186,12 @@ export default function Perfil() {
             {/* Imagem de perfil e nome */}
             <div className="flex flex-col items-center mb-4">
               <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
-                {/* <Image
+                <Image
                   src={companionData.profileImage} // Usando a imagem de perfil retornada da API
                   alt="Foto de perfil"
                   layout="fill"
                   objectFit="cover"
-                /> */}
+                />
                 <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
               </div>
               <h2 className="text-xl text-black font-bold mt-2">{companionData.userName}</h2>
@@ -274,10 +287,10 @@ export default function Perfil() {
                 </div>
 
                 <div className="flex flex-col space-y-1 text-gray-700 mt-2">
-                  <div className="flex items-center space-x-2">
+                  {/* <div className="flex items-center space-x-2">
                     <FaDollarSign />
                     <p>{companionData.plan ? `${companionData.plan.name} - R$${companionData.plan.price}/h` : 'Plano não disponível'}</p>
-                  </div>
+                  </div> */}
                   <div className="flex items-center space-x-2">
                     <FaMapMarkerAlt />
                     <p>Local: {companionData.city} - {companionData.state}</p>
@@ -288,7 +301,21 @@ export default function Perfil() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <FaMale />
-                    <p>Atende: {companionData.servicesOffered.filter(service => service.isOffered).length} serviços</p>
+                    <p>Atende:
+                      {companionData.atendimentos && companionData.atendimentos.length > 0 ? (
+                        companionData.atendimentos.map((atendimento, index) => (
+                          <span key={index}>
+                            {atendimento === "HOMENS" && "Homens"}
+                            {atendimento === "MULHERES" && "Mulheres"}
+                            {atendimento === "CASAIS" && "Casais"}
+                            {atendimento === "DEFICIENTES_FISICOS" && "Deficientes Físicos"}
+                            {index < companionData.atendimentos.length - 1 && ", "}
+                          </span>
+                        ))
+                      ) : (
+                        <span>Não especificado</span>
+                      )}
+                    </p>
                   </div>
                 </div>
 
@@ -377,25 +404,42 @@ export default function Perfil() {
             </div>
 
             {/* Seção lateral com outros perfis e promoções */}
-            <div className="lg:col-span-1 space-y-4">
+            <div className="lg:col-span-1 space-y-4 mt-6">
               <div className="bg-white rounded-lg shadow p-4">
                 <h3 className="text-lg font-semibold mb-4 text-black">Mais acompanhantes</h3>
                 <div className="space-y-4 text-black">
-                  {[...Array(3)].map((_, index) => (
-                    <div key={index} className="flex items-center">
-                      <Image
-                        src={`/assets/acompanhante0${index + 1}.jpg`}
-                        alt={`Acompanhante ${index + 1}`}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                      />
-                      <div className="ml-4">
-                        <p className="font-semibold">Camila Ramos</p>
-                        <p className="text-gray-600 text-sm">R$750/h • Birigui</p>
+                  {maisAcompanhantes
+                    .filter((acompanhante) => acompanhante.userName !== userName) // Filtra o perfil atual
+                    .map((acompanhante, index) => (
+                      <div key={index} className="flex items-center">
+                        {acompanhante.profileImage ? (
+                          <Image
+                            src={acompanhante.profileImage}
+                            alt={`Acompanhante ${acompanhante.userName}`}
+                            width={40}
+                            height={40}
+                            className="rounded-full w-10 h-10 object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-pink-400 rounded-full flex items-center justify-center text-white font-semibold">
+                            {acompanhante.userName ? acompanhante.userName.charAt(0).toUpperCase() : ""}
+                          </div>
+                        )}
+                        <div className="ml-4">
+                          <p className="font-semibold">{acompanhante.userName}</p>
+                          <p className="text-gray-600 text-sm">
+                            {acompanhante.atendimentos && Array.isArray(acompanhante.atendimentos)
+                              ? acompanhante.atendimentos.map((item, index) => (
+                                <span key={index}>
+                                  {item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()}
+                                  {index < acompanhante.atendimentos.length - 1 && ", "}
+                                </span>
+                              ))
+                              : ''}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
               <div className="bg-white rounded-lg shadow p-4">

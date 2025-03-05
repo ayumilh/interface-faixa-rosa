@@ -85,7 +85,7 @@ export default function Search() {
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800">
-      <Navbar />
+      <Navbar bgColor="white"  />
 
       {/* Título */}
       <div className="w-full h-40 sm:h-60 bg-cover bg-center flex justify-center items-center mt-8">

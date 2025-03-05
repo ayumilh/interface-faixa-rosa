@@ -8,7 +8,7 @@ import {
   FaRegClock,
   FaCogs,
   FaBars,
-  FaTimes,
+  FaTimes
 } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
 import Modal from "@/components/dashboard/Modal";
@@ -85,13 +85,21 @@ const Dashboard = () => {
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">
                 <div className="mr-4">
-                  <Image
-                    src={userInfo?.companion?.profileImage || null}
-                    alt="Perfil"
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 object-cover rounded-full"
-                  />
+                  {/* Verifica se a imagem de perfil existe */}
+                  {userInfo?.companion?.profileImage ? (
+                    <Image
+                      src={userInfo.companion.profileImage} // Usando a imagem do perfil
+                      alt="Usuário"
+                      width={48}
+                      height={48}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 text-xl font-semibold">
+                      {/* Exibe a inicial do nome */}
+                      {user?.userName?.charAt(0).toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <span
@@ -103,6 +111,7 @@ const Dashboard = () => {
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
               </div>
+
 
               {/* Menu Lateral */}
               <ul className="space-y-2">

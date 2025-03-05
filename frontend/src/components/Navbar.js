@@ -163,13 +163,19 @@ export default function Navbar({ bgColor = "pink" }) {
               >
                 <div className="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold shadow-md">
                   {/* Usando a imagem de perfil do usuário */}
-                  <Image
-                    src={userInfo?.companion?.profileImage} // Se não houver imagem, usar uma imagem padrão
-                    alt="Perfil"
-                    width={40}
-                    height={40}
-                    className="w-full h-full object-cover rounded-full"
-                  />
+                  {userInfo?.companion?.profileImage ? (
+                    <div>
+                      <Image
+                        src={userInfo?.companion?.profileImage}
+                        alt="Imagem de Perfil"
+                        width={40}
+                        height={40}
+                        className="rounded-full w-10 h-10 object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <span>{user.userName.charAt(0).toUpperCase()}</span>
+                  )}
                 </div>
               </button>
 

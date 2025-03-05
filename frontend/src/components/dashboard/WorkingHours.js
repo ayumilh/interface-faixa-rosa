@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaClock, FaTrash, FaSave, FaCopy } from "react-icons/fa";
+import { FaClock, FaTrash, FaSave, FaCopy, FaFire } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import axios from "axios";
@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 
 const WorkingHours = () => {
   // Estado para os horários de trabalho
+  const [loadingPage, setLoadingPage] = useState(true);
   const [workingHours, setWorkingHours] = useState([]);
   const [originalHours, setOriginalHours] = useState([]);
   const [exceptions, setExceptions] = useState([]);
@@ -35,7 +36,7 @@ const WorkingHours = () => {
     "Sunday": "Domingo"
   };
 
-  const WorkingHours = () => {  
+  const WorkingHours = () => {
     const fetchWorkingHours = useCallback(async () => {
       try {
         const token = Cookies.get("userToken");
@@ -47,41 +48,43 @@ const WorkingHours = () => {
             },
           }
         );
-  
+
         if (response.data.schedule) {
           const formattedData = defaultSchedule.map((defaultDay) => {
             const existingDay = response.data.schedule.find(
               (item) => daysOfWeekMap[item.dayOfWeek] === defaultDay.dia
             );
-  
+
             return existingDay
               ? {
-                  id: existingDay.id,
-                  dia: daysOfWeekMap[existingDay.dayOfWeek],
-                  ativo: existingDay.isActive,
-                  start: existingDay.startTime,
-                  end: existingDay.endTime,
-                  error: "",
-                }
+                id: existingDay.id,
+                dia: daysOfWeekMap[existingDay.dayOfWeek],
+                ativo: existingDay.isActive,
+                start: existingDay.startTime,
+                end: existingDay.endTime,
+                error: "",
+              }
               : defaultDay;
           });
-  
+
           setWorkingHours(formattedData);
           setOriginalHours(JSON.stringify(formattedData));
         } else {
           setWorkingHours(defaultSchedule);
         }
+        setLoadingPage(false);
       } catch (error) {
         console.error("Erro ao buscar horários do backend:", error);
         setWorkingHours(defaultSchedule);
+        setLoadingPage(false);
       }
     }, []);  // Use useCallback aqui para evitar mudanças desnecessárias
-  
+
     useEffect(() => {
       fetchWorkingHours();
-    }, [fetchWorkingHours]);  
+    }, [fetchWorkingHours]);
   };
-  
+
   // Função para buscar as datas indisponíveis do backend
   const fetchUnavailableDates = async () => {
     try {
@@ -251,6 +254,12 @@ const WorkingHours = () => {
       className="border bg-white p-4 rounded-lg shadow-sm hover:shadow-md transform transition-transform duration-300 hover:scale-105"
       key={day.id}
     >
+      {/* Carregamento com ícone de fogo */}
+      {loadingPage && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
       <div className="flex items-center mb-3">
         <input
           type="checkbox"

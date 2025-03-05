@@ -4,7 +4,8 @@ import {
   FaCreditCard,
   FaCcMastercard,
   FaCheckCircle,
-  FaTimesCircle
+  FaTimesCircle,
+  FaFire
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import Slider from 'rc-slider';
@@ -14,6 +15,7 @@ import Cookies from 'js-cookie';
 import 'rc-slider/assets/index.css';
 
 const FinancialControl = () => {
+   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [pendingUpdates, setPendingUpdates] = useState(false);
@@ -59,10 +61,12 @@ const FinancialControl = () => {
           }))
         );
       }
+      setLoading(false);
     } catch (error) {
       console.error("Erro ao buscar dados financeiros:", error);
+      setLoading(false);
     }
-  }, []); // A dependência é uma lista vazia para garantir que a função não seja recriada.
+  }, []);
 
   useEffect(() => {
     fetchFinancialData();
@@ -187,6 +191,12 @@ const FinancialControl = () => {
       exit={{ opacity: 0 }}
     >
       <div className="max-w-6xl mx-auto">
+        {/* Carregamento com ícone de fogo */}
+        {loading && (
+          <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+            <FaFire className="animate-pulse text-pink-500" size={50} />
+          </div>
+        )}
         {/* Explicação Simplificada */}
         <motion.div
           className="mb-8 p-6 bg-white rounded-lg shadow-md"

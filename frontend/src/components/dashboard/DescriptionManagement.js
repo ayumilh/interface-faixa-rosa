@@ -12,16 +12,16 @@ import {
   FaChevronDown,
   FaChevronUp,
   FaInfoCircle,
+  FaBuilding,
+  FaFire,
 } from "react-icons/fa";
 import Cookies from "js-cookie";
 
-// Opções para o multi-select de idiomas
-const languageOptions = [
-  { value: "Português", label: "Português" },
-  { value: "Inglês", label: "Inglês" },
-  { value: "Espanhol", label: "Espanhol" },
-  { value: "Francês", label: "Francês" },
-  { value: "Mandarim", label: "Mandarim" },
+const atendimentoOptions = [
+  { value: "HOMENS", label: "Homens" },
+  { value: "MULHERES", label: "Mulheres" },
+  { value: "CASAIS", label: "Casais" },
+  { value: "DEFICIENTES_FISICOS", label: "Deficientes Físicos" },
 ];
 
 // Opções para os selects
@@ -31,6 +31,7 @@ const genitaliaOptions = [
 ];
 
 const DescriptionManagement = () => {
+  const [loading, setLoading] = useState(true);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [videoUploaded, setVideoUploaded] = useState(false);
   const [videoPending, setVideoPending] = useState(false);
@@ -38,6 +39,8 @@ const DescriptionManagement = () => {
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(true);
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [atendimentos, setAtendimentos] = useState([""]);
+  const [showAtendimentosModal, setShowAtendimentosModal] = useState(false);
 
   const {
     register,
@@ -52,15 +55,17 @@ const DescriptionManagement = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
+          `http://localhost:4000/api/companions/description`,
           {
             headers: { Authorization: `Bearer ${userToken}` },
           }
         );
 
         if (response.status === 200) {
+          
           const data = response.data;
-
+          
           // Preenchendo os campos do formulário com os dados recebidos
           setValue("description", data.description || "");
           setValue("gender", data.characteristics?.gender || "");
@@ -76,25 +81,47 @@ const DescriptionManagement = () => {
           setValue("hasTattoos", data.characteristics?.hasTattoos ? "true" : "false");
           setValue("hasPiercings", data.characteristics?.hasPiercings ? "true" : "false");
           setValue("smoker", data.characteristics?.smoker ? "true" : "false");
-
+          
+          setValue("atendimentos", data.atendimentos || []);
+          setAtendimentos(data.atendimentos || []);
+          
           // Verifica se o vídeo foi enviado mas ainda está aguardando aprovação
           if (data.characteristics?.comparisonMedia === null && data.characteristics?.hasComparisonMedia === true) {
             setVideoPending(true);
           }
-
+          
           // Verifica se o vídeo foi aprovado e já está disponível
           if (data.video && data.video.url) {
             setIsVideoApproved(true);
             setVideoUrl(data.video.url);
           }
         }
+        setLoading(false);
       } catch (error) {
         console.error("Erro ao carregar os dados:", error);
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [setValue]);
+
+  const handleAtendimentoSelection = (e) => {
+    const { value, checked } = e.target;
+    setAtendimentos((prev) => {
+      if (checked) {
+        return [...prev, value];
+      } else {
+        return prev.filter((atendimento) => atendimento !== value);
+      }
+    });
+    setValue("atendimentos", atendimentos);
+  };
+
+  const handleSaveAtendimentos = () => {
+    setShowAtendimentosModal(false);
+    setValue("atendimentos", atendimentos);
+  };
 
   const handleSubmitForm = async (data) => {
     try {
@@ -117,9 +144,8 @@ const DescriptionManagement = () => {
         hasPiercings: data.hasPiercings === true || data.hasPiercings === "true",
         smoker: data.smoker === true || data.smoker === "true",
         hasComparisonMedia: Boolean(videoFile),
+        atendimentos: data.atendimentos || [],
       };
-
-      console.log("Dados preparados para envio:", processedData);
 
       let response;
 
@@ -137,7 +163,8 @@ const DescriptionManagement = () => {
 
 
         response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          `http://localhost:4000/api/companions/description/update`,
           formData,
           {
             headers: {
@@ -152,7 +179,8 @@ const DescriptionManagement = () => {
         console.log("Enviando como JSON:", processedData);
 
         response = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+          `http://localhost:4000/api/companions/description/update`,
           processedData,
           {
             headers: {
@@ -188,6 +216,13 @@ const DescriptionManagement = () => {
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-lg shadow-md mt-8 max-w-7xl mx-auto">
+      {/* Carregamento com ícone de fogo */}
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
           <FaEdit className="text-pink-500 mr-3 text-xl md:text-2xl" />
@@ -220,6 +255,71 @@ const DescriptionManagement = () => {
             )}
           </div>
         </div>
+
+        {/* Editar Atendimentos */}
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-4 flex items-center">
+            <FaBuilding className="text-pink-500 mr-2" />
+            Editar Atendimentos
+          </h3>
+          <div className="flex items-center">
+            <input
+              type="text"
+              id="atendimentos"
+              value={atendimentos.join(", ")}
+              readOnly
+              placeholder="Selecione os atendimentos"
+              className="w-full p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 bg-gray-100 cursor-not-allowed"
+            />
+            <button
+              type="button"
+              onClick={() => setShowAtendimentosModal(true)}
+              className="p-3 bg-pink-500 text-white rounded-r-lg hover:bg-pink-600 transition flex items-center justify-center"
+              title="Selecionar Atendimentos"
+            >
+              <FaEdit />
+            </button>
+          </div>
+        </div>
+
+        {/* Modal de Seleção de Atendimentos */}
+        {showAtendimentosModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h3 className="text-xl font-semibold mb-4">Selecione os atendimentos</h3>
+              <div className="space-y-4">
+                {atendimentoOptions.map((option) => (
+                  <div key={option.value} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={option.value}
+                      value={option.value}
+                      checked={atendimentos.includes(option.value)} // Verifica se o atendimento está selecionado
+                      onChange={handleAtendimentoSelection}
+                      className="mr-2"
+                    />
+                    <label htmlFor={option.value} className="text-gray-800">{option.label}</label>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 flex justify-between">
+                <button
+                  onClick={handleSaveAtendimentos}
+                  className="p-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition"
+                >
+                  Salvar
+                </button>
+                <button
+                  onClick={() => setShowAtendimentosModal(false)}
+                  className="p-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Seção de Upload de Vídeo */}
         <div className="bg-gray-50 p-6 rounded-lg shadow-sm">

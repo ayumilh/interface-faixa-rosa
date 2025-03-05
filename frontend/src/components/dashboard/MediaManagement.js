@@ -1,13 +1,19 @@
 "use client";
-import React, { useState, memo } from "react";
-import { FaPlus, FaCamera, FaVideo, FaEdit, FaSpinner } from "react-icons/fa";
+import React, { useState, memo, use } from "react";
+import { FaPlus, FaCamera, FaVideo, FaEdit, FaSpinner, FaFire } from "react-icons/fa";
 import Modal from "@/components/dashboard/Modal";
 import { AnimatePresence } from "framer-motion";
 
 const MediaManagement = memo(({ onUpload }) => {
+  const [loading, setLoading] = useState(true);
   const [activeMedia, setActiveMedia] = useState("fotos");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 400);
+  }, []);
   const openUploadModal = () => {
     setIsModalOpen(true);
   };
@@ -18,6 +24,12 @@ const MediaManagement = memo(({ onUpload }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg">
+      {/* Carregamento com ícone de fogo */}
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
       <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
         <FaCamera className="text-pink-500 mr-2" />
         Gerenciamento de Mídia
@@ -27,11 +39,10 @@ const MediaManagement = memo(({ onUpload }) => {
           <button
             key={type}
             onClick={() => setActiveMedia(type)}
-            className={`px-4 py-2 rounded-full transition flex items-center space-x-2 ${
-              activeMedia === type
-                ? "bg-pink-500 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+            className={`px-4 py-2 rounded-full transition flex items-center space-x-2 ${activeMedia === type
+              ? "bg-pink-500 text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
           >
             {type === "fotos" && <FaCamera />}
             {type === "videos" && <FaVideo />}

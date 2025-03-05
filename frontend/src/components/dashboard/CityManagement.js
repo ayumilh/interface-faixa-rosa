@@ -18,7 +18,8 @@ import {
   FaBed,
   FaShower,
   FaCouch,
-  FaParking
+  FaParking,
+  FaFire
 } from "react-icons/fa";
 import Modal from "@/components/dashboard/Modal";
 import ModalBusca from "@/components/search/modalbuscaconvenio";
@@ -38,6 +39,7 @@ const CityManagement = ({ onUpdate }) => {
   });
 
   const [showModalBusca, setShowModalBusca] = useState(false);
+   const [loading, setLoading] = useState(true);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedUF, setSelectedUF] = useState("");
@@ -98,8 +100,10 @@ const CityManagement = ({ onUpdate }) => {
         } else {
           console.error("Erro ao buscar dados:", data.error);
         }
+        setLoading(false);
       } catch (error) {
         console.error("Erro ao buscar locais:", error);
+        setLoading(false);
       }
     };
 
@@ -164,10 +168,10 @@ const CityManagement = ({ onUpdate }) => {
           .replace(/\s/g, "_")
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
-      
+
       // Converte os valores para os ENUMs esperados pelo backend
       const locations = intermediaries.localities.map((loc) =>
-         formatEnum(loc)
+        formatEnum(loc)
       );
 
       const amenities = intermediaries.amenities.map(formatEnum);
@@ -273,6 +277,12 @@ const CityManagement = ({ onUpdate }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mt-8">
+      {/* Carregamento com ícone de fogo */}
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
       <h2 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center">
         <FaMapMarkerAlt className="text-pink-500 mr-2" />
         Gestão de Localidade

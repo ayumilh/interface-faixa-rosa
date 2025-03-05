@@ -7,6 +7,7 @@ import {
   FaTelegram,
   FaPhoneAlt,
   FaSave,
+  FaFire
 } from "react-icons/fa";
 import Charts from "@/components/dashboard/Charts";
 import Cookies from "js-cookie";
@@ -63,9 +64,11 @@ const Metrics = ({ userName, userCity, userState }) => {
           },
           phone: formatPhoneDisplay(contact.phoneNumber || ""),
         });
+        setLoading(false);
 
       } catch (error) {
         setMessage("Erro ao carregar os dados de contato.");
+        setLoading(false);
       }
     };
 
@@ -125,6 +128,13 @@ const Metrics = ({ userName, userCity, userState }) => {
 
   return (
     <div className="hidden md:block bg-white p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
+      {/* Carregamento com ícone de fogo */}
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
+
       <h2 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center">
         Configuração de Contato
       </h2>

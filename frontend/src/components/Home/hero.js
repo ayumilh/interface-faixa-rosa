@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef, use } from "react";
 import {
     FileText,
     Camera,
@@ -60,14 +60,21 @@ const ModalBusca = ({ isOpen, onClose }) => {
     const [category, setCategory] = useState("mulher");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const inputRef = useRef(null);
 
     // Controla o scroll do body ao abrir/fechar modal
     useEffect(() => {
         if (isOpen) {
             setCity("");
             setSuggestions([]);
+            setLoading(false);
             setCategory("mulher");
             document.body.style.overflow = "hidden";
+
+            if (inputRef.current) {
+                inputRef.current.focus();
+            }
+
             // Adiciona listener para fechar com Esc
             const handleEsc = (event) => {
                 if (event.key === "Escape") {
@@ -228,6 +235,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
                                 <input
                                     type="text"
                                     value={city}
+                                    ref={inputRef}
                                     onChange={(e) => handleCityInput(e.target.value)}
                                     placeholder="Digite a cidade"
                                     className="w-full bg-gray-50 rounded-full px-5 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
@@ -329,6 +337,7 @@ const Hero = () => {
         setSelectedModal(modalKey);
     };
 
+
     const closeModal = () => {
         setSelectedModal(null);
     };
@@ -392,7 +401,7 @@ const Hero = () => {
                             readOnly
                         />
                         <button
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-pink-400 hover:bg-pink-500 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-105"
+                            className="absolute flex justify-center items-center right-2 top-1/2 transform -translate-y-1/2 bg-pink-400 hover:bg-pink-500 text-white h-10 w-10 rounded-full shadow-lg transition-all duration-300 hover:scale-105"
                             onClick={openModalBusca}
                             aria-label="Buscar"
                         >

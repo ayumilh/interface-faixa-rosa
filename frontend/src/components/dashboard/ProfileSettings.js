@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useContext } from "react";
 import Image from "next/image";
-import { FaUpload, FaPlusCircle, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard, FaCheckCircle } from "react-icons/fa";
+import { FaUpload, FaPlusCircle, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard, FaFire } from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -29,6 +29,15 @@ const ProfileSettings = ({ onUpdate }) => {
   const [uploadType, setUploadType] = useState("");
   const [caption, setCaption] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    // Simula o carregamento inicial da página
+    setTimeout(() => {
+      setLoading(false); // Define como "false" quando a página terminar de carregar
+    }, 400); // Simulando 2 segundos de carregamento
+  }, []);
 
   useEffect(() => {
     const totalDuration = planExpirationDate - Date.now();
@@ -152,7 +161,6 @@ const ProfileSettings = ({ onUpdate }) => {
 
   const handleUpload = () => {
     setIsUploading(true);
-    // Simula o upload com um timeout
     setTimeout(() => {
       const imageUrl = URL.createObjectURL(currentFile);
       if (uploadType === "story") {
@@ -174,6 +182,13 @@ const ProfileSettings = ({ onUpdate }) => {
           Painel de Controle
         </h1>
       </header>
+
+      {/* Carregamento com ícone de fogo */}
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
 
       {/* Conteúdo Principal */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -215,11 +230,9 @@ const ProfileSettings = ({ onUpdate }) => {
             <Image
               src={userInfo?.companion?.bannerImage}
               alt="Capa do Perfil"
-              layout="fill"
-              objectFit="cover"
               width={1920}
               height={640}
-              className="transform scale-100 hover:scale-110 transition-transform duration-500"
+              className="object-cover transform scale-100 hover:scale-110 transition-transform duration-500"
             />
           ) : (
             <FaImage className="text-gray-400 text-6xl" />
@@ -243,11 +256,10 @@ const ProfileSettings = ({ onUpdate }) => {
             <Image
               src={userInfo?.companion?.profileImage}
               alt="Foto de Perfil"
-              layout="fill"
               width={128}
               height={128}
               objectFit="cover"
-              className="transform scale-100 hover:scale-105 transition-transform duration-500"
+              className="object-cover transform scale-100 hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <FaUserCircle className="text-gray-400 text-6xl" />

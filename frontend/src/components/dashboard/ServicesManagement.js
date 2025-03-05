@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaFire } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -7,6 +7,7 @@ import Cookies from 'js-cookie';
 const ServicesManagement = () => {
   // Estado para controlar os serviços com oferecimento e preço
   const [services, setServices] = useState();
+  const [loading, setLoading] = useState(true);
   const [pendingUpdates, setPendingUpdates] = useState(false);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const ServicesManagement = () => {
         );
 
         if (response.data.services) {
+          setLoading(false);
           setServices(
             response.data.services.map((service) => ({
               id: service.id,
@@ -65,7 +67,7 @@ const ServicesManagement = () => {
     );
     setPendingUpdates(true);
   };
-  
+
 
   // Separar serviços oferecidos e não oferecidos
   const servicosOferecidos = services ? services.filter(service => service.oferecido) : [];
@@ -111,6 +113,12 @@ const ServicesManagement = () => {
   };
   return (
     <div className="p-4 md:p-6 bg-gradient-to-r from-purple-100 to-blue-100 min-h-screen">
+      {/* Carregamento com ícone de fogo */}
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
       <div className="max-w-6xl mx-auto">
         {/* Explicação Simplificada */}
         <div className="mb-8 p-4 bg-white rounded-lg shadow-md">

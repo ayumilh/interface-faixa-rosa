@@ -26,12 +26,11 @@ import {
   FaFire,
 } from 'react-icons/fa';
 import Final from '@/components/search/final';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import axios from 'axios';
 
 export default function Perfil() {
   const { userName } = useParams();
-  const router = useRouter();
 
   const [maisAcompanhantes, setMaisAcompanhantes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

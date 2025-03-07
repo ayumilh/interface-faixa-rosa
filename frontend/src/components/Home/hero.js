@@ -363,7 +363,6 @@ const Hero = () => {
                 />
 
 
-
                 {/* Fundo com Gradientes Suaves */}
                 <div className="absolute inset-0 overflow-hidden z-0">
                     <div className="absolute top-10 left-10 w-24 h-24 md:w-32 md:h-32 bg-pink-200 rounded-full blur-3xl opacity-50 animate-pulse"></div>

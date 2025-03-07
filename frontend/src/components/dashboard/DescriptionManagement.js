@@ -56,14 +56,12 @@ const DescriptionManagement = () => {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
           // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
-          `http://localhost:4000/api/companions/description`,
           {
             headers: { Authorization: `Bearer ${userToken}` },
           }
         );
 
         if (response.status === 200) {
-          
           const data = response.data;
           
           // Preenchendo os campos do formulário com os dados recebidos
@@ -95,10 +93,12 @@ const DescriptionManagement = () => {
             setIsVideoApproved(true);
             setVideoUrl(data.video.url);
           }
+        } else {
+          console.log("Nenhum dado retornado ou status diferente de 200");
         }
-        setLoading(false);
       } catch (error) {
         console.error("Erro ao carregar os dados:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -163,8 +163,7 @@ const DescriptionManagement = () => {
 
 
         response = await axios.post(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
-          `http://localhost:4000/api/companions/description/update`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           formData,
           {
             headers: {
@@ -179,8 +178,7 @@ const DescriptionManagement = () => {
         console.log("Enviando como JSON:", processedData);
 
         response = await axios.post(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
-          `http://localhost:4000/api/companions/description/update`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           processedData,
           {
             headers: {

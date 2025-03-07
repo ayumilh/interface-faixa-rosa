@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaFire } from "react-icons/fa";
 import Link from "next/link";
 
 // Componentes necessários
@@ -30,6 +30,7 @@ export default function Search() {
     slugString = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
   }
 
+  const [loading, setLoading] = useState(true);
   const [city, setCity] = useState("");
   const [stateUF, setStateUF] = useState("");
   const [category, setCategory] = useState("mulher");
@@ -79,23 +80,40 @@ export default function Search() {
         setCards(results);
       } catch (error) {
         console.error("Erro ao processar os resultados da API:", error);
+      } finally {
+        setLoading(false);
       }
     }
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800">
-      <Navbar bgColor="white"  />
+    <div className="bg-gray-100 text-gray-800">
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
+          <FaFire className="animate-pulse text-pink-500" size={50} />
+        </div>
+      )}
+
+      <Navbar bgColor="white" />
+
+      {/* Breadcrumbs */}
+      <div className="w-full max-w-7xl mx-auto p-4 mt-16 bg-cover flex justify-start items-center">
+        <nav className="text-sm text-gray-700">
+          <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-500">Acompanhantes</span>
+        </nav>
+      </div>
 
       {/* Título */}
-      <div className="w-full h-40 sm:h-60 bg-cover bg-center flex justify-center items-center mt-8">
+      <div className="w-full h-min bg-cover bg-center flex justify-center items-start mt-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-black text-center px-4">
           {cards.length === 0 ? "Acompanhantes não encontradas" : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
         </h1>
       </div>
 
       {/* Barra de Pesquisa */}
-      <div className="relative -mt-14 w-full max-w-4xl mx-auto p-4">
+      <div className="relative w-full max-w-4xl mx-auto p-4">
         <div className="bg-white rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
           <div className="relative flex-1 flex items-center cursor-pointer" onClick={() => setShowModalBusca(true)}>
             <FaSearch className="w-5 h-5 text-gray-500 mr-2" />
@@ -164,7 +182,7 @@ export default function Search() {
                     age={card.age}
                     location={`${card.city}, ${card.state}`}
                     description={card.description}
-                    images={card.media?.length > 0 ? card.media : ["/default-avatar.jpg"]}
+                    images={card.profileImage ? [card.profileImage] : (card.media?.length > 0 ? card.media : ["/default-avatar.jpg"])}
                     contact={true}
                     plan={card.plan}
                     planType={card.planType}

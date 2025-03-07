@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   FaHeart,
@@ -9,23 +9,13 @@ import {
   FaUpload,
   FaTimes,
 } from "react-icons/fa";
-import Reviews from "./reviews"; // Importando o componente de reviews
-import Denuncia from "./denuncia"; // Importando o componente de denúncia
+import Reviews from "./reviews";
+import Denuncia from "./denuncia";
+import Cookies from "js-cookie";
+import axios from "axios";
 
-export default function Fotos() {
-  const initialPhotos = [
-    { id: 1, src: "/assets/photo4.jpg", likes: 120, comments: [], commentsCount: 45 },
-    { id: 2, src: "/assets/photo2.jpg", likes: 95, comments: [], commentsCount: 32 },
-    { id: 3, src: "/assets/photo3.jpg", likes: 150, comments: [], commentsCount: 67 },
-    { id: 4, src: "/assets/photo5.jpg", likes: 40, comments: [], commentsCount: 12 },
-    { id: 5, src: "/assets/photo6.jpg", likes: 85, comments: [], commentsCount: 29 },
-    { id: 6, src: "/assets/photo7.jpg", likes: 70, comments: [], commentsCount: 15 },
-    { id: 7, src: "/assets/photo8.jpg", likes: 130, comments: [], commentsCount: 50 },
-    { id: 8, src: "/assets/photo9.jpg", likes: 90, comments: [], commentsCount: 20 },
-    { id: 9, src: "/assets/photo10.jpg", likes: 60, comments: [], commentsCount: 10 },
-  ];
-
-  const [photos, setPhotos] = useState(initialPhotos);
+export default function Fotos({ userName }) {
+  const [photos, setPhotos] = useState([]);
   const [visiblePhotos, setVisiblePhotos] = useState(4);
   const [showModal, setShowModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
@@ -34,6 +24,25 @@ export default function Fotos() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [newPhoto, setNewPhoto] = useState(null);
+  const token = Cookies.get("userToken");
+
+  const fetchFeedPhotos = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/search/feed-posts?userName=${userName}`
+      );
+
+      const data = response.data;
+      setPhotos(data);
+    } catch (error) {
+      console.error("Erro ao carregar as fotos do feed", error);
+    }
+  };
+
+  // Chama a API quando o componente for montado
+  useEffect(() => {
+    fetchFeedPhotos();
+  }, []);
 
   // Função para curtir uma foto
   const handleLike = (id) => {
@@ -87,10 +96,10 @@ export default function Fotos() {
       const updatedPhotos = photos.map((photo) =>
         photo.id === selectedPhoto.id
           ? {
-              ...photo,
-              comments: [...photo.comments, newComment],
-              commentsCount: photo.commentsCount + 1,
-            }
+            ...photo,
+            comments: [...photo.comments, newComment],
+            commentsCount: photo.commentsCount + 1,
+          }
           : photo
       );
       setPhotos(updatedPhotos);
@@ -154,16 +163,16 @@ export default function Fotos() {
     <div className="p-4 md:p-6 bg-gray-50">
       <h2 className="text-2xl font-bold mb-6 text-black">Galeria de Fotos</h2>
 
-   {/* Botão de upload de fotos */}
-<div className="flex justify-end mb-4">
-  <button
-    onClick={handleUpload}
-    className="flex items-center space-x-2 p-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition duration-300 focus:outline-none"
-  >
-    <FaUpload />
-    <span className="text-white">Upload de Foto</span>
-  </button>
-</div>
+      {/* Botão de upload de fotos */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleUpload}
+          className="flex items-center space-x-2 p-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition duration-300 focus:outline-none"
+        >
+          <FaUpload />
+          <span className="text-white">Upload de Foto</span>
+        </button>
+      </div>
 
       {/* Galeria de fotos */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -174,7 +183,7 @@ export default function Fotos() {
             onClick={() => openModal(photo)}
           >
             <Image
-              src={photo.src}
+              src={photo.mediaUrl}
               alt={`Foto ${photo.id}`}
               layout="responsive"
               width={500}
@@ -380,9 +389,8 @@ export default function Fotos() {
             <button
               onClick={handleUploadSubmit}
               disabled={uploading}
-              className={`w-full p-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition duration-300 ${
-                uploading ? "opacity-50 cursor-not-allowed" : ""
-              } focus:outline-none`}
+              className={`w-full p-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition duration-300 ${uploading ? "opacity-50 cursor-not-allowed" : ""
+                } focus:outline-none`}
             >
               {uploading ? "Enviando..." : "Enviar Foto"}
             </button>

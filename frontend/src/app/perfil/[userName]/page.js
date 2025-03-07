@@ -26,11 +26,12 @@ import {
   FaFire,
 } from 'react-icons/fa';
 import Final from '@/components/search/final';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 
 export default function Perfil() {
   const { userName } = useParams();
+  const router = useRouter();
 
   const [maisAcompanhantes, setMaisAcompanhantes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +46,7 @@ export default function Perfil() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `http://localhost:4000/api/search/profile?userName=${userName}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/search/profile?userName=${userName}`
         );
         setCompanionData(response.data);
         setIsLoading(false);
@@ -55,7 +56,7 @@ export default function Perfil() {
         const state = response.data.state;
 
         const acompanhantesResponse = await axios.get(
-          `http://localhost:4000/api/search/companion-city?cidade=${city}&estado=${state}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
         );
 
         setMaisAcompanhantes(acompanhantesResponse.data);
@@ -101,6 +102,17 @@ export default function Perfil() {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f9fc', marginTop: '80px' }}>
       <Navbar bgColor='white' />
+
+      {/* Breadcrumbs */}
+      <div className="w-full max-w-7xl mx-auto  p-4 mt-16 bg-cover flex justify-start items-center">
+        <nav className="text-sm text-gray-700">
+          <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-500">Acompanhantes</span>   {/* incluir o redirecionamento */}
+          <span className="mx-2">/</span>
+          <span className="text-gray-500">Perfil</span>
+        </nav>
+      </div>
 
       {/* Campo de busca estilizado */}
       {/* <div className="relative w-full max-w-md mb-6 mx-auto">
@@ -394,7 +406,7 @@ export default function Perfil() {
 
               {/* Conteúdo da aba selecionada */}
               <div className="mt-4 px-4 md:px-6">
-                {activeTab === "fotos" && <Fotos />}
+                {activeTab === "fotos" && <Fotos userName={companionData.userName} />}
                 {activeTab === "videos" && <Videos />}
                 {activeTab === "sobre" && <Sobre physicalCharacteristics={companionData.PhysicalCharacteristics} description={companionData.description} />}
                 {activeTab === "localidade" && <Localidade lugares={companionData.lugares} city={companionData.city} state={companionData.state} />}

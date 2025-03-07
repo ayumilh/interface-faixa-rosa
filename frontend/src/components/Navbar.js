@@ -84,7 +84,7 @@ export default function Navbar({ bgColor = "pink" }) {
             alt="Logo"
             width={120}
             height={48}
-            className="h-12 w-auto mr-2"
+            className="h-12 w-auto mr-2 cursor-pointer"
             onClick={handleLogoClick}
           />
         </div>

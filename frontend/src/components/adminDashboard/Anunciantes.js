@@ -268,7 +268,6 @@ const Anunciantes = () => {
         const fetchPlanos = async () => {
             try {
                 const response = await axios.get(
-                    // 'http://localhost:4000/api/plans'
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans`,
                 );
                 const planosData = response.data;
@@ -299,7 +298,6 @@ const Anunciantes = () => {
                 // Atualiza o plano básico
                 await axios.put(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/update-plan`,
-                    // `http://localhost:4000/api/admin/companion/${anunciante.id}/update-plan`,
                     { planId: selectedPlano },  // Garantir que o selectedPlano seja um número
                     {
                         headers: {

@@ -14,12 +14,6 @@ import {
 } from 'react-icons/fa';
 import Image from 'next/image';
 
-const defaultServices = [
-  'Massagem relaxante',
-  'Atendimento VIP',
-  'Acompanhamento para eventos',
-  'Serviços personalizados',
-];
 
 const ImageCarousel = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -37,12 +31,12 @@ const ImageCarousel = ({ images }) => {
       {Array.isArray(images) && images.length > 0 ? ( // Verifica se images é um array e tem elementos
         <>
           <Image
-            src={images[currentIndex].url} // Usando diretamente o array de imagens
+            src={images[currentIndex] || "/default-image.jpg"} // Verifica se a URL da imagem existe, caso contrário, usa uma imagem padrão
             alt={`Imagem ${currentIndex + 1}`}
             layout="responsive"
             width={500}
-            height={300}
-            className="rounded-md mb-4"
+            height={200}
+            className="rounded-md mb-4 max-h-64 object-cover"
           />
           <button
             onClick={handlePrev}
@@ -127,14 +121,15 @@ const ModalContato = ({
     >
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         {/* Carrossel de Imagens no Modal */}
-        <div className="relative w-full h-64 mb-4 overflow-hidden rounded-lg">
+        <div className="relative w-full h-30 max-h-40 mb-4 overflow-hidden rounded-lg">
           {images.length > 0 ? (
             <>
               <Image
                 src={images[currentIndexModal]}
                 alt={`Foto de ${name}`}
-                layout="fill"
-                objectFit="cover"
+                width={500}
+                height={200}
+                className='rounded-md object-cover'
               />
               <button
                 onClick={handlePrevModal}
@@ -155,8 +150,8 @@ const ModalContato = ({
                   <span
                     key={index}
                     className={`w-3 h-3 rounded-full ${index === currentIndexModal
-                        ? 'bg-gray-700'
-                        : 'bg-gray-300'
+                      ? 'bg-gray-700'
+                      : 'bg-gray-300'
                       } transition-all`}
                   ></span>
                 ))}

@@ -26,7 +26,7 @@ import {
   FaFire,
 } from 'react-icons/fa';
 import Final from '@/components/search/final';
-import { useParams } from 'next/navigation';
+import { useParams } from "next/navigation";
 import axios from 'axios';
 
 export default function Perfil() {
@@ -42,10 +42,12 @@ export default function Perfil() {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!userName) return;
+      
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/search/profile?userName=${userName}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
         );
         setCompanionData(response.data);
         setIsLoading(false);
@@ -55,7 +57,7 @@ export default function Perfil() {
         const state = response.data.state;
 
         const acompanhantesResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
         );
 
         setMaisAcompanhantes(acompanhantesResponse.data);

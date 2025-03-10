@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { FaSearch, FaFire } from "react-icons/fa";
 import Link from "next/link";
+import { usePlan } from "@/context/PlanContext";
 
 // Componentes necessários
 import Navbar from "@/components/Navbar";
@@ -30,13 +31,15 @@ export default function Search() {
     slugString = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
   }
 
-  const [loading, setLoading] = useState(true);
+  const [loadingSearch, setLoadingSearch] = useState(true);
   const [city, setCity] = useState("");
   const [stateUF, setStateUF] = useState("");
   const [category, setCategory] = useState("mulher");
   const [showModalBusca, setShowModalBusca] = useState(false);
   const [showModalFiltro, setShowModalFiltro] = useState(false);
   const [cards, setCards] = useState([]);
+
+  const { companions, fetchCompanions, loading, error } = usePlan();
 
   // Categorias disponíveis
   const categories = [
@@ -71,24 +74,37 @@ export default function Search() {
   }, [slugString]);
 
   // Capturar os dados de acompanhantes da API via query string
+  // useEffect(() => {
+  //   const resultsParam = searchParams.get("results");
+  //   if (resultsParam) {
+  //     try {
+  //       const results = JSON.parse(resultsParam);
+  //       console.log("Resultados da API:", results);
+  //       setCards(results);
+  //     } catch (error) {
+  //       console.error("Erro ao processar os resultados da API:", error);
+  //     } finally {
+  //       setLoadingSearch(false);
+  //     }
+  //   }
+  // }, [searchParams]);
+
   useEffect(() => {
-    const resultsParam = searchParams.get("results");
-    if (resultsParam) {
-      try {
-        const results = JSON.parse(resultsParam);
-        console.log("Resultados da API:", results);
-        setCards(results);
-      } catch (error) {
-        console.error("Erro ao processar os resultados da API:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (city && stateUF) {
+      // Use os filtros que desejar. Aqui estamos passando a cidade e o estado.
+      fetchCompanions({ cidade: city, estado: stateUF });
+      setLoadingSearch(false);
     }
-  }, [searchParams]);
+  }, [city, stateUF, fetchCompanions]);
+
+  useEffect(() => {
+    console.log("Dados do context (companions):", companions);
+  }, [companions]);
+  
 
   return (
     <div className="bg-gray-100 text-gray-800">
-      {loading && (
+      {loadingSearch && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
           <FaFire className="animate-pulse text-pink-500" size={50} />
         </div>
@@ -158,12 +174,13 @@ export default function Search() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cards.length === 0 ? (
+        {companions.length === 0 ? (
             <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           ) : (
-            cards.map((card, index) => {
+            companions.map((card, index) => {
+              console.log("Card:", card);
               let CardComponent;
-
+              // Escolhe o componente de card com base no plano
               if (card.plan?.name === "Plano Rubi") {
                 CardComponent = CardRubi;
               } else if (card.plan?.name === "Plano Safira") {
@@ -176,13 +193,18 @@ export default function Search() {
 
               return (
                 <Link href={`/perfil/${card.userName}`} key={index}>
-                  <CardRubi
-                    key={index}
+                  <CardComponent
                     userName={card.userName}
                     age={card.age}
                     location={`${card.city}, ${card.state}`}
                     description={card.description}
-                    images={card.profileImage ? [card.profileImage] : (card.media?.length > 0 ? card.media : ["/default-avatar.jpg"])}
+                    images={
+                      card.profileImage
+                        ? [card.profileImage]
+                        : card.media?.length > 0
+                        ? card.media
+                        : ["/default-avatar.jpg"]
+                    }
                     contact={true}
                     plan={card.plan}
                     planType={card.planType}

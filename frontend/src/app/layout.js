@@ -2,6 +2,7 @@ import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContextProvider } from "@/context/AuthContext";
+import { PlanProvider } from "@/context/PlanContext";
 
 export const metadata = {
   title: "Faixa Rosa",
@@ -19,7 +20,8 @@ export default function RootLayout({ children }) {
       </head>
 
       <body className="antialiased">
-          <AuthContextProvider>
+        <AuthContextProvider>
+          <PlanProvider>
             {children}
             <ToastContainer
               position="top-right"
@@ -33,7 +35,8 @@ export default function RootLayout({ children }) {
               pauseOnHover
               theme="colored"
             />
-          </AuthContextProvider>
+          </PlanProvider>
+        </AuthContextProvider>
       </body>
     </html>
   );

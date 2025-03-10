@@ -163,17 +163,6 @@ export default function Fotos({ userName }) {
     <div className="p-4 md:p-6 bg-gray-50">
       <h2 className="text-2xl font-bold mb-6 text-black">Galeria de Fotos</h2>
 
-      {/* Botão de upload de fotos */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={handleUpload}
-          className="flex items-center space-x-2 p-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition duration-300 focus:outline-none"
-        >
-          <FaUpload />
-          <span className="text-white">Upload de Foto</span>
-        </button>
-      </div>
-
       {/* Galeria de fotos */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {photos.slice(0, visiblePhotos).map((photo) => (

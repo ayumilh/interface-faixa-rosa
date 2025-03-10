@@ -317,7 +317,7 @@ const CardRubi = ({
       {/* Modal de contato */}
       {showModalNumero && (
         <ModalContato
-          name={name}
+          name={userName}
           images={images}
           setShowModalNumero={setShowModalNumero}
         />

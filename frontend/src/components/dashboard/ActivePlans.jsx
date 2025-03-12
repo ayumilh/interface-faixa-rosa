@@ -287,7 +287,6 @@ export default function ActivePlans() {
                         <div className="space-y-4">
                             <ul className="space-y-3">
                                 {allPlans.map((plan, index) => (
-                                    console.log(plan),
                                     <li key={index} className={`p-4 rounded-lg shadow-md flex justify-between items-center ${plan.isBasic ? 'bg-blue-50' : 'bg-pink-50'}`}>
                                         <h4 className={`text-sm font-semibold ${plan.isBasic ? 'text-blue-800' : 'text-pink-800'}`}>
                                             {plan.name}

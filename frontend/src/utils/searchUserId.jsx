@@ -7,8 +7,9 @@ export const searchUserId = async () => {
 
         if (token) {
             const decodedToken = jwtDecode(token); 
-
+            
             return {
+                token,
                 id: decodedToken.id,
                 firstName: decodedToken.firstName,
                 lastName: decodedToken.lastName,

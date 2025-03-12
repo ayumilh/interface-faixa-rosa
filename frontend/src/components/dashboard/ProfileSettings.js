@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useContext } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { FaUpload, FaPlusCircle, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard, FaFire } from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { AuthContext } from "@/context/AuthContext";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const ProfileSettings = ({ onUpdate }) => {
   const [documentFront, setDocumentFront] = useState(null);
   const [documentBack, setDocumentBack] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [isReadyToSend, setIsReadyToSend] = useState(false);
-  const { userInfo } = useContext(AuthContext);
 
   const rankingPosition = 35;
   const planExpirationDate = useMemo(() => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), []);
@@ -31,12 +31,16 @@ const ProfileSettings = ({ onUpdate }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const [profileImage, setProfileImage] = useState(null);
+  const [bannerImage, setBannerImage] = useState(null);
+  const [documentsValidated, setDocumentsValidated] = useState(false);
+
 
   useEffect(() => {
     // Simula o carregamento inicial da página
     setTimeout(() => {
       setLoading(false); // Define como "false" quando a página terminar de carregar
-    }, 400); // Simulando 2 segundos de carregamento
+    }, 200); // Simulando 2 segundos de carregamento
   }, []);
 
   useEffect(() => {
@@ -75,6 +79,33 @@ const ProfileSettings = ({ onUpdate }) => {
       setIsReadyToSend(true);
     }
   }, [documentFront, documentBack]);
+
+  // Chama a API para obter as imagens
+  useEffect(() => {
+    const fetchMedia = async () => {
+      const userToken = Cookies.get("userToken");
+      try {
+        const response = await axios.get(
+          'http://localhost:4000/api/companions/profile-banner/',
+          {
+            headers: { Authorization: `Bearer ${userToken}` },
+          }
+        );
+        if (response.status === 200) {
+          const { profileImage, bannerImage, documentsValidated } = response.data.media;
+
+          // Atribuindo as variáveis de estado
+          setProfileImage(profileImage);
+          setBannerImage(bannerImage);
+          setDocumentsValidated(documentsValidated);  // Atribuindo o valor de documentsValidated
+        }
+      } catch (error) {
+        console.error('Erro ao buscar mídia do acompanhante:', error);
+      }
+    };
+
+    fetchMedia();
+  }, []);
 
   const handleFileUpload = (e, side) => {
     const file = e.target.files[0];
@@ -122,13 +153,44 @@ const ProfileSettings = ({ onUpdate }) => {
     }
   };
 
+  const handleImageChange = async (e, type) => {
+    const userToken = Cookies.get("userToken");
 
-  const handleImageChange = (e, type) => {
+    const formData = new FormData();
     const file = e.target.files[0];
-    if (file) {
-      openModal(file, type);
+
+    if (!file) return; // Se não houver arquivo, não faz nada
+
+    formData.append(type === "profile" ? "profileImage" : "bannerImage", file);
+
+    try {
+      // Enviar a imagem para o backend
+      const response = await axios.post(
+        'http://localhost:4000/api/companions/profile-banner/update',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${userToken}`
+          },
+        }
+      );
+
+      // Atualizar a URL da imagem após o sucesso
+      if (response.status === 200) {
+        if (type === "profile") {
+          setProfileImage(response.data.companion.profileImage); // Atualiza o estado com a nova imagem
+          toast.success("Imagem de perfil atualizada com sucesso!");
+        } else {
+          setBannerImage(response.data.companion.bannerImage); // Atualiza o estado com a nova imagem
+          toast.success("Imagem de capa atualizada com sucesso!");
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar a imagem:', error);
+      toast.error('Erro ao atualizar a imagem.');
     }
-  };
+  }
 
   const handleStoryUpload = (e) => {
     const file = e.target.files[0];
@@ -176,6 +238,8 @@ const ProfileSettings = ({ onUpdate }) => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50 rounded-lg shadow-lg">
+      <ToastContainer />
+
       {/* Cabeçalho do Dashboard */}
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-5 mb-8 space-y-4 sm:space-y-0">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 text-center">
@@ -226,9 +290,9 @@ const ProfileSettings = ({ onUpdate }) => {
       <div className="relative mb-12">
         {/* Imagem de Capa */}
         <div className="bg-white mt-8 relative h-40 sm:h-56 w-full rounded-lg overflow-hidden shadow-md">
-          {userInfo?.companion?.bannerImage ? (
+          {bannerImage ? (
             <Image
-              src={userInfo?.companion?.bannerImage}
+              src={bannerImage}
               alt="Capa do Perfil"
               width={1920}
               height={640}
@@ -244,7 +308,7 @@ const ProfileSettings = ({ onUpdate }) => {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => handleImageChange(e, "cover")}
+              onChange={(e) => handleImageChange(e, "banner")}
               aria-label="Alterar Capa"
             />
           </label>
@@ -252,9 +316,9 @@ const ProfileSettings = ({ onUpdate }) => {
 
         {/* Imagem de Perfil */}
         <div className="absolute bottom-[-40px] left-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 rounded-full overflow-hidden w-32 h-32 border-4 border-white shadow-lg">
-          {userInfo?.companion?.profileImage ? (
+          {profileImage ? (
             <Image
-              src={userInfo?.companion?.profileImage}
+              src={profileImage}
               alt="Foto de Perfil"
               width={128}
               height={128}
@@ -281,62 +345,74 @@ const ProfileSettings = ({ onUpdate }) => {
       {/* Seção de Upload de Documento */}
       <div className="mt-16">
         <h3 className="text-2xl font-semibold mb-6">Verificação de Identidade</h3>
-        <p className="text-gray-600 mb-4 text-center sm:text-left">
-          Faça o upload do seu RG (Frente e Verso) para verificação
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 justify-center">
-          {/* Upload da Frente */}
-          <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
-            {documentFront ? (
-              <Image
-                src={documentFront}
-                alt="Documento Frente"
-                width={200}
-                height={200}
-                className="w-full h-auto object-contain rounded-md"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center">
-                <FaIdCard className="text-4xl text-gray-400 mb-2" />
-                <span className="text-sm">{documentFront ? "Alterar Frente" : "Enviar Frente"}</span>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleFileUpload(e, "front")}
-              aria-label="Upload Frente do RG"
-            />
-          </label>
+        {documentsValidated ? (
+          <p className="text-green-500 mb-4 text-center sm:text-left">
+            Documentos enviados e validados
+          </p>
+        ) : (
+          <p className="text-gray-600 mb-4 text-center sm:text-left">
+            Faça o upload do seu RG (Frente e Verso) para verificação
+          </p>
+        )}
 
-          {/* Upload do Verso */}
-          <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
-            {documentBack ? (
-              <Image
-                src={documentBack}
-                alt="Documento Verso"
-                width={200}
-                height={200}
-                className="w-full h-auto object-contain rounded-md"
+        {/* Se os documentos foram enviados e validados, exibe a mensagem */}
+        {documentsValidated ? (
+          <></>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 justify-center">
+            {/* Upload da Frente */}
+            <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
+              {documentFront ? (
+                <Image
+                  src={documentFront} // Exibe a URL do documento frente
+                  alt="Documento Frente"
+                  width={200}
+                  height={200}
+                  className="w-full h-auto object-contain rounded-md"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center">
+                  <FaIdCard className="text-4xl text-gray-400 mb-2" />
+                  <span className="text-sm">{documentFront ? "Alterar Frente" : "Enviar Frente"}</span>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, "front")}
+                aria-label="Upload Frente do RG"
               />
-            ) : (
-              <div className="flex flex-col items-center justify-center">
-                <FaIdCard className="text-4xl text-gray-400 mb-2" />
-                <span className="text-sm">{documentBack ? "Alterar Verso" : "Enviar Verso"}</span>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleFileUpload(e, "back")}
-              aria-label="Upload Verso do RG"
-            />
-          </label>
-        </div>
+            </label>
 
-        {documentFront && documentBack && (
+            {/* Upload do Verso */}
+            <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
+              {documentBack ? (
+                <Image
+                  src={documentBack} // Exibe a URL do documento verso
+                  alt="Documento Verso"
+                  width={200}
+                  height={200}
+                  className="w-full h-auto object-contain rounded-md"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center">
+                  <FaIdCard className="text-4xl text-gray-400 mb-2" />
+                  <span className="text-sm">{documentBack ? "Alterar Verso" : "Enviar Verso"}</span>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, "back")}
+                aria-label="Upload Verso do RG"
+              />
+            </label>
+          </div>
+        )}
+
+        {documentFront && documentBack && !documentsValidated && (
           <div className="text-center mt-6">
             <button
               className="px-6 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition"

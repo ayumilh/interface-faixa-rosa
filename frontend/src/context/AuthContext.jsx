@@ -11,7 +11,6 @@ export const AuthContextProvider = ({ children }) => {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
-    const [userInfo, setUserInfo] = useState(null);
 
     // usado no BtnSignOut
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,10 +18,25 @@ export const AuthContextProvider = ({ children }) => {
         setIsModalOpen(!isModalOpen);
     };
 
+    useEffect(() => {
+        const checkUser = () => {
+            const cookieUserInfo = Cookies.get('userInfo');
+            if (cookieUserInfo) {
+                const parsedUserInfo = JSON.parse(cookieUserInfo);
+                setCurrentUser(parsedUserInfo); 
+                setIsAuthenticated(true);
+            }
+        };
+
+        checkUser();
+    }, []);
+
+
     const login = async (inputs) => {
         try {
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
+                // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
+                'http://localhost:4000/api/user/login',
                 inputs,
                 {
                     withCredentials: true,
@@ -43,6 +57,7 @@ export const AuthContextProvider = ({ children }) => {
             if (!isAuthenticated) {
                 setIsAuthenticated(true);
             }
+
             return {
                 user: res.data.user,
                 token: res.data.token,
@@ -56,52 +71,11 @@ export const AuthContextProvider = ({ children }) => {
     const logout = () => {
         Cookies.remove("token");
         Cookies.remove("userToken");
+        Cookies.remove("userInfo");
         setCurrentUser(null);
         setIsAuthenticated(false);
         router.push("/login");
     };
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const tokenId = Cookies.get("userToken") || null;
-
-            if (tokenId) {
-                const decodedToken = jwtDecode(tokenId);
-                const userid = decodedToken.id;
-
-                try {
-                    await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/userId`, { userid });
-
-                    const res = await axios.get(
-                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${tokenId}`,
-                            },
-                        }
-                    );
-                    if (res.data.user) {
-                        setUserInfo(res.data.user);
-
-                        if (!currentUser || currentUser.id !== res.data.user.id) {
-                            setCurrentUser(res.data.user);
-                        }
-                        if (!isAuthenticated) {
-                            setIsAuthenticated(true);
-                        }
-                    }
-                } catch {
-                    setIsAuthenticated(false);
-                    return null;
-                }
-            }
-        };
-
-        if (!currentUser) {
-            fetchUserData();
-        }
-    }, [currentUser, isAuthenticated]);
-
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -132,7 +106,6 @@ export const AuthContextProvider = ({ children }) => {
                 currentUser,
                 login,
                 logout,
-                userInfo,
                 setCurrentUser,
                 setIsAuthenticated,
                 isModalOpen,

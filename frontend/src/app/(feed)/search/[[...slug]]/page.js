@@ -192,7 +192,7 @@ export default function Search() {
               }
 
               return (
-                <Link href={`/perfil/${card.userName}`} key={index}>
+                <Link href='#' key={index}>
                   <CardComponent
                     userName={card.userName}
                     age={card.age}

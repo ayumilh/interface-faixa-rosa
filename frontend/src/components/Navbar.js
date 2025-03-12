@@ -8,6 +8,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { searchUserId } from "@/utils/searchUserId";
 import Link from "next/link";
 import { Transition } from "@headlessui/react";
+import { getUserInfoFromCookie } from "@/utils/getUserInfo";
 
 export default function Navbar({ bgColor = "pink" }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -16,15 +17,25 @@ export default function Navbar({ bgColor = "pink" }) {
   const notificationsRef = useRef();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const { logout, userInfo } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
+
+  useEffect(() => {
+    const userInfo = getUserInfoFromCookie();
+    if (userInfo) {
+      setUser(userInfo);
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
+  }, []);
+
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userData = await searchUserId();
         if (userData) {
-          setUser(userData);
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -73,6 +84,25 @@ export default function Navbar({ bgColor = "pink" }) {
 
   const logoSrc = bgColor === "white" ? "/assets/logofaixa.png" : "/assets/FaixaRosaSombra.png";
   const backgroundClass = bgColor === "white" ? "bg-white" : "bg-pink-600";
+
+  if (isLoading) {
+    return (
+      <header className={`w-full shadow-sm fixed top-0 left-0 z-50 ${backgroundClass}`}>
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Image
+              src={logoSrc}
+              alt="Logo"
+              width={120}
+              height={48}
+              className="h-12 w-auto mr-2 cursor-pointer"
+              onClick={handleLogoClick}
+            />
+          </div>
+        </nav>
+      </header>
+    );
+  }
 
   return (
     <header className={`w-full shadow-sm fixed top-0 left-0 z-50 ${backgroundClass}`}>
@@ -152,7 +182,6 @@ export default function Navbar({ bgColor = "pink" }) {
             </div>
           )}
 
-
           {/* Condicional: Perfil ou Botões de Login/Cadastro */}
           {isAuthenticated ? (
             <div className="relative" ref={profileRef}>
@@ -162,11 +191,11 @@ export default function Navbar({ bgColor = "pink" }) {
                 title="Abrir menu de perfil"
               >
                 <div className="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold shadow-md">
-                  {/* Usando a imagem de perfil do usuário */}
-                  {userInfo?.companion?.profileImage ? (
+                  {/* Verifique se userInfo existe antes de renderizar */}
+                  {user?.companion?.profileImage ? (
                     <div>
                       <Image
-                        src={userInfo?.companion?.profileImage}
+                        src={user.companion.profileImage}
                         alt="Imagem de Perfil"
                         width={40}
                         height={40}
@@ -174,12 +203,13 @@ export default function Navbar({ bgColor = "pink" }) {
                       />
                     </div>
                   ) : (
-                    <span>{user.userName.charAt(0).toUpperCase()}</span>
+                    <span className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 text-xl font-semibold">
+                      {/* Exibe a inicial do nome */}
+                      {user?.userName?.charAt(0).toUpperCase()}
+                    </span>
                   )}
                 </div>
               </button>
-
-
 
               {/* Menu de Perfil */}
               <Transition

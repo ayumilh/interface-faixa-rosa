@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaEdit,
   FaPhotoVideo,
@@ -23,31 +23,20 @@ import WorkingHours from "@/components/dashboard/WorkingHours";
 import CityManagement from "@/components/dashboard/CityManagement";
 import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { searchUserId } from "@/utils/searchUserId";
-import { AuthContext } from "@/context/AuthContext";
+import { getUserInfoFromCookie } from "@/utils/getUserInfo";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("metrics");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const { userInfo } = useContext(AuthContext);
-
-  // Buscar dados do usuário
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await searchUserId();
-        if (userData) {
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar dados do usuário:", error);
-      }
-    };
-
-    fetchUser();
+    const userInfo = getUserInfoFromCookie();
+    if (userInfo) {
+      setUser(userInfo);
+    }
   }, []);
+
 
   // Detecta se está em mobile
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -86,16 +75,18 @@ const Dashboard = () => {
               <div className="flex items-center mb-6">
                 <div className="mr-4">
                   {/* Verifica se a imagem de perfil existe */}
-                  {userInfo?.companion?.profileImage ? (
-                    <Image
-                      src={userInfo.companion.profileImage} // Usando a imagem do perfil
-                      alt="Usuário"
-                      width={48}
-                      height={48}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                  {user?.companion?.profileImage ? (
+                    <div>
+                      <Image
+                        src={user.companion.profileImage}
+                        alt="Imagem de Perfil"
+                        width={40}
+                        height={40}
+                        className="rounded-full w-10 h-10 object-cover"
+                      />
+                    </div>
                   ) : (
-                    <span className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 text-xl font-semibold">
+                    <span className="w-12 h-12 flex items-center justify-center rounded-full text-gray-600 text-xl font-semibold">
                       {/* Exibe a inicial do nome */}
                       {user?.userName?.charAt(0).toUpperCase()}
                     </span>
@@ -106,7 +97,7 @@ const Dashboard = () => {
                     className="text-xl font-semibold text-gray-100"
                     style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    {user ? `${user.userName}` : "Carregando..."}
+                    {user ? `${user.userName}` : ""}
                   </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>

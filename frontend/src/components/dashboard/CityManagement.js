@@ -56,8 +56,8 @@ const CityManagement = ({ onUpdate }) => {
   const fetchIntermediaries = async (cityName, uf) => {
     try {
       const data = {
-        localities: ["A domicílio", "Festas e Eventos", "Hotéis", "Local Próprio", "Motéis"],
-        amenities: ["WiFi", "Chuveiro", "Ar_condicionado", "Estacionamento", "Frigobar", "Preservativos"],
+        localities: [],
+        amenities: [],
       };
 
       setIntermediaries((prev) => ({

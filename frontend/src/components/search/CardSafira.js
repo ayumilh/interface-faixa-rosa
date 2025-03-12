@@ -14,19 +14,20 @@ import {
 import Image from 'next/image';
 
 const CardSafira = ({
-  name,
-  price,
+  userName,
+  age,
   location,
   description,
-  images = [],
+  images,
   reviews,
   contact,
-  age,
-  hasLocation,
-  isOnline,
+  plan,
+  planType,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
+
+  console.log("CardSafira:", {userName, age, location, description, images, reviews, contact, plan, planType});
 
   const handlePrev = () => {
     setCurrentIndex(prevIndex =>
@@ -59,7 +60,7 @@ const CardSafira = ({
             <>
               <Image
                 src={images[currentIndex]}
-                alt={name}
+                alt={userName || 'Foto do anúncio'}
                 layout="responsive"
                 width={500}
                 height={300}
@@ -100,20 +101,14 @@ const CardSafira = ({
 
         {/* Nome e Status */}
         <div className="flex justify-between items-center mb-3">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
-  {name}
-</h3>
-          {isOnline ? (
-            <div className="flex items-center">
-              <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
-              <span className="text-sm text-green-600">Online</span>
-            </div>
-          ) : (
-            <div className="flex items-center">
-              <span className="bg-gray-400 w-2 h-2 rounded-full mr-2"></span>
-              <span className="text-sm text-gray-500">Offline</span>
-            </div>
-          )}
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
+            {userName}
+          </h3>
+          {/* Considerando que isOnline não foi passado, você pode usar alguma lógica para determinar se está online */}
+          <div className="flex items-center">
+            <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
+            <span className="text-sm text-green-600">Online</span>
+          </div>
         </div>
 
         {/* Descrição curta */}
@@ -124,7 +119,7 @@ const CardSafira = ({
         {/* Informações */}
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
-            <p className="font-semibold text-gray-900 text-lg">{price}</p>
+            <p className="font-semibold text-gray-900 text-lg">{plan?.price}</p>
             <div className="flex items-center mt-2">
               <FaStar className="text-yellow-400 mr-1" />
               <p className="text-green-500 font-semibold">
@@ -141,12 +136,6 @@ const CardSafira = ({
               <FaCamera className="mr-1 text-blue-500" />
               <p className="text-gray-700">{images.length} fotos ou vídeos</p>
             </div>
-            {hasLocation && (
-              <div className="flex items-center mt-2">
-                <FaCheckCircle className="text-green-500 mr-1" />
-                <span className="text-gray-700">Com local</span>
-              </div>
-            )}
             <div className="flex items-center mt-2">
               <FaMapMarkerAlt className="mr-1 text-red-500" />
               <p className="text-gray-700">{location}</p>
@@ -184,7 +173,7 @@ const CardSafira = ({
                 <>
                   <Image
                     src={images[currentIndex]}
-                    alt={`Foto de ${name}`}
+                    alt={`Foto de ${userName}`}
                     layout="fill"
                     objectFit="cover"
                   />
@@ -222,7 +211,7 @@ const CardSafira = ({
 
             {/* Foto de perfil e nome */}
             <div className="flex flex-col items-center mb-4">
-            <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-md overflow-hidden">
+              <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-md overflow-hidden">
                 <Image
                   src={images[0] || '/assets/default-profile.png'}
                   alt="Foto de perfil"
@@ -232,8 +221,8 @@ const CardSafira = ({
                 <FaCheckCircle className="absolute bottom-1 right-1 text-green-500 text-2xl" />
               </div>
               <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
-  {name}
-</h3>
+                {userName}
+              </h3>
             </div>
 
             {/* Espaço para anúncio */}
@@ -273,6 +262,7 @@ const CardSafira = ({
       )}
     </>
   );
+
 };
 
 export default CardSafira;

@@ -7,7 +7,7 @@ import BlogSection from "@/components/Home/blog";
 import Footer from "@/components/Home/footer";
 import VerMais from "@/components/Home/vermais";
 import Navbar from "@/components/Navbar";
-import { FaFire } from "react-icons/fa";
+import Image from "next/image";
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,13 @@ export default function HomePage() {
     <div className="min-h-screen">
       {loading && (
         <div className="flex justify-center items-center min-h-screen absolute inset-0 bg-white">
-          <FaFire className="animate-pulse text-pink-500" size={50} />
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Ícone oficial Faixa Rosa"
+            width={50}
+            height={50}
+            className="animate-pulse"
+          />
         </div>
       )}
 

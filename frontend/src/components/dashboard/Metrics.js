@@ -7,10 +7,10 @@ import {
   FaTelegram,
   FaPhoneAlt,
   FaSave,
-  FaFire
 } from "react-icons/fa";
 import Charts from "@/components/dashboard/Charts";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 const Metrics = ({ userName, userCity, userState }) => {
   const [contactConfig, setContactConfig] = useState({
@@ -131,7 +131,13 @@ const Metrics = ({ userName, userCity, userState }) => {
       {/* Carregamento com ícone de fogo */}
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-          <FaFire className="animate-pulse text-pink-500" size={50} />
+                    <Image
+                      src="/iconOficial_faixaRosa.png"
+                      alt="Ícone oficial Faixa Rosa"
+                      width={50}
+                      height={50}
+                      className="animate-pulse"
+                    />
         </div>
       )}
 

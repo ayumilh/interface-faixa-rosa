@@ -19,11 +19,11 @@ import {
   FaShower,
   FaCouch,
   FaParking,
-  FaFire
 } from "react-icons/fa";
 import Modal from "@/components/dashboard/Modal";
 import ModalBusca from "@/components/search/modalbuscaconvenio";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 const CityManagement = ({ onUpdate }) => {
   const {
@@ -280,7 +280,13 @@ const CityManagement = ({ onUpdate }) => {
       {/* Carregamento com ícone de fogo */}
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-          <FaFire className="animate-pulse text-pink-500" size={50} />
+                    <Image
+                      src="/iconOficial_faixaRosa.png"
+                      alt="Ícone oficial Faixa Rosa"
+                      width={50}
+                      height={50}
+                      className="animate-pulse"
+                    />
         </div>
       )}
       <h2 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center">

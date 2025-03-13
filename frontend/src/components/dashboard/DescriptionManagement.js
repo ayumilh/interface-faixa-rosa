@@ -13,7 +13,6 @@ import {
   FaChevronUp,
   FaInfoCircle,
   FaBuilding,
-  FaFire,
 } from "react-icons/fa";
 import Cookies from "js-cookie";
 
@@ -217,7 +216,13 @@ const DescriptionManagement = () => {
       {/* Carregamento com ícone de fogo */}
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-          <FaFire className="animate-pulse text-pink-500" size={50} />
+                    <Image
+                      src="/iconOficial_faixaRosa.png"
+                      alt="Ícone oficial Faixa Rosa"
+                      width={50}
+                      height={50}
+                      className="animate-pulse"
+                    />
         </div>
       )}
 

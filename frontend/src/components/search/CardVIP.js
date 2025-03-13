@@ -1,18 +1,18 @@
-import { 
-  FaWhatsapp, 
-  FaMapMarkerAlt, 
-  FaStar, 
-  FaRegComments, 
-  FaCheckCircle, 
-  FaTelegram, 
-  FaRegCopy, 
+import {
+  FaWhatsapp,
+  FaMapMarkerAlt,
+  FaStar,
+  FaRegComments,
+  FaCheckCircle,
+  FaTelegram,
+  FaRegCopy,
   FaBirthdayCake
 } from 'react-icons/fa';
 import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
-const CardVIP = ({ name, price, location, description, reviews, contact, images, age }) => {
+const CardVIP = ({ userName, price, location, description, reviews, contact, images, age, subscriptions }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
   const handleOpenModal = () => {
@@ -25,35 +25,50 @@ const CardVIP = ({ name, price, location, description, reviews, contact, images,
     }
   };
 
+  // Verificar se o usuário possui o plano extra com acesso ao contato
+  const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
+
   return (
     <div className="relative">
       {/* Card principal */}
       <div className="bg-yellow-100 border border-yellow-500 rounded-lg shadow-xl p-4 transition transform hover:scale-105 hover:shadow-2xl">
         {images && images.length > 0 ? (
-          <Image src={images[0]} alt={name} width={320} height={192} className="w-full h-48 object-cover rounded-md mb-3" />
+          <Image
+            src={images[0]}
+            alt={userName ? `Imagem de ${userName}` : 'Imagem do acompanhante'}
+            width={320}
+            height={192}
+            className="w-full h-48 object-cover rounded-md mb-3"
+          />
         ) : (
           <div className="w-full h-48 bg-gray-200 rounded-md mb-3 flex items-center justify-center text-gray-500 text-lg">
             Sem imagem disponível
           </div>
         )}
-        
-        <h3 className="text-xl font-extrabold text-yellow-700 mb-1">{name}</h3>
+
+        <h3 className="text-xl font-extrabold text-yellow-700 mb-1">{userName}</h3>
         <p className="text-sm text-black italic mb-2 flex items-center">
           <BsCardText className="mr-2 text-yellow-500" /> {description}
         </p>
 
         {/* Exibição da idade com ícone */}
-        <p className="flex items-center text-black mb-2">
-          <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
-        </p>
+        {!subscriptions.some(subscription => subscription.extraPlan?.hasContact === false) && (
+          <p className="flex items-center text-black mb-2">
+            <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
+          </p>
+        )}
 
-<p className="text-sm text-black italic mb-2 flex items-center">
+
+        <p className="text-sm text-black italic mb-2 flex items-center">
           <FaMapMarkerAlt className="mr-2 text-yellow-700" /> {location}
         </p>
+
+        {!subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
+          <p className="font-semibold text-yellow-700 mb-1 flex items-center">
+            <FaStar className="mr-1 text-yellow-500" /> {price}
+          </p>
+        )}
         
-        <p className="font-semibold text-yellow-700 mb-1 flex items-center">
-          <FaStar className="mr-1 text-yellow-500" /> {price}
-        </p>
         <p className="text-gray-500 mb-3 flex items-center">
           <FaRegComments className="mr-1 text-yellow-700" />
           {reviews > 0 ? (
@@ -62,12 +77,15 @@ const CardVIP = ({ name, price, location, description, reviews, contact, images,
             'Sem reviews'
           )}
         </p>
-        {contact && (
+        {contact && hasExtraContact && (
           <button
-            onClick={handleOpenModal}
+            onClick={e => {
+              e.preventDefault();
+              handleOpenModal();
+            }}
             className="mt-2 bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-colors duration-200"
           >
-            <FaWhatsapp className="mr-2 text-lg" /> Ver contato
+            <FaWhatsapp className="mr-2" /> Ver contato
           </button>
         )}
       </div>
@@ -92,7 +110,7 @@ const CardVIP = ({ name, price, location, description, reviews, contact, images,
               {images && images.length > 0 ? (
                 <Image
                   src={images[0]} // Exibe a mesma imagem do card
-                  alt={`Imagem de ${name}`}
+                  alt={`Imagem de ${userName}`}
                   layout="fill"
                   objectFit="cover"
                 />
@@ -114,7 +132,7 @@ const CardVIP = ({ name, price, location, description, reviews, contact, images,
                 />
                 <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
               </div>
-              <h2 className="text-xl text-yellow-700 font-bold mt-2">{name}</h2>
+              <h2 className="text-xl text-yellow-700 font-bold mt-2">{userName}</h2>
             </div>
 
             {/* Banner simulado */}

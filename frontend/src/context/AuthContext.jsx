@@ -23,7 +23,7 @@ export const AuthContextProvider = ({ children }) => {
             const cookieUserInfo = Cookies.get('userInfo');
             if (cookieUserInfo) {
                 const parsedUserInfo = JSON.parse(cookieUserInfo);
-                setCurrentUser(parsedUserInfo); 
+                setCurrentUser(parsedUserInfo);
                 setIsAuthenticated(true);
             }
         };
@@ -31,11 +31,9 @@ export const AuthContextProvider = ({ children }) => {
         checkUser();
     }, []);
 
-
     const login = async (inputs) => {
         try {
             const res = await axios.post(
-                // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
                 'http://localhost:4000/api/user/login',
                 inputs,
                 {
@@ -58,6 +56,9 @@ export const AuthContextProvider = ({ children }) => {
                 setIsAuthenticated(true);
             }
 
+            // Armazenar os dados no localStorage
+            localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+
             return {
                 user: res.data.user,
                 token: res.data.token,
@@ -77,6 +78,23 @@ export const AuthContextProvider = ({ children }) => {
         router.push("/login");
     };
 
+    // Função para buscar os dados do usuário da API
+    const fetchUserInfo = async (token) => {
+        try {
+            const response = await axios.get("http://localhost:4000/api/users/info", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            // Armazenar os dados no localStorage
+            localStorage.setItem('userInfo', JSON.stringify(response.data));
+
+            return response.data;
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+            return null;
+        }
+    };
+
     useEffect(() => {
         const checkAuth = async () => {
             const token = Cookies.get("userToken");
@@ -87,6 +105,23 @@ export const AuthContextProvider = ({ children }) => {
 
                     setCurrentUser(decodedToken);
                     setIsAuthenticated(true);
+
+                    // Verifica se os dados do usuário estão no localStorage
+                    const storedUserInfo = localStorage.getItem("userInfo");
+
+                    if (storedUserInfo) {
+                        const userInfo = JSON.parse(storedUserInfo);
+                        setCurrentUser(userInfo);  // Atualiza com os dados do localStorage
+                    } else {
+                        // Se não houver dados no localStorage, faz a requisição à API
+                        fetchUserInfo(token)
+                            .then(userInfo => {
+                                if (userInfo) {
+                                    setCurrentUser(userInfo);
+                                    setIsAuthenticated(true);
+                                }
+                            });
+                    }
                 } catch (error) {
                     setIsAuthenticated(false);
                     setCurrentUser(null);
@@ -97,7 +132,6 @@ export const AuthContextProvider = ({ children }) => {
 
         checkAuth();
     }, [currentUser]);
-
 
     return (
         <AuthContext.Provider

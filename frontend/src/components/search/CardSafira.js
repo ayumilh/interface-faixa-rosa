@@ -23,11 +23,12 @@ const CardSafira = ({
   contact,
   plan,
   planType,
+  subscriptions,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
 
-  console.log("CardSafira:", {userName, age, location, description, images, reviews, contact, plan, planType});
+  console.log("CardSafira:", { userName, age, location, description, images, reviews, contact, plan, planType, subscriptions });
 
   const handlePrev = () => {
     setCurrentIndex(prevIndex =>
@@ -50,6 +51,9 @@ const CardSafira = ({
       setShowModalNumero(false);
     }
   };
+
+  // Verificar se o usuário possui o plano extra com acesso ao contato
+  const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
   return (
     <>
@@ -83,11 +87,10 @@ const CardSafira = ({
                 {images.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      index === currentIndex
-                        ? 'bg-gray-700'
-                        : 'bg-gray-300'
-                    } transition-all`}
+                    className={`w-3 h-3 rounded-full ${index === currentIndex
+                      ? 'bg-gray-700'
+                      : 'bg-gray-300'
+                      } transition-all`}
                   ></span>
                 ))}
               </div>
@@ -120,18 +123,23 @@ const CardSafira = ({
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <p className="font-semibold text-gray-900 text-lg">{plan?.price}</p>
-            <div className="flex items-center mt-2">
-              <FaStar className="text-yellow-400 mr-1" />
-              <p className="text-green-500 font-semibold">
-                {reviews} review{reviews !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="flex items-center mt-2">
-              <FaBirthdayCake className="text-pink-500 mr-1" />
-              <div className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                {age} anos
+            {!subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
+              <div className="flex items-center mt-2">
+                <FaStar className="text-yellow-400 mr-1" />
+                <p className="text-green-500 font-semibold">2 reviews</p>
               </div>
-            </div>
+            )}
+            
+            {!subscriptions.some(subscription => subscription.extraPlan?.hasContact === false) && (
+              <div className="flex items-center mt-2">
+                <FaBirthdayCake className="text-pink-500 mr-1" />
+                <div className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                  {`${age} anos`}
+                </div>
+              </div>
+            )}
+
+
             <div className="flex items-center mt-2">
               <FaCamera className="mr-1 text-blue-500" />
               <p className="text-gray-700">{images.length} fotos ou vídeos</p>
@@ -149,14 +157,18 @@ const CardSafira = ({
         </div>
 
         {/* Botão de contato aprimorado */}
-        {contact && (
+        {contact && hasExtraContact && (
           <button
             className="mt-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"
-            onClick={handleOpenModal}
+            onClick={e => {
+              e.preventDefault();
+              handleOpenModal();
+            }}
           >
             <FaWhatsapp className="mr-2" /> Ver contato
           </button>
         )}
+
       </div>
 
       {/* Modal de contato */}
@@ -193,11 +205,10 @@ const CardSafira = ({
                     {images.map((_, index) => (
                       <span
                         key={index}
-                        className={`w-3 h-3 rounded-full ${
-                          index === currentIndex
-                            ? 'bg-gray-700'
-                            : 'bg-gray-300'
-                        } transition-all`}
+                        className={`w-3 h-3 rounded-full ${index === currentIndex
+                          ? 'bg-gray-700'
+                          : 'bg-gray-300'
+                          } transition-all`}
                       ></span>
                     ))}
                   </div>

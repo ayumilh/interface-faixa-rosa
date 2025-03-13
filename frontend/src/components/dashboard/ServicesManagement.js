@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheckCircle, FaTimesCircle, FaFire } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import Image from 'next/image';
 
 const ServicesManagement = () => {
   // Estado para controlar os serviços com oferecimento e preço
@@ -116,7 +117,13 @@ const ServicesManagement = () => {
       {/* Carregamento com ícone de fogo */}
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-          <FaFire className="animate-pulse text-pink-500" size={50} />
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Ícone oficial Faixa Rosa"
+            width={50}
+            height={50}
+            className="animate-pulse"
+          />
         </div>
       )}
       <div className="max-w-6xl mx-auto">

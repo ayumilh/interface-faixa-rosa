@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaClock, FaTrash, FaSave, FaCopy, FaFire } from "react-icons/fa";
+import { FaClock, FaTrash, FaSave, FaCopy } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import axios from "axios";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 const WorkingHours = () => {
   // Estado para os horários de trabalho
@@ -257,7 +258,13 @@ const WorkingHours = () => {
       {/* Carregamento com ícone de fogo */}
       {loadingPage && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-          <FaFire className="animate-pulse text-pink-500" size={50} />
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Ícone oficial Faixa Rosa"
+            width={50}
+            height={50}
+            className="animate-pulse"
+          />
         </div>
       )}
       <div className="flex items-center mb-3">

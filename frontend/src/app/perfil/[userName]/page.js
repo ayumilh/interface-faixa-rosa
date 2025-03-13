@@ -23,11 +23,11 @@ import {
   FaMale,
   FaSearch,
   FaRegCopy,
-  FaFire,
 } from 'react-icons/fa';
 import Final from '@/components/search/final';
 import { useParams } from "next/navigation";
 import axios from 'axios';
+
 
 export default function Perfil() {
   const { userName } = useParams();
@@ -87,7 +87,13 @@ export default function Perfil() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <FaFire className="animate-pulse text-pink-500" size={50} />
+                  <Image
+                    src="/iconOficial_faixaRosa.png"
+                    alt="Ícone oficial Faixa Rosa"
+                    width={50}
+                    height={50}
+                    className="animate-pulse"
+                  />
       </div>
     );
   }

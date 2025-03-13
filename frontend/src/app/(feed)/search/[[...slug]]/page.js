@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
-import { FaSearch, FaFire } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import Link from "next/link";
 import { usePlan } from "@/context/PlanContext";
+import Image from "next/image";
 
 // Componentes necessários
 import Navbar from "@/components/Navbar";
@@ -100,13 +101,19 @@ export default function Search() {
   useEffect(() => {
     console.log("Dados do context (companions):", companions);
   }, [companions]);
-  
+
 
   return (
     <div className="bg-gray-100 text-gray-800">
       {loadingSearch && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-          <FaFire className="animate-pulse text-pink-500" size={50} />
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Ícone oficial Faixa Rosa"
+            width={50}
+            height={50}
+            className="animate-pulse"
+          />
         </div>
       )}
 
@@ -174,11 +181,10 @@ export default function Search() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {companions.length === 0 ? (
+          {companions.length === 0 ? (
             <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           ) : (
             companions.map((card, index) => {
-              console.log("Card:", card);
               let CardComponent;
               // Escolhe o componente de card com base no plano
               if (card.plan?.name === "Plano Rubi") {
@@ -188,11 +194,11 @@ export default function Search() {
               } else if (card.plan?.name === "Plano Pink") {
                 CardComponent = CardPink;
               } else {
-                CardComponent = CardVIP; // Se não for nenhum dos planos específicos, utiliza o CardVIP
+                CardComponent = CardVIP;
               }
 
               return (
-                <Link href='#' key={index}>
+                <Link href={`/perfil/${card.userName}`} key={index}>
                   <CardComponent
                     userName={card.userName}
                     age={card.age}
@@ -202,12 +208,13 @@ export default function Search() {
                       card.profileImage
                         ? [card.profileImage]
                         : card.media?.length > 0
-                        ? card.media
-                        : ["/default-avatar.jpg"]
+                          ? card.media
+                          : ["/default-avatar.jpg"]
                     }
                     contact={true}
                     plan={card.plan}
                     planType={card.planType}
+                    subscriptions={card.subscriptions}
                   />
                 </Link>
               );

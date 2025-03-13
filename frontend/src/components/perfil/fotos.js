@@ -13,6 +13,7 @@ import Reviews from "./reviews";
 import Denuncia from "./denuncia";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { usePlan } from "@/context/PlanContext";
 
 export default function Fotos({ userName }) {
   const [photos, setPhotos] = useState([]);
@@ -25,6 +26,14 @@ export default function Fotos({ userName }) {
   const [uploadError, setUploadError] = useState("");
   const [newPhoto, setNewPhoto] = useState(null);
   const token = Cookies.get("userToken");
+  const [companionData, setCompanionData] = useState(null);
+  const { companions, fetchCompanions, loading, error } = usePlan();
+
+  useEffect(() => {
+    if (userName) {
+      fetchCompanions({ userName: userName });
+    }
+  }, [userName, fetchCompanions]);
 
   const fetchFeedPhotos = async () => {
     try {
@@ -34,6 +43,8 @@ export default function Fotos({ userName }) {
 
       const data = response.data;
       setPhotos(data);
+
+      setCompanionData(companions[0]);
     } catch (error) {
       console.error("Erro ao carregar as fotos do feed", error);
     }
@@ -388,7 +399,19 @@ export default function Fotos({ userName }) {
       )}
 
       {/* Seção de reviews */}
-      <Reviews nomeAnunciante="Melissa Nascimento" />
+      {companionData && companionData.subscriptions && (
+        <Reviews
+          nomeAnunciante={userName}
+          companionId={companionData.id}
+          showReviews={
+            companionData.subscriptions.some(
+              (subscription) => subscription.extraPlan.name === "Reviews Públicos" && subscription.extraPlan.isEnabled
+            )
+          }
+        />
+      )}
+
+
 
       {/* Seção de denúncia */}
       <Denuncia dataCriacao="junho de 2022" />

@@ -1,8 +1,9 @@
 import { FaStar, FaTimes } from 'react-icons/fa';
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import Image from "next/image";
 
-export default function Reviews({ nomeAnunciante, companionId }) {
+export default function Reviews({ nomeAnunciante, showReviews, companionId }) {
+
   const [reviews, setReviews] = useState([
     {
       id: 1,
@@ -31,20 +32,6 @@ export default function Reviews({ nomeAnunciante, companionId }) {
   const [comentario, setComentario] = useState('');
   const [cidade, setCidade] = useState('');
   const [status, setStatus] = useState('');
-
-  // Função para buscar reviews do back-end
-  const fetchReviews = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/reviews?companionId=${companionId}`); // Ajuste a rota conforme necessário
-      const data = await response.json();
-      setReviews(data);
-    } catch (error) {
-      console.error('Erro ao buscar reviews:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [companionId]);
 
   const handleSubmit = async () => {
     if (!nota || !comentario || !cidade) {
@@ -82,14 +69,9 @@ export default function Reviews({ nomeAnunciante, companionId }) {
     }
   };
 
-  useEffect(() => {
-    if (companionId) {
-      fetchReviews();
-    }
-  }, [companionId, fetchReviews]);
 
   return (
-    <div className="mt-8 p-4 md:p-6 bg-white rounded-lg shadow-lg w-full sm:w-[95%] mx-auto">
+    <div className={`mt-8 p-4 md:p-6 bg-white rounded-lg shadow-lg w-full sm:w-[95%] mx-auto ${!showReviews ? 'blur-sm' : ''}`}>
       <h2 className="text-2xl font-bold mb-4 text-black">Reviews sobre {nomeAnunciante}</h2>
 
       <div className="mb-6">

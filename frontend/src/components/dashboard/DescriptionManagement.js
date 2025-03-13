@@ -15,6 +15,7 @@ import {
   FaBuilding,
 } from "react-icons/fa";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 const atendimentoOptions = [
   { value: "HOMENS", label: "Homens" },
@@ -62,7 +63,7 @@ const DescriptionManagement = () => {
 
         if (response.status === 200) {
           const data = response.data;
-          
+
           // Preenchendo os campos do formulário com os dados recebidos
           setValue("description", data.description || "");
           setValue("gender", data.characteristics?.gender || "");
@@ -78,15 +79,15 @@ const DescriptionManagement = () => {
           setValue("hasTattoos", data.characteristics?.hasTattoos ? "true" : "false");
           setValue("hasPiercings", data.characteristics?.hasPiercings ? "true" : "false");
           setValue("smoker", data.characteristics?.smoker ? "true" : "false");
-          
+
           setValue("atendimentos", data.atendimentos || []);
           setAtendimentos(data.atendimentos || []);
-          
+
           // Verifica se o vídeo foi enviado mas ainda está aguardando aprovação
           if (data.characteristics?.comparisonMedia === null && data.characteristics?.hasComparisonMedia === true) {
             setVideoPending(true);
           }
-          
+
           // Verifica se o vídeo foi aprovado e já está disponível
           if (data.video && data.video.url) {
             setIsVideoApproved(true);
@@ -216,13 +217,13 @@ const DescriptionManagement = () => {
       {/* Carregamento com ícone de fogo */}
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-                    <Image
-                      src="/iconOficial_faixaRosa.png"
-                      alt="Ícone oficial Faixa Rosa"
-                      width={50}
-                      height={50}
-                      className="animate-pulse"
-                    />
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Ícone oficial Faixa Rosa"
+            width={50}
+            height={50}
+            className="animate-pulse"
+          />
         </div>
       )}
 

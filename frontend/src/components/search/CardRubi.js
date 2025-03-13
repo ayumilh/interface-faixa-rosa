@@ -246,8 +246,6 @@ const CardRubi = ({
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
-  console.log('CardRubi', { userName, age, location, description, images, contact, plan, planType });
-
   const handleOpenModal = () => {
     setShowModalNumero(true);
   };
@@ -279,14 +277,17 @@ const CardRubi = ({
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
         <div>
           <p className="font-semibold text-red-600">{formattedPrice}</p>
-          {!subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
+          {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
             <div className="flex items-center mt-2">
               <FaStar className="text-yellow-400 mr-1" />
               <p className="text-green-500 font-semibold">2 reviews</p>
             </div>
-          )}
+          ) : null}
 
-          {!subscriptions.some(subscription => subscription.extraPlan?.hasContact === false) && (
+
+          {subscriptions.some(subscription => subscription.extraPlan?.canHideAge === true) ? (
+            null
+          ) : (
             <div className="flex items-center mt-2">
               <FaBirthdayCake className="text-pink-500 mr-1" />
               <div className="bg-gray-100 text-black px-2 py-1 rounded-full text-xs font-medium">

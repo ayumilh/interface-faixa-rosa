@@ -27,10 +27,11 @@ import {
 import Final from '@/components/search/final';
 import { useParams } from "next/navigation";
 import axios from 'axios';
-
+import { usePlan } from "@/context/PlanContext";
 
 export default function Perfil() {
   const { userName } = useParams();
+  const { companions, fetchCompanions, loading, error } = usePlan();
 
   const [maisAcompanhantes, setMaisAcompanhantes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,36 +41,38 @@ export default function Perfil() {
   const [showModalNumero, setShowModalNumero] = useState(false); // Controle do modal de número
   const [companionData, setCompanionData] = useState(null); // Para armazenar os dados da acompanhante
 
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!userName) return;
-      
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
-        );
-        setCompanionData(response.data);
-        setIsLoading(false);
+    if (userName) {
+      fetchCompanions({ userName: userName });
+      setIsLoading(false);
+    }
+  }, [userName, fetchCompanions]);
 
-        // Buscar mais acompanhantes com base na cidade e estado
-        const city = response.data.city;
-        const state = response.data.state;
+  useEffect(() => {
+    if (companions && companions.length > 0) {
+      setCompanionData(companions[0]);
+      console.log(companions[0]);
+      setIsLoading(false);
 
-        const acompanhantesResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
-        );
+      // Buscar mais acompanhantes na mesma cidade para a aside
+      const city = companions[0].city;
+      const state = companions[0].state;
 
-        setMaisAcompanhantes(acompanhantesResponse.data);
-      } catch (error) {
-        console.error('Erro ao buscar perfil:', error);
-        setIsLoading(false);
-      }
-    };
+      const fetchMoreCompanions = async () => {
+        try {
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
+          );
+          setMaisAcompanhantes(response.data);
+        } catch (error) {
+          console.error('Erro ao buscar acompanhantes:', error);
+        }
+      };
 
-    fetchProfile();
-  }, [userName]);
-
+      fetchMoreCompanions();
+    }
+  }, [companions]);
 
 
   const handleTabClick = (tab) => {
@@ -87,21 +90,13 @@ export default function Perfil() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-                  <Image
-                    src="/iconOficial_faixaRosa.png"
-                    alt="Ícone oficial Faixa Rosa"
-                    width={50}
-                    height={50}
-                    className="animate-pulse"
-                  />
-      </div>
-    );
-  }
-
-  if (!companionData) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>Perfil não encontrado.</p> {/* Exibe uma mensagem de erro se os dados não forem encontrados */}
+        <Image
+          src="/iconOficial_faixaRosa.png"
+          alt="Ícone oficial Faixa Rosa"
+          width={50}
+          height={50}
+          className="animate-pulse"
+        />
       </div>
     );
   }
@@ -170,7 +165,18 @@ export default function Perfil() {
             <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
               <div className="flex transition-transform transform">
                 {/* Imagens do carrossel */}
-                {companionData.media.map((mediaItem, index) => (
+                {companionData.bannerImage && (
+                  <div className="w-full h-48 bg-gray-200 flex-shrink-0 mb-4">
+                    <Image
+                      src={companionData.bannerImage} // Usando a URL do banner retornada da API
+                      alt="Banner do perfil"
+                      width={1200}
+                      height={300}
+                      className='object-cover'
+                    />
+                  </div>
+                )}
+                {/* {companionData.media.map((mediaItem, index) => (
                   <div key={index} className="w-full h-48 bg-gray-200 flex-shrink-0">
                     <Image
                       src={mediaItem.url} // Usando a URL da mídia retornada da API
@@ -179,7 +185,7 @@ export default function Perfil() {
                       objectFit="cover"
                     />
                   </div>
-                ))}
+                ))} */}
               </div>
 
               {/* Setas para navegação */}
@@ -314,10 +320,16 @@ export default function Perfil() {
                     <FaMapMarkerAlt />
                     <p>Local: {companionData.city} - {companionData.state}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <FaRegUser />
-                    <p>Idade: {companionData.age} anos</p>
-                  </div>
+                  
+                  {!companionData.subscriptions.some(
+                    (subscription) => subscription.extraPlan.canHideAge && subscription.extraPlan.isEnabled
+                  ) && (
+                      <div className="flex items-center space-x-2">
+                        <FaRegUser />
+                        <p>Idade: {companionData.age} anos</p>
+                      </div>
+                    )}
+
                   <div className="flex items-center space-x-2">
                     <FaMale />
                     <p>Atende:

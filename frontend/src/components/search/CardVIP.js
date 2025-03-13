@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 
 const CardVIP = ({ userName, price, location, description, reviews, contact, images, age, subscriptions }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
-
+  
   const handleOpenModal = () => {
     setShowModalNumero(true);
   };
@@ -30,7 +30,6 @@ const CardVIP = ({ userName, price, location, description, reviews, contact, ima
 
   return (
     <div className="relative">
-      {/* Card principal */}
       <div className="bg-yellow-100 border border-yellow-500 rounded-lg shadow-xl p-4 transition transform hover:scale-105 hover:shadow-2xl">
         {images && images.length > 0 ? (
           <Image
@@ -52,7 +51,9 @@ const CardVIP = ({ userName, price, location, description, reviews, contact, ima
         </p>
 
         {/* Exibição da idade com ícone */}
-        {!subscriptions.some(subscription => subscription.extraPlan?.hasContact === false) && (
+        {subscriptions.some(subscription => subscription.extraPlan?.canHideAge === true) ? (
+          null
+        ) : (
           <p className="flex items-center text-black mb-2">
             <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
           </p>
@@ -63,20 +64,18 @@ const CardVIP = ({ userName, price, location, description, reviews, contact, ima
           <FaMapMarkerAlt className="mr-2 text-yellow-700" /> {location}
         </p>
 
-        {!subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
-          <p className="font-semibold text-yellow-700 mb-1 flex items-center">
-            <FaStar className="mr-1 text-yellow-500" /> {price}
+
+        {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
+          <p className="text-gray-500 mb-3 flex items-center">
+            <FaRegComments className="mr-1 text-yellow-700" />
+            {reviews > 0 ? (
+              <span className="text-green-600">{reviews} review{reviews !== 1 ? 's' : ''}</span>
+            ) : (
+              'Sem reviews'
+            )}
           </p>
         )}
-        
-        <p className="text-gray-500 mb-3 flex items-center">
-          <FaRegComments className="mr-1 text-yellow-700" />
-          {reviews > 0 ? (
-            <span className="text-green-600">{reviews} review{reviews !== 1 ? 's' : ''}</span>
-          ) : (
-            'Sem reviews'
-          )}
-        </p>
+
         {contact && hasExtraContact && (
           <button
             onClick={e => {

@@ -28,8 +28,6 @@ const CardSafira = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
 
-  console.log("CardSafira:", { userName, age, location, description, images, reviews, contact, plan, planType, subscriptions });
-
   const handlePrev = () => {
     setCurrentIndex(prevIndex =>
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
@@ -123,20 +121,19 @@ const CardSafira = ({
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <p className="font-semibold text-gray-900 text-lg">{plan?.price}</p>
-            {!subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
+            {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
               <div className="flex items-center mt-2">
                 <FaStar className="text-yellow-400 mr-1" />
                 <p className="text-green-500 font-semibold">2 reviews</p>
               </div>
-            )}
-            
-            {!subscriptions.some(subscription => subscription.extraPlan?.hasContact === false) && (
-              <div className="flex items-center mt-2">
-                <FaBirthdayCake className="text-pink-500 mr-1" />
-                <div className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                  {`${age} anos`}
-                </div>
-              </div>
+            ) : null}
+
+            {subscriptions.some(subscription => subscription.extraPlan?.canHideAge === true) ? (
+              null
+            ) : (
+              <p className="flex items-center text-black mb-2">
+                <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
+              </p>
             )}
 
 

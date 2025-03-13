@@ -91,23 +91,23 @@ const Planos = () => {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-center text-gray-800 mb-6">
               Planos Extras
             </h2>
-            <div className="grid grid-cols-layout gap-6 max-w-7xl mx-auto">
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
                 <Contato />
               </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
                 <PlanoOculto />
               </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
-                <TrocaDeCidade />
-              </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
                 <PlanoReviews />
               </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
                 <DarkMode />
               </div>
             </div>
+
+
+
           </div>
         </section>
 

@@ -44,7 +44,7 @@ export default function Perfil() {
 
   useEffect(() => {
     if (userName) {
-      fetchCompanions({ userName: userName });
+      fetchCompanions({ planos: true, userName: userName });
       setIsLoading(false);
     }
   }, [userName, fetchCompanions]);
@@ -52,7 +52,6 @@ export default function Perfil() {
   useEffect(() => {
     if (companions && companions.length > 0) {
       setCompanionData(companions[0]);
-      console.log(companions[0]);
       setIsLoading(false);
 
       // Buscar mais acompanhantes na mesma cidade para a aside
@@ -95,7 +94,7 @@ export default function Perfil() {
           alt="Ícone oficial Faixa Rosa"
           width={50}
           height={50}
-          className="animate-pulse"
+          className="animate-pulse w-auto h-auto"
         />
       </div>
     );
@@ -165,17 +164,18 @@ export default function Perfil() {
             <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
               <div className="flex transition-transform transform">
                 {/* Imagens do carrossel */}
-                {companionData.bannerImage && (
+                {companionData && companionData.bannerImage && (
                   <div className="w-full h-48 bg-gray-200 flex-shrink-0 mb-4">
                     <Image
                       src={companionData.bannerImage} // Usando a URL do banner retornada da API
                       alt="Banner do perfil"
                       width={1200}
                       height={300}
-                      className='object-cover'
+                      className="object-cover"
                     />
                   </div>
                 )}
+
                 {/* {companionData.media.map((mediaItem, index) => (
                   <div key={index} className="w-full h-48 bg-gray-200 flex-shrink-0">
                     <Image
@@ -264,7 +264,7 @@ export default function Perfil() {
             <div className="lg:col-span-3 bg-white shadow rounded-lg overflow-hidden relative">
               {/* Banner de perfil */}
               <div className="relative h-56 bg-gray-200">
-                {companionData.bannerImage ? (
+                {companionData && companionData.bannerImage && (
                   <Image
                     src={companionData.bannerImage}
                     alt="Foto de perfil"
@@ -272,29 +272,34 @@ export default function Perfil() {
                     height={300}
                     className="w-full h-full object-cover"
                   />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">Sem foto</span>
-                  </div>
-                )}
+                ) || (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500">Sem banner</span>
+                    </div>
+                  )}
               </div>
 
               {/* Foto de perfil: Usando posicionamento absoluto para sobrepor o banner */}
               <div className="absolute left-4 md:left-6 top-40 md:top-44 z-10">
                 <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
-                  {companionData.profileImage ? (
-                    <Image
-                      src={companionData.profileImage}
-                      alt="Foto de perfil"
-                      width={150}
-                      height={150}
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500">Sem foto</span>
+                  <div className="absolute left-4 md:left-6 top-40 md:top-44 z-10">
+                    <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg overflow-hidden">
+                      {companionData && companionData.profileImage ? (
+                        <Image
+                          src={companionData.profileImage}
+                          alt="Foto de perfil"
+                          width={150}
+                          height={150}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-500">Sem foto</span>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+
                   <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-lg" />
                 </div>
               </div>
@@ -302,7 +307,11 @@ export default function Perfil() {
               {/* Conteúdo posicionado abaixo da foto */}
               <div className="mt-16 md:mt-20 px-4 md:px-6">
                 <div className="text-center md:text-left text-gray-900 flex items-center justify-center md:justify-start space-x-2">
-                  <h2 className="text-xl md:text-2xl font-bold">{companionData.userName}</h2>
+                  {companionData && companionData.userName ? (
+                    <h2 className="text-xl md:text-2xl font-bold">{companionData.userName}</h2>
+                  ) : (
+                    <></>
+                  )}
                   <Link href="#" className="flex items-center space-x-1">
                     <span className={`w-2 h-2 rounded-full ${getStatusColor()} ${getStatusAnimation()}`}></span>
                     <p className={`text-sm ${status === "online" ? "text-green-500" : "text-gray-500"}`}>
@@ -318,36 +327,41 @@ export default function Perfil() {
                   </div> */}
                   <div className="flex items-center space-x-2">
                     <FaMapMarkerAlt />
-                    <p>Local: {companionData.city} - {companionData.state}</p>
-                  </div>
-                  
-                  {!companionData.subscriptions.some(
-                    (subscription) => subscription.extraPlan.canHideAge && subscription.extraPlan.isEnabled
-                  ) && (
-                      <div className="flex items-center space-x-2">
-                        <FaRegUser />
-                        <p>Idade: {companionData.age} anos</p>
-                      </div>
+                    {companionData && companionData.city && companionData.state ? (
+                      <p>Local: {companionData.city} - {companionData.state}</p>
+                    ) : (
+                      <p>Localização não disponível</p> // Mensagem padrão caso a localização não esteja disponível
                     )}
+                  </div>
+
+
+                  {companionData && !companionData.isAgeHidden && (
+                    <div className="flex items-center space-x-2">
+                      <FaRegUser />
+                      <p>Idade: {companionData.age} anos</p>
+                    </div>
+                  )}
+
 
                   <div className="flex items-center space-x-2">
                     <FaMale />
-                    <p>Atende:
-                      {companionData.atendimentos && companionData.atendimentos.length > 0 ? (
+                    <p>Atende: 
+                      {companionData?.atendimentos && companionData.atendimentos.length > 0 ? (
                         companionData.atendimentos.map((atendimento, index) => (
                           <span key={index}>
                             {atendimento === "HOMENS" && "Homens"}
                             {atendimento === "MULHERES" && "Mulheres"}
                             {atendimento === "CASAIS" && "Casais"}
                             {atendimento === "DEFICIENTES_FISICOS" && "Deficientes Físicos"}
-                            {index < companionData.atendimentos.length - 1 && ", "}
+                            {index < companionData.atendimentos.length - 1 && ", "} {/* Adiciona vírgula entre os itens */}
                           </span>
                         ))
                       ) : (
-                        <span>Não especificado</span>
+                        <span>Atendimento não especificado.</span>
                       )}
                     </p>
                   </div>
+
                 </div>
 
                 {/* Informações adicionais: Estatísticas Inspiradas no Instagram */}
@@ -425,7 +439,10 @@ export default function Perfil() {
 
               {/* Conteúdo da aba selecionada */}
               <div className="mt-4 px-4 md:px-6">
-                {activeTab === "fotos" && <Fotos userName={companionData.userName} />}
+                {companionData && companionData.userName && activeTab === "fotos" && (
+                  <Fotos userName={companionData.userName} />
+                )}
+
                 {activeTab === "videos" && <Videos />}
                 {activeTab === "sobre" && <Sobre physicalCharacteristics={companionData.PhysicalCharacteristics} description={companionData.description} />}
                 {activeTab === "localidade" && <Localidade lugares={companionData.lugares} city={companionData.city} state={companionData.state} />}

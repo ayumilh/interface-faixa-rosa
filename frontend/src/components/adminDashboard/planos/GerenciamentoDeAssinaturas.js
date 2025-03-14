@@ -137,7 +137,6 @@ export default function GerenciamentoDeAssinaturas() {
 
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
-            <ToastContainer />
             <h2 className="text-3xl font-bold text-gray-800 mb-6">
                 Gerenciamento de Assinaturas
             </h2>

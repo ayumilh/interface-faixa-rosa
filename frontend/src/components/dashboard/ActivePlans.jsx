@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaCheckCircle } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function ActivePlans() {
@@ -176,7 +176,6 @@ export default function ActivePlans() {
 
     return (
         <div className="p-6 bg-white shadow-lg rounded-xl">
-            <ToastContainer />
 
             <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center">Planos</h2>
 

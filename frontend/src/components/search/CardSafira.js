@@ -24,6 +24,7 @@ const CardSafira = ({
   plan,
   planType,
   subscriptions,
+  isAgeHidden,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
@@ -128,14 +129,20 @@ const CardSafira = ({
               </div>
             ) : null}
 
-            {subscriptions.some(subscription => subscription.extraPlan?.canHideAge === true) ? (
-              null
+
+            {subscriptions.some(
+              (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled
+            ) ? (
+              isAgeHidden ? (
+                <p className="flex items-center text-black mb-2">
+                  <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
+                </p>
+              ) : null
             ) : (
               <p className="flex items-center text-black mb-2">
                 <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
               </p>
             )}
-
 
             <div className="flex items-center mt-2">
               <FaCamera className="mr-1 text-blue-500" />

@@ -243,6 +243,7 @@ const CardRubi = ({
   plan,
   planType,
   subscriptions,
+  isAgeHidden,
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -285,8 +286,18 @@ const CardRubi = ({
           ) : null}
 
 
-          {subscriptions.some(subscription => subscription.extraPlan?.canHideAge === true) ? (
-            null
+          {/* Exibição da idade com ícone */}
+          {subscriptions.some(
+            (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled
+          ) ? (
+            isAgeHidden ? (
+              <div className="flex items-center mt-2">
+                <FaBirthdayCake className="text-pink-500 mr-1" />
+                <div className="bg-gray-100 text-black px-2 py-1 rounded-full text-xs font-medium">
+                  {age} anos
+                </div>
+              </div>
+            ) : null
           ) : (
             <div className="flex items-center mt-2">
               <FaBirthdayCake className="text-pink-500 mr-1" />

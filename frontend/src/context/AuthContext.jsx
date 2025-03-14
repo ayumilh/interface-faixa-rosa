@@ -11,6 +11,7 @@ export const AuthContextProvider = ({ children }) => {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
+    const [userInfo, setUserInfo] = useState(null);
 
     // usado no BtnSignOut
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,23 +19,10 @@ export const AuthContextProvider = ({ children }) => {
         setIsModalOpen(!isModalOpen);
     };
 
-    useEffect(() => {
-        const checkUser = () => {
-            const cookieUserInfo = Cookies.get('userInfo');
-            if (cookieUserInfo) {
-                const parsedUserInfo = JSON.parse(cookieUserInfo);
-                setCurrentUser(parsedUserInfo);
-                setIsAuthenticated(true);
-            }
-        };
-
-        checkUser();
-    }, []);
-
     const login = async (inputs) => {
         try {
             const res = await axios.post(
-                'http://localhost:4000/api/user/login',
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
                 inputs,
                 {
                     withCredentials: true,
@@ -55,10 +43,6 @@ export const AuthContextProvider = ({ children }) => {
             if (!isAuthenticated) {
                 setIsAuthenticated(true);
             }
-
-            // Armazenar os dados no localStorage
-            localStorage.setItem("userInfo", JSON.stringify(res.data.user));
-
             return {
                 user: res.data.user,
                 token: res.data.token,
@@ -72,28 +56,50 @@ export const AuthContextProvider = ({ children }) => {
     const logout = () => {
         Cookies.remove("token");
         Cookies.remove("userToken");
-        Cookies.remove("userInfo");
         setCurrentUser(null);
         setIsAuthenticated(false);
         router.push("/login");
     };
 
-    // Função para buscar os dados do usuário da API
-    const fetchUserInfo = async (token) => {
-        try {
-            const response = await axios.get("http://localhost:4000/api/users/info", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const tokenId = Cookies.get("userToken");
 
-            // Armazenar os dados no localStorage
-            localStorage.setItem('userInfo', JSON.stringify(response.data));
+            if (tokenId) {
+                try {
 
-            return response.data;
-        } catch (error) {
-            console.error("Erro ao buscar dados do usuário:", error);
-            return null;
+                    const res = await axios.get(
+                        // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
+                        'http://localhost:4000/api/users/info',
+                        {
+                            headers: {
+                                Authorization: `Bearer ${tokenId}`,
+                            },
+                        }
+                    );
+         
+                    if (res.data) {
+                        setUserInfo(res.data);
+
+                        if (!currentUser || currentUser.id !== res.data.id) {
+                            setCurrentUser(res.data);
+                        }
+                        if (!isAuthenticated) {
+                            setIsAuthenticated(true);
+                        }
+                    }
+                } catch {
+                    setIsAuthenticated(false);
+                    return null;
+                }
+            }
+        };
+
+        if (!currentUser) {
+            fetchUserData();
         }
-    };
+    }, [currentUser, isAuthenticated]);
+
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -105,23 +111,6 @@ export const AuthContextProvider = ({ children }) => {
 
                     setCurrentUser(decodedToken);
                     setIsAuthenticated(true);
-
-                    // Verifica se os dados do usuário estão no localStorage
-                    const storedUserInfo = localStorage.getItem("userInfo");
-
-                    if (storedUserInfo) {
-                        const userInfo = JSON.parse(storedUserInfo);
-                        setCurrentUser(userInfo);  // Atualiza com os dados do localStorage
-                    } else {
-                        // Se não houver dados no localStorage, faz a requisição à API
-                        fetchUserInfo(token)
-                            .then(userInfo => {
-                                if (userInfo) {
-                                    setCurrentUser(userInfo);
-                                    setIsAuthenticated(true);
-                                }
-                            });
-                    }
                 } catch (error) {
                     setIsAuthenticated(false);
                     setCurrentUser(null);
@@ -133,6 +122,7 @@ export const AuthContextProvider = ({ children }) => {
         checkAuth();
     }, [currentUser]);
 
+
     return (
         <AuthContext.Provider
             value={{
@@ -140,6 +130,7 @@ export const AuthContextProvider = ({ children }) => {
                 currentUser,
                 login,
                 logout,
+                userInfo,
                 setCurrentUser,
                 setIsAuthenticated,
                 isModalOpen,

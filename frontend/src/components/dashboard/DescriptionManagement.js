@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import {
   FaEdit,
   FaIdCard,
+  FaUser,
   FaVideo,
   FaCheckCircle,
   FaClock,
@@ -13,9 +14,16 @@ import {
   FaChevronUp,
   FaInfoCircle,
   FaBuilding,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import Link from "next/link";
+import { toast } from "react-toastify";
+import { usePlan } from "@/context/PlanContext";
+import { AuthContext } from "@/context/AuthContext";
 
 const atendimentoOptions = [
   { value: "HOMENS", label: "Homens" },
@@ -31,6 +39,8 @@ const genitaliaOptions = [
 ];
 
 const DescriptionManagement = () => {
+  const { companions, fetchCompanions } = usePlan();
+  const { userInfo } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [videoUploaded, setVideoUploaded] = useState(false);
@@ -41,6 +51,15 @@ const DescriptionManagement = () => {
   const [videoUrl, setVideoUrl] = useState(null);
   const [atendimentos, setAtendimentos] = useState([""]);
   const [showAtendimentosModal, setShowAtendimentosModal] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [newUserName, setNewUserName] = useState("");
+  const [showUserNameModal, setShowUserNameModal] = useState(false);
+
+  const [isAgeVisible, setIsAgeVisible] = useState(false); // Estado para controlar a visibilidade da idade
+
+  const toggleAgeVisibility = () => {
+    setIsAgeVisible(!isAgeVisible); // Alterna o estado
+  };
 
   const {
     register,
@@ -55,7 +74,8 @@ const DescriptionManagement = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
+          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
+          'http://localhost:4000/api/companions/description',
           {
             headers: { Authorization: `Bearer ${userToken}` },
           }
@@ -79,6 +99,7 @@ const DescriptionManagement = () => {
           setValue("hasTattoos", data.characteristics?.hasTattoos ? "true" : "false");
           setValue("hasPiercings", data.characteristics?.hasPiercings ? "true" : "false");
           setValue("smoker", data.characteristics?.smoker ? "true" : "false");
+          setUserName(data.userName || "");
 
           setValue("atendimentos", data.atendimentos || []);
           setAtendimentos(data.atendimentos || []);
@@ -105,6 +126,53 @@ const DescriptionManagement = () => {
 
     fetchData();
   }, [setValue]);
+
+  // Usar o useEffect para buscar os planos com o userName após a carga dos dados
+  useEffect(() => {
+    if (userName) {
+      fetchCompanions({ planos: true, userName: userName });
+    }
+  }, [userName, fetchCompanions]);
+
+  // Verificar se a assinatura contém o extraPlan que pode esconder a idade
+  useEffect(() => {
+    if (userInfo && userInfo.companion) {
+      const isAgeHiddenValue = userInfo.companion.isAgeHidden;
+      setIsAgeVisible(isAgeHiddenValue);
+    }
+  }, [userInfo]);
+
+
+  const handleAgeVisibilityChange = async () => {
+    setIsAgeVisible(!isAgeVisible);
+
+    const updatedData = {
+      canHideAge: !isAgeVisible,
+    };
+
+    try {
+      const userToken = Cookies.get("userToken");
+      const response = await axios.post(
+        "http://localhost:4000/api/companions/description/update",
+        updatedData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Visibilidade da idade atualizada com sucesso");
+      } else {
+        toast.error("Erro ao atualizar a visibilidade da idade");
+      }
+    } catch {
+      toast.error("Erro ao atualizar a visibilidade da idade");
+    }
+  };
+
 
   const handleAtendimentoSelection = (e) => {
     const { value, checked } = e.target;
@@ -190,16 +258,43 @@ const DescriptionManagement = () => {
       }
 
       if (response.status !== 200) {
-        throw new Error(response.data.error || "Erro ao atualizar o perfil");
+        toast.error("Erro ao atualizar o perfil");
+      } else {
+        toast.success("Perfil atualizado com sucesso!");
       }
 
-      alert("Perfil atualizado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao atualizar perfil:", error);
-      alert(error.response?.data?.error || "Ocorreu um erro ao atualizar o perfil.");
+    } catch {
+      toast.error("Ocorreu um erro ao atualizar o perfil");
     }
   };
 
+  const handleSaveUserName = async () => {
+    try {
+      const userToken = Cookies.get("userToken");
+
+      const response = await axios.post(
+        // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+        'http://localhost:4000/api/companions/description/update',
+        { userName: newUserName },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        toast.error("Erro ao atualizar o nome de usuário");
+      } else {
+        toast.success("Nome de usuário atualizado com sucesso!");
+        setShowUserNameModal(false);
+        setValue("userName", newUserName);
+      }
+    } catch {
+      toast.error("Ocorreu um erro ao atualizar o nome de usuário.");
+    }
+  };
 
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
@@ -211,7 +306,6 @@ const DescriptionManagement = () => {
     }
   };
 
-
   return (
     <div className="bg-white p-6 md:p-8 rounded-lg shadow-md mt-8 max-w-7xl mx-auto">
       {/* Carregamento com ícone de fogo */}
@@ -222,7 +316,7 @@ const DescriptionManagement = () => {
             alt="Ícone oficial Faixa Rosa"
             width={50}
             height={50}
-            className="animate-pulse"
+            className="animate-pulse w-auto h-auto"
           />
         </div>
       )}
@@ -260,70 +354,213 @@ const DescriptionManagement = () => {
           </div>
         </div>
 
-        {/* Editar Atendimentos */}
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4 flex items-center">
-            <FaBuilding className="text-pink-500 mr-2" />
-            Editar Atendimentos
-          </h3>
-          <div className="flex items-center">
-            <input
-              type="text"
-              id="atendimentos"
-              value={atendimentos.join(", ")}
-              readOnly
-              placeholder="Selecione os atendimentos"
-              className="w-full p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 bg-gray-100 cursor-not-allowed"
-            />
-            <button
-              type="button"
-              onClick={() => setShowAtendimentosModal(true)}
-              className="p-3 bg-pink-500 text-white rounded-r-lg hover:bg-pink-600 transition flex items-center justify-center"
-              title="Selecionar Atendimentos"
-            >
-              <FaEdit />
-            </button>
+        {/* Editar Nome de Usuário */}
+        <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <FaUser className="text-pink-500 mr-2 text-xl md:text-2xl" />
+              Editar Nome de Usuário
+            </h3>
+            <div className="flex items-center">
+              <input
+                type="text"
+                id="userName"
+                value={userInfo?.companion?.userName || ''}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Digite o novo nome de usuário"
+                className="w-full p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 bg-gray-100"
+              />
+              <button
+                type="button"
+                onClick={() => setShowUserNameModal(true)}
+                className="p-3 bg-pink-500 text-white rounded-r-lg hover:bg-pink-600 transition flex items-center justify-center"
+                title="Editar Nome de Usuário"
+              >
+                <FaEdit />
+              </button>
+            </div>
           </div>
+
+          {/* Modal de Edição de Nome de Usuário */}
+          {showUserNameModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                <h3 className="text-xl font-semibold mb-4">Editar Nome de Usuário</h3>
+                <div className="space-y-4">
+                  <label htmlFor="newUserName" className="text-gray-800">Novo Nome de Usuário</label>
+                  <input
+                    type="text"
+                    id="newUserName"
+                    value={newUserName} // Variável de estado para o novo nome de usuário
+                    onChange={(e) => setNewUserName(e.target.value)} // Função para atualizar o nome de usuário
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 bg-gray-100"
+                  />
+                </div>
+                <div className="mt-6 flex justify-between">
+                  <button
+                    onClick={handleSaveUserName} // Função para salvar o novo nome de usuário
+                    className="p-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition"
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    onClick={() => setShowUserNameModal(false)} // Função para fechar o modal sem salvar
+                    className="p-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Modal de Seleção de Atendimentos */}
-        {showAtendimentosModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-              <h3 className="text-xl font-semibold mb-4">Selecione os atendimentos</h3>
-              <div className="space-y-4">
-                {atendimentoOptions.map((option) => (
-                  <div key={option.value} className="flex items-center">
+        {/* Alternar Visibilidade da Idade */}
+        {Array.isArray(companions.subscriptions) && companions.subscriptions.some(
+          (plan) => plan.extraPlan?.id === 3
+        ) ? (
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+            <div className="mb-8 flex items-center gap-10">
+              <h3 className="text-xl font-semibold flex items-center">
+                <FaUser className="text-pink-500 mr-2 text-xl md:text-2xl" />
+                Alternar Visibilidade da Idade
+              </h3>
+              <div className="flex items-center">
+                <span className="mr-3">Idade visível:</span>
+                <label htmlFor="age-visibility" className="inline-flex items-center cursor-pointer">
+                  <span className="mr-2 text-gray-800">
+                    {isAgeVisible ? (
+                      <>
+                        <FaEye className="inline-block mr-2 text-green-500" /> Sim
+                      </>
+                    ) : (
+                      <>
+                        <FaEyeSlash className="inline-block mr-2 text-red-500" /> Não
+                      </>
+                    )}
+                  </span>
+                  <div className="relative">
                     <input
+                      id="age-visibility"
                       type="checkbox"
-                      id={option.value}
-                      value={option.value}
-                      checked={atendimentos.includes(option.value)} // Verifica se o atendimento está selecionado
-                      onChange={handleAtendimentoSelection}
-                      className="mr-2"
+                      checked={isAgeVisible}
+                      onChange={handleAgeVisibilityChange}
+                      className="sr-only"
                     />
-                    <label htmlFor={option.value} className="text-gray-800">{option.label}</label>
+                    <div
+                      className={`w-11 h-5 rounded-full ${isAgeVisible ? "bg-pink-500" : "bg-gray-300"}`}
+                    >
+                      <div
+                        className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-all ${isAgeVisible ? "translate-x-6" : "translate-x-0"}`}
+                      ></div>
+                    </div>
                   </div>
-                ))}
+                </label>
               </div>
-              <div className="mt-6 flex justify-between">
-                <button
-                  onClick={handleSaveAtendimentos}
-                  className="p-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition"
-                >
-                  Salvar
-                </button>
-                <button
-                  onClick={() => setShowAtendimentosModal(false)}
-                  className="p-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
-                >
-                  Cancelar
-                </button>
-              </div>
+            </div>
+
+            {/* Explicação sobre a opção de ocultar a idade */}
+            <div className="mt-4 text-sm text-gray-600">
+              <p className="font-semibold">
+                Esta opção de ocultar a idade se aplica apenas a usuários que possuem um plano específico para ocultar a idade.
+              </p>
+              <p className="italic mt-2">
+                Quando ativada, a idade será escondida tanto no <strong>card de anúncio</strong> quanto no <strong>perfil</strong> da acompanhante.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+            <div className="p-6 flex items-center gap-4">
+              <FaLock className="text-gray-500 text-2xl" />
+              <p className="text-gray-500">
+                <Link href="/planos" className="text-pink-400 hover:text-pink-600 underline font-semibold mr-1 transition duration-300 ">
+                  Plano Oculto
+                </Link>
+                necessário para visualizar a idade.
+              </p>
+            </div>
+
+
+            {/* Explicação sobre a opção de ocultar a idade */}
+            <div className="mt-4 text-sm text-gray-600">
+              <p className="font-semibold">
+                Esta opção de ocultar a idade se aplica apenas a usuários que possuem um plano específico para ocultar a idade.
+              </p>
+              <p className="italic mt-2">
+                Quando ativada, a idade será escondida tanto no <strong>card de anúncio</strong> quanto no <strong>perfil</strong> da acompanhante.
+              </p>
             </div>
           </div>
         )}
 
+
+
+        {/* Editar Atendimentos */}
+        <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <FaBuilding className="text-pink-500 mr-2 text-xl md:text-2xl" />
+              Editar Atendimentos
+            </h3>
+            <div className="flex items-center">
+              <input
+                type="text"
+                id="atendimentos"
+                value={atendimentos.join(", ")}
+                readOnly
+                placeholder="Selecione os atendimentos"
+                className="w-full p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 bg-gray-100 cursor-not-allowed"
+              />
+              <button
+                type="button"
+                onClick={() => setShowAtendimentosModal(true)}
+                className="p-3 bg-pink-500 text-white rounded-r-lg hover:bg-pink-600 transition flex items-center justify-center"
+                title="Selecionar Atendimentos"
+              >
+                <FaEdit />
+              </button>
+            </div>
+          </div>
+
+          {/* Modal de Seleção de Atendimentos */}
+          {showAtendimentosModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                <h3 className="text-xl font-semibold mb-4">Selecione os atendimentos</h3>
+                <div className="space-y-4">
+                  {atendimentoOptions.map((option) => (
+                    <div key={option.value} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={option.value}
+                        value={option.value}
+                        checked={atendimentos.includes(option.value)} // Verifica se o atendimento está selecionado
+                        onChange={handleAtendimentoSelection}
+                        className="mr-2"
+                      />
+                      <label htmlFor={option.value} className="text-gray-800">{option.label}</label>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 flex justify-between">
+                  <button
+                    onClick={handleSaveAtendimentos}
+                    className="p-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition"
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    onClick={() => setShowAtendimentosModal(false)}
+                    className="p-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Seção de Upload de Vídeo */}
         <div className="bg-gray-50 p-6 rounded-lg shadow-sm">

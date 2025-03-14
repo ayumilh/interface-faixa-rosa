@@ -98,9 +98,9 @@ export default function Search() {
     }
   }, [city, stateUF, fetchCompanions]);
 
-  // useEffect(() => {
-  //   console.log("Dados do context (companions):", companions);
-  // }, [companions]);
+  useEffect(() => {
+    console.log("Dados do context (companions):", companions);
+  }, [companions]);
 
   return (
     <div className="bg-gray-100 text-gray-800">
@@ -111,7 +111,7 @@ export default function Search() {
             alt="Ícone oficial Faixa Rosa"
             width={50}
             height={50}
-            className="animate-pulse"
+            className="animate-pulse w-auto h-auto"
           />
         </div>
       )}
@@ -184,6 +184,7 @@ export default function Search() {
             <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           ) : (
             companions.map((card, index) => {
+              
               let CardComponent;
 
               if (card.plan?.name === "Plano Rubi") {
@@ -214,6 +215,7 @@ export default function Search() {
                     plan={card.plan}
                     planType={card.planType}
                     subscriptions={card.subscriptions}
+                    isAgeHidden={card.isAgeHidden}
                   />
                 </Link>
               );

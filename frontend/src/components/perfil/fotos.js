@@ -31,7 +31,7 @@ export default function Fotos({ userName }) {
 
   useEffect(() => {
     if (userName) {
-      fetchCompanions({ userName: userName });
+      fetchCompanions({ planos: true, userName: userName });
     }
   }, [userName, fetchCompanions]);
 

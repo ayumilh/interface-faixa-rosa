@@ -8,27 +8,25 @@ import { AuthContext } from "@/context/AuthContext";
 import { searchUserId } from "@/utils/searchUserId";
 import Link from "next/link";
 import { Transition } from "@headlessui/react";
-import { getUserInfoFromCookie } from "@/utils/getUserInfo";
 
 export default function Navbar({ bgColor = "pink" }) {
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const { logout, userInfo } = useContext(AuthContext);
   const profileRef = useRef();
   const notificationsRef = useRef();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
-    const userInfo = getUserInfoFromCookie();
     if (userInfo) {
       setUser(userInfo);
       setIsAuthenticated(true);
     }
     setIsLoading(false);
-  }, []);
+  }, [userInfo]);
 
 
   useEffect(() => {
@@ -225,7 +223,7 @@ export default function Navbar({ bgColor = "pink" }) {
                   <div className="px-4 py-2 border-b">
                     {user ? (
                       <>
-                        <p className="text-gray-800 font-semibold">{user.userName}</p>
+                        <p className="text-gray-800 font-semibold">{user.companion.userName}</p>
                         <p className="text-sm text-gray-500">{user.email}</p>
                       </>
                     ) : (

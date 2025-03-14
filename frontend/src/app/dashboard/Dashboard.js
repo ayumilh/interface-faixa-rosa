@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   FaEdit,
   FaPhotoVideo,
@@ -11,6 +11,7 @@ import {
   FaTimes
 } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
+import { AuthContext } from "@/context/AuthContext";
 import Modal from "@/components/dashboard/Modal";
 import Image from "next/image";
 import Metrics from "@/components/dashboard/Metrics";
@@ -23,19 +24,19 @@ import WorkingHours from "@/components/dashboard/WorkingHours";
 import CityManagement from "@/components/dashboard/CityManagement";
 import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { getUserInfoFromCookie } from "@/utils/getUserInfo";
 
 const Dashboard = () => {
+  const { userInfo } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("metrics");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+
   useEffect(() => {
-    const userInfo = getUserInfoFromCookie();
     if (userInfo) {
       setUser(userInfo);
     }
-  }, []);
+  }, [userInfo]);
 
 
   // Detecta se está em mobile
@@ -97,7 +98,7 @@ const Dashboard = () => {
                     className="text-xl font-semibold text-gray-100"
                     style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    {user ? `${user.userName}` : ""}
+                    {user ? `${user.companion.userName}` : ""}
                   </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
@@ -141,7 +142,7 @@ const Dashboard = () => {
                   className="w-12 h-12 rounded-full mr-3"
                 />
                 <div>
-                  <h2 className="text-lg font-semibold">{user ? `${user.userName}` : "Carregando..."}</h2>
+                  <h2 className="text-lg font-semibold">{user ? `${user.companion.userName}` : "Carregando..."}</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

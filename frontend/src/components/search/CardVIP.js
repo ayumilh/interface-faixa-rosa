@@ -12,9 +12,9 @@ import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
-const CardVIP = ({ userName, price, location, description, reviews, contact, images, age, subscriptions }) => {
+const CardVIP = ({ userName, location, description, reviews, contact, images, age, subscriptions, isAgeHidden }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
-  
+
   const handleOpenModal = () => {
     setShowModalNumero(true);
   };
@@ -51,8 +51,14 @@ const CardVIP = ({ userName, price, location, description, reviews, contact, ima
         </p>
 
         {/* Exibição da idade com ícone */}
-        {subscriptions.some(subscription => subscription.extraPlan?.canHideAge === true) ? (
-          null
+        {subscriptions.some(
+          (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled
+        ) ? (
+          isAgeHidden ? (
+            <p className="flex items-center text-black mb-2">
+              <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
+            </p>
+          ) : null
         ) : (
           <p className="flex items-center text-black mb-2">
             <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos

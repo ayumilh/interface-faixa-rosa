@@ -16,7 +16,6 @@ export function PlanProvider({ children }) {
       const url = queryParams ? `http://localhost:4000/api/search/companion?${queryParams}` : `http://localhost:4000/api/search/companion`;
       const response = await axios.get(url);
       setCompanions(response.data);
-      console.log(response.data);
     } catch (err) {
       setError(err);
     } finally {

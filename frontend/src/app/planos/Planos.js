@@ -69,44 +69,44 @@ const Planos = () => {
               Planos Principais
             </h2>
             <div className="grid grid-cols-layout gap-6 max-w-7xl mx-auto">
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card bg-transparent">
                 <PlanoRubi />
               </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card bg-transparent">
                 <PlanoSafira />
               </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card bg-transparent">
                 <PlanoPink />
               </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card bg-transparent">
                 <PlanoVip />
               </div>
-              <div className="plan-card shadow-lg rounded-lg hover:shadow-xl transition-shadow">
+              <div className="plan-card bg-transparent">
                 <PlanoNitro />
               </div>
             </div>
           </div>
 
-          <div className="mt-12 mb-16 lg:mb-24">
+          <div className="w-full mt-12 mb-16 lg:mb-24">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-center text-gray-800 mb-6">
               Planos Extras
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
-              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
-                <Contato />
-              </div>
-              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
-                <PlanoOculto />
-              </div>
-              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
-                <PlanoReviews />
-              </div>
-              <div className="plan-card flex justify-center items-center shadow-lg rounded-lg hover:shadow-xl transition-shadow">
-                <DarkMode />
+            <div className="overflow-visible max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="plan-card flex justify-center items-center bg-transparent">
+                  <Contato />
+                </div>
+                <div class="plan-card flex justify-center items-center bg-transparent">
+                  <PlanoOculto />
+                </div>
+                <div class="plan-card flex justify-center items-center bg-transparent">
+                  <PlanoReviews />
+                </div>
+                <div class="plan-card flex justify-center items-center bg-transparent">
+                  <DarkMode />
+                </div>
               </div>
             </div>
-
-
 
           </div>
         </section>

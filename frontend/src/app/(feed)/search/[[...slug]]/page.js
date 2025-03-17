@@ -40,7 +40,7 @@ export default function Search() {
   const [showModalFiltro, setShowModalFiltro] = useState(false);
   const [cards, setCards] = useState([]);
 
-  const { companions, fetchCompanions, loading, error } = usePlan();
+  const { companions, fetchCompanions, loading } = usePlan();
 
   // Categorias disponíveis
   const categories = [
@@ -92,9 +92,7 @@ export default function Search() {
 
   useEffect(() => {
     if (city && stateUF) {
-      // Use os filtros que desejar. Aqui estamos passando a cidade e o estado.
       fetchCompanions({ cidade: city, estado: stateUF });
-      setLoadingSearch(false);
     }
   }, [city, stateUF, fetchCompanions]);
 
@@ -104,7 +102,7 @@ export default function Search() {
 
   return (
     <div className="bg-gray-100 text-gray-800">
-      {loadingSearch && (
+      {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
           <Image
             src="/iconOficial_faixaRosa.png"

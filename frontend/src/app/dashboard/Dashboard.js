@@ -27,7 +27,7 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 
 const Dashboard = () => {
   const { userInfo } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState("metrics");
+  const [activeTab, setActiveTab] = useState("profile");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -87,9 +87,9 @@ const Dashboard = () => {
                       />
                     </div>
                   ) : (
-                    <span className="w-12 h-12 flex items-center justify-center rounded-full text-gray-600 text-xl font-semibold">
+                    <span className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
                       {/* Exibe a inicial do nome */}
-                      {user?.userName?.charAt(0).toUpperCase()}
+                      {user?.companion?.userName?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -134,13 +134,24 @@ const Dashboard = () => {
           {isMobile && (
             <div className="flex justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
               <div className="flex items-center">
-                <Image
-                  src={"/images/user.jpg"}
-                  alt="Usuário"
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-full mr-3"
-                />
+                {user?.companion?.profileImage ? (
+                  <div>
+                    <Image
+                      src={user.companion.profileImage}
+                      alt="Imagem de Perfil"
+                      width={40}
+                      height={40}
+                      className="rounded-full w-10 h-10 object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="mr-4">
+                    <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
+                      {/* Exibe a inicial do nome */}
+                      {user?.companion?.userName?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
                 <div>
                   <h2 className="text-lg font-semibold">{user ? `${user.companion.userName}` : "Carregando..."}</h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>

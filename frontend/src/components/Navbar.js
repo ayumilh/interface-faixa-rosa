@@ -22,6 +22,7 @@ export default function Navbar({ bgColor = "pink" }) {
 
   useEffect(() => {
     if (userInfo) {
+      console.log(userInfo);
       setUser(userInfo);
       setIsAuthenticated(true);
     }
@@ -201,9 +202,9 @@ export default function Navbar({ bgColor = "pink" }) {
                       />
                     </div>
                   ) : (
-                    <span className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 text-xl font-semibold">
+                    <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
                       {/* Exibe a inicial do nome */}
-                      {user?.userName?.charAt(0).toUpperCase()}
+                      {user?.companion?.userName?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>

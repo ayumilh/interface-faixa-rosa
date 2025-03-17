@@ -27,11 +27,9 @@ import {
 import Final from '@/components/search/final';
 import { useParams } from "next/navigation";
 import axios from 'axios';
-import { usePlan } from "@/context/PlanContext";
 
 export default function Perfil() {
   const { userName } = useParams();
-  const { companions, fetchCompanions, loading, error } = usePlan();
 
   const [maisAcompanhantes, setMaisAcompanhantes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,37 +39,37 @@ export default function Perfil() {
   const [showModalNumero, setShowModalNumero] = useState(false); // Controle do modal de número
   const [companionData, setCompanionData] = useState(null); // Para armazenar os dados da acompanhante
 
-
   useEffect(() => {
-    if (userName) {
-      fetchCompanions({ planos: true, userName: userName });
-      setIsLoading(false);
-    }
-  }, [userName, fetchCompanions]);
+    const fetchProfile = async () => {
+      if (!userName) return;
 
-  useEffect(() => {
-    if (companions && companions.length > 0) {
-      setCompanionData(companions[0]);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
+        );
 
-      // Buscar mais acompanhantes na mesma cidade para a aside
-      const city = companions[0].city;
-      const state = companions[0].state;
+        console.log('Dados do perfil:', response.data);
+        setCompanionData(response.data);
+        setIsLoading(false);
 
-      const fetchMoreCompanions = async () => {
-        try {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
-          );
-          setMaisAcompanhantes(response.data);
-        } catch (error) {
-          console.error('Erro ao buscar acompanhantes:', error);
-        }
-      };
+        // Buscar mais acompanhantes com base na cidade e estado
+        const city = response.data.city;
+        const state = response.data.state;
 
-      fetchMoreCompanions();
-    }
-  }, [companions]);
+        const acompanhantesResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
+        );
+
+        setMaisAcompanhantes(acompanhantesResponse.data);
+      } catch (error) {
+        console.error('Erro ao buscar perfil:', error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [userName]);
 
 
   const handleTabClick = (tab) => {
@@ -171,7 +169,7 @@ export default function Perfil() {
                       alt="Banner do perfil"
                       width={1200}
                       height={300}
-                      className="object-cover"
+                      className="object-cover w-auto h-auto"
                     />
                   </div>
                 )}
@@ -211,12 +209,18 @@ export default function Perfil() {
             {/* Imagem de perfil e nome */}
             <div className="flex flex-col items-center mb-4">
               <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
-                <Image
-                  src={companionData.profileImage} // Usando a imagem de perfil retornada da API
-                  alt="Foto de perfil"
-                  layout="fill"
-                  objectFit="cover"
-                />
+                {companionData && companionData.profileImage && (
+                  <div className="w-full h-48 bg-gray-200 flex-shrink-0 mb-4">
+                    <Image
+                      src={companionData.profileImage} // Usando a URL do banner retornada da API
+                      alt="Foto do perfil"
+                      width={40}
+                      height={40}
+                      className="object-cover w-auto h-auto"
+                      pr
+                    />
+                  </div>
+                )}
                 <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
               </div>
               <h2 className="text-xl text-black font-bold mt-2">{companionData.userName}</h2>
@@ -264,19 +268,19 @@ export default function Perfil() {
             <div className="lg:col-span-3 bg-white shadow rounded-lg overflow-hidden relative">
               {/* Banner de perfil */}
               <div className="relative h-56 bg-gray-200">
-                {companionData && companionData.bannerImage && (
+                {companionData && companionData.bannerImage ? (
                   <Image
                     src={companionData.bannerImage}
                     alt="Foto de perfil"
                     width={1200}
                     height={300}
-                    className="w-full h-full object-cover"
+                    className="object-cover h-80 w-[1200px]"
                   />
-                ) || (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500">Sem banner</span>
-                    </div>
-                  )}
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500">Sem banner</span>
+                  </div>
+                )}
               </div>
 
               {/* Foto de perfil: Usando posicionamento absoluto para sobrepor o banner */}
@@ -290,13 +294,14 @@ export default function Perfil() {
                           alt="Foto de perfil"
                           width={150}
                           height={150}
-                          className="object-cover"
+                          className="object-cover h-40 w-40" // Apenas usa o estilo necessário para cobrir
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                           <span className="text-gray-500">Sem foto</span>
                         </div>
                       )}
+
                     </div>
                   </div>
 
@@ -345,7 +350,7 @@ export default function Perfil() {
 
                   <div className="flex items-center space-x-2">
                     <FaMale />
-                    <p>Atende: 
+                    <p>Atende:
                       {companionData?.atendimentos && companionData.atendimentos.length > 0 ? (
                         companionData.atendimentos.map((atendimento, index) => (
                           <span key={index}>

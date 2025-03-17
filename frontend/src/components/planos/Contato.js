@@ -73,7 +73,7 @@ export default function Contato() {
   };
 
   return (
-    <div className="flex flex-col h-full p-4 sm:p-6">
+    <div className="flex flex-col h-full p-4 sm:p-6 rounded-3xl shadow-xl bg-white">
       {/* Título do Plano */}
       <div className="flex items-center space-x-2 sm:space-x-3 mb-4">
         <FaPhoneAlt className="text-blue-500 text-xl sm:text-2xl" />
@@ -84,14 +84,14 @@ export default function Contato() {
           </span>
         </h3>
       </div>
-{/* Pontos de Listagem */}
-<p className="bg-blue-50 text-blue-700 font-semibold text-xs sm:text-sm px-3 py-1 rounded-full inline-block mb-6 sm:mb-8">
-   +200
-   pontos de listagem
-          </p>
+      {/* Pontos de Listagem */}
+      <p className="bg-blue-50 text-blue-700 font-semibold text-xs sm:text-sm px-3 py-1 rounded-full inline-block mb-6 sm:mb-8">
+        +200
+        pontos de listagem
+      </p>
       {/* Benefícios */}
       <ul className="space-y-2 sm:space-y-3 text-gray-700 text-sm sm:text-base mb-4">
-       
+
         <li className="flex items-start space-x-2">
           <FaCheckCircle className="text-green-500 w-4 h-4 flex-shrink-0" />
           <span>Até 1.5x mais visitas e 2x mais contatos de clientes que outros perfis da sua cidade</span>

@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { GiDiamondHard } from 'react-icons/gi';
 import Image from "next/image";
+import BtnContratarPlano from "./BtnContratarPlano";
 
 // Constantes
 const DEFAULT_PHONE_NUMBER = "(00) 00000-0000";
@@ -83,16 +84,14 @@ const Modal = memo(({ onClose, title, description, children, theme = "light" }) 
       onClick={onClose}
     >
       <div
-        className={`${
-          theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-        } rounded-2xl p-4 sm:p-6 max-w-lg w-full relative`}
+        className={`${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+          } rounded-2xl p-4 sm:p-6 max-w-lg w-full relative`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className={`absolute top-3 right-3 ${
-            theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-          }`}
+          className={`absolute top-3 right-3 ${theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+            }`}
           aria-label="Fechar modal"
         >
           <FaTimes className="w-5 h-5" />
@@ -135,11 +134,10 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
   if (images.length === 0) {
     return (
       <div
-        className={`w-full h-56 rounded-md mb-4 flex items-center justify-center ${
-          theme === "dark"
-            ? "bg-gray-700 text-gray-300"
-            : "bg-gray-200 text-gray-500"
-        }`}
+        className={`w-full h-56 rounded-md mb-4 flex items-center justify-center ${theme === "dark"
+          ? "bg-gray-700 text-gray-300"
+          : "bg-gray-200 text-gray-500"
+          }`}
       >
         Sem imagem disponível
       </div>
@@ -157,22 +155,20 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
       />
       <button
         onClick={handlePrev}
-        className={`absolute top-1/2 left-3 transform -translate-y-1/2 ${
-          theme === "light"
-            ? "text-gray-700 bg-white hover:bg-gray-100"
-            : "text-gray-300 bg-black hover:bg-gray-700"
-        } rounded-full p-2 shadow-md transition`}
+        className={`absolute top-1/2 left-3 transform -translate-y-1/2 ${theme === "light"
+          ? "text-gray-700 bg-white hover:bg-gray-100"
+          : "text-gray-300 bg-black hover:bg-gray-700"
+          } rounded-full p-2 shadow-md transition`}
         aria-label="Imagem anterior"
       >
         <FaChevronLeft />
       </button>
       <button
         onClick={handleNext}
-        className={`absolute top-1/2 right-3 transform -translate-y-1/2 ${
-          theme === "light"
-            ? "text-gray-700 bg-white hover:bg-gray-100"
-            : "text-gray-300 bg-black hover:bg-gray-700"
-        } rounded-full p-2 shadow-md transition`}
+        className={`absolute top-1/2 right-3 transform -translate-y-1/2 ${theme === "light"
+          ? "text-gray-700 bg-white hover:bg-gray-100"
+          : "text-gray-300 bg-black hover:bg-gray-700"
+          } rounded-full p-2 shadow-md transition`}
         aria-label="Próxima imagem"
       >
         <FaChevronRight />
@@ -181,9 +177,8 @@ const ImageCarousel = memo(({ images, theme = "light" }) => {
         {images.map((_, index) => (
           <span
             key={index}
-            className={`w-3 h-3 rounded-full ${
-              index === currentIndex ? "bg-gray-700" : "bg-gray-300"
-            } transition-all`}
+            className={`w-3 h-3 rounded-full ${index === currentIndex ? "bg-gray-700" : "bg-gray-300"
+              } transition-all`}
           ></span>
         ))}
       </div>
@@ -254,22 +249,20 @@ const ModalContato = memo(({ name, images, setShowModalNumero, phoneNumber = DEF
               />
               <button
                 onClick={handlePrevModal}
-                className={`absolute top-1/2 left-2 transform -translate-y-1/2 ${
-                  theme === "light"
-                    ? "text-gray-700 bg-white hover:bg-gray-100"
-                    : "text-gray-300 bg-black hover:bg-gray-700"
-                } rounded-full p-2 shadow-md transition`}
+                className={`absolute top-1/2 left-2 transform -translate-y-1/2 ${theme === "light"
+                  ? "text-gray-700 bg-white hover:bg-gray-100"
+                  : "text-gray-300 bg-black hover:bg-gray-700"
+                  } rounded-full p-2 shadow-md transition`}
                 aria-label="Imagem anterior"
               >
                 <FaChevronLeft />
               </button>
               <button
                 onClick={handleNextModal}
-                className={`absolute top-1/2 right-2 transform -translate-y-1/2 ${
-                  theme === "light"
-                    ? "text-gray-700 bg-white hover:bg-gray-100"
-                    : "text-gray-300 bg-black hover:bg-gray-700"
-                } rounded-full p-2 shadow-md transition`}
+                className={`absolute top-1/2 right-2 transform -translate-y-1/2 ${theme === "light"
+                  ? "text-gray-700 bg-white hover:bg-gray-100"
+                  : "text-gray-300 bg-black hover:bg-gray-700"
+                  } rounded-full p-2 shadow-md transition`}
                 aria-label="Próxima imagem"
               >
                 <FaChevronRight />
@@ -278,10 +271,9 @@ const ModalContato = memo(({ name, images, setShowModalNumero, phoneNumber = DEF
                 {images.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      index === currentIndexModal
-                        ? "bg-gray-700" : "bg-gray-300"
-                    } transition-all`}
+                    className={`w-3 h-3 rounded-full ${index === currentIndexModal
+                      ? "bg-gray-700" : "bg-gray-300"
+                      } transition-all`}
                   ></span>
                 ))}
               </div>
@@ -386,14 +378,13 @@ const CardRubiLight = memo(
     const handleOpenModal = useCallback(() => {
       setShowModalNumero(true);
     }, []);
-    
+
 
     return (
       <>
         <div
-          className={`border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl ${
-            theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-          }`}
+          className={`border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl ${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+            }`}
         >
           {/* Carrossel de Imagens */}
           <ImageCarousel images={images} theme={theme} />
@@ -416,9 +407,8 @@ const CardRubiLight = memo(
 
           {/* Descrição curta */}
           <p
-            className={`text-sm italic mb-3 ${
-              theme === "dark" ? "text-gray-300" : "text-gray-600"
-            }`}
+            className={`text-sm italic mb-3 ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+              }`}
           >
             {description}
           </p>
@@ -436,11 +426,10 @@ const CardRubiLight = memo(
               <div className="flex items-center mt-2">
                 <FaBirthdayCake className="text-pink-500 mr-1" />
                 <div
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    theme === "dark"
-                      ? "bg-white text-black"
-                      : "bg-white text-black"
-                  }`}
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${theme === "dark"
+                    ? "bg-white text-black"
+                    : "bg-white text-black"
+                    }`}
                 >
                   {age} anos
                 </div>
@@ -646,10 +635,10 @@ const PlanoRubi = () => {
               </span>
             </h3>
           </div>
-   {/* Pontos de Listagem */}
-   <p className="bg-red-50 text-red-700 font-semibold text-xs sm:text-sm px-3 py-1 rounded-full inline-block mb-6 sm:mb-8">
-   +2.000
-   pontos de listagem
+          {/* Pontos de Listagem */}
+          <p className="bg-red-50 text-red-700 font-semibold text-xs sm:text-sm px-3 py-1 rounded-full inline-block mb-6 sm:mb-8">
+            +2.000
+            pontos de listagem
           </p>
 
           {/* Benefícios */}
@@ -661,7 +650,7 @@ const PlanoRubi = () => {
         </div>
 
         {/* Preços */}
-      <div className="flex-grow flex flex-col justify-end -mt-6">
+        <div className="flex-grow flex flex-col justify-end -mt-6">
           {/* Seção de Preço Atualizada */}
           <div className="text-center mb-8">
             {/* Texto acima do preço */}
@@ -677,34 +666,29 @@ const PlanoRubi = () => {
           </div>
 
           {/* Botão Contratar */}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="w-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold py-3 rounded-lg transition duration-300 mb-4"
-          >
-            Contratar o Plano Rubi
-          </button>
+          <BtnContratarPlano planId={1} />
 
           {/* Exemplo de Anúncio */}
-          <div className="mt-4 sm:mt-6 sm:-mt-2 flex justify-center">
-          <button
+          <div className="mt-4  sm:-mt-2 flex justify-center">
+            <button
               onClick={() => setModalOpen(true)}
               className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-red-500 text-sm font-medium underline flex items-center justify-center hover:from-pink-600 hover:to-purple-600 transition duration-300 ease-in-out">
-            
+
               Veja um exemplo do anúncio
             </button>
           </div>
         </div>
       </div>
 
-          {/* Exemplo do Anúncio */}
-          <div className="mt-4 sm:mt-6 text-center">
-            <button
-              onClick={() => setModalOpen(true)}
-              className="text-red-600 text-sm font-medium underline flex items-center justify-center hover:text-red-800 transition duration-300 ease-in-out"
-            >
-              Veja um exemplo do anúncio
-            </button>
-          </div>
+      {/* Exemplo do Anúncio */}
+      <div className="mt-4 sm:mt-6 text-center">
+        <button
+          onClick={() => setModalOpen(true)}
+          className="text-red-600 text-sm font-medium underline flex items-center justify-center hover:text-red-800 transition duration-300 ease-in-out"
+        >
+          Veja um exemplo do anúncio
+        </button>
+      </div>
 
       {/* Modal Responsivo com tema Light e Dark */}
       {isModalOpen && (
@@ -716,30 +700,28 @@ const PlanoRubi = () => {
         >
           {/* Botões para alternar temas */}
           <div className="flex justify-center mb-4 space-x-4">
-       {/* Botão Light */}
-  <button
-    onClick={() => toggleTheme("light")}
-    className={`px-4 py-2 rounded transition ${
-      modalTheme === "light"
-        ? "bg-[#F0F4FF] text-[#0A0A0A]" // Fundo claro, texto escuro
-        : "bg-gray-300 text-gray-700" // Fundo cinza claro, texto cinza médio
-    } hover:bg-[#E0E7FF] hover:text-[#0A0A0A]`} // Efeito de hover para clarear
-  >
-    Light
-  </button>
-  
-  {/* Botão Dark */}
-  <button
-    onClick={() => toggleTheme("dark")}
-    className={`px-4 py-2 rounded transition ${
-      modalTheme === "dark"
-        ? "bg-[#1C1C1C] text-[#E0E7FF]" // Fundo escuro, texto claro
-        : "bg-gray-400 text-gray-700" // Fundo cinza médio, texto cinza escuro
-    } hover:bg-[#2A2A2A] hover:text-[#E0E7FF]`} // Efeito de hover para escurecer
-  >
-    Dark
-  </button>
-</div>
+            {/* Botão Light */}
+            <button
+              onClick={() => toggleTheme("light")}
+              className={`px-4 py-2 rounded transition ${modalTheme === "light"
+                ? "bg-[#F0F4FF] text-[#0A0A0A]" // Fundo claro, texto escuro
+                : "bg-gray-300 text-gray-700" // Fundo cinza claro, texto cinza médio
+                } hover:bg-[#E0E7FF] hover:text-[#0A0A0A]`} // Efeito de hover para clarear
+            >
+              Light
+            </button>
+
+            {/* Botão Dark */}
+            <button
+              onClick={() => toggleTheme("dark")}
+              className={`px-4 py-2 rounded transition ${modalTheme === "dark"
+                ? "bg-[#1C1C1C] text-[#E0E7FF]" // Fundo escuro, texto claro
+                : "bg-gray-400 text-gray-700" // Fundo cinza médio, texto cinza escuro
+                } hover:bg-[#2A2A2A] hover:text-[#E0E7FF]`} // Efeito de hover para escurecer
+            >
+              Dark
+            </button>
+          </div>
 
 
           {/* Exibir CardRubiLight ou CardDark com tema selecionado */}

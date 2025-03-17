@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { BsCardText } from "react-icons/bs";
 import Image from "next/image";
+import BtnContratarPlano from "./BtnContratarPlano";
 
 // Constantes
 const DEFAULT_PHONE_NUMBER = "(00) 00000-0000";
@@ -55,18 +56,16 @@ const Modal = memo(({ onClose, title, description, children, theme = "light" }) 
       onClick={onClose}
     >
       <div
-        className={`${
-          theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-        } rounded-2xl p-4 sm:p-6 max-w-lg w-full relative`}
+        className={`${theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+          } rounded-2xl p-4 sm:p-6 max-w-lg w-full relative`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className={`absolute top-3 right-3 ${
-            theme === "dark"
+          className={`absolute top-3 right-3 ${theme === "dark"
               ? "text-gray-300 hover:text-white"
               : "text-gray-700 hover:text-gray-900"
-          }`}
+            }`}
           aria-label="Fechar modal"
         >
           <FaTimes className="w-5 h-5" />
@@ -107,9 +106,8 @@ const CardVIPLight = memo(
     return (
       <>
         <div
-          className={`bg-yellow-100 border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl ${
-            theme === "dark" ? "bg-gray-800 text-white" : "bg-yellow-100 text-gray-800"
-          }`}
+          className={`bg-yellow-100 border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl ${theme === "dark" ? "bg-gray-800 text-white" : "bg-yellow-100 text-gray-800"
+            }`}
         >
           {/* Imagem Principal */}
           {images && images.length > 0 ? (
@@ -285,9 +283,8 @@ const CardVIPDark = memo(
     return (
       <>
         <div
-          className={`bg-black border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl ${
-            theme === "dark" ? "bg-black text-white" : "bg-black text-white"
-          }`}
+          className={`bg-black border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl ${theme === "dark" ? "bg-black text-white" : "bg-black text-white"
+            }`}
         >
           {/* Imagem Principal */}
           {images && images.length > 0 ? (
@@ -375,9 +372,8 @@ const CardVIPDark = memo(
                   </>
                 ) : (
                   <div
-                    className={`w-full h-48 rounded-md flex items-center justify-center text-gray-500 ${
-                      theme === "dark" ? "bg-gray-700" : "bg-gray-200"
-                    }`}
+                    className={`w-full h-48 rounded-md flex items-center justify-center text-gray-500 ${theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                      }`}
                   >
                     Sem imagem disponível
                   </div>
@@ -398,9 +394,8 @@ const CardVIPDark = memo(
                   <FaCheckCircle className="absolute bottom-1 right-1 text-green-500 text-2xl" />
                 </div>
                 <h2
-                  className={`text-xl text-yellow-500 font-bold mt-2 ${
-                    theme === "dark" ? "text-white" : "text-yellow-500"
-                  }`}
+                  className={`text-xl text-yellow-500 font-bold mt-2 ${theme === "dark" ? "text-white" : "text-yellow-500"
+                    }`}
                 >
                   {name}
                 </h2>
@@ -503,35 +498,32 @@ const PlanoVip = () => {
 
         {/* Preços */}
         <div className="flex-grow flex flex-col justify-end mt-4 sm:mt-0 ">
-        {/* Seção de Preço Atualizada */}
-  <div className="text-center mb-6 sm:mb-8 -mt-10">
-    {/* Texto acima do preço */}
-    <p className="text-gray-400 text-sm">A partir de:</p>
+          {/* Seção de Preço Atualizada */}
+          <div className="text-center mb-6 sm:mb-8 -mt-10">
+            {/* Texto acima do preço */}
+            <p className="text-gray-400 text-sm">A partir de:</p>
 
-    {/* Preço do plano */}
-    <p className="text-3xl font-bold text-gray-800">R$ 169,90</p>
+            {/* Preço do plano */}
+            <p className="text-3xl font-bold text-gray-800">R$ 169,90</p>
 
-    {/* Detalhe do desconto */}
-    <span className="text-sm text-green-600 font-medium mt-2 block">
-      Economize 10% no pagamento
-    </span>
-  </div>
+            {/* Detalhe do desconto */}
+            <span className="text-sm text-green-600 font-medium mt-2 block">
+              Economize 10% no pagamento
+            </span>
+          </div>
 
-         {/* Botão Contratar */}
-  <button
-    onClick={() => setModalOpen(true)}
-    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-lg transition duration-300 mb-4"
-  >
-    Contratar o Plano VIP
-  </button>
-{/* Exemplo de Anúncio */}
-<div className="mt-6 sm:mt-5 text-center">
-  <button
-    onClick={() => setModalOpen(true)}
-    className="text-yellow-500 text-sm underline hover:text-yellow-600 transition duration-300"
-  >
-    Veja um exemplo do anúncio
-  </button>
+          {/* Botão Contratar */}
+          <BtnContratarPlano planId={4} />
+
+
+          {/* Exemplo de Anúncio */}
+          <div className="mt-6 sm:mt-2 text-center">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="text-yellow-500 text-sm underline hover:text-yellow-600 transition duration-300"
+            >
+              Veja um exemplo do anúncio
+            </button>
 
           </div>
         </div>
@@ -550,11 +542,10 @@ const PlanoVip = () => {
             {/* Botão Light */}
             <button
               onClick={() => toggleTheme("light")}
-              className={`px-4 py-2 rounded transition ${
-                modalTheme === "light"
+              className={`px-4 py-2 rounded transition ${modalTheme === "light"
                   ? "bg-yellow-200 text-yellow-800"
                   : "bg-gray-300 text-gray-700"
-              } hover:bg-yellow-100 hover:text-yellow-800`}
+                } hover:bg-yellow-100 hover:text-yellow-800`}
             >
               Light
             </button>
@@ -562,11 +553,10 @@ const PlanoVip = () => {
             {/* Botão Dark */}
             <button
               onClick={() => toggleTheme("dark")}
-              className={`px-4 py-2 rounded transition ${
-                modalTheme === "dark"
+              className={`px-4 py-2 rounded transition ${modalTheme === "dark"
                   ? "bg-yellow-800 text-yellow-100"
                   : "bg-gray-600 text-gray-400"
-              } hover:bg-yellow-700 hover:text-yellow-100`}
+                } hover:bg-yellow-700 hover:text-yellow-100`}
             >
               Dark
             </button>

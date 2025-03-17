@@ -26,7 +26,7 @@ export default function PlanoOculto() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center  bg-white p-4 sm:p-6">
+    <div className="flex flex-col h-full p-4 sm:p-6 rounded-3xl shadow-xl bg-white">
       {/* Título do Plano */}
       <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
         <FaEyeSlash className="text-blue-600 text-2xl sm:text-3xl" />
@@ -37,11 +37,11 @@ export default function PlanoOculto() {
           </span>
         </h3>
       </div>
-{/* Pontos de Listagem */}
-<p className="bg-blue-50 text-blue-700 font-semibold text-xs sm:text-sm px-3 py-1 rounded-full inline-block mb-6 sm:mb-8">
-   +100
-   pontos de listagem
-          </p>
+      {/* Pontos de Listagem */}
+      <p className="bg-blue-50 text-blue-700 font-semibold text-xs sm:text-sm px-3 py-1 rounded-full inline-block mb-6 sm:mb-8">
+        +100
+        pontos de listagem
+      </p>
       {/* Benefícios */}
       <ul className="space-y-2 sm:space-y-3 text-gray-700 text-sm sm:text-base mb-6 sm:mb-8 max-w-full sm:max-w-md">
         <li className="flex items-start space-x-2">
@@ -56,7 +56,7 @@ export default function PlanoOculto() {
           <FaCheckCircle className="text-green-500 w-4 h-4" />
           <span>Anúncio online todos os dias da semana</span>
         </li>
-       
+
         <li className="flex items-start space-x-2">
           <FaTimesCircle className="text-red-500 w-4 h-4" />
           <span>Sem stories</span>
@@ -68,44 +68,42 @@ export default function PlanoOculto() {
       </ul>
 
       <div className="relative -mt-2 sm:-mt-16 text-center">
-  {/* Preços com Animação */}
-  <div className="mb-6 sm:mb-8">
-    <p
-      className={`text-gray-600 text-sm sm:text-base line-through mt-12 ${
-        animatePrice ? "animate-strike" : ""
-      }`}
-    >
-      DE R$ 111,00
-    </p>
-    <p
-      className={`text-lg sm:text-xl font-bold text-gray-800 mt-2  ${
-        animatePrice ? "animate-fade-in" : "opacity-0"
-      }`}
-    >
-      POR A PARTIR DE R$ 99,90 Mensal
-    </p>
-    <span className="bg-red-500 text-white text-xs sm:text-sm font-semibold px-3 py-1 rounded-full mt-4 inline-block -mt-8 ">
-      10% OFF
-    </span>
-  </div>
+        {/* Preços com Animação */}
+        <div className="mb-6 sm:mb-8">
+          <p
+            className={`text-gray-600 text-sm sm:text-base line-through mt-12 ${animatePrice ? "animate-strike" : ""
+              }`}
+          >
+            DE R$ 111,00
+          </p>
+          <p
+            className={`text-lg sm:text-xl font-bold text-gray-800 mt-2  ${animatePrice ? "animate-fade-in" : "opacity-0"
+              }`}
+          >
+            POR A PARTIR DE R$ 99,90 Mensal
+          </p>
+          <span className="bg-red-500 text-white text-xs sm:text-sm font-semibold px-3 py-1 rounded-full mt-4 inline-block -mt-8 ">
+            10% OFF
+          </span>
+        </div>
 
-  {/* Botão Contratar */}
-  <div className="mb-6">
-    <button className="w-full max-w-xs bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm sm:text-base font-bold py-3 rounded-full hover:opacity-90 transition duration-300 ease-in-out -mt-40">
-      Contrate o Plano
-    </button>
-  </div>
+        {/* Botão Contratar */}
+        <div className="mb-6">
+          <button className="w-full max-w-xs bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm sm:text-base font-bold py-3 rounded-full hover:opacity-90 transition duration-300 ease-in-out -mt-40">
+            Contrate o Plano
+          </button>
+        </div>
 
-  {/* Botão Mais Informações */}
-  <div className="mt-4">
-    <button
-      onClick={() => setModalOpen(true)}
-      className="text-blue-600 text-sm font-medium underline hover:text-blue-800 transition duration-300"
-    >
-      Mais informações
-    </button>
-  </div>
-</div>
+        {/* Botão Mais Informações */}
+        <div className="mt-4">
+          <button
+            onClick={() => setModalOpen(true)}
+            className="text-blue-600 text-sm font-medium underline hover:text-blue-800 transition duration-300"
+          >
+            Mais informações
+          </button>
+        </div>
+      </div>
 
 
       {/* Modal Responsivo */}

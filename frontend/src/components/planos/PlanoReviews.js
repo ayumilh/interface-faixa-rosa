@@ -19,7 +19,7 @@ export default function PlanoReviews() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center bg-white p-4 sm:p-6">
+    <div className="flex flex-col items-center justify-center rounded-3xl shadow-xl bg-white p-4 sm:p-6">
       {/* Título do Plano */}
       <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
         <FaStar className="text-orange-500 text-2xl sm:text-3xl" />

@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa";
 import { GiDiamondHard } from "react-icons/gi";
 import Image from "next/image";
+import BtnContratarPlano from "./BtnContratarPlano";
 
 // Constantes
 const DEFAULT_PHONE_NUMBER = "(00) 00000-0000";
@@ -708,12 +709,7 @@ const PlanoSafira = () => {
           </div>
 
           {/* Botão Contratar */}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold py-3 rounded-lg transition duration-300 mb-4"
-          >
-            Contratar o Plano Safira
-          </button>
+          <BtnContratarPlano planId={2} />
 
           {/* Exemplo de Anúncio */}
           <div className="mt-4 sm:-mt-2 flex justify-center">

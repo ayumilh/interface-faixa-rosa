@@ -147,9 +147,6 @@ html {
   width: 100%;
   max-width: 400px; /* Tamanho máximo no desktop */
   height: 550px; /* Altura fixa no desktop */
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between; /* Espaça o conteúdo interno uniformemente */

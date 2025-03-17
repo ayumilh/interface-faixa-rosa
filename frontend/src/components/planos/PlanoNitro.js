@@ -859,7 +859,7 @@ const PlanoNitro = () => {
           </button>
 
           {/* Exemplo do Anúncio */}
-          <div className="mt-3 sm:mt-4 text-center">
+          <div className="mt-3 sm:mt-2 text-center">
             <button
               onClick={() => setModalOpen(true)}
               className="text-orange-600 text-sm font-medium underline hover:text-orange-800 transition duration-300 ease-in-out"

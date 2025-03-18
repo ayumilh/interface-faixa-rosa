@@ -86,7 +86,7 @@ const ProfileSettings = ({ onUpdate }) => {
       const userToken = Cookies.get("userToken");
       try {
         const response = await axios.get(
-          'http://localhost:4000/api/companions/profile-banner/',
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
           {
             headers: { Authorization: `Bearer ${userToken}` },
           }
@@ -166,7 +166,7 @@ const ProfileSettings = ({ onUpdate }) => {
     try {
       // Enviar a imagem para o backend
       const response = await axios.post(
-        'http://localhost:4000/api/companions/profile-banner/update',
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/update`,
         formData,
         {
           headers: {

@@ -182,6 +182,7 @@ export default function Search() {
             <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           ) : (
             companions.map((card, index) => {
+              console.log("Card:", card);
               
               let CardComponent;
 

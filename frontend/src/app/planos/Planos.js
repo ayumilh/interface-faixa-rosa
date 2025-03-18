@@ -93,16 +93,16 @@ const Planos = () => {
             </h2>
             <div className="overflow-visible max-w-6xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="plan-card flex justify-center items-center bg-transparent">
+                <div className="plan-card flex justify-center items-center bg-transparent">
                   <Contato />
                 </div>
-                <div class="plan-card flex justify-center items-center bg-transparent">
+                <div className="plan-card flex justify-center items-center bg-transparent">
                   <PlanoOculto />
                 </div>
-                <div class="plan-card flex justify-center items-center bg-transparent">
+                <div className="plan-card flex justify-center items-center bg-transparent">
                   <PlanoReviews />
                 </div>
-                <div class="plan-card flex justify-center items-center bg-transparent">
+                <div className="plan-card flex justify-center items-center bg-transparent">
                   <DarkMode />
                 </div>
               </div>

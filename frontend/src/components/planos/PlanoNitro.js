@@ -18,6 +18,7 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import Image from "next/image";
+import BtnContratarPlano from "./BtnContratarPlano";
 
 // Constantes
 const DEFAULT_PHONE_NUMBER = "(00) 00000-0000";
@@ -854,9 +855,7 @@ const PlanoNitro = () => {
           </span>
 
           {/* Botão Contratar */}
-          <button className="w-full bg-gradient-to-r from-orange-400 to-orange-600 text-black text-md sm:text-lg font-bold py-3 sm:py-4 rounded-full hover:opacity-90 transition duration-300 ease-in-out">
-            Contrate o Plano
-          </button>
+          <BtnContratarPlano planId={6} />
 
           {/* Exemplo do Anúncio */}
           <div className="mt-3 sm:mt-2 text-center">

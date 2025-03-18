@@ -57,11 +57,14 @@ export default function Perfil() {
         const city = response.data.city;
         const state = response.data.state;
 
-        const acompanhantesResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion-city?cidade=${city}&estado=${state}`
-        );
-
-        setMaisAcompanhantes(acompanhantesResponse.data);
+        if (city && state) {
+          const cidadeCodificada = encodeURIComponent(city);
+          
+          const moreResponse = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?cidade=${cidadeCodificada}&estado=${state}`
+          );
+          setMaisAcompanhantes(moreResponse.data);
+        }
       } catch (error) {
         console.error('Erro ao buscar perfil:', error);
         setIsLoading(false);

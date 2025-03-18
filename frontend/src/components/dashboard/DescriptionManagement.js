@@ -74,8 +74,7 @@ const DescriptionManagement = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
-          'http://localhost:4000/api/companions/description',
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
           {
             headers: { Authorization: `Bearer ${userToken}` },
           }
@@ -153,7 +152,7 @@ const DescriptionManagement = () => {
     try {
       const userToken = Cookies.get("userToken");
       const response = await axios.post(
-        "http://localhost:4000/api/companions/description/update",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
         updatedData,
         {
           headers: {
@@ -273,8 +272,7 @@ const DescriptionManagement = () => {
       const userToken = Cookies.get("userToken");
 
       const response = await axios.post(
-        // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
-        'http://localhost:4000/api/companions/description/update',
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
         { userName: newUserName },
         {
           headers: {

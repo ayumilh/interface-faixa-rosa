@@ -22,8 +22,7 @@ export const AuthContextProvider = ({ children }) => {
     const login = async (inputs) => {
         try {
             const res = await axios.post(
-                // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
-                'http://localhost:4000/api/user/login',
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
                 inputs,
                 {
                     withCredentials: true,
@@ -70,8 +69,7 @@ export const AuthContextProvider = ({ children }) => {
                 try {
 
                     const res = await axios.get(
-                        // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
-                        'http://localhost:4000/api/users/info',
+                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
                         {
                             headers: {
                                 Authorization: `Bearer ${tokenId}`,

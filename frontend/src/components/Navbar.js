@@ -22,7 +22,6 @@ export default function Navbar({ bgColor = "pink" }) {
 
   useEffect(() => {
     if (userInfo) {
-      console.log(userInfo);
       setUser(userInfo);
       setIsAuthenticated(true);
     }
@@ -235,7 +234,7 @@ export default function Navbar({ bgColor = "pink" }) {
                     Dashboard
                   </Link>
 
-                  <Link href={`/perfil/${user ? user.userName : ''}`} className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
+                  <Link href={`/perfil/${user?.companion?.userName || ''}`} className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                     Perfil
                   </Link>
                   <Link href="/settings" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">

@@ -11,6 +11,8 @@ import {
   FaBirthdayCake, // Certifique-se de que este ícone está importado
 } from "react-icons/fa";
 import Image from "next/image";
+import BtnContratarPlano from "./BtnContratarPlano";
+
 
 // Componente Card Light
 const CardLight = ({ name, price, location, contact, image, age }) => {
@@ -128,9 +130,7 @@ export default function Contato() {
       </div>
 
       {/* Botão Contratar */}
-      <button className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white text-sm font-bold py-2 rounded-full hover:opacity-90 transition duration-300 ease-in-out">
-        Contrate o Plano
-      </button>
+      <BtnContratarPlano planId={7} />
 
       {/* Exemplo do Anúncio */}
       <div className="mt-3 text-center">

@@ -18,6 +18,7 @@ import {
   FaTelegram,
 } from "react-icons/fa";
 import Image from "next/image";
+import BtnContratarPlano from "./BtnContratarPlano";
 
 // Constantes
 const DEFAULT_PHONE_NUMBER = "(00) 00000-0000";
@@ -510,12 +511,7 @@ const PlanoDarkMode = () => {
           </span>
 
           {/* Botão Contratar */}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-md sm:text-lg font-bold py-3 sm:py-4 rounded-full hover:opacity-90 transition duration-300 ease-in-out mt-4"
-          >
-            Contrate o Plano
-          </button>
+          <BtnContratarPlano planId={5} />
 
           {/* Exemplo do Anúncio */}
           <div className="mt-3 sm:mt-6 text-center">

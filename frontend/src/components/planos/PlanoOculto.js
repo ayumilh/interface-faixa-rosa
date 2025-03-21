@@ -7,6 +7,7 @@ import {
   FaTimesCircle,
   FaUserSecret,
 } from "react-icons/fa";
+import BtnContratarPlano from "./BtnContratarPlano";
 
 export default function PlanoOculto() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -82,16 +83,14 @@ export default function PlanoOculto() {
           >
             POR A PARTIR DE R$ 99,90 Mensal
           </p>
-          <span className="bg-red-500 text-white text-xs sm:text-sm font-semibold px-3 py-1 rounded-full mt-4 inline-block -mt-8 ">
+          <span className="bg-red-500 text-white text-xs sm:text-sm font-semibold px-3 py-1 rounded-full mt-4 inline-block">
             10% OFF
           </span>
         </div>
 
         {/* Botão Contratar */}
         <div className="mb-6">
-          <button className="w-full max-w-xs bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm sm:text-base font-bold py-3 rounded-full hover:opacity-90 transition duration-300 ease-in-out -mt-40">
-            Contrate o Plano
-          </button>
+          <BtnContratarPlano planId={8} />
         </div>
 
         {/* Botão Mais Informações */}

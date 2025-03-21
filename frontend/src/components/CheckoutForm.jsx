@@ -1,17 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaCreditCard, FaRegCheckCircle } from "react-icons/fa";
 import { FaPix } from "react-icons/fa6";
 import axios from "axios";
+import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
-const CheckoutForm = ({ planId, planName, onClose }) => {
+const CheckoutForm = ({ planId, planName, planPrice, onClose }) => {
   const [selectedMethod, setSelectedMethod] = useState("pix");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedExtraPlans, setSelectedExtraPlans] = useState([]); // Agora é um array
+  const [extraPlans, setExtraPlans] = useState([
+    { id: 5, name: "DarkMode", price: 314.91 },
+    { id: 6, name: "Plano Nitro", price: 6.90 },
+    { id: 7, name: "Contato", price: 83.60 },
+    { id: 8, name: "Oculto", price: 99.90 },
+    { id: 9, name: "Reviews Públicos", price: 314.91 }
+  ]);
+
 
   const handleSelectMethod = (method) => {
     setSelectedMethod(method);
-    console.log("Método de pagamento selecionado:", method);
+  };
+
+  // Função para selecionar ou desmarcar um plano extra
+  const handleSelectExtraPlan = (planId) => {
+    setSelectedExtraPlans((prevSelected) => {
+      if (prevSelected.includes(planId)) {
+        // Se o plano já estiver selecionado, remove ele
+        return prevSelected.filter((id) => id !== planId);
+      } else {
+        // Caso contrário, adiciona o plano
+        return [...prevSelected, planId];
+      }
+    });
+  };
+
+  // Calcular o preço total incluindo os planos extras
+  const calculateTotalPrice = () => {
+    let total = planPrice || 0; // Começa com o preço do plano principal
+
+    // Somar o valor do plano principal (você pode adaptar conforme o plano principal que está sendo selecionado)
+    extraPlans.forEach((plan) => {
+      if (selectedExtraPlans.includes(plan.id)) {
+        total += plan.price;
+      }
+    });
+    // Verifica se o total é um número válido antes de usar toFixed
+    if (!isNaN(total)) {
+      return total.toFixed(2); // Retorna o total com 2 casas decimais
+    } else {
+      return '0.00'; // Retorna 0.00 se o total for inválido
+    }
   };
 
   const handlePayment = async () => {
@@ -26,29 +66,53 @@ const CheckoutForm = ({ planId, planName, onClose }) => {
     const userToken = Cookies.get("userToken");
 
     if (!userToken) {
-      setError("Token de usuário não encontrado. Faça login.");
       setLoading(false);
       return;
     }
 
+    // Cria um array com os IDs dos planos extras selecionados
+    const selectedExtraPlanIds = selectedExtraPlans;
+
+    // Verifica se há planos extras selecionados
+    const apiUrl = selectedExtraPlanIds.length > 0
+      ? "http://localhost:4000/api/plans/create-with-extras" // Se houver planos extras
+      : "http://localhost:4000/api/plans/subscribe"; // Caso contrário, usa a rota para a assinatura simples
+    console.log("URL da API:", apiUrl);
+
+    // Monta o requestBody com a estrutura desejada
+    const requestBody = {
+      planTypeId: planId, // Passa o ID do plano principal
+      payment_method_id: selectedMethod, // Método de pagamento
+    };
+
+    // Se houver planos extras selecionados, adiciona a propriedade "extras"
+    if (selectedExtraPlanIds.length > 0) {
+      requestBody.extras = selectedExtraPlanIds;
+    }
+
+    console.log("Dados do pagamento:", requestBody);
+
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/checkout`,
-        {
-          product: planId, // O ID do produto
-          payment_method_id: selectedMethod, // Método de pagamento (pix ou cartão)
+      const response = await axios.post(apiUrl, requestBody, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`, // Incluindo o token no cabeçalho
-          },
-        }
-      );
+      });
 
       console.log("Resposta do pagamento:", response.data);
 
-      // Redirecionando para a URL do pagamento
-      window.location.href = response.data.ticket_url; // Redireciona o usuário para a URL do pagamento
+      if (response.data.message === 'Você já possui uma assinatura principal ativa.') {
+        toast.info(response.data.message);
+      }
+
+      localStorage.setItem('paymentQRCode', response.data.qr_code);
+      localStorage.setItem('paymentQRCode64', response.data.qr_code_base64);
+      localStorage.setItem('transactionId', response.data.transactionId);
+
+      if (response.data.ticketUrl) {
+        window.location.href = response.data.ticketUrl;
+      }
+
     } catch (error) {
       setError("Erro ao criar pagamento. Tente novamente mais tarde.");
       console.error("Erro ao criar pagamento:", error);
@@ -57,70 +121,137 @@ const CheckoutForm = ({ planId, planName, onClose }) => {
     }
   };
 
-  const planos = [
-    { id: 4, name: "Plano Vip" },
-    { id: 3, name: "Plano Pink" },
-    { id: 2, name: "Plano Safira" },
-    { id: 1, name: "Plano Rubi" },
-    { id: 5, name: "DarkMode" },
-    { id: 6, name: "Plano Nitro" },
-    { id: 7, name: "Contato" },
-    { id: 8, name: "Oculto" },
-    { id: 9, name: "Reviews Públicos" }
-  ];
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-50 fixed inset-0 z-50">
+    <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-50 fixed inset-0 z-50 overflow-auto">
       <div className="w-full max-w-2xl p-8 bg-white shadow-lg rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-center">
-            {planName}
+            Confirmação de Pagamento
           </h2>
 
           {/* Botão de fechar modal */}
           <button
             type="button"
             onClick={onClose} // Chama a função onClose para fechar o modal
-            className="text-gray-600 text-lg"
+            className="text-gray-600 text-lg font-semibold hover:text-gray-800 transition"
           >
             X
           </button>
         </div>
 
-        <div className="flex space-x-4 justify-center my-4">
-          <button
-            type="button"
-            onClick={() => handleSelectMethod("card")}
-            className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
-                ? "border-pink-500 text-pink-500 bg-pink-100"
-                : "border-gray-300"
-              }`}
-          >
-            <FaCreditCard className="inline-block mr-2" /> Cartão
-            {selectedMethod === "card" && (
-              <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
-            )}
-          </button>
+        {/* Sessão para selecionar planos extras */}
+        <div className="my-6">
+          <p className="text-lg text-center text-gray-700 mb-6">
+            Quer turbinar sua experiência? Adicione planos extras e aproveite recursos exclusivos para uma assinatura ainda mais completa!
+          </p>
 
-          <button
-            type="button"
-            onClick={() => handleSelectMethod("pix")}
-            className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "pix"
-                ? "border-pink-500 text-pink-500 bg-pink-100"
-                : "border-gray-300"
-              }`}
-          >
-            <FaPix className="inline-block mr-2 w-6 h-6" />{" "}
-            Pix
-            {selectedMethod === "pix" && (
-              <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
-            )}
-          </button>
+          <div className="grid grid-cols-2 gap-4">
+            {extraPlans.map((plan) => {
+              let buttonClass = "";
+
+              // Definindo o estilo do botão para cada plano
+              if (plan.id === 5) {
+                buttonClass = "w-full border-2 border-gray-300 hover:border-black text-black font-bold py-3 rounded-lg transition duration-300 mb-4";
+              } else if (plan.id === 6) {
+                buttonClass = "w-full border-2 border-gray-300 hover:border-orange-600 text-orange-500 font-bold py-3 rounded-lg transition duration-300 mb-4";
+              } else if (plan.id === 7) {
+                buttonClass = "w-full border-2 border-gray-300 hover:border-green-600 text-green-500 font-bold py-3 rounded-lg transition duration-300 mb-4";
+              } else if (plan.id === 8) {
+                buttonClass = "w-full border-2 border-gray-300 hover:border-blue-600 text-blue-500 font-bold py-3 rounded-lg transition duration-300 mb-4";
+              } else if (plan.id === 9) {
+                buttonClass = "w-full border-2 border-gray-300 hover:border-yellow-600 text-yellow-500 font-bold py-3 rounded-lg hover:opacity-90 transition duration-300 ease-in-out";
+              } else {
+                buttonClass = "py-3 px-6 border-2 border-gray-300 text-gray-700 text-center"; // Default style
+              }
+
+              return (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => handleSelectExtraPlan(plan.id)}
+                  className={`${buttonClass} ${selectedExtraPlans.includes(plan.id) ? "border-pink-500 text-pink-500 bg-pink-100" : "border-gray-300"}`}
+                >
+                  {plan.name}
+                  {selectedExtraPlans.includes(plan.id) && (
+                    <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
+                  )}
+                  <div className="text-sm text-gray-500">R$ {plan.price}</div>
+                </button>
+              );
+            })}
+          </div>
         </div>
+
 
         {/* Exibindo erro caso haja */}
         {error && <p className="text-red-500 text-center">{error}</p>}
+
+        {/* Resumo do Pedido */}
+        <div className="my-6">
+          <h3 className="text-xl font-semibold text-center mb-4">Resumo do Pedido</h3>
+          <div className="border-t pt-4">
+            <p className="text-lg font-semibold">Plano principal: <span className="font-medium">{planName} - R$ {planPrice && !isNaN(planPrice) ? planPrice.toFixed(2) : '0.00'}
+            </span></p>
+
+            {/* Exibir os planos extras selecionados */}
+            <div className="mt-4">
+              {selectedExtraPlans.length > 0 && (
+                <div>
+                  <p className="font-semibold">Planos Extras:</p>
+                  {extraPlans.map((plan) => {
+                    if (selectedExtraPlans.includes(plan.id)) {
+                      return (
+                        <p key={plan.id} className="text-lg">
+                          {plan.name} - R$ {planPrice && !isNaN(planPrice) ? planPrice.toFixed(2) : '0.00'}
+
+                        </p>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              )}
+            </div>
+            <p className="text-lg font-semibold mt-4">Total: R$ {calculateTotalPrice()}</p>
+          </div>
+        </div>
+
+        {/* metodo de pagamento */}
+        <div>
+          <h2 className="font-semibold opacity-90">Metodo de pagamento</h2>
+          <div className="flex space-x-4 justify-center my-4">
+            <button
+              type="button"
+              onClick={() => handleSelectMethod("card")}
+              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
+                ? "border-pink-500 text-pink-500 bg-pink-100"
+                : "border-gray-300"
+                }`}
+            >
+              <FaCreditCard className="inline-block mr-2" /> Cartão
+              {selectedMethod === "card" && (
+                <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectMethod("pix")}
+              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "pix"
+                ? "border-pink-500 text-pink-500 bg-pink-100"
+                : "border-gray-300"
+                }`}
+            >
+              <FaPix className="inline-block mr-2 w-6 h-6" />{" "}
+              Pix
+              {selectedMethod === "pix" && (
+                <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
+              )}
+            </button>
+          </div>
+        </div>
 
         <button
           type="button"

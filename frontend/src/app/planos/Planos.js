@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Final from "@/components/search/final";
 import Contato from "@/components/planos/Contato";
@@ -15,6 +16,14 @@ import Simular from "@/components/planos/simular";
 import "@/app/planos/planos.css";
 
 const Planos = () => {
+  useEffect(() => {
+    const paymentQRCode = localStorage.getItem('paymentQRCode');
+
+    if (paymentQRCode) {
+      window.location.href = '/planos/pagamento'; 
+    }
+  }, []);
+  
   return (
     <div className="flex flex-col min-h-screen bg-[#ebeff2]">
       {/* Navbar */}

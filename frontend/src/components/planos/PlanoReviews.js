@@ -8,6 +8,7 @@ import {
   FaQuoteRight,
   FaTimes,
 } from "react-icons/fa";
+import BtnContratarPlano from "./BtnContratarPlano";
 
 export default function PlanoReviews() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -74,9 +75,7 @@ export default function PlanoReviews() {
       </div>
 
       {/* Botão Contratar */}
-      <button className="w-full max-w-xs bg-gradient-to-r from-orange-400 to-red-500 text-white text-sm sm:text-base font-bold py-2 rounded-full hover:opacity-90 transition duration-300 ease-in-out mb-3">
-        Contrate o Plano
-      </button>
+      <BtnContratarPlano planId={9} />
 
       {/* Botão Mais Informações */}
       <div className="mt-2 sm:mt-3 text-center">

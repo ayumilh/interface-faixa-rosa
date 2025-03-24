@@ -32,10 +32,12 @@ const DEFAULT_SERVICES = [
 
 // Dados de Benefícios
 const benefits = [
-  "Anúncio em posição de destaque (Por uma hora)",
-  "+ todos benefícios de outros planos (Por uma hora)",
-  "Opção de stories (Por uma hora)",
+  "Até 2x mais visitas e 2x mais contatos de clientes que outros perfis da sua cidade",
+  "Prioridade no suporte Faixa Rosa",
+  "Anúncio online todos os dias da semana",
+  "Seu anúncio em uma cor mais escura e chamativa",
 ];
+
 
 // Hook personalizado para detectar a tecla Esc
 const useEscKey = (handler) => {
@@ -333,7 +335,7 @@ ModalContatoDark.displayName = "ModalContatoDark";
 const CardDark = memo(
   ({
     name = "Nome do Anunciante",
-    price = 250,
+    price = 97,
     reviews = 2,
     location = "Jardins, São Paulo",
     description = "Descrição breve sobre o anunciante, destacando seus diferenciais e o que a torna especial.",
@@ -504,14 +506,13 @@ const PlanoDarkMode = () => {
 
         {/* Preços com 10% de Desconto */}
         <div className="text-center mb-4 sm:mb-6 -mt-8">
-          <p className="text-white text-sm sm:text-base line-through">DE R$ 349,90</p>
-          <p className="text-lg sm:text-xl font-bold text-white mt-2">POR A PARTIR DE R$ 314,91</p>
+          <p className="text-lg sm:text-xl font-bold text-white mt-2">A partir de R$ 97,90</p>
           <span className="bg-yellow-500 text-black text-xs sm:text-sm font-semibold px-2 py-0.5 rounded-full mt-3 inline-block">
             Popular
           </span>
 
           {/* Botão Contratar */}
-          <BtnContratarPlano planId={5} planExtra={true} />
+          <BtnContratarPlano planId={10} planExtra={true} />
 
           {/* Exemplo do Anúncio */}
           <div className="mt-3 sm:mt-6 text-center">

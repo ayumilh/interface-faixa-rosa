@@ -148,6 +148,7 @@ const CardSafira = ({
               <FaCamera className="mr-1 text-blue-500" />
               <p className="text-gray-700">{images.length} fotos ou vídeos</p>
             </div>
+            
             <div className="flex items-center mt-2">
               <FaMapMarkerAlt className="mr-1 text-red-500" />
               <p className="text-gray-700">{location}</p>

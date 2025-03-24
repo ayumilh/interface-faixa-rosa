@@ -13,17 +13,19 @@ import {
 } from 'react-icons/fa';
 import Image from 'next/image';
 
-const CardSafira = ({
-  name,
-  price,
+const CardSafiraDark = ({
+  userName,
+  age,
   location,
   description,
-  images = [],
-  reviews,
+  images,
   contact,
-  age,
-  hasLocation,
-  isOnline,
+  plan,
+  planType,
+  subscriptions,
+  isAgeHidden,
+  reviews = 0,
+  isOnline = false,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
@@ -59,7 +61,7 @@ const CardSafira = ({
             <>
               <Image
                 src={images[currentIndex]}
-                alt={name}
+                alt={userName || 'Default Alt Text'}
                 layout="responsive"
                 width={500}
                 height={300}
@@ -98,7 +100,7 @@ const CardSafira = ({
 
         {/* Nome e Status */}
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-2xl font-bold text-white">{name}</h3>
+          <h3 className="text-2xl font-bold text-white">{userName}</h3>
           {isOnline ? (
             <div className="flex items-center">
               <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
@@ -120,7 +122,6 @@ const CardSafira = ({
         {/* Informações */}
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
-            <p className="font-semibold text-white text-lg">{price}</p>
             <div className="flex items-center mt-1">
               <FaStar className="text-yellow-400 mr-1" />
               <p className="text-green-500 font-semibold">
@@ -137,12 +138,6 @@ const CardSafira = ({
               <FaCamera className="mr-1 text-blue-400" />
               <p className="text-gray-300">{images.length} fotos ou vídeos</p>
             </div>
-            {hasLocation && (
-              <div className="flex items-center mt-1">
-                <FaCheckCircle className="text-green-500 mr-1" />
-                <span className="text-gray-300">Com local</span>
-              </div>
-            )}
             <div className="flex items-center mt-1">
               <FaMapMarkerAlt className="mr-1 text-red-500" />
               <p className="text-gray-300">{location}</p>
@@ -267,4 +262,4 @@ const CardSafira = ({
   );
 };
 
-export default CardSafira;
+export default CardSafiraDark;

@@ -278,6 +278,7 @@ const CardRubi = ({
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
         <div>
           <p className="font-semibold text-red-600">{formattedPrice}</p>
+          
           {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
             <div className="flex items-center mt-2">
               <FaStar className="text-yellow-400 mr-1" />
@@ -311,6 +312,7 @@ const CardRubi = ({
             <FaCamera className="text-red-500 mr-1" />
             <p className="text-black">{images.length} fotos ou vídeos</p>
           </div>
+
           <div className="flex items-center mt-2">
             <FaMapMarkerAlt className="text-red-500 mr-1" />
             <p className="text-black">{location}</p>

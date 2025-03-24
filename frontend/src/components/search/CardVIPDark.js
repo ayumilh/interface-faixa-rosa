@@ -12,15 +12,18 @@ import {
 import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 
-const CardVIP = ({
-  name,
-  price,
+const CardVIPDark = ({
+  userName,
+  age,
   location,
   description,
-  reviews,
-  contact,
   images,
-  age,
+  contact,
+  plan,
+  planType,
+  subscriptions,
+  isAgeHidden,
+  reviews = 0,
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -34,13 +37,17 @@ const CardVIP = ({
     }
   };
 
+  // Verificar se o usuário possui o plano extra com acesso ao contato
+  const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
+
+
   return (
     <>
       <div className="bg-black border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
         {images && images.length > 0 ? (
           <Image
             src={images[0]}
-            alt={name}
+            alt={userName || 'Default Alt Text'}
             width={320}
             height={192}
             className="w-full h-48 object-cover rounded-md mb-3"
@@ -50,40 +57,55 @@ const CardVIP = ({
             Sem imagem disponível
           </div>
         )}
-        <h3 className="text-xl font-extrabold text-yellow-400 mb-1">{name}</h3>
+        <h3 className="text-xl font-extrabold text-yellow-400 mb-1">{userName}</h3>
 
-        {/* Exibição da idade */}
-        {age && (
-          <p className="text-gray-500 mb-1 flex items-center">
-            <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
-          </p>
+
+        <div className="text-sm text-white italic mb-2 flex items-start">
+          <span>
+            <BsCardText className="mr-2 text-yellow-500 w-4 h-4 mt-1" />
+          </span>
+          <span className="text-gray-200">{description}</span>
+        </div>
+
+        {/* Exibição da idade com ícone */}
+        {subscriptions.some(
+          (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled
+        ) ? (
+          isAgeHidden ? (
+            <div className="flex items-center mt-2">
+              <FaBirthdayCake className="text-yellow-400 mr-1" />
+              <div className="text-gray-100 px-2 py-1 rounded-full text-xs font-semibold">
+                {age} anos
+              </div>
+            </div>
+          ) : null
+        ) : (
+          <div className="flex items-center mt-2">
+            <FaBirthdayCake className="text-yellow-400 mr-1" />
+            <div className="text-gray-100 px-2 py-1 rounded-full text-xs font-semibold">
+              {age} anos
+            </div>
+          </div>
         )}
 
-<p className="text-sm text-white italic mb-2 flex items-center">
-          <BsCardText className="mr-2 text-yellow-500" /> {description}
+        <p className="text-white mb-1 flex items-center">
+          <FaMapMarkerAlt className="mr-2 text-yellow-400" /> {location}
         </p>
-         {/* Exibição da idade com ícone */}
-      <p className="flex items-center text-white mb-2">
-        <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
-      </p>
+        {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
+          <p className="text-gray-400 mb-3 flex items-center">
+            <FaRegComments className="mr-1 text-yellow-500" />
+            {reviews > 0 ? (
+              <span className="text-green-500">
+                {reviews} review{reviews !== 1 ? 's' : ''}
+              </span>
+            ) : (
+              <span className="text-gray-400">Sem reviews</span>
+            )}
+          </p>
+        ) : null}
 
-      <p className="text-white mb-1 flex items-center">
-      <FaMapMarkerAlt className="mr-2 text-yellow-400" /> {location}
-        </p>
-        <p className="font-semibold text-yellow-400 mb-1 flex items-center">
-          <FaStar className="mr-1 text-yellow-500" /> {price}
-        </p>
-        <p className="text-gray-400 mb-3 flex items-center">
-          <FaRegComments className="mr-1 text-yellow-500" />
-          {reviews > 0 ? (
-            <span className="text-green-500">
-              {reviews} review{reviews !== 1 ? 's' : ''}
-            </span>
-          ) : (
-            <span className="text-gray-400">Sem reviews</span>
-          )}
-        </p>
-        {contact && (
+
+        {contact && hasExtraContact && (
           <button
             className="mt-2 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
             onClick={handleOpenModal}
@@ -165,4 +187,4 @@ const CardVIP = ({
   );
 };
 
-export default CardVIP;
+export default CardVIPDark;

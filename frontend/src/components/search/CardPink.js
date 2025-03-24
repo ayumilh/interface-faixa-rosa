@@ -12,15 +12,19 @@ import {
 import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 
-const CardVIP = ({
-  name,
+const CardPink = ({
+  userName,
+  age,
   price,
   location,
   description,
-  reviews,
-  contact,
   images,
-  age,
+  contact,
+  plan,
+  planType,
+  subscriptions,
+  isAgeHidden,
+  reviews,
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -34,13 +38,22 @@ const CardVIP = ({
     }
   };
 
+  const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
+
+  // Verificar se o plano é o DarkMode
+  const isDarkMode = plan?.name === 'DarkMode'; 
+
   return (
     <>
-      <div className="bg-pink border border-pink-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
+      <div
+        className={`${
+          isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-pink-100 text-black'
+        } border rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl`}
+      >
         {images && images.length > 0 ? (
           <Image
             src={images[0]}
-            alt={name}
+            alt={userName || 'Default Alt Text'}
             width={320}
             height={192}
             className="w-full h-48 object-cover rounded-md mb-3"
@@ -50,43 +63,50 @@ const CardVIP = ({
             Sem imagem disponível
           </div>
         )}
-        <h3 className="text-xl font-extrabold text-pink-400 mb-1">{name}</h3>
+        <h3 className={`${isDarkMode ? 'text-pink-400' : 'text-pink-400'} text-xl font-extrabold mb-1`}>
+          {userName}
+        </h3>
 
-        
-    {/* Exibição da idade */}
-    {age && (
-          <p className="text-gray-500 mb-1 flex items-center">
+        <div className={`${isDarkMode ? 'text-gray-300' : 'text-black'} mb-2 flex items-center`}>
+          <BsCardText fontSize={24} className="mr-2 text-2xl text-pink-500" /> <span className='text-sm italic'> {description} </span>
+        </div>
+
+        {subscriptions.some(
+          (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled
+        ) ? (
+          isAgeHidden ? (
+            <div className="flex items-center mt-2">
+              <p className="text-gray-500 mb-1 flex items-center">
+                <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
+              </p>
+            </div>
+          ) : null
+        ) : (
+          <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-1 flex items-center`}>
             <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
           </p>
         )}
 
-<p className="text-sm text-black italic mb-2 flex items-center">
-          <BsCardText className="mr-2 text-pink-500" /> {description}
-        </p>
-         {/* Exibição da idade com ícone */}
-      <p className="flex items-center text-black mb-2">
-        <FaBirthdayCake className="mr-2 text-red-400" /> {age} anos
-      </p>
-
-        <p className="text-black-500 mb-1 flex items-center">
+        <p className={`${isDarkMode ? 'text-gray-400' : 'text-black-500'} mb-1 flex items-center`}>
           <FaMapMarkerAlt className="mr-2 text-pink-400" /> {location}
         </p>
-        <p className="font-semibold text-pink-400 mb-1 flex items-center">
-          <FaStar className="mr-1 text-yellow-500" /> {price}
-        </p>
-        <p className="text-gray-400 mb-3 flex items-center">
-          <FaRegComments className="mr-1 text-pink-500" />
-          {reviews > 0 ? (
-            <span className="text-green-500">
-              {reviews} review{reviews !== 1 ? 's' : ''}
-            </span>
-          ) : (
-            <span className="text-black-400">Sem reviews</span>
-          )}
-        </p>
-        {contact && (
+
+        {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
+          <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-400'} mb-3 flex items-center`}>
+            <FaRegComments className="mr-1 text-pink-500" />
+            {reviews > 0 ? (
+              <span className="text-green-500">
+                {reviews} review{reviews !== 1 ? 's' : ''}
+              </span>
+            ) : (
+              <span className={`${isDarkMode ? 'text-gray-500' : 'text-black-400'}`}>Sem reviews</span>
+            )}
+          </p>
+        ) : null}
+
+        {contact && hasExtraContact && (
           <button
-            className="mt-2 bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+            className={`mt-2 ${isDarkMode ? 'bg-pink-600' : 'bg-pink-500'} hover:${isDarkMode ? 'bg-pink-700' : 'bg-pink-600'} text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg`}
             onClick={handleOpenModal}
           >
             <FaWhatsapp className="mr-2 text-lg" /> Ver contato
@@ -100,8 +120,8 @@ const CardVIP = ({
           className="fixed inset-0 flex items-center justify-center bg-pink bg-opacity-50 z-50"
           onClick={handleCloseModal}
         >
-          <div className="relative bg-pink-100 p-4 rounded-lg shadow-lg max-w-md w-full mx-4 border border-pink-500">
-          {/* Carrossel de foto */}
+          <div className={`relative ${isDarkMode ? 'bg-gray-800' : 'bg-pink-100'} p-4 rounded-lg shadow-lg max-w-md w-full mx-4 border border-pink-500`}>
+            {/* Carrossel de foto */}
             <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
               <div className="w-full h-48 bg-gray-800 flex-shrink-0">
                 <Image
@@ -124,7 +144,7 @@ const CardVIP = ({
                 />
                 <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
               </div>
-              <h2 className="text-xl text-pink-400 font-bold mt-2">{name}</h2>
+              <h2 className={`${isDarkMode ? 'text-gray-200' : 'text-pink-400'} text-xl font-bold mt-2`}>{userName}</h2>
             </div>
 
             {/* Banner Google simulado */}
@@ -166,4 +186,4 @@ const CardVIP = ({
   );
 };
 
-export default CardVIP;
+export default CardPink;

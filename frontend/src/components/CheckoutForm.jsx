@@ -12,7 +12,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
   const [error, setError] = useState(null);
   const [selectedExtraPlans, setSelectedExtraPlans] = useState([]);
   const [extraPlans, setExtraPlans] = useState([
-    { id: 5, name: "DarkMode", price: 314.91 },
+    { id: 10, name: "DarkMode", price: 97.90 },
     { id: 6, name: "Plano Nitro", price: 6.90 },
     { id: 7, name: "Contato", price: 83.60 },
     { id: 8, name: "Oculto", price: 99.90 },

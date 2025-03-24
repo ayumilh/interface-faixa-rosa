@@ -182,43 +182,53 @@ export default function Search() {
             <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           ) : (
             companions.map((card, index) => {
-              console.log("Card:", card);
-              
+              if (!card.plan) return null;
+
               let CardComponent;
 
-              if (card.plan?.name === "Plano Rubi") {
+              const hasDarkMode = card.subscriptions.some(subscription => subscription.extraPlan?.name === "DarkMode");
+
+              if (card.plan?.name === "Plano Rubi" && hasDarkMode) {
+                CardComponent = CardRubiDark; 
+              } else if (card.plan?.name === "Plano Rubi") {
                 CardComponent = CardRubi;
-              } else if (card.plan?.name === "Plano Safira") {
+              } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
+                CardComponent = CardSafiraDark; 
+              }  else if (card.plan?.name === "Plano Safira") {
                 CardComponent = CardSafira;
+              } else if (card.plan?.name === "Plano Pink" && hasDarkMode) {
+                CardComponent = CardPinkDark; 
+              } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
+                CardComponent = CardVIPDark; 
               } else if (card.plan?.name === "Plano Pink") {
                 CardComponent = CardPink;
               } else {
-                CardComponent = CardVIP;
+                CardComponent = "CardVIP"; // Usando o CardVIP se não tiver o plano "DarkMode"
               }
 
-              return (
-                <Link href={`/perfil/${card.userName}`} key={index}>
-                  <CardComponent
-                    userName={card.userName}
-                    age={card.age}
-                    location={`${card.city}, ${card.state}`}
-                    description={card.description}
-                    images={
-                      card.profileImage
-                        ? [card.profileImage]
-                        : card.media?.length > 0
-                          ? card.media
-                          : ["/default-avatar.jpg"]
-                    }
-                    contact={true}
-                    plan={card.plan}
-                    planType={card.planType}
-                    subscriptions={card.subscriptions}
-                    isAgeHidden={card.isAgeHidden}
-                  />
-                </Link>
-              );
-            })
+                return (
+                  <Link href={`/perfil/${card.userName}`} key={index} className="h-auto">
+                    <CardComponent
+                      userName={card.userName}
+                      age={card.age}
+                      location={`${card.city}, ${card.state}`}
+                      description={card.description}
+                      images={
+                        card.profileImage
+                          ? [card.profileImage]
+                          : card.media?.length > 0
+                            ? card.media
+                            : ["/default-avatar.jpg"]
+                      }
+                      contact={true}
+                      plan={card.plan}
+                      planType={card.planType}
+                      subscriptions={card.subscriptions}
+                      isAgeHidden={card.isAgeHidden}
+                    />
+                  </Link>
+                );
+              })
           )}
         </div>
       </div>

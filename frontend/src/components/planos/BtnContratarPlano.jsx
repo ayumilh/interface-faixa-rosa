@@ -42,17 +42,19 @@ const BtnContratarPlano = ({ planId, planExtra = false }) => {
                   ? "w-full bg-gradient-to-r from-green-400 to-blue-500 text-white text-sm font-bold py-2 rounded-full hover:opacity-90 transition duration-300 ease-in-out"
                   : planId === 5
                     ? "w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-md sm:text-lg font-bold py-3 sm:py-4 rounded-full hover:opacity-90 transition duration-300 ease-in-out mt-4"
+                    : planId === 10
+                      ? "w-full  bg-yellow-500 hover:bg-yellow-600 text-white text-sm sm:text-base font-bold mt-4 py-2 rounded-full hover:opacity-90 transition duration-300 ease-in-out mb-3"
                     : "";
 
   const planos = [
-    { id: 4, name: "Plano Vip", price: 169.9 },
-    { id: 3, name: "Plano Pink", price: 227.9 },
-    { id: 2, name: "Plano Safira", price: 287.9 },
-    { id: 1, name: "Plano Rubi", price: 327.9 },
-    { id: 5, name: "DarkMode", price: 314.91 },
-    { id: 6, name: "Plano Nitro", price: 6.9 },
-    { id: 7, name: "Contato", price: 83.6 },
-    { id: 8, name: "Oculto", price: 99.9 },
+    { id: 4, name: "Plano Vip", price: 169.90 },
+    { id: 3, name: "Plano Pink", price: 227.90 },
+    { id: 2, name: "Plano Safira", price: 287.90 },
+    { id: 1, name: "Plano Rubi", price: 327.90 },
+    { id: 10, name: "DarkMode", price: 97.90 },
+    { id: 6, name: "Plano Nitro", price: 6.90 },
+    { id: 7, name: "Contato", price: 83.60 },
+    { id: 8, name: "Oculto", price: 99.90 },
     { id: 9, name: "Reviews Públicos", price: 314.91 }
   ];
 

@@ -415,7 +415,7 @@ const DescriptionManagement = () => {
 
         {/* Alternar Visibilidade da Idade */}
         {Array.isArray(companions.subscriptions) && companions.subscriptions.some(
-          (plan) => plan.extraPlan?.id === 3
+          (plan) => plan.extraPlan?.id === 8
         ) ? (
           <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
             <div className="mb-8 flex items-center gap-10">

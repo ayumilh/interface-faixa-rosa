@@ -14,8 +14,9 @@ export function PlanProvider({ children }) {
     try {
       const queryParams = new URLSearchParams(filters).toString();
       const url = queryParams ?
-       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?${queryParams}`
-       : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion`;
+      //  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?${queryParams}`
+      //  : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion`;
+       `http://localhost:4000/api/search/companion?${queryParams}` : `http://localhost:4000/api/search/companion`;  
       const response = await axios.get(url);
       setCompanions(response.data);
     } catch (err) {

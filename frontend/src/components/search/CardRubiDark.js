@@ -219,28 +219,23 @@ const ModalContato = ({
   );
 };
 
-const CardComponent = ({
-  name = 'Nome da Modelo',
-  price = 250,
-  reviews = 2,
-  location = 'Jardins, São Paulo',
-  description = 'Descrição breve sobre a modelo.',
-  age = 25,
-  images = [],
-  hasLocation = true,
-  isOnline = true,
-  contact = true,
-  services = [],
-  phoneNumber = '(00) 00000-0000',
+const CardRubiDark = ({
+  userName,
+  age,
+  location,
+  description,
+  images,
+  contact,
+  plan,
+  planType,
+  subscriptions,
+  isAgeHidden,
+  reviews = 0,
+  isOnline = false,
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
-  const formattedPrice = price
-    ? price.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      }) + ''
-    : 'A consultar';
+  const formattedPrice = 'Consultar'
 
   const handleOpenModal = () => {
     setShowModalNumero(true);
@@ -261,7 +256,7 @@ const CardComponent = ({
 
         {/* Nome e Status */}
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-xl font-bold text-white">{name}</h3>
+          <h3 className="text-xl font-bold text-white">{userName}</h3>
           {isOnline ? (
             <div className="flex items-center">
               <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
@@ -300,12 +295,6 @@ const CardComponent = ({
                 {images.length || 5} fotos ou vídeos
               </p>
             </div>
-            {hasLocation && (
-              <div className="flex items-center mt-2">
-                <FaCheckCircle className="text-green-500 mr-1" />
-                <span className="text-white">Com local</span>
-              </div>
-            )}
             <div className="flex items-center mt-2">
               <FaMapMarkerAlt className="text-red-500 mr-1" />
               <p className="text-white">{location}</p>
@@ -316,13 +305,13 @@ const CardComponent = ({
           <div className="border-l border-gray-500 pl-4">
             <p className="text-white mb-2">{description}</p>
             <p className="text-white font-semibold mb-1">Serviços:</p>
-            <ul className="list-disc list-inside text-white space-y-1">
+            {/* <ul className="list-disc list-inside text-white space-y-1">
               {(services.length > 0 ? services : defaultServices).map(
                 (service, index) => (
                   <li key={index}>{service}</li>
                 )
               )}
-            </ul>
+            </ul> */}
           </div>
         </div>
 
@@ -351,4 +340,4 @@ const CardComponent = ({
   );
 };
 
-export default CardComponent;
+export default CardRubiDark;

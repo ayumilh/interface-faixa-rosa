@@ -40,7 +40,6 @@ const CardPinkDark = ({
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
-
   return (
     <>
       <div className="bg-black border border-pink-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">

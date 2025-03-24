@@ -66,9 +66,8 @@ const ImageCarousel = ({ images }) => {
             {images.map((_, index) => (
               <span
                 key={index}
-                className={`w-3 h-3 rounded-full ${
-                  index === currentIndex ? 'bg-gray-300' : 'bg-gray-700'
-                } transition-all`}
+                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-300' : 'bg-gray-700'
+                  } transition-all`}
               ></span>
             ))}
           </div>
@@ -147,11 +146,10 @@ const ModalContato = ({
                 {images.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      index === currentIndexModal
-                        ? 'bg-gray-300'
-                        : 'bg-gray-700'
-                    } transition-all`}
+                    className={`w-3 h-3 rounded-full ${index === currentIndexModal
+                      ? 'bg-gray-300'
+                      : 'bg-gray-700'
+                      } transition-all`}
                   ></span>
                 ))}
               </div>
@@ -165,7 +163,7 @@ const ModalContato = ({
 
         {/* Foto de perfil e nome */}
         <div className="flex flex-col items-center mb-4">
-        <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-red-600 via-pink-500 to-red-600 hover:from-pink-600 hover:via-red-500 hover:to-pink-600 shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105">
+          <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-red-600 via-pink-500 to-red-600 hover:from-pink-600 hover:via-red-500 hover:to-pink-600 shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105">
             <Image
               src={images[0] || '/assets/default-profile.png'}
               alt="Foto de perfil"
@@ -248,6 +246,10 @@ const CardRubiDark = ({
     }
   };
 
+  // Verificar se o usuário possui o plano extra com acesso ao contato
+  const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
+
+
   return (
     <>
       <div className="bg-black border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
@@ -277,24 +279,44 @@ const CardRubiDark = ({
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <p className="font-semibold text-white">{formattedPrice}</p>
-            <div className="flex items-center mt-2">
-              <FaStar className="text-yellow-400 mr-1" />
-              <p className="text-green-500 font-semibold">
-                {reviews} review{reviews !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="flex items-center mt-2">
-              <FaBirthdayCake className="text-pink-500 mr-1" />
-              <div className="bg-gray-800 text-white px-2 py-1 rounded-full text-xs font-medium">
-                {age} anos
+            
+            {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
+              <div className="flex items-center mt-2">
+                <FaStar className="text-yellow-400 mr-1" />
+                <p className="text-green-500 font-semibold">
+                  {reviews} review{reviews !== 1 ? 's' : ''}
+                </p>
               </div>
-            </div>
+            ) : null}
+
+            {/* Exibição da idade com ícone */}
+            {subscriptions.some(
+              (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled
+            ) ? (
+              isAgeHidden ? (
+                <div className="flex items-center mt-2">
+                  <FaBirthdayCake className="text-pink-500 mr-1" />
+                  <div className="bg-gray-600 text-gray-100 px-2 py-1 rounded-full text-xs font-semibold">
+                    {age} anos
+                  </div>
+                </div>
+              ) : null
+            ) : (
+              <div className="flex items-center mt-2">
+                <FaBirthdayCake className="text-pink-500 mr-1" />
+                <div className="text-gray-100 bg-gray-600 px-2 py-1 rounded-full text-xs font-semibold">
+                  {age} anos
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center mt-2">
               <FaCamera className="text-red-500 mr-1" />
               <p className="text-white">
                 {images.length || 5} fotos ou vídeos
               </p>
             </div>
+
             <div className="flex items-center mt-2">
               <FaMapMarkerAlt className="text-red-500 mr-1" />
               <p className="text-white">{location}</p>
@@ -316,7 +338,7 @@ const CardRubiDark = ({
         </div>
 
         {/* Botão de contato */}
-        {contact && (
+        {contact && hasExtraContact && (
           <button
             className="mt-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"
             onClick={handleOpenModal}

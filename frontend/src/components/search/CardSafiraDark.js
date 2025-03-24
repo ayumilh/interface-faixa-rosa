@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   FaWhatsapp,
@@ -52,6 +53,10 @@ const CardSafiraDark = ({
     }
   };
 
+  // Verificar se o usuário possui o plano extra com acesso ao contato
+  const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
+
+
   return (
     <>
       <div className="bg-black border border-gray-800 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-2xl">
@@ -84,9 +89,8 @@ const CardSafiraDark = ({
                 {images.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${
-                      index === currentIndex ? 'bg-white' : 'bg-gray-600'
-                    } transition-all`}
+                    className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-gray-600'
+                      } transition-all`}
                   ></span>
                 ))}
               </div>
@@ -122,22 +126,41 @@ const CardSafiraDark = ({
         {/* Informações */}
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
-            <div className="flex items-center mt-1">
-              <FaStar className="text-yellow-400 mr-1" />
-              <p className="text-green-500 font-semibold">
-                {reviews} review{reviews !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="flex items-center mt-1">
-              <FaBirthdayCake className="text-pink-500 mr-1" />
-              <div className="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs font-medium">
-                {age} anos
+            {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
+              <div className="flex items-center mt-1">
+                <FaStar className="text-yellow-400 mr-1" />
+                <p className="text-green-500 font-semibold">
+                  {reviews} review{reviews !== 1 ? 's' : ''}
+                </p>
               </div>
-            </div>
+            ) : null}
+
+            {/* Exibição da idade com ícone */}
+            {subscriptions.some(
+              (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled
+            ) ? (
+              isAgeHidden ? (
+                <div className="flex items-center mt-2">
+                  <FaBirthdayCake className="text-pink-500 mr-1" />
+                  <div className="bg-gray-600 text-gray-100 px-2 py-1 rounded-full text-xs font-semibold">
+                    {age} anos
+                  </div>
+                </div>
+              ) : null
+            ) : (
+              <div className="flex items-center mt-2">
+                <FaBirthdayCake className="text-pink-500 mr-1" />
+                <div className="text-gray-100 bg-gray-600 px-2 py-1 rounded-full text-xs font-semibold">
+                  {age} anos
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center mt-1">
               <FaCamera className="mr-1 text-blue-400" />
               <p className="text-gray-300">{images.length} fotos ou vídeos</p>
             </div>
+
             <div className="flex items-center mt-1">
               <FaMapMarkerAlt className="mr-1 text-red-500" />
               <p className="text-gray-300">{location}</p>
@@ -151,7 +174,7 @@ const CardSafiraDark = ({
         </div>
 
         {/* Botão de contato aprimorado */}
-        {contact && (
+        {contact && hasExtraContact && (
           <button
             className="mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"
             onClick={handleOpenModal}
@@ -195,9 +218,8 @@ const CardSafiraDark = ({
                     {images.map((_, index) => (
                       <span
                         key={index}
-                        className={`w-3 h-3 rounded-full ${
-                          index === currentIndex ? 'bg-white' : 'bg-gray-600'
-                        } transition-all`}
+                        className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-gray-600'
+                          } transition-all`}
                       ></span>
                     ))}
                   </div>
@@ -211,7 +233,7 @@ const CardSafiraDark = ({
 
             {/* Foto de perfil e nome */}
             <div className="flex flex-col items-center mb-4 ">
-            <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-md overflow-hidden">
+              <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-md overflow-hidden">
                 <Image
                   src={images[0] || '/assets/default-profile.png'}
                   alt="Foto de perfil"

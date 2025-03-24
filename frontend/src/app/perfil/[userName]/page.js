@@ -46,8 +46,8 @@ export default function Perfil() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
-          `http://localhost:4000/api/search/profile?userName=${userName}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
+          // `http://localhost:4000/api/search/profile?userName=${userName}`
         );
 
         console.log('Dados do perfil:', response.data);

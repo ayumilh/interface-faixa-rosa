@@ -98,8 +98,10 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
 
     // Verifica se há planos extras selecionados
     const apiUrl = selectedExtraPlanIds.length > 0
-      ? "http://localhost:4000/api/plans/create-with-extras" // Se houver planos extras
-      : "http://localhost:4000/api/plans/subscribe"; // Caso contrário, usa a rota para a assinatura simples
+    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras`
+    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/subscribe`;
+      // ? "http://localhost:4000/api/plans/create-with-extras" // Se houver planos extras
+      // : "http://localhost:4000/api/plans/subscribe"; // Caso contrário, usa a rota para a assinatura simples
     console.log("URL da API:", apiUrl);
 
     // Monta o requestBody com a estrutura desejada

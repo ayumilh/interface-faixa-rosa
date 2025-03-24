@@ -511,7 +511,7 @@ const PlanoDarkMode = () => {
           </span>
 
           {/* Botão Contratar */}
-          <BtnContratarPlano planId={5} />
+          <BtnContratarPlano planId={5} planExtra={true} />
 
           {/* Exemplo do Anúncio */}
           <div className="mt-3 sm:mt-6 text-center">

@@ -855,7 +855,7 @@ const PlanoNitro = () => {
           </span>
 
           {/* Botão Contratar */}
-          <BtnContratarPlano planId={6} />
+          <BtnContratarPlano planId={6} planExtra={true} />
 
           {/* Exemplo do Anúncio */}
           <div className="mt-3 sm:mt-2 text-center">

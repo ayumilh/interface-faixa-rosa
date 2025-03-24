@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import CheckoutForm from "../CheckoutForm";
 
-const BtnContratarPlano = ({ planId }) => {
+const BtnContratarPlano = ({ planId, planExtra = false }) => {
   const [loading, setLoading] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const userToken = Cookies.get("userToken");
@@ -74,7 +74,7 @@ const BtnContratarPlano = ({ planId }) => {
         {loading ? "Processando..." : "Contratar plano"}
       </button>
 
-      {showCheckout && <CheckoutForm planId={planId} planName={planName} planPrice={planPrice} onClose={onClose} />}
+      {showCheckout && <CheckoutForm planId={planId} planName={planName} planPrice={planPrice} onClose={onClose} planExtra={planExtra} />}
     </>
   );
 };

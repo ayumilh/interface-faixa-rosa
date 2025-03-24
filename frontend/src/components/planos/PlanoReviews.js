@@ -75,7 +75,7 @@ export default function PlanoReviews() {
       </div>
 
       {/* Botão Contratar */}
-      <BtnContratarPlano planId={9} />
+      <BtnContratarPlano planId={9} planExtra={true} />
 
       {/* Botão Mais Informações */}
       <div className="mt-2 sm:mt-3 text-center">

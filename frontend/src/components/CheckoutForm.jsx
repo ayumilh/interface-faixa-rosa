@@ -5,11 +5,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
-const CheckoutForm = ({ planId, planName, planPrice, onClose }) => {
+const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
+  console.log("ID do plano:", planId);
   const [selectedMethod, setSelectedMethod] = useState("pix");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedExtraPlans, setSelectedExtraPlans] = useState([]); // Agora é um array
+  const [selectedExtraPlans, setSelectedExtraPlans] = useState([]);
   const [extraPlans, setExtraPlans] = useState([
     { id: 5, name: "DarkMode", price: 314.91 },
     { id: 6, name: "Plano Nitro", price: 6.90 },
@@ -38,14 +39,20 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose }) => {
 
   // Calcular o preço total incluindo os planos extras
   const calculateTotalPrice = () => {
-    let total = planPrice || 0; // Começa com o preço do plano principal
+    let total = 0;
 
-    // Somar o valor do plano principal (você pode adaptar conforme o plano principal que está sendo selecionado)
+    // Se o plano não for um plano extra, inclui o preço do plano principal
+    if (!planExtra) {
+      total += planPrice || 0;
+    }
+
+    // Somar os preços dos planos extras
     extraPlans.forEach((plan) => {
       if (selectedExtraPlans.includes(plan.id)) {
         total += plan.price;
       }
     });
+
     // Verifica se o total é um número válido antes de usar toFixed
     if (!isNaN(total)) {
       return total.toFixed(2); // Retorna o total com 2 casas decimais
@@ -53,6 +60,22 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose }) => {
       return '0.00'; // Retorna 0.00 se o total for inválido
     }
   };
+
+    // Atualiza o estado selectedExtraPlans com base no planId recebido como prop
+    useEffect(() => {
+      if (planId) {
+        const selectedPlans = [];
+        // Verifica se o planId corresponde a algum dos planos extras e os adiciona ao estado
+        extraPlans.forEach((plan) => {
+          if (plan.id === planId) {
+            selectedPlans.push(plan.id); // Adiciona o plano extra ao array de selecionados
+          }
+        });
+  
+        // Atualiza os planos extras selecionados com base no planId
+        setSelectedExtraPlans(selectedPlans);
+      }
+    }, [planId]);
 
   const handlePayment = async () => {
     if (!planId) {
@@ -189,23 +212,24 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose }) => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         {/* Resumo do Pedido */}
-        <div className="my-6">
+        <div className="my-6 items-start">
           <h3 className="text-xl font-semibold text-center mb-4">Resumo do Pedido</h3>
           <div className="border-t pt-4">
-            <p className="text-lg font-semibold">Plano principal: <span className="font-medium">{planName} - R$ {planPrice && !isNaN(planPrice) ? planPrice.toFixed(2) : '0.00'}
-            </span></p>
+            {!planExtra && (
+              <p className="text-lg font-semibold">Plano principal: <span className="font-medium">{planName} - R$ {planPrice && !isNaN(planPrice) ? planPrice.toFixed(2) : '0.00'}</span></p>
+            )}
 
             {/* Exibir os planos extras selecionados */}
-            <div className="mt-4">
+            <div className="mt-4 items-start">
               {selectedExtraPlans.length > 0 && (
                 <div>
                   <p className="font-semibold">Planos Extras:</p>
                   {extraPlans.map((plan) => {
-                    if (selectedExtraPlans.includes(plan.id)) {
+                    // Verifica se o plano extra pode ser selecionado com base no planId
+                    if (selectedExtraPlans.includes(plan.id) || (planId === 5 && [6, 7, 8, 9].includes(plan.id))) {
                       return (
                         <p key={plan.id} className="text-lg">
                           {plan.name} - R$ {planPrice && !isNaN(planPrice) ? planPrice.toFixed(2) : '0.00'}
-
                         </p>
                       );
                     }
@@ -214,56 +238,56 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose }) => {
                 </div>
               )}
             </div>
-            <p className="text-lg font-semibold mt-4">Total: R$ {calculateTotalPrice()}</p>
+              <p className="text-lg font-semibold mt-4">Total: R$ {calculateTotalPrice()}</p>
+            </div>
           </div>
-        </div>
 
-        {/* metodo de pagamento */}
-        <div>
-          <h2 className="font-semibold opacity-90">Metodo de pagamento</h2>
-          <div className="flex space-x-4 justify-center my-4">
-            <button
-              type="button"
-              onClick={() => handleSelectMethod("card")}
-              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
-                ? "border-pink-500 text-pink-500 bg-pink-100"
-                : "border-gray-300"
-                }`}
-            >
-              <FaCreditCard className="inline-block mr-2" /> Cartão
-              {selectedMethod === "card" && (
-                <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
-              )}
-            </button>
+          {/* metodo de pagamento */}
+          <div>
+            <h2 className="font-semibold opacity-90">Metodo de pagamento</h2>
+            <div className="flex space-x-4 justify-center my-4">
+              <button
+                type="button"
+                onClick={() => handleSelectMethod("card")}
+                className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
+                  ? "border-pink-500 text-pink-500 bg-pink-100"
+                  : "border-gray-300"
+                  }`}
+              >
+                <FaCreditCard className="inline-block mr-2" /> Cartão
+                {selectedMethod === "card" && (
+                  <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
+                )}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleSelectMethod("pix")}
-              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "pix"
-                ? "border-pink-500 text-pink-500 bg-pink-100"
-                : "border-gray-300"
-                }`}
-            >
-              <FaPix className="inline-block mr-2 w-6 h-6" />{" "}
-              Pix
-              {selectedMethod === "pix" && (
-                <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => handleSelectMethod("pix")}
+                className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "pix"
+                  ? "border-pink-500 text-pink-500 bg-pink-100"
+                  : "border-gray-300"
+                  }`}
+              >
+                <FaPix className="inline-block mr-2 w-6 h-6" />{" "}
+                Pix
+                {selectedMethod === "pix" && (
+                  <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
+                )}
+              </button>
+            </div>
           </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={handlePayment}
-          className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition"
-          disabled={loading} // Desabilita o botão enquanto está carregando
-        >
-          {loading ? "Carregando..." : "PAGAR AGORA"}
-        </button>
+          <button
+            type="button"
+            onClick={handlePayment}
+            className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition"
+            disabled={loading} // Desabilita o botão enquanto está carregando
+          >
+            {loading ? "Carregando..." : "PAGAR AGORA"}
+          </button>
+        </div>
       </div>
-    </div>
-  );
+      );
 };
 
-export default CheckoutForm;
+      export default CheckoutForm;

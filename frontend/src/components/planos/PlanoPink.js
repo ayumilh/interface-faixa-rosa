@@ -521,9 +521,6 @@ const PlanoPink = () => {
             >
               Veja um exemplo do anúncio
             </button>
-
-
-
           </div>
         </div>
       </div>

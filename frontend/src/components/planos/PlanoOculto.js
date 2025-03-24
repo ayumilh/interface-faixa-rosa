@@ -90,7 +90,7 @@ export default function PlanoOculto() {
 
         {/* Botão Contratar */}
         <div className="mb-6">
-          <BtnContratarPlano planId={8} />
+          <BtnContratarPlano planId={8} planExtra={true} />
         </div>
 
         {/* Botão Mais Informações */}

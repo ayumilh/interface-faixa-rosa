@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { IoIosArrowForward } from "react-icons/io";
+import { BiLinkExternal } from "react-icons/bi";
 import { FaCheckCircle } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -256,9 +257,10 @@ export default function ActivePlans() {
                 <div className="text-center">
                     <button
                         onClick={() => router.push("/planos")}
-                        className="px-6 py-2 bg-green-500 text-white font-semibold rounded-md mt-4 shadow-md hover:bg-green-600 transition-colors ease-in-out"
+                        className="px-4 py-2 gap-2 text-sm flex items-center bg-green-500 text-white font-semibold rounded-md mt-4 shadow-md hover:bg-green-600 transition-colors ease-in-out"
                     >
                         Assinar Plano
+                        <BiLinkExternal size={18} />
                     </button>
                 </div>
 
@@ -266,12 +268,19 @@ export default function ActivePlans() {
 
             {/* Botão para abrir o modal com todos os planos assinados */}
             {!showSignUpButton && (
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-center gap-4">
                     <button
                         onClick={togglePlansModal}
-                        className="px-6 py-2 bg-pink-600 text-white font-semibold rounded-md mt-4 shadow-md hover:bg-pink-700 transition-colors ease-in-out"
+                        className="px-4 py-2 text-sm bg-pink-600 text-white font-semibold rounded-md mt-4 shadow-md hover:bg-pink-700 transition-colors ease-in-out"
                     >
-                        Ver Todos os Planos Assinados
+                        Meus planos
+                    </button>
+                    <button
+                        onClick={() => router.push("/planos")}
+                        className="px-4 py-2 gap-2 text-sm flex items-center bg-green-500 text-white font-semibold rounded-md mt-4 shadow-md hover:bg-green-600 transition-colors ease-in-out"
+                    >
+                        Novo Plano
+                        <BiLinkExternal size={18} />
                     </button>
                 </div>
             )}

@@ -148,7 +148,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
 
         try {
             const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion-city?cidade=${cidadeFormatada}&estado=${estadoFormatado}`
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?cidade=${cidadeFormatada}&estado=${estadoFormatado}`
             );
 
             const data = response.data;

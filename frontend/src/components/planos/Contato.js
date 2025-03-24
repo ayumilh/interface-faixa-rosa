@@ -130,7 +130,7 @@ export default function Contato() {
       </div>
 
       {/* Botão Contratar */}
-      <BtnContratarPlano planId={7} />
+      <BtnContratarPlano planId={7} planExtra={true} />
 
       {/* Exemplo do Anúncio */}
       <div className="mt-3 text-center">

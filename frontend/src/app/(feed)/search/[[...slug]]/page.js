@@ -385,9 +385,9 @@ export default function Search() {
     }
   }, [city, stateUF, fetchCompanions]);
 
-  // useEffect(() => {
-  //   console.log("Dados do context (companions):", companions);
-  // }, [companions]);
+  useEffect(() => {
+    console.log("Dados do context (companions):", companions);
+  }, [companions]);
 
   return (
     <div className="bg-gray-100 text-gray-800">

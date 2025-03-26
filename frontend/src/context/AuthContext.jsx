@@ -47,9 +47,16 @@ export const AuthContextProvider = ({ children }) => {
                 user: res.data.user,
                 token: res.data.token,
             }
-        } catch {
+        } catch (error) {
             setIsAuthenticated(false);
-            return null;
+
+            if (error.response && error.response.status === 401) {
+                // Retorna o status 401 para o erro de credenciais inválidas
+                return { status: 401, message: error.response?.data?.error || 'Credenciais inválidas' };
+            } else {
+                // Para outros erros, retorna a mensagem do erro
+                return { status: error.response?.status || 500, message: error.response?.data?.message || 'Ocorreu um erro ao realizar o login.' };
+            }
         }
     };
 

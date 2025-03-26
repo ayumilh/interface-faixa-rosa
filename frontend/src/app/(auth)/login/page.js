@@ -46,18 +46,23 @@ export default function AuthPage() {
     try {
       const response = await login({ email, password });
 
-      if (response?.token) {
+      if (response?.status === 401) {
+        // Se o erro for 401, exibe a mensagem de erro no toast
+        toast.error(response.message);
+    } else if (response?.token) {
         const { userType } = response;
         if (userType === "CONTRATANTE") {
-          router.push("/userDashboard");
+            router.push("/userDashboard");
         } else if (userType === "ACOMPANHANTE") {
-          router.push("/dashboard");
+            router.push("/dashboard");
         } else if (userType === "ADMIN") {
-          router.push("/adminDashboard");
+            router.push("/adminDashboard");
         } else {
-          router.push("/login");
+            router.push("/login");
         }
-      }
+    }
+
+    
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
     } finally {

@@ -39,8 +39,8 @@ const PagamentoRetorno = () => {
         // Simular uma requisição para verificar o status do pagamento
         if (transactionId) {
             axios.get(
-                // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/checkout/status/${transactionId}`,
-                `http://localhost:4000/api/payments/checkout/status/${transactionId}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/checkout/status/${transactionId}`,
+                // `http://localhost:4000/api/payments/checkout/status/${transactionId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${userToken}`,

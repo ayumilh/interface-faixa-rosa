@@ -61,21 +61,21 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
     }
   };
 
-    // Atualiza o estado selectedExtraPlans com base no planId recebido como prop
-    useEffect(() => {
-      if (planId) {
-        const selectedPlans = [];
-        // Verifica se o planId corresponde a algum dos planos extras e os adiciona ao estado
-        extraPlans.forEach((plan) => {
-          if (plan.id === planId) {
-            selectedPlans.push(plan.id); // Adiciona o plano extra ao array de selecionados
-          }
-        });
-  
-        // Atualiza os planos extras selecionados com base no planId
-        setSelectedExtraPlans(selectedPlans);
-      }
-    }, [planId]);
+  // Atualiza o estado selectedExtraPlans com base no planId recebido como prop
+  useEffect(() => {
+    if (planId) {
+      const selectedPlans = [];
+      // Verifica se o planId corresponde a algum dos planos extras e os adiciona ao estado
+      extraPlans.forEach((plan) => {
+        if (plan.id === planId) {
+          selectedPlans.push(plan.id); // Adiciona o plano extra ao array de selecionados
+        }
+      });
+
+      // Atualiza os planos extras selecionados com base no planId
+      setSelectedExtraPlans(selectedPlans);
+    }
+  }, [planId]);
 
   const handlePayment = async () => {
     if (!planId) {
@@ -98,21 +98,23 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
 
     // Verifica se há planos extras selecionados
     const apiUrl = selectedExtraPlanIds.length > 0
-    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras`
-    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/subscribe`;
-      // ? "http://localhost:4000/api/plans/create-with-extras" // Se houver planos extras
-      // : "http://localhost:4000/api/plans/subscribe"; // Caso contrário, usa a rota para a assinatura simples
+      // ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans/extras`
+      // : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/subscribe`;
+      ? "http://localhost:4000/api/plans/user-plans/extras" // Se houver planos extras
+      : "http://localhost:4000/api/plans/create-with-extras"; // Caso contrário, usa a rota para a assinatura simples
     console.log("URL da API:", apiUrl);
 
     // Monta o requestBody com a estrutura desejada
     const requestBody = {
-      planTypeId: planId, // Passa o ID do plano principal
       payment_method_id: selectedMethod, // Método de pagamento
     };
 
     // Se houver planos extras selecionados, adiciona a propriedade "extras"
     if (selectedExtraPlanIds.length > 0) {
       requestBody.extras = selectedExtraPlanIds;
+    } else if (planId) {
+      // Caso contrário, se houver um plano principal, inclui o planTypeId
+      requestBody.planTypeId = planId;
     }
 
     console.log("Dados do pagamento:", requestBody);
@@ -124,10 +126,9 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
         },
       });
 
-      console.log("Resposta do pagamento:", response.data);
-
-      if (response.data.message === 'Você já possui uma assinatura principal ativa.') {
+      if (response.data.message === 'Acompanhante já possui um plano ativo.') {
         toast.info(response.data.message);
+        return;
       }
 
       localStorage.setItem('paymentQRCode', response.data.qr_code);
@@ -139,14 +140,24 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
       }
 
     } catch (error) {
-      setError("Erro ao criar pagamento. Tente novamente mais tarde.");
-      console.error("Erro ao criar pagamento:", error);
+      if (error.response) {
+        const { status, data } = error.response;
+
+        // Verifica se o status é 400 e exibe o erro
+        if (status === 400 && data && data.error) {
+          toast.info(data.error);  // Exibe a mensagem do erro
+        } else {
+          // Para outros erros de status
+          toast.error('Erro desconhecido, por favor, tente novamente.');
+        }
+      } else {
+        // Caso o erro não tenha uma resposta (pode ser um erro de rede ou outro tipo de erro)
+        toast.error('Erro na requisição, por favor, tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-50 fixed inset-0 z-50 overflow-auto">
@@ -240,56 +251,56 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
                 </div>
               )}
             </div>
-              <p className="text-lg font-semibold mt-4">Total: R$ {calculateTotalPrice()}</p>
-            </div>
+            <p className="text-lg font-semibold mt-4">Total: R$ {calculateTotalPrice()}</p>
           </div>
-
-          {/* metodo de pagamento */}
-          <div>
-            <h2 className="font-semibold opacity-90">Metodo de pagamento</h2>
-            <div className="flex space-x-4 justify-center my-4">
-              <button
-                type="button"
-                onClick={() => handleSelectMethod("card")}
-                className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
-                  ? "border-pink-500 text-pink-500 bg-pink-100"
-                  : "border-gray-300"
-                  }`}
-              >
-                <FaCreditCard className="inline-block mr-2" /> Cartão
-                {selectedMethod === "card" && (
-                  <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSelectMethod("pix")}
-                className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "pix"
-                  ? "border-pink-500 text-pink-500 bg-pink-100"
-                  : "border-gray-300"
-                  }`}
-              >
-                <FaPix className="inline-block mr-2 w-6 h-6" />{" "}
-                Pix
-                {selectedMethod === "pix" && (
-                  <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handlePayment}
-            className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition"
-            disabled={loading} // Desabilita o botão enquanto está carregando
-          >
-            {loading ? "Carregando..." : "PAGAR AGORA"}
-          </button>
         </div>
+
+        {/* metodo de pagamento */}
+        <div>
+          <h2 className="font-semibold opacity-90">Metodo de pagamento</h2>
+          <div className="flex space-x-4 justify-center my-4">
+            <button
+              type="button"
+              onClick={() => handleSelectMethod("card")}
+              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
+                ? "border-pink-500 text-pink-500 bg-pink-100"
+                : "border-gray-300"
+                }`}
+            >
+              <FaCreditCard className="inline-block mr-2" /> Cartão
+              {selectedMethod === "card" && (
+                <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectMethod("pix")}
+              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "pix"
+                ? "border-pink-500 text-pink-500 bg-pink-100"
+                : "border-gray-300"
+                }`}
+            >
+              <FaPix className="inline-block mr-2 w-6 h-6" />{" "}
+              Pix
+              {selectedMethod === "pix" && (
+                <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handlePayment}
+          className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition"
+          disabled={loading} // Desabilita o botão enquanto está carregando
+        >
+          {loading ? "Carregando..." : "PAGAR AGORA"}
+        </button>
       </div>
-      );
+    </div>
+  );
 };
 
-      export default CheckoutForm;
+export default CheckoutForm;

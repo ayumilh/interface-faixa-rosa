@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import { IoIosArrowBack } from "react-icons/io";
+import Link from "next/link";
 import Final from "@/components/search/final";
 import Contato from "@/components/planos/Contato";
 import PlanoOculto from "@/components/planos/PlanoOculto";
@@ -20,17 +22,29 @@ const Planos = () => {
     const paymentQRCode = localStorage.getItem('paymentQRCode');
 
     if (paymentQRCode) {
-      window.location.href = '/planos/pagamento'; 
+      window.location.href = '/planos/pagamento';
     }
   }, []);
-  
+
   return (
     <div className="flex flex-col min-h-screen bg-[#ebeff2]">
       {/* Navbar */}
       <Navbar />
 
+      {/* Breadcrumbs */}
+
       {/* Main Content */}
       <main className="flex-grow mt-16 sm:mt-24 px-4 sm:px-6 lg:px-8">
+        <div className="w-full mx-auto p-4 bg-cover flex justify-start items-center">
+          <Link href="/" className="flex items-center text-pink-500 hover:text-pink-700">
+            <IoIosArrowBack className="text-2xl " />
+          </Link>
+          <nav className="text-sm text-gray-700 ml-6">
+            <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
+            <span className="mx-2">/</span>
+            <span className="text-gray-500">Planos</span>
+          </nav>
+        </div>
         {/* Hero Section */}
         <section
           className="relative bg-center bg-cover h-64 sm:h-80 md:h-96 lg:h-[500px] mb-12 rounded-lg overflow-hidden shadow-2xl"

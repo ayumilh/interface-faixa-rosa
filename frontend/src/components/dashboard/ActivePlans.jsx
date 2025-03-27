@@ -38,6 +38,8 @@ export default function ActivePlans() {
             );
             const { plan, subscriptions } = response.data;
 
+            console.log("Planos do usuário:", response.data);
+
             setActivePlan(plan);
 
             const extraPlansData = subscriptions
@@ -176,7 +178,7 @@ export default function ActivePlans() {
     const showSignUpButton = !activePlan && extraPlans.length === 0;
 
     return (
-        <div className="p-6 bg-white shadow-lg rounded-xl">
+        <div className="p-6 bg-white shadow-lg rounded-xl flex flex-col items-center justify-center">
 
             <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center">Planos</h2>
 

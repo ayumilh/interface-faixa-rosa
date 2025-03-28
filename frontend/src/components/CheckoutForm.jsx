@@ -93,36 +93,41 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
       return;
     }
 
+    // Verifica se o planId é um plano principal ou extra
+    let isMainPlan = planId >= 1 && planId <= 4;
+
     // Cria um array com os IDs dos planos extras selecionados
     const selectedExtraPlanIds = selectedExtraPlans;
-
-    // Verifica se há planos extras selecionados
-    const apiUrl = planId || selectedExtraPlanIds.length > 0 
-    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras`
-    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans/extras`;
-
-    console.log("URL da API:", apiUrl);
 
     // Monta o requestBody com a estrutura desejada
     const requestBody = {
       payment_method_id: selectedMethod, // Método de pagamento
     };
 
-    // Se houver planos extras selecionados, adiciona a propriedade "extras"
+    let apiUrl;
+
+    // Verifica se há planos extras selecionados e se há plano principal
     if (selectedExtraPlanIds.length > 0) {
       // Se o plano principal também estiver selecionado, envia ambos
-      if (planId) {
+      if (isMainPlan) {
         requestBody.planTypeId = planId;
         requestBody.extras = selectedExtraPlanIds;
+        apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras`;
       } else {
         requestBody.extras = selectedExtraPlanIds;
+        apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans/extras`;
       }
-    } else if (planId) {
-      // Caso contrário, se houver um plano principal, inclui o planTypeId
+    } else if (isMainPlan) {
+      // Se não houver planos extras, mas houver um plano principal, inclui o planTypeId
       requestBody.planTypeId = planId;
+      apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras`;
+    } else {
+      setError("Nenhum plano principal ou extra foi selecionado.");
+      setLoading(false);
+      return;
     }
-
     console.log("Dados do pagamento:", requestBody);
+    console.log("URL da API:", apiUrl);
 
     try {
       const response = await axios.post(apiUrl, requestBody, {
@@ -166,7 +171,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-50 fixed inset-0 z-50 overflow-auto">
-      <div className="w-full max-w-2xl p-8 bg-white shadow-lg rounded-lg">
+      <div className="w-full max-w-2xl p-8 bg-white shadow-lg rounded-lg overflow-y-auto max-h-[95vh]">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-center">
             Confirmação de Pagamento
@@ -232,7 +237,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
         {/* Resumo do Pedido */}
         <div className="my-6 items-start">
           <h3 className="text-xl font-semibold text-center mb-4">Resumo do Pedido</h3>
-          <div className="border-t pt-4">
+          <div className="border-t pt-4 px-3">
             {!planExtra && (
               <p className="text-lg font-semibold">Plano principal: <span className="font-medium">{planName} - R$ {planPrice && !isNaN(planPrice) ? planPrice.toFixed(2) : '0.00'}</span></p>
             )}
@@ -247,7 +252,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
                     if (selectedExtraPlans.includes(plan.id) || (planId === 5 && [6, 7, 8, 9].includes(plan.id))) {
                       return (
                         <p key={plan.id} className="text-lg">
-                          {plan.name} - R$ {planPrice && !isNaN(planPrice) ? planPrice.toFixed(2) : '0.00'}
+                          {plan.name} - R$ {plan.price && !isNaN(plan.price) ? plan.price.toFixed(2) : '0.00'}
                         </p>
                       );
                     }
@@ -256,7 +261,8 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
                 </div>
               )}
             </div>
-            <p className="text-lg font-semibold mt-4">Total: R$ {calculateTotalPrice()}</p>
+            <hr className="my-4" />
+            <p className="text-2xl font-semibold mt-4">Total: R$ {calculateTotalPrice()}</p>
           </div>
         </div>
 

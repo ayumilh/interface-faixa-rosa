@@ -17,11 +17,18 @@ const BtnContratarPlano = ({ planId, planExtra = false }) => {
     try {
       setLoading(true);
       setShowCheckout(true);
+      document.body.style.overflow = 'hidden'; 
     } catch (error) {
       toast.error("Ocorreu um erro ao tentar contratar o plano.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const onClose = () => {
+    setShowCheckout(false);
+    // Libera o scroll quando o modal for fechado
+    document.body.style.overflow = 'auto'; 
   };
 
   const buttonClass = planId === 2
@@ -47,24 +54,20 @@ const BtnContratarPlano = ({ planId, planExtra = false }) => {
                     : "";
 
   const planos = [
-    { id: 4, name: "Plano Vip", price: 169.90 },
-    { id: 3, name: "Plano Pink", price: 227.90 },
-    { id: 2, name: "Plano Safira", price: 287.90 },
     { id: 1, name: "Plano Rubi", price: 327.90 },
-    { id: 10, name: "DarkMode", price: 97.90 },
+    { id: 2, name: "Plano Safira", price: 287.90 },
+    { id: 3, name: "Plano Pink", price: 227.90 },
+    { id: 4, name: "Plano Vip", price: 169.90 },
     { id: 6, name: "Plano Nitro", price: 6.90 },
     { id: 7, name: "Contato", price: 83.60 },
     { id: 8, name: "Oculto", price: 99.90 },
-    { id: 9, name: "Reviews Públicos", price: 314.91 }
+    { id: 9, name: "Reviews Públicos", price: 314.91 },
+    { id: 10, name: "DarkMode", price: 97.90 }
   ];
 
   const plano = planos.find((p) => p.id === planId);
   const planName = plano ? plano.name : "Plano Indefinido";
   const planPrice = plano ? plano.price : 0;
-
-  const onClose = () => {
-    setShowCheckout(false);
-  };
 
   return (
     <>

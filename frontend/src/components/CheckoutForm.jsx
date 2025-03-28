@@ -98,7 +98,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
 
     // Verifica se há planos extras selecionados
     const apiUrl = selectedExtraPlanIds.length > 0
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans/extras` : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras`;
+      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras` : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans/extras`;
     // ? "http://localhost:4000/api/plans/user-plans/extras" : "http://localhost:4000/api/plans/create-with-extras";
 
     console.log("URL da API:", apiUrl);
@@ -110,7 +110,13 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
 
     // Se houver planos extras selecionados, adiciona a propriedade "extras"
     if (selectedExtraPlanIds.length > 0) {
-      requestBody.extras = selectedExtraPlanIds;
+      // Se o plano principal também estiver selecionado, envia ambos
+      if (planId) {
+        requestBody.planTypeId = planId;
+        requestBody.extras = selectedExtraPlanIds;
+      } else {
+        requestBody.extras = selectedExtraPlanIds;
+      }
     } else if (planId) {
       // Caso contrário, se houver um plano principal, inclui o planTypeId
       requestBody.planTypeId = planId;

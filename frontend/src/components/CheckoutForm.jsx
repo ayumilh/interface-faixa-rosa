@@ -166,12 +166,17 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
       }
     } finally {
       setLoading(false);
+      onClose(); // Fecha o modal após a tentativa de pagamento
+      document.body.style.overflow = 'auto'; // Libera o scroll após o fechamento do modal
+      
+      // Recarrega a página
+      window.location.reload();
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-50 fixed inset-0 z-50 overflow-auto">
-      <div className="w-full max-w-2xl p-8 bg-white shadow-lg rounded-lg overflow-y-auto max-h-[95vh]">
+      <div className="w-full max-w-2xl p-8 bg-white shadow-lg rounded-lg overflow-y-auto max-h-[84vh]">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-center">
             Confirmação de Pagamento

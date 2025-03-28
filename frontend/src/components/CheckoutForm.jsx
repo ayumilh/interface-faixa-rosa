@@ -97,9 +97,9 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
     const selectedExtraPlanIds = selectedExtraPlans;
 
     // Verifica se há planos extras selecionados
-    const apiUrl = selectedExtraPlanIds.length > 0
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras` : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans/extras`;
-    // ? "http://localhost:4000/api/plans/user-plans/extras" : "http://localhost:4000/api/plans/create-with-extras";
+    const apiUrl = planId || selectedExtraPlanIds.length > 0 
+    ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/create-with-extras`
+    : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans/extras`;
 
     console.log("URL da API:", apiUrl);
 

@@ -478,6 +478,11 @@ export default function Search() {
             <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           ) : (
             companions.map((card, index) => {
+              // Verifica se o status do documento e o status do perfil estão aprovados
+              if (card.documentStatus !== "APPROVED") {
+                return null;
+              }
+
               if (!card.plan) return null;
 
               let CardComponent;
@@ -496,6 +501,8 @@ export default function Search() {
                 CardComponent = CardPinkDark;
               } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
                 CardComponent = CardVIPDark;
+              } else if (card.plan?.name === "Plano Vip") {
+                CardComponent = CardVIP;
               } else if (card.plan?.name === "Plano Pink") {
                 CardComponent = CardPink;
               } else {

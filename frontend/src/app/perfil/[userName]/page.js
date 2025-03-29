@@ -341,7 +341,6 @@ export default function Perfil() {
         setIsLoading(true);
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
-          // `http://localhost:4000/api/search/profile?userName=${userName}`
         );
 
         console.log('Dados do perfil:', response.data);
@@ -778,7 +777,7 @@ export default function Perfil() {
                 )}
 
                 {activeTab === "videos" && <Videos />}
-                {activeTab === "sobre" && <Sobre physicalCharacteristics={companionData.PhysicalCharacteristics} description={companionData.description} />}
+                {activeTab === "sobre" && <Sobre physicalCharacteristics={companionData.PhysicalCharacteristics} description={companionData.description} media={companionData.media} />}
                 {activeTab === "localidade" && <Localidade lugares={companionData.lugares} city={companionData.city} state={companionData.state} />}
                 {activeTab === "serviços" && <Servicos servicesOffered={companionData.servicesOffered} weeklySchedules={companionData.weeklySchedules} />}
                 {activeTab === "valores" && <Valores timedService={companionData.timedServiceCompanion} paymentMethods={companionData.paymentMethods} />}

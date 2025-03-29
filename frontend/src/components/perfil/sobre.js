@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { FaInfoCircle, FaCamera, FaIdCard, FaAlignLeft } from "react-icons/fa";
 
-export default function Sobre({ physicalCharacteristics, description }) {
+export default function Sobre({ physicalCharacteristics, description, media }) {
   const [mostrarMaisDescricao, setMostrarMaisDescricao] = useState(false);
   const [mostrarMaisCaracteristicas, setMostrarMaisCaracteristicas] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);
+
+  console.log("Media", media);
 
   const toggleMostrarMaisDescricao = () => {
     setMostrarMaisDescricao(!mostrarMaisDescricao);
@@ -69,24 +71,31 @@ export default function Sobre({ physicalCharacteristics, description }) {
       {/* Layout com vídeo e características físicas */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Seção de vídeo */}
-        <div className="lg:w-1/3">
-          <div className="relative">
-            <video
-              className="rounded-lg w-full shadow-lg hover:shadow-xl transition duration-300"
-              autoPlay
-              loop
-              muted
-              playsInline
-              controls={false}
-            >
-              <source src="/assets/video.mp4" type="video/mp4" />
-              Seu navegador não suporta a tag de vídeo.
-            </video>
+        {/* Verificação da variável 'media' */}
+        {media && media.length > 0 ? (
+          <div className="lg:w-1/3">
+            <div className="relative">
+              <video
+                className="rounded-lg w-full shadow-lg hover:shadow-xl transition duration-300"
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls={false}
+              >
+                <source src={media[0].url} type="video/mp4" />
+                Seu navegador não suporta a tag de vídeo.
+              </video>
+            </div>
+            <p className="mt-2 text-center text-gray-600">
+              Verificada em <span className="font-semibold">Ago/2024</span>.
+            </p>
           </div>
-          <p className="mt-2 text-center text-gray-600">
-            Verificada em <span className="font-semibold">Ago/2024</span>.
-          </p>
-        </div>
+        ) : (
+          <div className="lg:w-1/3">
+            <p className="text-gray-500">Sem mídia disponível</p>
+          </div>
+        )}
 
         {/* Características físicas */}
         <div className="lg:w-2/3 pl-4">

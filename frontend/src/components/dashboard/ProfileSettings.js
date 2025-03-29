@@ -12,6 +12,9 @@ import "react-toastify/dist/ReactToastify.css";
 const ProfileSettings = ({ onUpdate }) => {
   const [documentFront, setDocumentFront] = useState(null);
   const [documentBack, setDocumentBack] = useState(null);
+  const [documentFileFront, setDocumentFileFront] = useState(null);
+  const [documentFileBack, setDocumentFileBack] = useState(null);
+
   const [uploading, setUploading] = useState(false);
   const [isReadyToSend, setIsReadyToSend] = useState(false);
 
@@ -91,8 +94,10 @@ const ProfileSettings = ({ onUpdate }) => {
             headers: { Authorization: `Bearer ${userToken}` },
           }
         );
+
         if (response.status === 200) {
           const { profileImage, bannerImage, documentsValidated } = response.data.media;
+          console.log("Status de validação dos documentos:", documentsValidated);
 
           // Atribuindo as variáveis de estado
           setProfileImage(profileImage);
@@ -114,10 +119,13 @@ const ProfileSettings = ({ onUpdate }) => {
     const imageUrl = URL.createObjectURL(file);
     if (side === "front") {
       setDocumentFront(imageUrl);
+      setDocumentFileFront(file);
     } else {
       setDocumentBack(imageUrl);
+      setDocumentFileBack(file);
     }
   };
+
 
   const handleSendDocuments = async () => {
     if (!documentFront || !documentBack) return alert("Por favor, insira ambos os documentos.");
@@ -126,9 +134,9 @@ const ProfileSettings = ({ onUpdate }) => {
     try {
       const token = Cookies.get("userToken");
       const formData = new FormData();
-      formData.append("fileFront", documentFront);
-      formData.append("fileBack", documentBack);
-      formData.append("type", "RG");
+
+      formData.append("fileFront", documentFileFront);  // Aqui enviamos o arquivo real, não a URL
+      formData.append("fileBack", documentFileBack);    // Aqui enviamos o arquivo real, não a URL
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/documents/upload`,
@@ -143,13 +151,22 @@ const ProfileSettings = ({ onUpdate }) => {
 
       setUploading(false);
       if (response.status === 201) {
-        alert("Documentos enviados com sucesso!");
+        toast.success(response.data.message);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else if (response.status === 200) {
+        toast.success(response.data.message);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
-        alert(response.data.error || "Erro ao enviar documentos.");
+        toast.error("Erro ao enviar documentos.");
       }
     } catch (error) {
       setUploading(false);
-      alert("Erro ao conectar ao servidor.");
+      alert("Erro ao conectar ao servidor." + error.message);
     }
   };
 
@@ -349,20 +366,28 @@ const ProfileSettings = ({ onUpdate }) => {
       {/* Seção de Upload de Documento */}
       <div className="mt-16">
         <h3 className="text-2xl font-semibold mb-6">Verificação de Identidade</h3>
-        {documentsValidated ? (
-          <p className="text-green-500 mb-4 text-center sm:text-left">
-            Documentos enviados e validados
+
+        {/* Exibe mensagem conforme o status de 'documentsValidated' */}
+        {documentsValidated === 'APPROVED' ? (
+          <p className="text-green-500 mb-4 text-center text-lg sm:text-left">
+            Documentos enviados e aprovados
           </p>
-        ) : (
+        ) : documentsValidated === 'IN_ANALYSIS' ? (
+          <p className="text-yellow-500 mb-4 text-center text-lg sm:text-left">
+            Documento em análise
+          </p>
+        ) : documentsValidated === 'PENDING' ? (
           <p className="text-gray-600 mb-4 text-center sm:text-left">
             Faça o upload do seu RG (Frente e Verso) para verificação
           </p>
-        )}
+        ) : documentsValidated === 'REJECTED' ? (
+          <p className="text-red-500 mb-4 text-center sm:text-left">
+            Documentos reprovados.
+          </p>
+        ) : null}
 
-        {/* Se os documentos foram enviados e validados, exibe a mensagem */}
-        {documentsValidated ? (
-          <></>
-        ) : (
+        {/* Se os documentos estão PENDING ou IN_ANALYSIS, exibe os inputs para upload */}
+        {documentsValidated !== 'APPROVED' && documentsValidated !== 'IN_ANALYSIS' && documentsValidated !== 'REJECTED' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 justify-center">
             {/* Upload da Frente */}
             <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition relative flex flex-col items-center justify-center w-full max-w-[200px] h-auto sm:max-w-[250px] sm:h-[320px] mx-auto">
@@ -416,7 +441,8 @@ const ProfileSettings = ({ onUpdate }) => {
           </div>
         )}
 
-        {documentFront && documentBack && !documentsValidated && (
+        {/* Exibe o botão para enviar os documentos, se os dois documentos forem fornecidos */}
+        {documentFront && documentBack && documentsValidated !== 'APPROVED' && (
           <div className="text-center mt-6">
             <button
               className="px-6 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition"

@@ -168,7 +168,6 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
       setLoading(false);
       onClose(); // Fecha o modal após a tentativa de pagamento
       document.body.style.overflow = 'auto'; // Libera o scroll após o fechamento do modal
-
     }
   };
 

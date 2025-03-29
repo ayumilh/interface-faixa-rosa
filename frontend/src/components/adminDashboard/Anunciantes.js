@@ -14,6 +14,7 @@ import Modal from "./Modal";
 import Tooltip from "../common/Tooltip";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 const Anunciantes = () => {
     const [modal, setModal] = useState({ isOpen: false, content: null });
@@ -29,6 +30,7 @@ const Anunciantes = () => {
                         headers: { Authorization: `Bearer ${userToken}` },
                     }
                 );
+                console.log("Anunciantes carregados:", response.data); // Verifique se os dados estão corretos
                 setAnunciantes(response.data);
             } catch (error) {
                 console.error("Erro ao buscar anunciantes:", error);
@@ -42,8 +44,26 @@ const Anunciantes = () => {
     const [documentStatusModal, setDocumentStatusModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const traduzirStatusDocumento = (status) => {
+        switch (status) {
+            case 'APPROVED':
+                return { texto: 'Aprovado', cor: 'text-green-600' };
+            case 'IN_ANALYSIS':
+                return { texto: 'Em Análise', cor: 'text-orange-500' };
+            case 'REJECTED':
+                return { texto: 'Rejeitado', cor: 'text-red-600' };
+            case 'PENDING':
+                return { texto: 'Pendente', cor: 'text-yellow-500' };
+            default:
+                return { texto: 'Indefinido', cor: 'text-gray-600' }; // Caso não seja um dos status esperados
+        }
+    };
+
+
     const handleVerificarDocumentos = (anunciante) => {
         const documentStatus = anunciante?.documents?.[0]?.documentStatus ?? "PENDING";
+
+        const status = traduzirStatusDocumento(documentStatus);
 
         const atualizarStatusDocumento = (novoStatus) => {
             setAnunciantes((prev) =>
@@ -67,7 +87,7 @@ const Anunciantes = () => {
                     }
                 );
                 atualizarStatusDocumento("APPROVED");
-                alert("Documento aprovado com sucesso!");
+                toast.success("Documento aprovado com sucesso!");
                 setModal({ isOpen: false, content: null });
             } catch (error) {
                 console.error("Erro ao aprovar documento:", error);
@@ -90,7 +110,7 @@ const Anunciantes = () => {
                     }
                 );
                 atualizarStatusDocumento("REJECTED");
-                alert("Documento rejeitado.");
+                toast.success("Documento rejeitado com sucesso!");
                 setModal({ isOpen: false, content: null });
             } catch (error) {
                 console.error("Erro ao rejeitar documento:", error);
@@ -109,17 +129,27 @@ const Anunciantes = () => {
                     <h2 className="text-xl font-semibold">Verificar Documentos</h2>
                     <p>
                         O documento de <strong>{anunciante.name}</strong> está atualmente:{" "}
-                        <strong>{documentStatusModal || documentStatus}</strong>
+                        <strong className={status.cor}>{status.texto}</strong>
                     </p>
                     <div className="mt-4 flex justify-end space-x-2">
-                        <button
-                            onClick={() => setModal({ isOpen: false, content: null })}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                            disabled={isLoading}
-                        >
-                            Cancelar
-                        </button>
-                        {documentStatusModal === "REJECTED" || documentStatus === "REJECTED" ? (
+                        {documentStatus === "IN_ANALYSIS" ? (
+                            <>
+                                <button
+                                    onClick={aprovarDocumento}
+                                    className={`px-4 py-2 text-white rounded bg-green-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    disabled={isLoading}
+                                >
+                                    Aprovar
+                                </button>
+                                <button
+                                    onClick={rejeitarDocumento}
+                                    className={`px-4 py-2 text-white rounded bg-red-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    disabled={isLoading}
+                                >
+                                    Rejeitar
+                                </button>
+                            </>
+                        ) : documentStatus === "REJECTED" ? (
                             <button
                                 onClick={aprovarDocumento}
                                 className={`px-4 py-2 text-white rounded bg-green-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
@@ -127,21 +157,29 @@ const Anunciantes = () => {
                             >
                                 Aprovar
                             </button>
-                        ) : (
-                            <button
-                                onClick={rejeitarDocumento}
-                                className={`px-4 py-2 text-white rounded bg-red-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                disabled={isLoading}
-                            >
-                                Rejeitar
-                            </button>
-                        )}
+                        ) : documentStatus === "PENDING" ? (
+                            <div className="w-full flex items-center space-x-2">
+                                <p className="text-gray-500">Acompanhante não enviou documento.</p>
+                            </div>
+                        ) : documentStatus === "APPROVED" ? (
+                            <div className="w-full flex flex-col space-x-2">
+                                <p className="text-green-500 font-medium">Documento já aprovado.</p>
+                                <div className="flex mt-2 items-end justify-end">
+                                    <button
+                                        onClick={rejeitarDocumento}
+                                        className={`px-4 py-2 text-white rounded bg-red-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                        disabled={isLoading}
+                                    >
+                                        Rejeitar
+                                    </button>
+                                </div>
+                            </div>
+                        ) : null}
                     </div>
                 </>
             ),
         });
     };
-
 
     const handleAtivarDesativar = (anunciante) => {
 
@@ -557,18 +595,25 @@ const Anunciantes = () => {
                                     )}
                                 </td>
                                 <td className="py-4 px-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${anunciante.documentStatus === "APPROVED"
-                                        ? "bg-green-100 text-green-800" // Verde para documentos aprovados
-                                        : anunciante.documentStatus === "REJECTED"
-                                            ? "bg-red-100 text-red-800" // Vermelho para documentos rejeitados
-                                            : "bg-yellow-100 text-yellow-800" // Amarelo para documentos pendentes
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold 
+                                        ${anunciante.documentStatus === "APPROVED"
+                                            ? "bg-green-100 text-green-800" // Verde para documentos aprovados
+                                            : anunciante.documentStatus === "IN_ANALYSIS"
+                                                ? "bg-orange-100 text-orange-800" // Laranja para documentos em análise
+                                                : anunciante.documentStatus === "REJECTED"
+                                                    ? "bg-red-100 text-red-800" // Vermelho para documentos rejeitados
+                                                    : "bg-yellow-100 text-yellow-800" // Amarelo para documentos pendentes
                                         }`}>
                                         {anunciante.documentStatus === "APPROVED"
                                             ? "Verificado"
                                             : anunciante.documentStatus === "REJECTED"
                                                 ? "Rejeitado"
-                                                : "Pendente"}
+                                                : anunciante.documentStatus === "IN_ANALYSIS"
+                                                    ? "Em Análise" // Texto para "IN_ANALYSIS"
+                                                    : "Pendente"
+                                        }
                                     </span>
+
                                 </td>
                                 <td className="py-4 px-4 text-center space-x-2 flex justify-center">
 

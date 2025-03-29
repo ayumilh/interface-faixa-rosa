@@ -70,39 +70,40 @@ export const AuthContextProvider = ({ children }) => {
         router.push("/login");
     };
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const tokenId = Cookies.get("userToken");
 
-            if (tokenId) {
-                try {
+    const fetchUserData = async () => {
+        const tokenId = Cookies.get("userToken");
 
-                    const res = await axios.get(
-                        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${tokenId}`,
-                            },
-                        }
-                    );
-         
-                    if (res.data) {
-                        setUserInfo(res.data);
+        if (tokenId) {
+            try {
 
-                        if (!currentUser || currentUser.id !== res.data.id) {
-                            setCurrentUser(res.data);
-                        }
-                        if (!isAuthenticated) {
-                            setIsAuthenticated(true);
-                        }
+                const res = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${tokenId}`,
+                        },
                     }
-                } catch {
-                    setIsAuthenticated(false);
-                    return null;
-                }
-            }
-        };
+                );
 
+                if (res.data) {
+                    setUserInfo(res.data);
+
+                    if (!currentUser || currentUser.id !== res.data.id) {
+                        setCurrentUser(res.data);
+                    }
+                    if (!isAuthenticated) {
+                        setIsAuthenticated(true);
+                    }
+                }
+            } catch {
+                setIsAuthenticated(false);
+                return null;
+            }
+        }
+    };
+    
+    useEffect(() => {
         if (!currentUser) {
             fetchUserData();
         }
@@ -139,6 +140,7 @@ export const AuthContextProvider = ({ children }) => {
                 login,
                 logout,
                 userInfo,
+                fetchUserData,
                 setCurrentUser,
                 setIsAuthenticated,
                 isModalOpen,

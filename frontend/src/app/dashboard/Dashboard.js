@@ -26,17 +26,20 @@ import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
 
 const Dashboard = () => {
-  const { userInfo } = useContext(AuthContext);
+  const { userInfo, fetchUserData  } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("profile");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
 
+  // Chama fetchUserData quando o componente é carregado ou quando userInfo muda
   useEffect(() => {
-    if (userInfo) {
-      setUser(userInfo);
+    if (!userInfo) {
+      fetchUserData(); // Chama a função para buscar os dados se userInfo estiver vazio
+    } else {
+      setUser(userInfo); // Se userInfo já estiver disponível, apenas define os dados no estado
     }
-  }, [userInfo]);
+  }, [userInfo, fetchUserData]); 
 
 
   // Detecta se está em mobile
@@ -152,8 +155,10 @@ const Dashboard = () => {
                     </span>
                   </div>
                 )}
-                <div>
-                  <h2 className="text-lg font-semibold">{user ? `${user.companion.userName}` : "Carregando..."}</h2>
+                <div className="ml-2">
+                  <h2 className="text-lg font-semibold">
+                    {user ? `${user?.companion?.userName}` : "Carregando..."}
+                  </h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>
               </div>

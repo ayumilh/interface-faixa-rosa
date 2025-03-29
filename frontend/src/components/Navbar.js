@@ -223,7 +223,9 @@ export default function Navbar({ bgColor = "pink" }) {
                   <div className="px-4 py-2 border-b">
                     {user ? (
                       <>
-                        <p className="text-gray-800 font-semibold">{user.companion.userName}</p>
+                        <p className="text-gray-800 font-semibold">
+                          {user.userType === 'ADMIN' ? user.first : user.companion.userName}
+                        </p>
                         <p className="text-sm text-gray-500">{user.email}</p>
                       </>
                     ) : (

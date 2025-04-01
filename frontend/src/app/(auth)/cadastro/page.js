@@ -11,6 +11,8 @@ import "dayjs/locale/pt-br";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { searchUserId } from "@/utils/searchUserId";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import IconButton from '@mui/material/IconButton';
 
 export default function CadastroPage() {
     const [email, setEmail] = useState("");
@@ -31,6 +33,8 @@ export default function CadastroPage() {
     const [isFormValid, setIsFormValid] = useState(false);
     const [inputClass, setInputClass] = useState('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
     const router = useRouter();
+
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         const userLocale = navigator.language.toLowerCase();
@@ -378,10 +382,36 @@ export default function CadastroPage() {
         }
     };
 
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const handleMouseDownPassword = (event) => {
+        event.preventDefault();
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-cover bg-center p-4" style={{ backgroundImage: "url('/assets/background.svg')" }}>
-            <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg">
+            {/* Fundo padrão (mobile) */}
+            <div
+                className="block lg:hidden absolute inset-0 bg-no-repeat bg-cover bg-center"
+                style={{
+                    backgroundImage: "url('/assets/chatGPT_background.png')",
+                }}
+            />
+
+            {/* Fundo desktop com a mulher e a logo à esquerda */}
+            <div
+                className="hidden lg:block absolute inset-0 bg-no-repeat bg-cover"
+                style={{
+                    backgroundImage: "url('/assets/chatGPT_backgroundDesktop.png')",
+                    backgroundPosition: "left center",
+                    backgroundSize: "cover", // Ajuste o tamanho conforme necessário
+                }}
+            />
+
+            {/* Formulário centralizado */}
+            <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg z-10 relative">
                 <div className="text-center mb-6">
                     <Image src="/assets/logofaixa.png" alt="Faixa Rosa Logo" width={160} height={64} className="mx-auto h-16" />
                     <h2 className="text-2xl font-semibold text-pink-500 mt-4">Crie sua conta</h2>
@@ -573,16 +603,27 @@ export default function CadastroPage() {
                         >
                             Senha
                         </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={password}
-                            onChange={handlePasswordChange}
-                            required
-                            maxLength={128}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-                        />
+                        <div className="relative mt-1">
+                            <input
+                                id="password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={handlePasswordChange}
+                                required
+                                maxLength={128}
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                            />
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={handleClickShowPassword}
+                                    onMouseDown={handleMouseDownPassword}
+                                >
+                                    {showPassword ? <FaEye className='dark:text-neutral-700' /> : <FaEyeSlash className='dark:text-neutral-700' />}
+                                </IconButton>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Seletor de Tipo de Usuário */}

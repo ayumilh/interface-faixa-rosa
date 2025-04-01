@@ -39,11 +39,10 @@ export default function CadastroPage() {
     useEffect(() => {
         const userLocale = navigator.language.toLowerCase();
         const supportedLocales = ["pt-br", "en", "es", "fr"];
-
         if (supportedLocales.includes(userLocale)) {
             setLocale(userLocale);
         } else {
-            setLocale("pt-br"); // Padrão: Português
+            setLocale("pt-br");
         }
     }, []);
 
@@ -67,20 +66,15 @@ export default function CadastroPage() {
         e.preventDefault();
         setLoading(true);
 
-        console.log({ firstName, lastName, email, password, phone, cpf, userType });
-
         try {
             const formatDateToISO = (dateString) => {
-                // Divide a string no formato "DD/MM/YYYY"
                 const [day, month, year] = dateString.split("/");
-                // Retorna no formato "YYYY-MM-DD"
                 return `${year}-${month}-${day}`;
             };
 
             const formattedBirthDate = dataNascimento ? formatDateToISO(dataNascimento) : undefined;
 
 
-            // Simulando o envio para o backend
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/register`,
                 { userName, firstName, lastName, email, password, phone, cpf, birthDate: formattedBirthDate, userType },
@@ -139,7 +133,6 @@ export default function CadastroPage() {
         }
     };
 
-    // Função para sanitizar os inputs
     const sanitizeInput = (value, regex, shouldTrim = true) => {
         const sanitizedValue = shouldTrim ? value.trim().replace(regex, '') : value.replace(regex, '');
         return sanitizedValue;
@@ -149,14 +142,13 @@ export default function CadastroPage() {
         const value = e.target.value.trimStart();
         const regex = /[^a-zA-ZÀ-ÿ\s'-]/g;
         const sanitizedValue = sanitizeInput(value, regex, false);
-
         setFirstName(sanitizedValue);
-
         setErrorsInput((prevErrors) => {
             const { firstName, ...rest } = prevErrors;
             return rest;
         });
     };
+
     const handleFirstNameBlur = () => {
         if (firstName === '') {
             setErrorsInput((prevErrors) => ({
@@ -174,11 +166,8 @@ export default function CadastroPage() {
     const handleUserNameChange = (e) => {
         const value = e.target.value.trimStart();
         const regex = /[^a-zA-ZÀ-ÿ\s0-9&_-]/g;
-
         const sanitizedValue = sanitizeInput(value, regex, false);
-
         setUserName(sanitizedValue);
-
         setErrorsInput((prevErrors) => {
             const { userName, ...rest } = prevErrors;
             return rest;
@@ -203,9 +192,7 @@ export default function CadastroPage() {
         const value = e.target.value.trimStart();
         const regex = /[^a-zA-ZÀ-ÿ\s'-]/g;
         const sanitizedValue = sanitizeInput(value, regex, false);
-
         setLastName(sanitizedValue);
-
         setErrorsInput((prevErrors) => {
             const { lastName, ...rest } = prevErrors;
             return rest;
@@ -230,7 +217,6 @@ export default function CadastroPage() {
         const value = e.target.value.trimStart();
         const regex = /[^0-9]/g;
         const sanitizedValue = sanitizeInput(value, regex);
-
         setPhone(sanitizedValue);
 
         if (value !== sanitizedValue) {
@@ -252,7 +238,6 @@ export default function CadastroPage() {
         const value = e.target.value.trimStart();
         const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const sanitizedValue = sanitizeInput(value, /[^a-zA-Z0-9._@-]/g);
-
         setEmail(sanitizedValue);
 
         if (regex.test(sanitizedValue)) {
@@ -274,18 +259,15 @@ export default function CadastroPage() {
         const value = e.target.value.trimStart();
         const regex = /[^0-9]/g;
         const sanitizedValue = sanitizeInput(value, regex);
-
         setCpf(sanitizedValue);
 
         if (sanitizedValue.length < 11) {
-            // Ainda digitando (não exibe erro)
             setIsCpfValid(null);
             setErrorsInput((prevErrors) => {
                 const { cpf, ...rest } = prevErrors;
                 return rest;
             });
         } else if (sanitizedValue.length === 11) {
-            // CPF completo → Agora validamos
             if (!/^\d{11}$/.test(sanitizedValue)) {
                 setIsCpfValid(false);
                 setErrorsInput((prevErrors) => ({
@@ -303,23 +285,16 @@ export default function CadastroPage() {
 
     const handlePasswordChange = (e) => {
         const value = e.target.value;
-
-        // Sanitiza o valor, permitindo apenas letras, números e caracteres especiais comuns para senhas
         const sanitizedValue = sanitizeInput(value, /[^a-zA-Z0-9!@#$%^&*]/g);
-
-        // Atualiza o estado com o valor sanitizado
         setPassword(sanitizedValue);
 
-        // Verifica a validade da senha
         if (sanitizedValue.length >= 8 && sanitizedValue.length <= 128) {
-            // Senha válida
             setErrorsInput((prevErrors) => {
                 const { password, ...rest } = prevErrors;
-                return rest; // Remove o erro do estado
+                return rest;
             });
             setInputClass('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
         } else {
-            // Senha inválida
             setErrorsInput((prevErrors) => ({
                 ...prevErrors,
                 password: 'Senha inválida. Deve conter entre 8 e 128 caracteres e apenas letras, números ou caracteres especiais.',
@@ -338,7 +313,6 @@ export default function CadastroPage() {
         }
 
         const token = searchUserId();
-
         setLoadingCpf(true);
         setIsCpfValid(null);
 
@@ -355,8 +329,6 @@ export default function CadastroPage() {
                     },
                 }
             );
-
-            console.log(response.data);
 
             if (response.data.maior_de_idade) {
                 setIsCpfValid(true);
@@ -391,8 +363,8 @@ export default function CadastroPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-cover bg-center p-4" style={{ backgroundImage: "url('/assets/background.svg')" }}>
-            {/* Fundo padrão (mobile) */}
+        <div className="min-h-screen w-full relative overflow-hidden">
+            {/* Fundo para mobile */}
             <div
                 className="block lg:hidden absolute inset-0 bg-no-repeat bg-cover bg-center"
                 style={{
@@ -400,209 +372,223 @@ export default function CadastroPage() {
                 }}
             />
 
-            {/* Fundo desktop com a mulher e a logo à esquerda */}
+            {/* Fundo desktop */}
             <div
                 className="hidden lg:block absolute inset-0 bg-no-repeat bg-cover"
                 style={{
                     backgroundImage: "url('/assets/chatGPT_backgroundDesktop.png')",
                     backgroundPosition: "left center",
-                    backgroundSize: "cover", // Ajuste o tamanho conforme necessário
+                    backgroundSize: "cover",
                 }}
             />
 
-            {/* Formulário centralizado */}
-            <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg z-10 relative">
-                <div className="text-center mb-6">
-                    <Image src="/assets/logofaixa.png" alt="Faixa Rosa Logo" width={160} height={64} className="mx-auto h-16" />
-                    <h2 className="text-2xl font-semibold text-pink-500 mt-4">Crie sua conta</h2>
-                </div>
-                <form onSubmit={handleSubmit} className="space-y-6 mb-6">
-                    {/* Nome */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Formulário posicionado à direita no desktop e centralizado no mobile */}
+            <div className="relative min-h-screen flex items-center justify-center lg:justify-end p-4">
+                <div className="w-full max-w-md bg-white bg-opacity-90 p-6 rounded-lg shadow-md hover:shadow-2xl max-h-[90vh] overflow-y-auto lg:ml-auto lg:mr-[250px] z-10">
+                    <div className="text-center mb-6">
+                        <Image
+                            src="/assets/logofaixa.png"
+                            alt="Faixa Rosa Logo"
+                            width={160}
+                            height={0}
+                            className="mx-auto h-auto"
+                            style={{ maxHeight: "80px", objectFit: "contain" }}
+                        />
+                        <h2 className="text-2xl font-semibold text-pink-500 mt-4">
+                            Crie sua conta
+                        </h2>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6 mb-6">
+                        {/* Nome */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    htmlFor="firstName"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
+                                    Nome
+                                </label>
+                                <input
+                                    id="firstName"
+                                    name="firstName"
+                                    type="text"
+                                    value={firstName}
+                                    onChange={handleFirstNameChange}
+                                    onBlur={handleFirstNameBlur}
+                                    maxLength={50}
+                                    required
+                                    title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
+                                    autoComplete="off"
+                                    className={inputClass}
+                                />
+                                {errorsInput.firstName && (
+                                <p className="text-red-500 relative text-sm mt-1">{errorsInput.firstName}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label
+                                    htmlFor="lastName"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
+                                    Sobrenome
+                                </label>
+                                <input
+                                    id="lastName"
+                                    name="lastName"
+                                    type="text"
+                                    value={lastName}
+                                    onChange={handleLastNameChange}
+                                    onBlur={handleLastNameBlur}
+                                    maxLength={100}
+                                    required
+                                    title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
+                                    autoComplete="off"
+                                    className={inputClass}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Nome de Usuário */}
                         <div>
                             <label
-                                htmlFor="firstName"
+                                htmlFor="userName"
                                 className="block text-sm font-medium text-gray-700"
                             >
-                                Nome
+                                Nome de Usuário
                             </label>
                             <input
-                                id="firstName"
-                                name="firstName"
+                                id="userName"
+                                name="userName"
                                 type="text"
-                                value={firstName}
-                                onChange={handleFirstNameChange}
-                                onBlur={handleFirstNameBlur}
-                                maxLength={50}
+                                value={userName}
+                                onChange={handleUserNameChange}
+                                onBlur={handleUserNameBlur}
                                 required
-                                title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
-                                autoComplete="off"
-                                className={inputClass}
+                                maxLength={50}
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
                             />
-                            {errorsInput.firstName && (
-                                <p className="text-red-500 relative text-sm mt-1">{errorsInput.firstName}</p>
+                        </div>
+
+                        {/* Telefone */}
+                        <div>
+                            <label
+                                htmlFor="phone"
+                                className="block text-sm font-medium text-gray-700"
+                            >
+                                Telefone
+                            </label>
+                            <input
+                                id="phone"
+                                name="phone"
+                                type="text"
+                                value={phone}
+                                onChange={handlePhoneChange}
+                                required
+                                maxLength={11}
+                                pattern="[0-9]{11}"
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                            />
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                            <label
+                                htmlFor="email"
+                                className="block text-sm font-medium text-gray-700"
+                            >
+                                E-mail
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={email}
+                                onChange={handleEmailChange}
+                                maxLength={320}
+                                required
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                            />
+                        </div>
+
+                        {/* Data de Nascimento */}
+                        <div>
+                            <label
+                                htmlFor="data_nascimento"
+                                className="block text-sm font-medium text-gray-700"
+                            >
+                                Data de Nascimento
+                            </label>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
+                                <DatePicker
+                                    value={dataNascimento ? dayjs(dataNascimento, "DD/MM/YYYY") : null}
+                                    onChange={(newValue) => {
+                                        if (newValue) {
+                                            setDataNascimento(dayjs(newValue).format("DD/MM/YYYY"));
+                                        }
+                                    }}
+                                    format="DD/MM/YYYY"
+                                    disableFuture
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            variant: "outlined",
+                                            error: !!errorsInput.dataNascimento,
+                                            helperText: errorsInput.dataNascimento || "",
+                                            className:
+                                                "mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800",
+                                        },
+                                    }}
+                                />
+                            </LocalizationProvider>
+                            {errorsInput.dataNascimento && (
+                                <p className="text-red-500 text-sm mt-1">{errorsInput.dataNascimento}</p>
                             )}
                         </div>
 
+                        {/* CPF */}
                         <div>
                             <label
-                                htmlFor="lastName"
+                                htmlFor="cpf"
                                 className="block text-sm font-medium text-gray-700"
                             >
-                                Sobrenome
+                                CPF
                             </label>
-                            <input
-                                id="lastName"
-                                name="lastName"
-                                type="text"
-                                value={lastName}
-                                onChange={handleLastNameChange}
-                                onBlur={handleLastNameBlur}
-                                maxLength={100}
-                                required
-                                title="Por favor, insira apenas letras. São permitidos espaços, hifens e apóstrofos."
-                                autoComplete="off"
-                                className={inputClass}
-                            />
+                            <div className="relative">
+                                <input
+                                    id="cpf"
+                                    name="cpf"
+                                    type="text"
+                                    value={cpf}
+                                    onChange={handleCpfChange}
+                                    required
+                                    maxLength={11}
+                                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={verifyCpf}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-pink-500 text-white px-3 py-1 rounded-md hover:bg-pink-600 transition duration-200"
+                                >
+                                    {loadingCpf ? <FaSpinner className="animate-spin" /> : "Verificar"}
+                                </button>
+                            </div>
+                            {isCpfValid !== null && (
+                                <p className={`mt-1 text-sm ${isCpfValid ? "text-green-500" : "text-red-500"}`}>
+                                    {isCpfValid ? "CPF válido e maior de idade" : "CPF inválido ou menor de idade"}
+                                </p>
+                            )}
                         </div>
-                    </div>
 
-                    {/* userName */}
-                    <div>
-                        <label
-                            htmlFor="userName"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Nome de Usuário
-                        </label>
-                        <input
-                            id="userName"
-                            name="userName"
-                            type="text"
-                            value={userName}
-                            onChange={handleUserNameChange}
-                            onBlur={handleUserNameBlur}
-                            required
-                            maxLength={50}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-                        />
-                    </div>
-
-                    {/* Telefone */}
-                    <div>
-                        <label
-                            htmlFor="phone"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Telefone
-                        </label>
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="text"
-                            value={phone}
-                            onChange={handlePhoneChange}
-                            required
-                            maxLength={11}
-                            pattern="[0-9]{11}"
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-                        />
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                        <label
-                            htmlFor="email"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            E-mail
-                        </label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={email}
-                            onChange={handleEmailChange}
-                            maxLength={320}
-                            required
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-                        />
-                    </div>
-
-                    {/* Data de Nascimento */}
-                    <div>
-                        <label htmlFor="data_nascimento" className="block text-sm font-medium text-gray-700">
-                            Data de Nascimento
-                        </label>
-                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
-                            <DatePicker
-                                value={dataNascimento ? dayjs(dataNascimento, "DD/MM/YYYY") : null}
-                                onChange={(newValue) => {
-                                    if (newValue) {
-                                        setDataNascimento(dayjs(newValue).format("DD/MM/YYYY"));
-                                    }
-                                }}
-                                format="DD/MM/YYYY"
-                                disableFuture
-                                slotProps={{
-                                    textField: {
-                                        fullWidth: true,
-                                        variant: "outlined",
-                                        error: !!errorsInput.dataNascimento,
-                                        helperText: errorsInput.dataNascimento || "",
-                                        className:
-                                            "mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800",
-                                    },
-                                }}
-                            />
-                        </LocalizationProvider>
-                        {errorsInput.dataNascimento && (
-                            <p className="text-red-500 text-sm mt-1">{errorsInput.dataNascimento}</p>
-                        )}
-                    </div>
-
-                    {/* CPF */}
-                    <div>
-                        <label
-                            htmlFor="cpf"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            CPF
-                        </label>
-                        <div className="relative">
-                            <input
-                                id="cpf"
-                                name="cpf"
-                                type="text"
-                                value={cpf}
-                                onChange={handleCpfChange}
-                                required
-                                maxLength={11}
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-                            />
-                            <button
-                                type="button"
-                                onClick={verifyCpf}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-pink-500 text-white px-3 py-1 rounded-md hover:bg-pink-600 transition duration-200"
+                        {/* Senha */}
+                        <div>
+                            <label
+                                htmlFor="password"
+                                className="block text-sm font-medium text-gray-700"
                             >
-                                {loadingCpf ? <FaSpinner className="animate-spin" /> : "Verificar"}
-                            </button>
-                        </div>
-                        {isCpfValid !== null && (
-                            <p className={`mt-1 text-sm ${isCpfValid ? "text-green-500" : "text-red-500"}`}>
-                                {isCpfValid ? "CPF válido e maior de idade" : "CPF inválido ou menor de idade"}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Senha */}
-                    <div>
-                        <label
-                            htmlFor="password"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Senha
-                        </label>
+                                Senha
+                            </label>
                         <div className="relative mt-1">
                             <input
                                 id="password"
@@ -624,66 +610,63 @@ export default function CadastroPage() {
                                 </IconButton>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Seletor de Tipo de Usuário */}
-                    <div>
-                        <label
-                            htmlFor="userType"
-                            className="block text-sm font-medium text-gray-700 mb-2"
-                        >
-                            Você é
-                        </label>
-                        <div className="flex space-x-4">
-                            <button
-                                type="button"
-                                onClick={() => setUserType("CONTRATANTE")}
-                                className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "CONTRATANTE"
-                                    ? "bg-pink-500 text-white border-pink-500"
-                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                                    }`}
-                            >
-                                Contratante
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setUserType("ACOMPANHANTE")}
-                                className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "ACOMPANHANTE"
-                                    ? "bg-pink-500 text-white border-pink-500"
-                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                                    }`}
-                            >
-                                Acompanhante
-                            </button>
                         </div>
-                    </div>
 
-                    {/* Botão de Enviar */}
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={!isFormValid || loading}
-                            className={`w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white 
+                        {/* Seletor de Tipo de Usuário */}
+                        <div>
+                            <label
+                                htmlFor="userType"
+                                className="block text-sm font-medium text-gray-700 mb-2"
+                            >
+                                Você é
+                            </label>
+                            <div className="flex space-x-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setUserType("CONTRATANTE")}
+                                    className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "CONTRATANTE"
+                                            ? "bg-pink-500 text-white border-pink-500"
+                                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    Contratante
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setUserType("ACOMPANHANTE")}
+                                    className={`w-1/2 py-2 px-4 border rounded-lg shadow-sm focus:outline-none transition duration-200 ${userType === "ACOMPANHANTE"
+                                            ? "bg-pink-500 text-white border-pink-500"
+                                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    Acompanhante
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Botão de Enviar */}
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={!isFormValid || loading}
+                                className={`w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white 
                     ${isFormValid ? "bg-pink-500 hover:bg-pink-600 focus:ring-pink-500" : "bg-pink-400 cursor-not-allowed"} 
                     focus:outline-none focus:ring-2 focus:ring-offset-2 transition`}
+                            >
+                                {loading ? <FaSpinner className="animate-spin h-5 w-5" /> : "Cadastrar"}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div className="text-center mt-4 text-sm">
+                        Já tem uma conta?{" "}
+                        <button
+                            onClick={() => router.push("/login")}
+                            className="font-medium text-pink-500 hover:text-pink-600"
                         >
-                            {loading ? (
-                                <FaSpinner className="animate-spin h-5 w-5" />
-                            ) : (
-                                "Cadastrar"
-                            )}
+                            Entrar
                         </button>
                     </div>
-                </form>
-
-                <div className="text-center mt-4 text-sm">
-                    Já tem uma conta?{" "}
-                    <button
-                        onClick={() => router.push("/login")}
-                        className="font-medium text-pink-500 hover:text-pink-600"
-                    >
-                        Entrar
-                    </button>
                 </div>
             </div>
         </div>

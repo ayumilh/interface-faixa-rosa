@@ -28,6 +28,111 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
   const [cardCVV, setCardCVV] = useState("");
   const [isCardFlipped, setIsCardFlipped] = useState(false);
 
+  // Carregar MercadoPago.js no componente
+  useEffect(() => {
+    const loadMercadoPago = async () => {
+      if (typeof window !== "undefined" && window.MercadoPago) {
+        const mp = new window.MercadoPago("TEST-61ec5b26-9a78-452c-9c76-375c4405da46"); // Substitua pela sua chave pública
+
+        const cardForm = mp.cardForm({
+          amount: "100.5", // Alterar com o valor da transação
+          iframe: true,
+          form: {
+            id: "form-checkout",
+            cardNumber: {
+              id: "form-checkout__cardNumber",
+              placeholder: "Número do cartão",
+            },
+            expirationDate: {
+              id: "form-checkout__expirationDate",
+              placeholder: "MM/YY",
+            },
+            securityCode: {
+              id: "form-checkout__securityCode",
+              placeholder: "Código de segurança",
+            },
+            cardholderName: {
+              id: "form-checkout__cardholderName",
+              placeholder: "Titular do cartão",
+            },
+            issuer: {
+              id: "form-checkout__issuer",
+              placeholder: "Banco emissor",
+            },
+            installments: {
+              id: "form-checkout__installments",
+              placeholder: "Parcelas",
+            },
+            identificationType: {
+              id: "form-checkout__identificationType",
+              placeholder: "Tipo de documento",
+            },
+            identificationNumber: {
+              id: "form-checkout__identificationNumber",
+              placeholder: "Número do documento",
+            },
+            cardholderEmail: {
+              id: "form-checkout__cardholderEmail",
+              placeholder: "E-mail",
+            },
+          },
+          callbacks: {
+            onFormMounted: (error) => {
+              if (error) return console.warn("Form Mounted handling error: ", error);
+              console.log("Form mounted");
+            },
+            onSubmit: (event) => {
+              event.preventDefault();
+
+              const {
+                paymentMethodId: payment_method_id,
+                issuerId: issuer_id,
+                cardholderEmail: email,
+                amount,
+                token,
+                installments,
+                identificationNumber,
+                identificationType,
+              } = cardForm.getCardFormData();
+
+              fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/mp/process_payment`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  token,
+                  issuer_id,
+                  payment_method_id,
+                  transaction_amount: Number(amount),
+                  installments: Number(installments),
+                  description: "Descrição do produto",
+                  payer: {
+                    email,
+                    identification: {
+                      type: identificationType,
+                      number: identificationNumber,
+                    },
+                  },
+                }),
+              });
+            },
+            onFetching: (resource) => {
+              console.log("Fetching resource: ", resource);
+              const progressBar = document.querySelector(".progress-bar");
+              progressBar.removeAttribute("value");
+              return () => {
+                progressBar.setAttribute("value", "0");
+              };
+            },
+          },
+        });
+      }
+    };
+
+    loadMercadoPago();
+  }, []);
+
   const handleSelectMethod = (method) => {
     setSelectedMethod(method);
   };
@@ -205,11 +310,10 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
                   key={plan.id}
                   type="button"
                   onClick={() => handleSelectExtraPlan(plan.id)}
-                  className={`${buttonClass} ${
-                    selectedExtraPlans.includes(plan.id)
+                  className={`${buttonClass} ${selectedExtraPlans.includes(plan.id)
                       ? "border-pink-500 text-pink-500 bg-pink-100"
                       : "border-gray-300"
-                  }`}
+                    }`}
                 >
                   {plan.name}
                   {selectedExtraPlans.includes(plan.id) && (
@@ -276,11 +380,10 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
             <button
               type="button"
               onClick={() => handleSelectMethod("card")}
-              className={`flex-1 py-3 border-2 rounded-md text-center ${
-                selectedMethod === "card"
+              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
                   ? "border-pink-500 text-pink-500 bg-pink-100"
                   : "border-gray-300"
-              }`}
+                }`}
             >
               <FaCreditCard className="inline-block mr-2" /> Cartão
               {selectedMethod === "card" && (
@@ -290,11 +393,10 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
             <button
               type="button"
               onClick={() => handleSelectMethod("pix")}
-              className={`flex-1 py-3 border-2 rounded-md text-center ${
-                selectedMethod === "pix"
+              className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "pix"
                   ? "border-pink-500 text-pink-500 bg-pink-100"
                   : "border-gray-300"
-              }`}
+                }`}
             >
               <FaPix className="inline-block mr-2 w-6 h-6" /> Pix
               {selectedMethod === "pix" && (
@@ -367,7 +469,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
             </div>
 
             {/* Formulário de Dados do Cartão */}
-            <label className="block text-gray-700 font-bold mb-2 text-start" htmlFor="cardNumber">
+            {/* <label className="block text-gray-700 font-bold mb-2 text-start" htmlFor="cardNumber">
               Número do Cartão
             </label>
             <input
@@ -423,7 +525,41 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
               onFocus={() => setIsCardFlipped(true)}
               onBlur={() => setIsCardFlipped(false)}
               placeholder="Ex: 123"
-            />
+            /> */}
+
+
+
+            <style>
+              {`
+    #form-checkout {
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+    }
+
+    .container {
+      height: 18px;
+      display: inline-block;
+      border: 1px solid rgb(118, 118, 118);
+      border-radius: 2px;
+      padding: 1px 2px;
+    }`}
+            </style>
+            <form id="form-checkout">
+              <div id="form-checkout__cardNumber" className="container"></div>
+              <div id="form-checkout__expirationDate" className="container"></div>
+              <div id="form-checkout__securityCode" className="container"></div>
+              <input type="text" id="form-checkout__cardholderName" />
+              <select id="form-checkout__issuer"></select>
+              <select id="form-checkout__installments"></select>
+              <select id="form-checkout__identificationType"></select>
+              <input type="text" id="form-checkout__identificationNumber" />
+              <input type="email" id="form-checkout__cardholderEmail" />
+
+              <button type="submit" id="form-checkout__submit">Pagar</button>
+              <progress value="0" className="progress-bar">Carregando...</progress>
+            </form>
+
           </div>
         )}
 

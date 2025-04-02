@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.13.0",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.1.5",
+    "@mercadopago/sdk-js": "^0.0.3",
     "@mui/lab": "^6.0.0-beta.25",
     "@mui/material": "^6.4.2",
     "@mui/x-date-pickers": "^7.24.1",

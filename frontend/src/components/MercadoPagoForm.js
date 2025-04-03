@@ -101,6 +101,12 @@ const MercadoPagoForm = ({ totalPrice, planId, selectedExtraPlans, selectedMetho
                             const requestBody = {
                                 payment_method_id: payment_method_id,
                                 cardToken: token,
+                                issuer_id: issuer_id,
+                                installments: installments,
+                                email: email,
+                                identificationNumber: identificationNumber,
+                                identificationType: identificationType,
+                                
                             };
 
                             // Lógica para adicionar o plano extra e tipo de plano
@@ -174,7 +180,7 @@ const MercadoPagoForm = ({ totalPrice, planId, selectedExtraPlans, selectedMetho
                     className="border rounded w-full py-2 px-3 mb-4"
                 />
                 <select id="form-checkout__issuer" className="border rounded w-full py-2 px-3 mb-4"></select>
-                <select id="form-checkout__installments" className="border rounded w-full py-2 px-3 mb-4"></select>
+                <select id="form-checkout__installments" className="hidden border rounded w-full py-2 px-3 mb-4"></select>
                 <select id="form-checkout__identificationType" className="border rounded w-full py-2 px-3 mb-4"></select>
                 <input
                     type="text"
@@ -189,7 +195,7 @@ const MercadoPagoForm = ({ totalPrice, planId, selectedExtraPlans, selectedMetho
                 <button type="submit" id="form-checkout__submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition">
                     Pagar
                 </button>
-                <progress value="0" className="progress-bar">Carregando...</progress>
+                <progress value="0" className="progress-bar hidden">Carregando...</progress>
             </form>
         </div>
     );

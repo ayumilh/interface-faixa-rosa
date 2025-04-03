@@ -372,14 +372,16 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={handlePayment}
-          className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition"
-          disabled={loading}
-        >
-          {loading ? "Carregando..." : "PAGAR AGORA"}
-        </button>
+        {selectedMethod === "pix" && (
+          <button
+            type="button"
+            onClick={handlePayment}
+            className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md hover:bg-pink-600 transition"
+            disabled={loading}
+          >
+            {loading ? "Carregando..." : "PAGAR AGORA"}
+          </button>
+        )}
       </div>
     </div>
   );

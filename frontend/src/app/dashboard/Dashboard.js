@@ -26,7 +26,7 @@ import MediaManagement from "@/components/dashboard/MediaManagement";
 import useMediaQuery from "@/hooks/useMediaQuery";
 
 const Dashboard = () => {
-  const { userInfo, fetchUserData  } = useContext(AuthContext);
+  const { userInfo, fetchUserData } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("profile");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,7 +39,7 @@ const Dashboard = () => {
     } else {
       setUser(userInfo); // Se userInfo já estiver disponível, apenas define os dados no estado
     }
-  }, [userInfo, fetchUserData]); 
+  }, [userInfo, fetchUserData]);
 
 
   // Detecta se está em mobile
@@ -53,6 +53,7 @@ const Dashboard = () => {
   const handleModalToggle = () => {
     setModalOpen((prev) => !prev);
   };
+
 
   // Definição dos itens do menu
   const menuTabs = [
@@ -73,7 +74,7 @@ const Dashboard = () => {
       <div className="flex flex-1">
         {/* Barra Lateral (Desktop) - Fixa */}
         {!isMobile && (
-          <aside className="hidden md:block fixed top-16 left-0 h-full w-64 lg:w-72 xl:w-80 bg-gray-800 shadow-lg overflow-y-auto transition-colors duration-300 z-50">
+          <aside className="hidden lg:block fixed top-16 left-0 h-full w-64 lg:w-72 xl:w-80 bg-gray-800 shadow-lg overflow-y-auto transition-colors duration-300 z-50">
             <div className="p-6">
               {/* Perfil do Usuário */}
               <div className="flex items-center mb-6">

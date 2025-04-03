@@ -239,9 +239,9 @@ export default function Navbar({ bgColor = "pink" }) {
                   <Link href={`/perfil/${user?.companion?.userName || ''}`} className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                     Perfil
                   </Link>
-                  <Link href="/settings" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
+                  {/* <Link href="/settings" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                     Configurações
-                  </Link>
+                  </Link> */}
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-red-600 hover:bg-pink-100 transition"

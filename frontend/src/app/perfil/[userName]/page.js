@@ -371,6 +371,15 @@ export default function Perfil() {
     setActiveTab(tab);
   };
 
+  const handleWhatsAppClick = () => {
+    const whatsappNumber = companionData.contactMethods[0]?.whatsappNumber;
+    if (whatsappNumber) {
+      // Formato da URL do WhatsApp
+      const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+      window.open(whatsappUrl, "_blank"); // Abre o WhatsApp em uma nova aba
+    }
+  };
+
   const getStatusColor = () => {
     return status === "online" ? "bg-green-500" : "bg-gray-500";
   };
@@ -574,7 +583,7 @@ export default function Perfil() {
 
             {/* Botões de ação */}
             <div className="flex justify-around mt-4 space-x-3">
-              <button className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105">
+              <button onClick={handleWhatsAppClick} className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105">
                 <FaWhatsapp />
                 <span>WhatsApp</span>
               </button>
@@ -597,14 +606,14 @@ export default function Perfil() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-3 bg-white shadow rounded-lg overflow-hidden relative">
               {/* Banner de perfil */}
-              <div className="relative h-56 bg-gray-200">
+              <div className="relative h-60 bg-gray-200">
                 {companionData && companionData.bannerImage ? (
                   <Image
                     src={companionData.bannerImage}
                     alt="Foto de perfil"
                     width={1200}
                     height={300}
-                    className="object-cover h-80 w-[1200px]"
+                    className="object-cover h-60 w-[1200px]"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -743,10 +752,6 @@ export default function Perfil() {
                 </button>
                 <button className="p-2 bg-gray-400 text-white rounded-full shadow-md hover:bg-gray-500 mb-2 md:mb-0">
                   <FaEllipsisH />
-                </button>
-                <button className="p-2 bg-yellow-500 text-white rounded-full shadow-md hover:bg-yellow-600 flex items-center space-x-2 mb-2 md:mb-0">
-                  <FaUserPlus className="text-lg" />
-                  <span className="hidden md:inline">Seguir</span>
                 </button>
               </div>
 

@@ -14,25 +14,53 @@ import Image from "next/image";
 
 const Metrics = ({ userName, userCity, userState }) => {
   const [contactConfig, setContactConfig] = useState({
-    whatsapp: { number: "", message: "" },
+    whatsapp: { number: "", message: "", countryCode: '+55' },
     telegram: { username: "", message: "" },
-    phone: "",
+    phone: { number: "", countryCode: '+55' },
   });
+
+  const countryCodes = [
+    { code: '+55', country: 'Brasil' },
+    { code: '+1', country: 'EUA' },
+    { code: '+44', country: 'Reino Unido' },
+    { code: '+33', country: 'França' },
+    { code: '+34', country: 'Espanha' },
+    // Adicione mais países conforme necessário
+  ];
 
   const [updated, setUpdated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const userToken = Cookies.get("userToken");
 
-  // Formatar número de telefone para exibição
-  const formatPhoneDisplay = (value) => {
+  const formatPhoneDisplay = (value, countryCode) => {
     const cleanedValue = value.replace(/\D/g, ""); // Remove tudo que não for número
 
+    // Limpar o código do país para garantir que ele esteja apenas com números
+    const formattedCountryCode = (countryCode || '+55').replace(/\D/g, "");
+
+    // Se o código do país for o Brasil (+55), fazemos uma formatação específica
+    if (formattedCountryCode === "55") {
+      if (cleanedValue.length === 11) {
+        // Formato para números brasileiros com 11 dígitos: (XX) XXXXX-XXXX
+        return `(${cleanedValue.slice(0, 2)}) ${cleanedValue.slice(2, 7)}-${cleanedValue.slice(7)}`;
+      } else if (cleanedValue.length === 10) {
+        // Formato para números brasileiros com 10 dígitos: (XX) XXXX-XXXX
+        return `(${cleanedValue.slice(0, 2)}) ${cleanedValue.slice(2, 6)}-${cleanedValue.slice(6)}`;
+      }
+    }
+
+    // Para números internacionais com outros códigos de país
+    // Exemplo genérico para países com 10 ou 11 dígitos, como EUA ou Reino Unido
     if (cleanedValue.length === 11) {
+      // Para números com 11 dígitos: (XX) XXXXX-XXXX
       return `(${cleanedValue.slice(0, 2)}) ${cleanedValue.slice(2, 7)}-${cleanedValue.slice(7)}`;
     } else if (cleanedValue.length === 10) {
+      // Para números com 10 dígitos: (XX) XXXX-XXXX
       return `(${cleanedValue.slice(0, 2)}) ${cleanedValue.slice(2, 6)}-${cleanedValue.slice(6)}`;
     }
+
+    // Para números menores que 10 dígitos, retornamos o número limpo
     return cleanedValue;
   };
 
@@ -52,17 +80,28 @@ const Metrics = ({ userName, userCity, userState }) => {
           }
         );
         const { contact } = response.data;
+        console.log("Dados de contato:", contact);
+
+        // Remover os dois primeiros números de contact.phoneNumber
+        const phoneNumberWithoutPrefix = contact.phoneNumber ? contact.phoneNumber.slice(2) : "";
+
+        // Remover os dois primeiros números de contact.whatsappNumber
+        const whatsappNumberWithoutPrefix = contact.whatsappNumber ? contact.whatsappNumber.slice(2) : "";
 
         setContactConfig({
           whatsapp: {
-            number: formatPhoneDisplay(contact.whatsappNumber || ""),
+            number: whatsappNumberWithoutPrefix,
             message: contact.whatsappMessage || "",
+            countryCode: contact.whatsappCountryCode || '+55',
           },
           telegram: {
             username: contact.telegramUsername || "",
             message: contact.telegramMessage || "",
           },
-          phone: formatPhoneDisplay(contact.phoneNumber || ""),
+          phone: {
+            number: phoneNumberWithoutPrefix,
+            countryCode: contact.phoneCountryCode || '+55',
+          },
         });
         setLoading(false);
 
@@ -79,7 +118,8 @@ const Metrics = ({ userName, userCity, userState }) => {
     let value = e.target.value;
 
     if (field === "number") {
-      value = formatPhoneDisplay(value); // Formata para exibição
+      // Remover a formatação ao armazenar no estado
+      value = value.replace(/\D/g, "");
     }
 
     setContactConfig((prev) => ({
@@ -89,22 +129,36 @@ const Metrics = ({ userName, userCity, userState }) => {
     setUpdated(false);
   };
 
-  const handlePhoneChange = (e) => {
-    const value = formatPhoneDisplay(e.target.value);
-    setContactConfig((prev) => ({ ...prev, phone: value }));
-    setUpdated(false);
+  // Manipula as mudanças no código do país
+  const handleCountryCodeChange = (e) => {
+    const newCountryCode = e.target.value;
+
+    // Atualiza o código do país
+    setContactConfig((prevConfig) => ({
+      ...prevConfig,
+      phone: {
+        ...prevConfig.phone,
+        countryCode: newCountryCode,
+      },
+    }));
   };
 
   const saveConfig = async () => {
     setLoading(true);
     setMessage("");
 
+    // Concatenar o código do país ao número de telefone
+    const phoneNumberWithCountry = `${contactConfig.phone.countryCode}${contactConfig.phone.number.replace(/\D/g, '')}`;
+    const whatsappNumberWithCountry = `${contactConfig.whatsapp.countryCode}${contactConfig.whatsapp.number.replace(/\D/g, '')}`;
+
     const payload = {
-      whatsappNumber: formatPhoneBackend(contactConfig.whatsapp.number), // Limpa antes de enviar
+      whatsappNumber: formatPhoneBackend(whatsappNumberWithCountry), // Limpa antes de enviar
       whatsappMessage: contactConfig.whatsapp.message,
+      whatsappCountryCode: contactConfig.whatsapp.countryCode,
       telegramUsername: contactConfig.telegram.username,
       telegramMessage: contactConfig.telegram.message,
-      phoneNumber: formatPhoneBackend(contactConfig.phone), // Limpa antes de enviar
+      phoneNumber: formatPhoneBackend(phoneNumberWithCountry), // Limpa antes de enviar
+      phoneCountryCode: contactConfig.phone.countryCode,
     };
 
     try {
@@ -127,17 +181,17 @@ const Metrics = ({ userName, userCity, userState }) => {
   };
 
   return (
-    <div className="hidden md:block bg-white p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
+    <div className="hidden lg:block bg-white p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
       {/* Carregamento com ícone de fogo */}
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-                    <Image
-                      src="/iconOficial_faixaRosa.png"
-                      alt="Ícone oficial Faixa Rosa"
-                      width={50}
-                      height={50}
-                      className="animate-pulse w-auto h-auto"
-                    />
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Ícone oficial Faixa Rosa"
+            width={50}
+            height={50}
+            className="animate-pulse w-auto h-auto"
+          />
         </div>
       )}
 
@@ -161,14 +215,42 @@ const Metrics = ({ userName, userCity, userState }) => {
             <strong>Mensagem fixa:</strong> Olá, {userName}! Encontrei seu
             anúncio no Faixa Rosa em {userCity}-{userState}.
           </p>
-          <input
-            type="text"
-            placeholder="Número do WhatsApp (com DDD)"
-            value={contactConfig.whatsapp.number}
-            maxLength={15}
-            onChange={(e) => handleConfigChange(e, "whatsapp", "number")}
-            className="w-full mb-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          <div className="w-full flex gap-2 items-center justify-between mb-2">
+            <div className="w-full sm:w-32 lg:w-52 flex items-center justify-between space-x-2">
+              {/* Select de códigos de país */}
+              <select
+                value={contactConfig.whatsapp.countryCode}
+                onChange={(e) =>
+                  setContactConfig((prevConfig) => ({
+                    ...prevConfig,
+                    whatsapp: {
+                      ...prevConfig.whatsapp,
+                      countryCode: e.target.value,
+                    },
+                  }))
+                }
+                className="p-2 border h-10 w-full sm:max-w-xs lg:max-w-md border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                {countryCodes.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.code} - {country.country}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="w-full flex items-center justify-between space-x-2">
+              {/* Input de número do WhatsApp */}
+              <input
+                type="text"
+                placeholder="Número do WhatsApp (com DDD)"
+                value={contactConfig.whatsapp.number ? formatPhoneDisplay(contactConfig.whatsapp.number) : ""}
+                maxLength={15}
+                onChange={(e) => handleConfigChange(e, "whatsapp", "number")}
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+          </div>
           <textarea
             placeholder="Mensagem personalizada"
             value={contactConfig.whatsapp.message}
@@ -209,14 +291,28 @@ const Metrics = ({ userName, userCity, userState }) => {
           <h3 className="text-lg font-semibold flex items-center text-gray-800 mb-2">
             <FaPhoneAlt className="mr-2" /> Telefone
           </h3>
-          <input
-            type="text"
-            placeholder="Número de telefone (com DDD)"
-            value={contactConfig.phone}
-            maxLength={15}
-            onChange={handlePhoneChange}
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
-          />
+          <div className="flex items-center justify-between space-x-2">
+            {/* Select de códigos de país */}
+            <select
+              value={contactConfig.phone.countryCode}
+              onChange={handleCountryCodeChange}
+              className="p-2 h-10 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {countryCodes.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.code} - {country.country}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="Número de telefone (com DDD)"
+              value={contactConfig.phone.number ? formatPhoneDisplay(contactConfig.phone.number) : ""}
+              maxLength={15}
+              onChange={(e) => handleConfigChange(e, "phone", "number")}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
+            />
+          </div>
         </div>
       </div>
 

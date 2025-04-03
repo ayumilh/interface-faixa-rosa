@@ -38,8 +38,6 @@ export default function ActivePlans() {
             );
             const { plan, subscriptions } = response.data;
 
-            console.log("Planos do usuário:", response.data);
-
             setActivePlan(plan);
 
             const extraPlansData = subscriptions

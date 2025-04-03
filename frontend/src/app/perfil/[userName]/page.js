@@ -134,7 +134,6 @@ const ModalBusca = ({ isOpen, onClose }) => {
       );
 
       const data = response.data;
-      console.log("Acompanhantes encontrados:", data);
 
       if (data.length > 0) {
         // Redirecionar e enviar os dados diretamente na query
@@ -343,7 +342,6 @@ export default function Perfil() {
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
         );
 
-        console.log('Dados do perfil:', response.data);
         setCompanionData(response.data);
         setIsLoading(false);
 

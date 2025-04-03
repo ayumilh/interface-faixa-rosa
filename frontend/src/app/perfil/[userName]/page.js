@@ -34,6 +34,7 @@ import {
   ArrowRight,
   MapPin,
 } from "phosphor-react";
+import { toast } from 'react-toastify';
 
 // Componente de Modal para Busca
 const ModalBusca = ({ isOpen, onClose }) => {
@@ -366,6 +367,18 @@ export default function Perfil() {
     fetchProfile();
   }, [userName]);
 
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(companionData.contactMethods[0].phoneNumber); // Copia o número
+      setCopySuccess(true); // Atualiza o estado para exibir feedback
+      toast.success("Número copiado com sucesso!")
+      setTimeout(() => setCopySuccess(false), 2000); // Reseta o feedback após 2 segundos
+    } catch (error) {
+      console.error("Erro ao copiar número:", error);
+    }
+  };
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -377,6 +390,30 @@ export default function Perfil() {
       // Formato da URL do WhatsApp
       const whatsappUrl = `https://wa.me/${whatsappNumber}`;
       window.open(whatsappUrl, "_blank"); // Abre o WhatsApp em uma nova aba
+    }
+  };
+
+  const handleCall = () => {
+    // Supondo que o número de telefone esteja armazenado em `companionData.phoneNumber`
+    const phoneNumber = companionData?.contactMethods[0]?.phoneNumber;
+
+    if (phoneNumber) {
+      // Redireciona para o discador de telefone
+      window.location.href = `tel:${phoneNumber}`;
+    } else {
+      alert("Número de telefone não disponível.");
+    }
+  };
+
+  const handleTelegramRedirect = () => {
+    // Supondo que o número do Telegram esteja armazenado em `companionData.telegramUsername`
+    const telegramUsername = companionData?.contactMethods[0]?.telegramUsername;
+
+    if (telegramUsername) {
+      // Redireciona para o Telegram usando o nome de usuário
+      window.open(`https://t.me/${telegramUsername}`, "_blank");
+    } else {
+      alert("Usuário do Telegram não disponível.");
     }
   };
 
@@ -489,17 +526,17 @@ export default function Perfil() {
             }
           }}
         >
-          <div className="bg-white p-4 rounded-lg shadow-lg max-w-md w-full relative">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
             {/* Botão de Fechar */}
             <button
-              className="absolute top-[-6px] right-2 text-gray-500 hover:text-gray-700"
+              className="absolute top-0 right-2 mt-1 mr-1 text-4xl text-gray-500 hover:text-gray-700"
               onClick={() => setShowModalNumero(false)}
             >
               &times;
             </button>
 
             {/* Carrossel de fotos */}
-            <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
+            <div className="relative w-full h-48 mb-4 mt-4 overflow-hidden rounded-lg">
               <div className="flex transition-transform transform">
                 {/* Imagens do carrossel */}
                 {companionData && companionData.bannerImage && (
@@ -574,10 +611,15 @@ export default function Perfil() {
             <div className="bg-purple-100 p-4 rounded-md mb-4 shadow-inner flex items-center justify-between">
               <div>
                 <p className="font-semibold text-gray-800">Telefone:</p>
-                <p className="text-lg text-gray-900">{companionData.phone}</p> {/* Exibindo telefone retornado da API */}
+                <p className="text-lg text-gray-900">{companionData.phoneNumber}</p> {/* Exibindo o número */}
               </div>
-              <button className="text-gray-700 hover:text-gray-900">
-                <FaRegCopy className="text-xl" />
+              <button
+                onClick={handleCopy} // Chama a função handleCopy ao clicar
+                className="text-gray-700 hover:text-gray-900"
+              >
+                <FaRegCopy
+                  className={`text-xl ${copySuccess ? "text-green-500" : ""}`} // Altera a cor do ícone após copiar
+                />
               </button>
             </div>
 
@@ -587,10 +629,10 @@ export default function Perfil() {
                 <FaWhatsapp />
                 <span>WhatsApp</span>
               </button>
-              <button className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-600 transition-transform transform hover:scale-105">
+              <button onClick={handleCall} className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-600 transition-transform transform hover:scale-105">
                 <span>Ligar</span>
               </button>
-              <button className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-105">
+              <button onClick={handleTelegramRedirect} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-105">
                 <FaTelegram />
                 <span>Telegram</span>
               </button>
@@ -708,14 +750,6 @@ export default function Perfil() {
                 <div className="px-4 md:px-6 mt-4 text-gray-900">
                   <div className="flex flex-wrap justify-center md:justify-start border-t border-gray-200 pt-4">
                     {/* Cada estatística */}
-                    <div className="flex flex-col items-center md:items-start mx-4 mb-4 md:mb-0">
-                      <span className="text-2xl md:text-3xl font-bold text-pink-500">12.4k</span>
-                      <span className="text-sm font-semibold text-gray-700">Seguidores</span>
-                    </div>
-                    <div className="flex flex-col items-center md:items-start mx-4 mb-4 md:mb-0">
-                      <span className="text-2xl md:text-3xl font-bold text-pink-500">200</span>
-                      <span className="text-sm font-semibold text-gray-700">Seguindo</span>
-                    </div>
                     <div className="flex flex-col items-center md:items-start mx-4 mb-4 md:mb-0">
                       <span className="text-2xl md:text-3xl font-bold text-pink-500">150</span>
                       <span className="text-sm font-semibold text-gray-700">Postagens</span>

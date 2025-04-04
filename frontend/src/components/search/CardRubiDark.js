@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FaWhatsapp,
   FaMapMarkerAlt,
@@ -11,6 +11,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaPhone,
+  FaChevronDown
 } from 'react-icons/fa';
 import Image from 'next/image';
 
@@ -230,6 +231,7 @@ const CardRubiDark = ({
   isAgeHidden,
   reviews = 0,
   isOnline = false,
+  timedServiceCompanion
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -249,6 +251,46 @@ const CardRubiDark = ({
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
+  const dropdownRef = useRef(null);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState("");
+  const [selectedPrice, setSelectedPrice] = useState("");
+
+  useEffect(() => {
+    // Definir o primeiro serviço como selecionado por padrão, se disponível
+    if (timedServiceCompanion.length > 0) {
+      const defaultService = timedServiceCompanion.find(service => service.isOffered);
+      if (defaultService) {
+        setSelectedService(defaultService.TimedService.name);
+        setSelectedPrice(defaultService.price || defaultService.TimedService.defaultPrice);
+      }
+    }
+  }, [timedServiceCompanion]);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleSelect = (service) => {
+    setSelectedService(service.TimedService.name);
+    setSelectedPrice(service.price || service.TimedService.defaultPrice);
+    setIsOpen(false); // Fecha o dropdown após a seleção
+  };
+
+  const handleClickOutside = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setIsOpen(false); // Fecha o dropdown se o clique for fora
+    }
+  };
+
+  useEffect(() => {
+    // Adiciona o evento de clique fora quando o componente é montado
+    document.addEventListener('click', handleClickOutside);
+
+    // Limpeza do evento ao desmontar o componente
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -272,6 +314,53 @@ const CardRubiDark = ({
           )}
         </div>
 
+        {/* seleção de serviço */}
+        {timedServiceCompanion.length > 0 && (
+          <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
+            {/* Botão do dropdown */}
+            <label className="text-sm text-gray-300 flex items-center font-semibold">
+              A partir de:
+            </label>
+            <div
+              onClick={toggleDropdown}
+              className="flex gap-2 items-center p-3 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-gray-900 hover:border hover:border-gray-800 text-gray-700 cursor-pointer"
+            >
+              <span className="font-bold text-gray-200">
+                {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
+              </span>
+              <FaChevronDown
+                className={`text-neutral-200 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
+              />
+            </div>
+
+            {/* Dropdown */}
+            {isOpen && (
+              <div className="absolute bg-neutral-800 border border-neutral-800 rounded-lg shadow-lg z-10">
+                {timedServiceCompanion.map((service) =>
+                  service.isOffered ? (
+                    <div
+                      key={service.id}
+                      onClick={() => handleSelect(service)}
+                      className="p-3 hover:bg-neutral-900 cursor-pointer border-b border-neutral-700"
+                    >
+                      <span className="font-bold text-gray-200">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-200'>- {service.TimedService.name}</span></span>
+                    </div>
+                  ) : (
+                    <div
+                      key={service.id}
+                      className="p-3 text-gray-400 line-through border-b border-neutral-700"
+                    >
+                      <span className="font-bold">
+                        R$ {service.price || service.TimedService.defaultPrice} - {service.TimedService.name}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Descrição curta */}
         <p className="text-sm italic text-gray-400 mb-3">{description}</p>
 
@@ -279,7 +368,7 @@ const CardRubiDark = ({
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <p className="font-semibold text-white">{formattedPrice}</p>
-            
+
             {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
               <div className="flex items-center mt-2">
                 <FaStar className="text-yellow-400 mr-1" />

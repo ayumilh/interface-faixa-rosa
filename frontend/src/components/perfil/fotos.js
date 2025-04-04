@@ -53,7 +53,7 @@ export default function Fotos({ userName }) {
   // Chama a API quando o componente for montado
   useEffect(() => {
     fetchFeedPhotos();
-  }, []);
+  }, [fetchFeedPhotos]);
 
   // Função para curtir uma foto
   const handleLike = (id) => {

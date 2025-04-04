@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FaWhatsapp,
   FaMapMarkerAlt,
@@ -8,7 +8,8 @@ import {
   FaTelegram,
   FaCheckCircle,
   FaBirthdayCake,
-  } from 'react-icons/fa';
+  FaChevronDown
+} from 'react-icons/fa';
 import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 
@@ -25,6 +26,7 @@ const CardPink = ({
   subscriptions,
   isAgeHidden,
   reviews,
+  timedServiceCompanion
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -41,14 +43,54 @@ const CardPink = ({
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
   // Verificar se o plano é o DarkMode
-  const isDarkMode = plan?.name === 'DarkMode'; 
+  const isDarkMode = plan?.name === 'DarkMode';
+
+  const dropdownRef = useRef(null);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState("");
+  const [selectedPrice, setSelectedPrice] = useState("");
+
+  useEffect(() => {
+    // Definir o primeiro serviço como selecionado por padrão, se disponível
+    if (timedServiceCompanion.length > 0) {
+      const defaultService = timedServiceCompanion.find(service => service.isOffered);
+      if (defaultService) {
+        setSelectedService(defaultService.TimedService.name);
+        setSelectedPrice(defaultService.price || defaultService.TimedService.defaultPrice);
+      }
+    }
+  }, [timedServiceCompanion]);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleSelect = (service) => {
+    setSelectedService(service.TimedService.name);
+    setSelectedPrice(service.price || service.TimedService.defaultPrice);
+    setIsOpen(false); // Fecha o dropdown após a seleção
+  };
+
+  const handleClickOutside = (e) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setIsOpen(false); // Fecha o dropdown se o clique for fora
+    }
+  };
+
+  useEffect(() => {
+    // Adiciona o evento de clique fora quando o componente é montado
+    document.addEventListener('click', handleClickOutside);
+
+    // Limpeza do evento ao desmontar o componente
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
       <div
-        className={`${
-          isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-pink-100 text-black'
-        } border rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl`}
+        className={`${isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-pink-100 text-black'
+          } border rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl`}
       >
         {images && images.length > 0 ? (
           <Image
@@ -70,6 +112,53 @@ const CardPink = ({
         <div className={`${isDarkMode ? 'text-gray-300' : 'text-black'} mb-2 flex items-center`}>
           <BsCardText fontSize={24} className="mr-2 text-2xl text-pink-500" /> <span className='text-sm italic'> {description} </span>
         </div>
+
+        {/* seleção de serviço */}
+        {timedServiceCompanion.length > 0 && (
+          <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
+            {/* Botão do dropdown */}
+            <label className="text-sm text-neutral-800 flex items-center font-semibold">
+              A partir de:
+            </label>
+            <div
+              onClick={toggleDropdown}
+              className="flex gap-2 items-center p-3 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-gray-900 hover:border hover:border-gray-800 text-gray-700 cursor-pointer"
+            >
+              <span className="font-bold text-neutral-800">
+                {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
+              </span>
+              <FaChevronDown
+                className={`text-neutral-800 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
+              />
+            </div>
+
+            {/* Dropdown */}
+            {isOpen && (
+              <div className="absolute bg-pink-50 border border-gray-200 rounded-lg shadow-lg z-10">
+                {timedServiceCompanion.map((service) =>
+                  service.isOffered ? (
+                    <div
+                      key={service.id}
+                      onClick={() => handleSelect(service)}
+                      className="p-3 hover:bg-pink-100 cursor-pointer border-b border-gray-300"
+                    >
+                      <span className="font-bold text-neutral-700">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-700'>- {service.TimedService.name}</span></span>
+                    </div>
+                  ) : (
+                    <div
+                      key={service.id}
+                      className="p-3 text-gray-400 line-through border-b border-gray-300"
+                    >
+                      <span className="font-bold">
+                        R$ {service.price || service.TimedService.defaultPrice} - {service.TimedService.name}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {subscriptions.some(
           (subscription) => subscription.extraPlan?.canHideAge && subscription.extraPlan.isEnabled

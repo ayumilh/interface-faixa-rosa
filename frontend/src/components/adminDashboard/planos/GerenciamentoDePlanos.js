@@ -17,9 +17,7 @@ export default function GerenciamentoDePlanos() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const token = Cookies.get("userToken");
 
-  useEffect(() => {
-    fetchPlans();
-  }, []);
+
 
   // Buscar planos do backend
   const fetchPlans = async () => {
@@ -33,6 +31,10 @@ export default function GerenciamentoDePlanos() {
       toast.error("Erro ao buscar planos.");
     }
   };
+  
+  useEffect(() => {
+    fetchPlans();
+  }, [fetchPlans]);
 
   // Criar novo plano
   const createPlan = async () => {

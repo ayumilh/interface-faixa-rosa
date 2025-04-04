@@ -88,7 +88,7 @@ const PagamentoRetorno = () => {
             setError('Transaction ID não encontrado.');
             setLoading(false);
         }
-    }, []);
+    }, [router]);
 
     const handleCopyClick = () => {
         navigator.clipboard.writeText(storedQRCode) // Copia o conteúdo do QR Code

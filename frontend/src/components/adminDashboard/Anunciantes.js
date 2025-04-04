@@ -8,7 +8,8 @@ import {
     FaFileAlt,
     FaHistory,
     FaFlag,
-    FaSpinner
+    FaSpinner,
+    FaVideo
 } from "react-icons/fa";
 import Modal from "./Modal";
 import Tooltip from "../common/Tooltip";
@@ -59,6 +60,14 @@ const Anunciantes = () => {
         }
     };
 
+    // Atualizar status da mídia no estado local
+    const atualizarStatusMedia = (id, status) => {
+        setAnunciantes((prev) =>
+            prev.map((item) =>
+                item.id === id ? { ...item, media: status } : item
+            )
+        );
+    };
 
     const handleVerificarDocumentos = (anunciante) => {
         const documentStatus = anunciante?.documents?.[0]?.documentStatus ?? "PENDING";
@@ -91,7 +100,7 @@ const Anunciantes = () => {
                 setModal({ isOpen: false, content: null });
             } catch (error) {
                 console.error("Erro ao aprovar documento:", error);
-                alert("Erro ao aprovar documento.");
+                toast.error("Erro ao aprovar documento.");
             } finally {
                 setIsLoading(false);
             }
@@ -114,7 +123,7 @@ const Anunciantes = () => {
                 setModal({ isOpen: false, content: null });
             } catch (error) {
                 console.error("Erro ao rejeitar documento:", error);
-                alert("Erro ao rejeitar documento.");
+                toast.error("Erro ao rejeitar documento.");
             } finally {
                 setIsLoading(false);
             }
@@ -203,11 +212,12 @@ const Anunciantes = () => {
                         },
                     }
                 );
-                alert("Perfil aprovado com sucesso!");
+                toast.success("Perfil aprovado com sucesso!");
                 atualizarStatusPerfil("ACTIVE");
+                atualizarStatusMedia(anunciante.id, "APPROVED");
             } catch (error) {
                 console.error("Erro ao aprovar perfil");
-                alert("Erro ao aprovar perfil.");
+                toast.error("Erro ao aprovar perfil.");
             }
         };
 
@@ -222,11 +232,12 @@ const Anunciantes = () => {
                         },
                     }
                 );
-                alert("Perfil rejeitado.");
+                toast.success("Perfil rejeitado com sucesso!");
                 atualizarStatusPerfil("REJECTED");
+                atualizarStatusMedia(anunciante.id, "REJECTED");
             } catch (error) {
                 console.error("Erro ao rejeitar perfil:", error.response?.data || error.message);
-                alert("Erro ao rejeitar perfil.");
+                toast.error("Erro ao rejeitar perfil.");
             }
         };
 
@@ -241,11 +252,12 @@ const Anunciantes = () => {
                         },
                     }
                 );
-                alert("Perfil suspenso com sucesso.");
+                toast.success("Perfil suspenso com sucesso!");
                 atualizarStatusPerfil("SUSPENDED");
+                atualizarStatusMedia(anunciante.id, "SUSPENDED");
             } catch (error) {
                 console.error("Erro ao suspender perfil:", error.response?.data || error.message);
-                alert("Erro ao suspender perfil.");
+                toast.error("Erro ao suspender perfil.");
             }
         };
 
@@ -260,12 +272,6 @@ const Anunciantes = () => {
                         Deseja {anunciante.profileStatus === "ACTIVE" ? "desativar" : "ativar"} o perfil de <strong>{anunciante.name}</strong>?
                     </p>
                     <div className="mt-4 flex justify-end space-x-2">
-                        <button
-                            onClick={() => setModal({ isOpen: false, content: null })}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                        >
-                            Cancelar
-                        </button>
                         {anunciante.profileStatus === "ACTIVE" && (
                             <>
                                 <button
@@ -343,7 +349,7 @@ const Anunciantes = () => {
                         }
                     }
                 );
-                alert("Plano básico atualizado com sucesso!");
+                toast.success("Plano atualizado com sucesso!");
             } catch (error) {
                 console.error("Erro ao atualizar o plano:", error);
             }
@@ -532,7 +538,6 @@ const Anunciantes = () => {
 
         } catch (error) {
             console.error("Erro ao buscar histórico de atividades:", error);
-            // Aqui, não exibimos um erro de alerta, pois o foco é mostrar a mensagem personalizada
             setModal({
                 isOpen: true,
                 content: (
@@ -558,6 +563,142 @@ const Anunciantes = () => {
         }
     };
 
+    const handleAprovarRejeitarVideo = (anunciante) => {
+        // Aprovar vídeo
+        const handleAprovarVideo = async (anunciante) => {
+            try {
+                await axios.post(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/approve`,
+                    {},
+                    { headers: { Authorization: `Bearer ${userToken}` } }
+                );
+                toast.success("Vídeo aprovado com sucesso!");
+                // Atualiza o estado local para refletir a aprovação da mídia
+                atualizarStatusMedia(anunciante.id, "APPROVED");
+                setModal({ isOpen: false, content: null });
+            } catch (error) {
+                console.error("Erro ao aprovar vídeo:", error);
+                toast.error("Erro ao aprovar o vídeo.");
+            }
+        };
+
+        // Rejeitar vídeo
+        const handleRejeitarVideo = async (anunciante) => {
+            try {
+                await axios.post(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/reject`,
+                    {},
+                    { headers: { Authorization: `Bearer ${userToken}` } }
+                );
+                toast.success("Vídeo rejeitado com sucesso!");
+                // Atualiza o estado local para refletir a rejeição da mídia
+                atualizarStatusMedia(anunciante.id, "REJECTED");
+                setModal({ isOpen: false, content: null });
+            } catch (error) {
+                console.error("Erro ao rejeitar vídeo:", error);
+                toast.error("Erro ao rejeitar o vídeo.");
+            }
+        };
+
+        // Suspender vídeo
+        const handleSuspenderVideo = async (anunciante) => {
+            try {
+                await axios.post(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/suspend`,
+                    {},
+                    { headers: { Authorization: `Bearer ${userToken}` } }
+                );
+                toast.success("Vídeo suspenso com sucesso!");
+                // Atualiza o estado local para refletir a suspensão da mídia
+                atualizarStatusMedia(anunciante.id, "SUSPENDED");
+                setModal({ isOpen: false, content: null });
+            } catch (error) {
+                console.error("Erro ao suspender vídeo:", error);
+                toast.error("Erro ao suspender o vídeo.");
+            }
+        };
+
+        // Abre o modal para aprovar, rejeitar ou suspender o vídeo
+        setModal({
+            isOpen: true,
+            content: (
+                <>
+                    <h2 className="text-xl font-semibold">Aprovar ou Rejeitar Vídeo</h2>
+                    <p className="mb-4">
+                        O vídeo de <strong>{anunciante.name}</strong> está atualmente:{" "}
+                        <span className="font-semibold">{anunciante.media}</span>
+                    </p>
+
+                    <div className="mt-4 flex justify-end space-x-2">
+
+                        {/* Se a mídia estiver em análise, exibe as opções de Aprovar ou Rejeitar */}
+                        {anunciante.media === "IN_ANALYSIS" && (
+                            <>
+                                <button
+                                    onClick={() => handleAprovarVideo(anunciante)}
+                                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                                >
+                                    Aprovar Vídeo
+                                </button>
+                                <button
+                                    onClick={() => handleRejeitarVideo(anunciante)}
+                                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                >
+                                    Rejeitar Vídeo
+                                </button>
+                            </>
+                        )}
+
+                        {/* Se a mídia estiver aprovada, exibe as opções de Rejeitar ou Suspender */}
+                        {anunciante.media === "APPROVED" && (
+                            <>
+                                <button
+                                    onClick={() => handleRejeitarVideo(anunciante)}
+                                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                >
+                                    Rejeitar Vídeo
+                                </button>
+                                <button
+                                    onClick={() => handleSuspenderVideo(anunciante)}
+                                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                                >
+                                    Suspender Vídeo
+                                </button>
+                            </>
+                        )}
+
+                        {/* Se a mídia estiver suspensa, exibe a opção de Aprovar */}
+                        {anunciante.media === "SUSPENDED" && (
+                            <button
+                                onClick={() => handleAprovarVideo(anunciante)}
+                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                            >
+                                Aprovar Vídeo
+                            </button>
+                        )}
+                        {/* Se a mídia estiver aprovada, exibe as opções de Rejeitar ou Suspender */}
+                        {anunciante.media === "REJECTED" && (
+                            <>
+                                <button
+                                    onClick={() => handleSuspenderVideo(anunciante)}
+                                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                                >
+                                    Suspender Vídeo
+                                </button>
+                                <button
+                                    onClick={() => handleAprovarVideo(anunciante)}
+                                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                                >
+                                    Aprovar Vídeo
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </>
+            ),
+        });
+    };
+
     const renderTable = (anunciantes) => {
         return (
             <div className="overflow-x-auto">
@@ -568,6 +709,7 @@ const Anunciantes = () => {
                             <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Plano</th>
                             <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Status</th>
                             <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Documentos</th>
+                            <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Mídia</th>
                             <th className="py-3 px-4 bg-gray-100 text-center font-semibold text-gray-700">Ações</th>
                         </tr>
                     </thead>
@@ -577,23 +719,34 @@ const Anunciantes = () => {
                                 <td className="py-4 px-4 text-gray-700">{anunciante.name}</td>
                                 <td className="py-4 px-4 text-gray-700">{anunciante.plan?.name}</td>
                                 <td className="py-4 px-4">
-                                    {["ACTIVE", "SUSPENDED", "REJECTED"].includes(anunciante.profileStatus) && (
+                                    {["ACTIVE", "PENDING", "IN_ANALYSIS", "SUSPENDED", "REJECTED"].includes(anunciante.profileStatus) && (
                                         <span
-                                            className={`px-2 py-1 rounded-full text-xs font-semibold ${anunciante.profileStatus === "ACTIVE"
-                                                ? "bg-green-100 text-green-800" // Verde para status ativo
-                                                : anunciante.profileStatus === "SUSPENDED"
-                                                    ? "bg-yellow-100 text-yellow-800" // Amarelo para status suspenso
-                                                    : "bg-red-100 text-red-800" // Vermelho para status rejeitado
+                                            className={`px-2 py-1 rounded-full text-xs font-semibold 
+            ${anunciante.profileStatus === "ACTIVE"
+                                                    ? "bg-green-100 text-green-800" // Verde para status ativo
+                                                    : anunciante.profileStatus === "PENDING"
+                                                        ? "bg-yellow-100 text-yellow-800" // Amarelo para status pendente
+                                                        : anunciante.profileStatus === "IN_ANALYSIS"
+                                                            ? "bg-orange-100 text-orange-800" // Laranja para status em análise
+                                                            : anunciante.profileStatus === "SUSPENDED"
+                                                                ? "bg-gray-100 text-gray-800" // Cinza para status suspenso
+                                                                : "bg-red-100 text-red-800" // Vermelho para status rejeitado
                                                 }`}
                                         >
                                             {anunciante.profileStatus === "ACTIVE"
                                                 ? "Ativo"
-                                                : anunciante.profileStatus === "SUSPENDED"
-                                                    ? "Suspenso"
-                                                    : "Rejeitado"}
+                                                : anunciante.profileStatus === "PENDING"
+                                                    ? "Pendente"
+                                                    : anunciante.profileStatus === "IN_ANALYSIS"
+                                                        ? "Em Análise"
+                                                        : anunciante.profileStatus === "SUSPENDED"
+                                                            ? "Suspenso" // Exibe "Suspenso" para status SUSPENDED
+                                                            : "Rejeitado" // Exibe "Rejeitado" para status REJECTED
+                                            }
                                         </span>
                                     )}
                                 </td>
+
                                 <td className="py-4 px-4">
                                     <span className={`px-2 py-1 rounded-full text-xs font-semibold 
                                         ${anunciante.documentStatus === "APPROVED"
@@ -615,6 +768,30 @@ const Anunciantes = () => {
                                     </span>
 
                                 </td>
+                                <td className="py-4 px-4">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold 
+                                        ${anunciante.media === "APPROVED"
+                                            ? "bg-green-100 text-green-800" // Verde para mídia aprovada
+                                            : anunciante.media === "IN_ANALYSIS"
+                                                ? "bg-orange-100 text-orange-800" // Laranja para mídia em análise
+                                                : anunciante.media === "REJECTED"
+                                                    ? "bg-red-100 text-red-800" // Vermelho para mídia rejeitada
+                                                    : anunciante.media === "SUSPENDED"
+                                                        ? "bg-gray-100 text-gray-800" // Cinza para mídia suspensa
+                                                        : "bg-gray-100 text-gray-800" // Cinza para "Sem mídia"
+                                        }`}>
+                                        {anunciante.media === "APPROVED"
+                                            ? "Vídeo Aprovado"
+                                            : anunciante.media === "IN_ANALYSIS"
+                                                ? "Vídeo em Análise"
+                                                : anunciante.media === "REJECTED"
+                                                    ? "Vídeo Rejeitado"
+                                                    : anunciante.media === "SUSPENDED"
+                                                        ? "Vídeo Suspenso" // Texto para "SUSPENDED"
+                                                        : "Sem Vídeo"}
+                                    </span>
+                                </td>
+
                                 <td className="py-4 px-4 text-center space-x-2 flex justify-center">
 
                                     {anunciante.documentStatus && (
@@ -641,6 +818,16 @@ const Anunciantes = () => {
                                             aria-label={anunciante.profileStatus === "ACTIVE" ? "Suspender Perfil" : "Ativar Perfil"}
                                         >
                                             {anunciante.profileStatus === "ACTIVE" ? <FaBan size={16} /> : <FaCheck size={16} />}
+                                        </button>
+                                    </Tooltip>
+
+                                    <Tooltip content="Aprovar/Rejeitar Vídeo">
+                                        <button
+                                            onClick={() => handleAprovarRejeitarVideo(anunciante)}
+                                            className="text-green-600 hover:text-green-800 transition"
+                                            aria-label="Aprovar/Rejeitar Vídeo"
+                                        >
+                                            <FaVideo size={16} />
                                         </button>
                                     </Tooltip>
 

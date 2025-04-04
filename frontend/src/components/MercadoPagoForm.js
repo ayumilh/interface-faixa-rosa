@@ -106,7 +106,6 @@ const MercadoPagoForm = ({ totalPrice, planId, selectedExtraPlans, selectedMetho
                                 email: email,
                                 identificationNumber: identificationNumber,
                                 identificationType: identificationType,
-                                
                             };
 
                             // Lógica para adicionar o plano extra e tipo de plano

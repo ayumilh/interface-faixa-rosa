@@ -216,6 +216,8 @@ const DescriptionManagement = () => {
 
       let response;
 
+      console.log("VideoFile:", videoFile);
+
       if (videoFile) {
         // Envio com FormData apenas se houver vídeo
         const formData = new FormData();
@@ -226,8 +228,11 @@ const DescriptionManagement = () => {
           }
         });
 
-        formData.append("comparisonMedia", videoFile, videoFile.name);
-
+        formData.append("comparisonMedia", videoFile);
+        // Exibindo o conteúdo do FormData no console
+        formData.forEach((value, key) => {
+          console.log(`${key}: ${value}`);
+        });
 
         response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
@@ -240,6 +245,7 @@ const DescriptionManagement = () => {
             timeout: 60000,
           }
         );
+        console.log("Resposta do upload de vídeo:", response.data);
       } else {
         // Envio como JSON normal se não houver vídeo
         console.log("Enviando como JSON:", processedData);
@@ -255,15 +261,16 @@ const DescriptionManagement = () => {
           }
         );
       }
-
+      console.log("Resposta do backend:", response.data);
       if (response.status !== 200) {
         toast.error("Erro ao atualizar o perfil");
       } else {
         toast.success("Perfil atualizado com sucesso!");
       }
 
-    } catch {
+    } catch (error) {
       toast.error("Ocorreu um erro ao atualizar o perfil");
+      console.error("Erro ao atualizar o perfil:", error);
     }
   };
 
@@ -296,13 +303,43 @@ const DescriptionManagement = () => {
 
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
-
+  
     if (file) {
+      // Definir o estado como "enviado" e "pendente"
       setVideoUploaded(true);
       setVideoPending(true);
       setVideoFile(file);
+  
+      // Criar o FormData
+      const formData = new FormData();
+  
+      // Adicionar o arquivo de vídeo ao FormData com o campo de nome 'comparisonMedia'
+      formData.append('comparisonMedia', file, file.name);
+  
+      // Passo 2: Enviar a solicitação POST para o backend
+      const userToken = Cookies.get("userToken");
+  
+      axios
+        .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data", // Especificando o tipo de conteúdo como multipart/form-data
+            Authorization: `Bearer ${userToken}`, // Incluindo o token de autenticação
+          },
+          timeout: 60000, // Definindo um tempo limite para a requisição
+        })
+        .then((response) => {
+          console.log('Resposta do backend:', response.data);
+          // Adicionar tratamento de sucesso, como exibir uma mensagem
+          toast.success('Vídeo enviado com sucesso!');
+        })
+        .catch((error) => {
+          console.error('Erro ao enviar o vídeo:', error);
+          // Adicionar tratamento de erro, como exibir uma mensagem de falha
+          toast.error('Erro ao enviar o vídeo.');
+        });
     }
   };
+  
 
   return (
     <div className="bg-white p-6 md:p-8 rounded-lg shadow-md mt-8 max-w-7xl mx-auto">
@@ -491,8 +528,6 @@ const DescriptionManagement = () => {
             </div>
           </div>
         )}
-
-
 
         {/* Editar Atendimentos */}
         <div className="bg-gray-50 p-6 rounded-lg shadow-sm">

@@ -23,7 +23,6 @@ export const AuthContextProvider = ({ children }) => {
         try {
             const res = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
-                // `http://localhost:4000/api/user/login`,
                 inputs,
                 {
                     withCredentials: true,
@@ -107,7 +106,7 @@ export const AuthContextProvider = ({ children }) => {
         if (!currentUser) {
             fetchUserData();
         }
-    }, [currentUser, isAuthenticated]);
+    }, [currentUser, isAuthenticated, fetchUserData]);
 
 
     useEffect(() => {

@@ -10,6 +10,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
   const router = useRouter();
@@ -332,7 +333,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
                   }}
                 >
                   {/* Ajuste de logo (Ex: "Faixa Rosa") */}
-                  <img
+                  <Image
                     src="/assets/FaixaRosaSombra.png"
                     alt="Logo"
                     className="absolute w-20 top-4 left-4"

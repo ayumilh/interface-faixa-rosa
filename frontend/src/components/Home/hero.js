@@ -157,7 +157,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
             if (data.length > 0) {
                 // Redirecionar e enviar os dados diretamente na query
                 const queryParams = new URLSearchParams({ results: JSON.stringify(data) }).toString();
-                router.push(`/search/acompanhantes-em-${cidadeFormatada}-${estadoFormatado}?${queryParams}`);
+                router.push(`/search/acompanhantes-em-${cidadeFormatada}-${estadoFormatado}`);
             } else {
                 // Redireciona para a página de busca sem resultados
                 router.push(`/search?results=[]`);

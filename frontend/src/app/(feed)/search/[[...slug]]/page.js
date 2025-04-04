@@ -338,29 +338,48 @@ export default function Search() {
   ];
 
   // Capturar parâmetros da URL
+  // useEffect(() => {
+  //   const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
+  //   if (slugString) {
+  //     const match = slugString.match(regex);
+  //     if (match) {
+  //       const base = match[1];
+  //       const citySlug = match[2];
+  //       const uf = match[3];
+  //       const cityName = decodeURIComponent(citySlug).replace(/-/g, " ");
+  //       setCity(cityName);
+  //       setStateUF(uf.toUpperCase());
+  //       if (base === "acompanhantes") {
+  //         setCategory("mulher");
+  //       } else if (base === "garotos-de-programa") {
+  //         setCategory("homem");
+  //       } else if (base === "travestis-transex-transgenero") {
+  //         setCategory("travesti");
+  //       }
+  //     } else {
+  //       console.error("Formato do slug inválido:", slugString);
+  //     }
+  //   }
+  // }, [slugString]);
+
   useEffect(() => {
     const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
     if (slugString) {
       const match = slugString.match(regex);
       if (match) {
-        const base = match[1];
         const citySlug = match[2];
         const uf = match[3];
         const cityName = decodeURIComponent(citySlug).replace(/-/g, " ");
         setCity(cityName);
         setStateUF(uf.toUpperCase());
-        if (base === "acompanhantes") {
-          setCategory("mulher");
-        } else if (base === "garotos-de-programa") {
-          setCategory("homem");
-        } else if (base === "travestis-transex-transgenero") {
-          setCategory("travesti");
-        }
+  
+        // Executa o fetch com a cidade e estado
+        fetchCompanions({ cidade: cityName, estado: uf.toUpperCase() });
       } else {
         console.error("Formato do slug inválido:", slugString);
       }
     }
-  }, [slugString]);
+  }, [slugString, fetchCompanions]);
 
   // Capturar os dados de acompanhantes da API via query string
   // useEffect(() => {
@@ -478,7 +497,7 @@ export default function Search() {
           ) : (
             companions.map((card, index) => {
               // Verifica se o status do documento e o status do perfil estão aprovados
-              if (card.documentStatus !== "APPROVED") {
+              if (card.documentStatus !== "APPROVED" || card.profileStatus !== "ACTIVE") {
                 return null;
               }
 
@@ -527,6 +546,7 @@ export default function Search() {
                     planType={card.planType}
                     subscriptions={card.subscriptions}
                     isAgeHidden={card.isAgeHidden}
+                    timedServiceCompanion={card.timedServiceCompanion}
                   />
                 </Link>
               );

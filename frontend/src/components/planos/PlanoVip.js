@@ -1,5 +1,3 @@
-// ./src/components/planos/PlanoVip.js
-
 "use client";
 
 import React, { useState, useCallback, memo } from "react";

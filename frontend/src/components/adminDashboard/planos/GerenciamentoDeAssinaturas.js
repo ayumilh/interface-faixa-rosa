@@ -14,9 +14,7 @@ export default function GerenciamentoDeAssinaturas() {
     const token = Cookies.get("userToken");
     const [expanded, setExpanded] = useState({});
 
-    useEffect(() => {
-        fetchSubscriptions();
-    }, []);
+
 
     const toggleExpand = (id) => {
         setExpanded((prev) => ({
@@ -37,6 +35,10 @@ export default function GerenciamentoDeAssinaturas() {
             toast.error("Erro ao buscar assinaturas ativas.");
         }
     };
+
+    useEffect(() => {
+        fetchSubscriptions();
+    }, [fetchSubscriptions]);
 
     // Cancelar assinatura normal
     const disableUserPlan = async (companionId, subscriptionId) => {

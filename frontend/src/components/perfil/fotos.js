@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   FaHeart,
@@ -35,7 +35,7 @@ export default function Fotos({ userName }) {
     }
   }, [userName, fetchCompanions]);
 
-  const fetchFeedPhotos = async () => {
+  const fetchFeedPhotos = useCallback(async () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/feed-posts?userName=${userName}`
@@ -48,7 +48,7 @@ export default function Fotos({ userName }) {
     } catch (error) {
       console.error("Erro ao carregar as fotos do feed", error);
     }
-  };
+  }, [companions, userName]);
 
   // Chama a API quando o componente for montado
   useEffect(() => {

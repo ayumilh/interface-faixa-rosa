@@ -245,7 +245,7 @@ const CardRubi = ({
   planType,
   subscriptions,
   isAgeHidden,
-  timedServiceCompanion
+  timedServiceCompanion = []
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -315,51 +315,51 @@ const CardRubi = ({
       </div>
 
       {/* seleção de serviço */}
-      {timedServiceCompanion.length > 0 && (
-        <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
-          {/* Botão do dropdown */}
-          <label className="text-sm text-neutral-800 flex items-center font-semibold">
-            A partir de:
-          </label>
-          <div
-            onClick={toggleDropdown}
-            className="flex gap-2 items-center p-3 rounded-full shadow-sm focus:outline-none focus:ring-2 my-2 focus:ring-gray-900 hover:border hover:border-gray-800 text-gray-700 cursor-pointer"
-          >
-            <span className="font-bold text-neutral-800">
-              {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
-            </span>
-            <FaChevronDown
-              className={`text-neutral-200 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
-            />
-          </div>
-
-          {/* Dropdown */}
-          {isOpen && (
-            <div className="absolute bg-gray-100 border border-gray-300 rounded-lg shadow-lg z-10">
-              {timedServiceCompanion.map((service) =>
-                service.isOffered ? (
-                  <div
-                    key={service.id}
-                    onClick={() => handleSelect(service)}
-                    className="p-3 hover:bg-gray-300 cursor-pointer border-b border-gray-300"
-                  >
-                    <span className="font-bold text-neutral-700">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-700'>- {service.TimedService.name}</span></span>
-                  </div>
-                ) : (
-                  <div
-                    key={service.id}
-                    className="p-3 text-gray-400 line-through border-b border-gray-300"
-                  >
-                    <span className="font-bold">
-                      R$ {service.price || service.TimedService.defaultPrice} - {service.TimedService.name}
-                    </span>
-                  </div>
-                )
-              )}
+        {timedServiceCompanion.length > 0 && (
+          <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
+            {/* Botão do dropdown */}
+            <label className="text-sm text-neutral-800 flex items-center font-semibold">
+              A partir de:
+            </label>
+            <div
+              onClick={toggleDropdown}
+              className="group flex gap-2 items-center px-2 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-none hover:border hover:border-none cursor-pointer"
+            >
+              <span className="font-bold text-neutral-700 group-hover:text-neutral-800">
+                {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
+              </span>
+              <FaChevronDown
+                className={`text-neutral-500 group-hover:text-neutral-800 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
+              />
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Dropdown */}
+            {isOpen && (
+              <div className="absolute bg-pink-50 border border-gray-200 rounded-lg shadow-lg z-10">
+                {timedServiceCompanion.map((service) =>
+                  service.isOffered ? (
+                    <div
+                      key={service.id}
+                      onClick={() => handleSelect(service)}
+                      className="p-3 hover:bg-pink-100 cursor-pointer border-b border-gray-300"
+                    >
+                      <span className="font-bold text-neutral-700">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-700'>- {service.TimedService.name}</span></span>
+                    </div>
+                  ) : (
+                    <div
+                      key={service.id}
+                      className="p-3 text-gray-400 line-through border-b border-gray-300"
+                    >
+                      <span className="font-bold">
+                        R$ {service.price || service.TimedService.defaultPrice} - {service.TimedService.name}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
       {/* Descrição curta */}
       <p className="text-sm italic text-gray-600 mb-3">{description}</p>

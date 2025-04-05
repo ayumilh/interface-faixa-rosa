@@ -19,6 +19,7 @@ import {
   MapPin,
   IconContext,
 } from "phosphor-react";
+import { IoIosArrowBack } from "react-icons/io";
 import axios from "axios";
 
 // Componentes necessários
@@ -372,7 +373,7 @@ export default function Search() {
         const cityName = decodeURIComponent(citySlug).replace(/-/g, " ");
         setCity(cityName);
         setStateUF(uf.toUpperCase());
-  
+
         // Executa o fetch com a cidade e estado
         fetchCompanions({ cidade: cityName, estado: uf.toUpperCase() });
       } else {
@@ -425,6 +426,9 @@ export default function Search() {
 
       {/* Breadcrumbs */}
       <div className="w-full max-w-7xl mx-auto p-4 mt-16 bg-cover flex justify-start items-center">
+        <Link href="/" className="flex items-center text-pink-500 hover:text-pink-700">
+          <IoIosArrowBack className="text-2xl mr-2" />
+        </Link>
         <nav className="text-sm text-gray-700">
           <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
           <span className="mx-2">/</span>
@@ -435,7 +439,7 @@ export default function Search() {
       {/* Título */}
       <div className="w-full h-min bg-cover bg-center flex justify-center items-start mt-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-black text-center px-4">
-          {cards.length === 0 ? "Acompanhantes não encontradas" : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
+          {companions.length === 0 ? "Acompanhantes não encontradas" : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
         </h1>
       </div>
 
@@ -492,9 +496,7 @@ export default function Search() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {companions.length === 0 ? (
-            <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
-          ) : (
+          {Array.isArray(companions) && companions.length > 0 ? (
             companions.map((card, index) => {
               // Verifica se o status do documento e o status do perfil estão aprovados
               if (card.documentStatus !== "APPROVED" || card.profileStatus !== "ACTIVE") {
@@ -551,10 +553,11 @@ export default function Search() {
                 </Link>
               );
             })
+          ) : (
+            <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
           )}
         </div>
       </div>
-
       <Final />
     </div>
   );

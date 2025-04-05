@@ -37,58 +37,58 @@ const PagamentoRetorno = () => {
 
         // Simular uma requisição para verificar o status do pagamento
         if (transactionId) {
-            axios.get(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/checkout/status/${transactionId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${userToken}`,
-                    },
+        axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/checkout/status/${transactionId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                },
                 })
-                .then(response => {
-                    const paymentData = response.data;
+            .then(response => {
+                const paymentData = response.data;
 
                     setPaymentData(paymentData)
 
-                    if (paymentData.paymentStatus === 'approved') {
-                        setPaymentStatus('Pagamento aprovado!');
-                        setPaymentDescription('Seu pagamento foi processado com sucesso! Você pode acessar sua conta agora.');
+                if (paymentData.paymentStatus === 'approved') {
+                    setPaymentStatus('Pagamento aprovado!');
+                    setPaymentDescription('Seu pagamento foi processado com sucesso! Você pode acessar sua conta agora.');
 
-                        // Remover o localStorage quando o pagamento for aprovado
-                        localStorage.removeItem('paymentQRCode');
-                        localStorage.removeItem('paymentQRCode64');
-                        localStorage.removeItem('transactionId');
-                    } else if (paymentData.paymentStatus === 'pending') {
-                        setPaymentStatus('Pagamento pendente!');
-                        setPaymentDescription('Pagamento está em analise. Você receberá uma notificação quando for confirmado.');
+                    // Remover os itens do localStorage
+                    localStorage.removeItem('paymentQRCode');
+                    localStorage.removeItem('paymentQRCode64');
+                    localStorage.removeItem('transactionId');
+                } else if (paymentData.paymentStatus === 'pending') {
+                    setPaymentStatus('Pagamento pendente!');
+                    setPaymentDescription('Pagamento está em análise. Você receberá uma notificação quando for confirmado.');
 
-                        const localStoredQRCode = localStorage.getItem('paymentQRCode');
+                    const localStoredQRCode = localStorage.getItem('paymentQRCode');
                         storedQRCode64 = localStorage.getItem('paymentQRCode64');
 
-                        if (localStoredQRCode) {
-                            setStoredQRCode(localStoredQRCode);
-                        }
-                        if (storedQRCode64) {
-                            setQrCodeData(storedQRCode64);
-                        }
-                    } else if (paymentData.paymentStatus === 'refused') {
-                        setPaymentStatus('Pagamento recusado!');
-                        setPaymentDescription('Pagamento recusado. Verifique suas informações de pagamento e tente novamente.');
-
-                        // Remover o localStorage quando o pagamento for aprovado
-                        localStorage.removeItem('paymentQRCode');
-                        localStorage.removeItem('paymentQRCode64');
-                        localStorage.removeItem('transactionId');
+                    if (localStoredQRCode) {
+                        setStoredQRCode(localStoredQRCode);
                     }
-                })
-                .catch((err) => {
-                    setError('Erro ao verificar o pagamento.');
-                })
-                .finally(() => setLoading(false));
+                    if (storedQRCode64) {
+                        setQrCodeData(storedQRCode64);
+                    }
+                } else if (paymentData.paymentStatus === 'refused') {
+                    setPaymentStatus('Pagamento recusado!');
+                    setPaymentDescription('Pagamento recusado. Verifique suas informações de pagamento e tente novamente.');
+
+                    localStorage.removeItem('paymentQRCode');
+                    localStorage.removeItem('paymentQRCode64');
+                    localStorage.removeItem('transactionId');
+                }
+            })
+            .catch((err) => {
+                setError('Erro ao verificar o pagamento.');
+            })
+            .finally(() => setLoading(false));
         } else {
             setError('Transaction ID não encontrado.');
             setLoading(false);
         }
     }, [router]);
+
 
     const handleCopyClick = () => {
         navigator.clipboard.writeText(storedQRCode) // Copia o conteúdo do QR Code

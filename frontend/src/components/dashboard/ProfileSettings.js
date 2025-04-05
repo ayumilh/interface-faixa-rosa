@@ -97,12 +97,11 @@ const ProfileSettings = ({ onUpdate }) => {
 
         if (response.status === 200) {
           const { profileImage, bannerImage, documentsValidated } = response.data.media;
-          console.log("Status de validação dos documentos:", documentsValidated);
 
           // Atribuindo as variáveis de estado
           setProfileImage(profileImage);
           setBannerImage(bannerImage);
-          setDocumentsValidated(documentsValidated);  // Atribuindo o valor de documentsValidated
+          setDocumentsValidated(documentsValidated);
         }
       } catch (error) {
         console.error('Erro ao buscar mídia do acompanhante:', error);

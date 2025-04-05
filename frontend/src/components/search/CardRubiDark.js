@@ -231,7 +231,7 @@ const CardRubiDark = ({
   isAgeHidden,
   reviews = 0,
   isOnline = false,
-  timedServiceCompanion
+  timedServiceCompanion = [],
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -318,18 +318,18 @@ const CardRubiDark = ({
         {timedServiceCompanion.length > 0 && (
           <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
             {/* Botão do dropdown */}
-            <label className="text-sm text-gray-300 flex items-center font-semibold">
+            <label className="text-sm text-gray-200 flex items-center font-semibold">
               A partir de:
             </label>
             <div
               onClick={toggleDropdown}
-              className="flex gap-2 items-center p-3 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-gray-900 hover:border hover:border-gray-800 text-gray-700 cursor-pointer"
+              className="group flex gap-2 items-center px-2 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-none hover:border hover:border-none cursor-pointer"
             >
-              <span className="font-bold text-gray-200">
+              <span className="font-bold text-gray-300 group-hover:text-gray-200">
                 {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
               </span>
               <FaChevronDown
-                className={`text-neutral-200 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
+                className={`text-gray-400 group-hover:text-gray-100 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
               />
             </div>
 

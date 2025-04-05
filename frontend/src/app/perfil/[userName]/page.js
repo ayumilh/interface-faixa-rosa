@@ -23,6 +23,7 @@ import {
   FaSearch,
   FaRegCopy,
 } from 'react-icons/fa';
+import { IoIosArrowBack } from "react-icons/io";
 import Final from '@/components/search/final';
 import { useParams } from "next/navigation";
 import axios from 'axios';
@@ -440,11 +441,14 @@ export default function Perfil() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f9fc', marginTop: '80px' }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f9fc', marginTop: '60px' }}>
       <Navbar bgColor='white' />
 
       {/* Breadcrumbs */}
-      <div className="w-full max-w-7xl mx-auto  p-4 mt-16 bg-cover flex justify-start items-center">
+      <div className="w-full max-w-7xl mx-auto p-4 bg-cover flex justify-start items-center">
+        <Link href="/" className="flex items-center text-pink-500 hover:text-pink-700">
+          <IoIosArrowBack className="text-2xl mr-2" />
+        </Link>
         <nav className="text-sm text-gray-700">
           <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
           <span className="mx-2">/</span>
@@ -829,34 +833,36 @@ export default function Perfil() {
                   {maisAcompanhantes
                     .filter((acompanhante) => acompanhante.userName !== userName) // Filtra o perfil atual
                     .map((acompanhante, index) => (
-                      <div key={index} className="flex items-center">
-                        {acompanhante.profileImage ? (
-                          <Image
-                            src={acompanhante.profileImage}
-                            alt={`Acompanhante ${acompanhante.userName}`}
-                            width={40}
-                            height={40}
-                            className="rounded-full w-10 h-10 object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 bg-pink-400 rounded-full flex items-center justify-center text-white font-semibold">
-                            {acompanhante.userName ? acompanhante.userName.charAt(0).toUpperCase() : ""}
+                      <Link key={index} href={`/perfil/${acompanhante.userName}`} className='flex items-center'>
+                        <div className="flex items-center cursor-pointer hover:underline">
+                          {acompanhante.profileImage ? (
+                            <Image
+                              src={acompanhante.profileImage}
+                              alt={`Acompanhante ${acompanhante.userName}`}
+                              width={40}
+                              height={40}
+                              className="rounded-full w-10 h-10 object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-pink-400 rounded-full flex items-center justify-center text-white font-semibold">
+                              {acompanhante.userName ? acompanhante.userName.charAt(0).toUpperCase() : ""}
+                            </div>
+                          )}
+                          <div className="ml-4">
+                            <p className="font-semibold">{acompanhante.userName}</p>
+                            <p className="text-gray-600 text-sm">
+                              {acompanhante.atendimentos && Array.isArray(acompanhante.atendimentos)
+                                ? acompanhante.atendimentos.map((item, index) => (
+                                  <span key={index}>
+                                    {item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()}
+                                    {index < acompanhante.atendimentos.length - 1 && ", "}
+                                  </span>
+                                ))
+                                : ''}
+                            </p>
                           </div>
-                        )}
-                        <div className="ml-4">
-                          <p className="font-semibold">{acompanhante.userName}</p>
-                          <p className="text-gray-600 text-sm">
-                            {acompanhante.atendimentos && Array.isArray(acompanhante.atendimentos)
-                              ? acompanhante.atendimentos.map((item, index) => (
-                                <span key={index}>
-                                  {item.charAt(0).toUpperCase() + item.slice(1).toLowerCase()}
-                                  {index < acompanhante.atendimentos.length - 1 && ", "}
-                                </span>
-                              ))
-                              : ''}
-                          </p>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                 </div>
               </div>

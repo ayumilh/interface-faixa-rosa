@@ -1,20 +1,16 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_URL = "http://localhost:4000"; // Atualize conforme necessário
-
 export default function GerenciamentoDeAssinaturas() {
     const [companions, setCompanions] = useState([]);
     const [selectedExtras, setSelectedExtras] = useState({});
     const token = Cookies.get("userToken");
     const [expanded, setExpanded] = useState({});
-
-
 
     const toggleExpand = (id) => {
         setExpanded((prev) => ({
@@ -24,7 +20,7 @@ export default function GerenciamentoDeAssinaturas() {
     };
 
     // Buscar assinaturas ativas
-    const fetchSubscriptions = async () => {
+    const fetchSubscriptions = useCallback(async () => { 
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/subscriptions`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -34,7 +30,7 @@ export default function GerenciamentoDeAssinaturas() {
             console.error("Erro ao buscar assinaturas ativas:", error);
             toast.error("Erro ao buscar assinaturas ativas.");
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchSubscriptions();

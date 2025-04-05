@@ -165,7 +165,7 @@ const MercadoPagoForm = ({ totalPrice, planId, selectedExtraPlans, selectedMetho
         };
 
         loadMercadoPago();
-    }, []);
+    }, [planId, router, selectedExtraPlans, totalPrice]);
 
     return (
         <div>

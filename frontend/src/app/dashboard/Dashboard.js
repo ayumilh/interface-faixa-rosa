@@ -108,7 +108,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-
               {/* Menu Lateral */}
               <ul className="space-y-2">
                 {menuTabs.map((tab) => (
@@ -172,8 +171,55 @@ const Dashboard = () => {
             </div>
           )}
 
+          {/* Sidebar Mobile */}
+          <div
+            className={`fixed top-0 left-0 h-full w-64 bg-gray-800 z-40 transform transition-transform duration-300 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+              }`}
+          >
+            {/* Perfil do Usuário */}
+            <div className="flex items-center w-full p-4 mt-16">
+              {user?.companion?.profileImage ? (
+                <div>
+                  <Image
+                    src={user.companion.profileImage}
+                    alt="Imagem de Perfil"
+                    width={40}
+                    height={40}
+                    className="rounded-full w-10 h-10 mr-1 object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="mr-4">
+                  <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
+                    {/* Exibe a inicial do nome */}
+                    {user?.companion?.userName?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div className="ml-2">
+                <h2 className="text-lg font-semibold text-gray-200">
+                  {user ? `${user?.companion?.userName}` : "Carregando..."}
+                </h2>
+              </div>
+            </div>
+            <hr className="w-full border-gray-700 my-2" />
+
+            <ul className="space-y-2 px-4">
+              {menuTabs.map((tab) => (
+                <li
+                  key={tab.id}
+                  className={`flex text-gray-200 items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform hover:bg-gray-700 hover:text-gray-100`}
+                  onClick={() => handleTabClick(tab.id)}
+                >
+                  <tab.icon className="mr-3 text-lg" />
+                  {tab.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Menu Mobile Deslizante */}
-          {isMobile && mobileMenuOpen && (
+          {/* {isMobile && mobileMenuOpen && (
             <div className="mb-4 bg-gray-800 rounded-lg shadow p-4 transition-colors duration-300">
               <ul className="space-y-2">
                 {menuTabs.map((tab) => (
@@ -191,7 +237,7 @@ const Dashboard = () => {
                 ))}
               </ul>
             </div>
-          )}
+          )} */}
 
           {/* Área de Conteúdo da Aba Selecionada */}
           <div className="bg-white shadow rounded-lg p-6">

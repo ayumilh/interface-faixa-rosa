@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
@@ -70,7 +70,7 @@ export const AuthContextProvider = ({ children }) => {
     };
 
 
-    const fetchUserData = async () => {
+    const fetchUserData = useCallback(async () => {
         const tokenId = Cookies.get("userToken");
 
         if (tokenId) {
@@ -100,7 +100,7 @@ export const AuthContextProvider = ({ children }) => {
                 return null;
             }
         }
-    };
+    }, [currentUser, isAuthenticated]);
     
     useEffect(() => {
         if (!currentUser) {

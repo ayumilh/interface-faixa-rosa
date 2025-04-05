@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FaTrash } from "react-icons/fa";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -20,7 +20,7 @@ export default function GerenciamentoDePlanos() {
 
 
   // Buscar planos do backend
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback( async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/plans`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -30,7 +30,7 @@ export default function GerenciamentoDePlanos() {
       console.error("Erro ao buscar planos:", error);
       toast.error("Erro ao buscar planos.");
     }
-  };
+  }, [token]);
   
   useEffect(() => {
     fetchPlans();

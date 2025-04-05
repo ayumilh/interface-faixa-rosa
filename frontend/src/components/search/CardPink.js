@@ -26,7 +26,7 @@ const CardPink = ({
   subscriptions,
   isAgeHidden,
   reviews,
-  timedServiceCompanion
+  timedServiceCompanion = [],
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -122,13 +122,13 @@ const CardPink = ({
             </label>
             <div
               onClick={toggleDropdown}
-              className="flex gap-2 items-center p-3 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-gray-900 hover:border hover:border-gray-800 text-gray-700 cursor-pointer"
+              className="group flex gap-2 items-center px-2 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-none hover:border hover:border-none cursor-pointer"
             >
-              <span className="font-bold text-neutral-800">
+              <span className="font-bold text-neutral-700 group-hover:text-neutral-800">
                 {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
               </span>
               <FaChevronDown
-                className={`text-neutral-800 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
+                className={`text-neutral-500 group-hover:text-neutral-800 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
               />
             </div>
 

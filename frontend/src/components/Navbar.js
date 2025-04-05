@@ -257,7 +257,7 @@ export default function Navbar({ bgColor = "pink" }) {
                 onClick={() => router.push('/cadastro')}
                 className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm rounded-full hover:from-pink-600 hover:to-purple-700 transition"
               >
-                CADASTRE-SE
+                <span className="sm:text-sm ">CADASTRE-SE</span>
               </button>
               <button
                 onClick={() => router.push('/login')}

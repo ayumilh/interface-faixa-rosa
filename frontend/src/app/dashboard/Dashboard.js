@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   FaEdit,
   FaPhotoVideo,
@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const mobileMenuRef = useRef(null);
 
   // Chama fetchUserData quando o componente é carregado ou quando userInfo muda
   useEffect(() => {
@@ -54,6 +55,25 @@ const Dashboard = () => {
     setModalOpen((prev) => !prev);
   };
 
+    // Fecha o menu mobile ao clicar fora dele
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+          setMobileMenuOpen(false);
+        }
+      };
+  
+      if (mobileMenuOpen) {
+        document.addEventListener("mousedown", handleClickOutside);
+      } else {
+        document.removeEventListener("mousedown", handleClickOutside);
+      }
+  
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [mobileMenuOpen]);
+  
 
   // Definição dos itens do menu
   const menuTabs = [
@@ -173,6 +193,7 @@ const Dashboard = () => {
 
           {/* Sidebar Mobile */}
           <div
+           ref={mobileMenuRef}
             className={`fixed top-0 left-0 h-full w-64 bg-gray-800 z-40 transform transition-transform duration-300 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
               }`}
           >
@@ -191,7 +212,6 @@ const Dashboard = () => {
               ) : (
                 <div className="mr-4">
                   <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
-                    {/* Exibe a inicial do nome */}
                     {user?.companion?.userName?.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -208,7 +228,7 @@ const Dashboard = () => {
               {menuTabs.map((tab) => (
                 <li
                   key={tab.id}
-                  className={`flex text-gray-200 items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform hover:bg-gray-700 hover:text-gray-100`}
+                  className="flex text-gray-200 items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform hover:bg-gray-700 hover:text-gray-100"
                   onClick={() => handleTabClick(tab.id)}
                 >
                   <tab.icon className="mr-3 text-lg" />
@@ -217,27 +237,6 @@ const Dashboard = () => {
               ))}
             </ul>
           </div>
-
-          {/* Menu Mobile Deslizante */}
-          {/* {isMobile && mobileMenuOpen && (
-            <div className="mb-4 bg-gray-800 rounded-lg shadow p-4 transition-colors duration-300">
-              <ul className="space-y-2">
-                {menuTabs.map((tab) => (
-                  <li
-                    key={tab.id}
-                    className={`flex items-center cursor-pointer px-3 py-2 rounded-lg text-sm lg:text-base transition-colors duration-300 transform ${activeTab === tab.id
-                      ? "bg-gray-700 text-gray-300 scale-105"
-                      : "text-gray-200 hover:bg-gray-700 hover:text-gray-100"
-                      }`}
-                    onClick={() => handleTabClick(tab.id)}
-                  >
-                    <tab.icon className="mr-3 text-lg transition-transform duration-300" />
-                    {tab.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )} */}
 
           {/* Área de Conteúdo da Aba Selecionada */}
           <div className="bg-white shadow rounded-lg p-6">

@@ -38,6 +38,11 @@ const ProfileSettings = ({ onUpdate }) => {
   const [bannerImage, setBannerImage] = useState(null);
   const [documentsValidated, setDocumentsValidated] = useState(false);
 
+  const [carouselImages, setCarouselImages] = useState([]);
+  // Exemplo: defina o plano do usuário. Em uma implementação real, isso viria da API ou do contexto do usuário.
+  const planType = "rubi"; // "rubi", "safira", "pink" ou "vip"
+  const allowedCarouselImages =
+    planType === "rubi" ? 5 : planType === "safira" ? 3 : 1;
 
   useEffect(() => {
     // Simula o carregamento inicial da página
@@ -124,7 +129,6 @@ const ProfileSettings = ({ onUpdate }) => {
       setDocumentFileBack(file);
     }
   };
-
 
   const handleSendDocuments = async () => {
     if (!documentFront || !documentBack) return alert("Por favor, insira ambos os documentos.");
@@ -250,6 +254,17 @@ const ProfileSettings = ({ onUpdate }) => {
       closeModal();
       onUpdate && onUpdate({ [uploadType]: imageUrl, caption });
     }, 2000); // Simula 2 segundos de upload
+  };
+
+  const handleCarouselImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (carouselImages.length >= allowedCarouselImages) {
+      toast.error(`Limite de ${allowedCarouselImages} imagens atingido para o seu plano.`);
+      return;
+    }
+    const imageUrl = URL.createObjectURL(file);
+    setCarouselImages([...carouselImages, imageUrl]);
   };
 
   return (
@@ -559,6 +574,44 @@ const ProfileSettings = ({ onUpdate }) => {
                     )}
                   </>
                 )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Carrossel do Card de Anúncio */}
+      <div className="mt-16">
+        <h3 className="text-2xl font-semibold mb-6">Carrossel do Card de Anúncio</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Você pode adicionar até {allowedCarouselImages} imagem
+          {allowedCarouselImages > 1 ? "ns" : ""} de acordo com seu plano.
+        </p>
+        <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition">
+          <FaPlusCircle className="mx-auto mb-2 text-4xl" />
+          Adicionar Imagem
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleCarouselImageUpload}
+            aria-label="Adicionar imagem para o carrossel"
+          />
+        </label>
+        {carouselImages.length > 0 && (
+          <div className="mt-6 flex space-x-4 overflow-x-auto">
+            {carouselImages.map((img, index) => (
+              <div
+                key={index}
+                className="relative w-32 h-32 rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105"
+              >
+                <Image
+                  src={img}
+                  alt={`Imagem do carrossel ${index + 1}`}
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
               </div>
             ))}
           </div>

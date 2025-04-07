@@ -130,24 +130,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
     const cidadeFormatada = encodeURIComponent(cidade.nome);
     const estadoFormatado = encodeURIComponent(cidade.microrregiao.mesorregiao.UF.sigla.toUpperCase());
 
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?cidade=${cidadeFormatada}&estado=${estadoFormatado}`
-      );
-
-      const data = response.data;
-
-      if (data.length > 0) {
-        // Redirecionar e enviar os dados diretamente na query
-        const queryParams = new URLSearchParams({ results: JSON.stringify(data) }).toString();
-        router.push(`/search/acompanhantes-em-${cidadeFormatada}-${estadoFormatado}?${queryParams}`);
-      } else {
-        // Redireciona para a página de busca sem resultados
-        router.push(`/search?results=[]`);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar acompanhantes:", error);
-    }
+    router.push(`/search/acompanhantes-em-${cidadeFormatada}-${estadoFormatado}`);
 
     onClose();
   };

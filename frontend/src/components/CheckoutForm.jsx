@@ -336,6 +336,8 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
                   <Image
                     src="/assets/FaixaRosaSombra.png"
                     alt="Logo"
+                    width={80}
+                    height={80}
                     className="absolute w-20 top-4 left-4"
                   />
                   <p className="absolute text-lg font-mono tracking-widest bottom-14 left-4 drop-shadow-lg">

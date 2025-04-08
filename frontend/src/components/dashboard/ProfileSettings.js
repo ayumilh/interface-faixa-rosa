@@ -37,6 +37,7 @@ const ProfileSettings = ({ onUpdate }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
   const [documentsValidated, setDocumentsValidated] = useState(false);
+  const [startDate, setStartDate] = useState(null); // Data de início do plano
 
   const [carouselImages, setCarouselImages] = useState([]);
   // Exemplo: defina o plano do usuário. Em uma implementação real, isso viria da API ou do contexto do usuário.
@@ -51,36 +52,65 @@ const ProfileSettings = ({ onUpdate }) => {
     }, 200); // Simulando 2 segundos de carregamento
   }, []);
 
+  // useEffect(() => {
+  //   const totalDuration = planExpirationDate - Date.now();
+
+  //   const updateTimeLeft = () => {
+  //     const now = new Date();
+  //     const diff = planExpirationDate - now;
+  //     if (diff <= 0) {
+  //       clearInterval(interval);
+  //       setTimeLeft("Expirado");
+  //       setTimeProgress(0);
+  //     } else {
+  //       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  //       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  //       const minutes = Math.floor((diff / 1000 / 60) % 60);
+  //       setTimeLeft(`${days}d ${hours}h ${minutes}m`);
+
+  //       const elapsed = totalDuration - diff;
+  //       const progress = Math.max(
+  //         0,
+  //         ((elapsed / totalDuration) * 100).toFixed(2)
+  //       );
+  //       setTimeProgress(progress);
+  //     }
+  //   };
+
+  //   updateTimeLeft();
+  //   const interval = setInterval(updateTimeLeft, 60000); // Atualiza a cada minuto
+
+  //   return () => clearInterval(interval);
+  // }, [planExpirationDate]);
+
   useEffect(() => {
-    const totalDuration = planExpirationDate - Date.now();
+    if (startDate) {
+      const totalDuration = 30 * 24 * 60 * 60 * 1000; // 30 dias em milissegundos
+      const updateTimeLeft = () => {
+        const now = new Date();
+        const diff = startDate.getTime() + totalDuration - now.getTime();
+        if (diff <= 0) {
+          setTimeLeft("Expirado");
+          setTimeProgress(0);
+        } else {
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          const minutes = Math.floor((diff / 1000 / 60) % 60);
+          setTimeLeft(`${days}d ${hours}h ${minutes}m`);
 
-    const updateTimeLeft = () => {
-      const now = new Date();
-      const diff = planExpirationDate - now;
-      if (diff <= 0) {
-        clearInterval(interval);
-        setTimeLeft("Expirado");
-        setTimeProgress(0);
-      } else {
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / 1000 / 60) % 60);
-        setTimeLeft(`${days}d ${hours}h ${minutes}m`);
+          const elapsed = totalDuration - diff;
+          const progress = Math.max(0, ((elapsed / totalDuration) * 100).toFixed(2));
+          setTimeProgress(progress);
+        }
+      };
 
-        const elapsed = totalDuration - diff;
-        const progress = Math.max(
-          0,
-          ((elapsed / totalDuration) * 100).toFixed(2)
-        );
-        setTimeProgress(progress);
-      }
-    };
+      updateTimeLeft();
+      const interval = setInterval(updateTimeLeft, 60000); // Atualiza a cada minuto
 
-    updateTimeLeft();
-    const interval = setInterval(updateTimeLeft, 60000); // Atualiza a cada minuto
+      return () => clearInterval(interval);
+    }
+  }, [startDate]);
 
-    return () => clearInterval(interval);
-  }, [planExpirationDate]);
 
   useEffect(() => {
     if (documentFront && documentBack) {
@@ -107,6 +137,8 @@ const ProfileSettings = ({ onUpdate }) => {
           setProfileImage(profileImage);
           setBannerImage(bannerImage);
           setDocumentsValidated(documentsValidated);
+          console.log("Date:", response.data);
+          setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
         }
       } catch (error) {
         console.error('Erro ao buscar mídia do acompanhante:', error);

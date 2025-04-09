@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import {
   FaHeart,
@@ -10,8 +10,11 @@ import {
   FaTimes,
   FaPlayCircle,
 } from "react-icons/fa";
+import Cookies from "js-cookie";
+import axios from "axios";
+import { usePlan } from "@/context/PlanContext";
 
-export default function Videos() {
+export default function Videos({ userName }) {
   // Lista inicial de vídeos com thumbnails e fontes
   const initialVideos = []
 
@@ -24,6 +27,35 @@ export default function Videos() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [newVideo, setNewVideo] = useState(null);
+  const [companionData, setCompanionData] = useState(null);
+  const { companions, fetchCompanions, loading, error } = usePlan();
+
+  useEffect(() => {
+    if (userName) {
+      fetchCompanions({ planos: true, userName: userName });
+    }
+  }, [userName, fetchCompanions]);
+
+  const fetchFeedVideos = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/feed-posts?userName=${userName}`
+      );
+
+      const data = response.data;
+      console.log("Feed videos data:", data);
+      setVideos(data);
+
+      setCompanionData(companions[0]);
+    } catch (error) {
+      console.error("Erro ao carregar as fotos do feed", error);
+    }
+  }, [companions, userName]);
+
+  // Chama a API quando o componente for montado
+  useEffect(() => {
+    fetchFeedVideos();
+  }, [fetchFeedVideos]);
 
   // Função para curtir um vídeo
   const handleLike = (id) => {
@@ -80,10 +112,10 @@ export default function Videos() {
       const updatedVideos = videos.map((video) =>
         video.id === selectedVideo.id
           ? {
-              ...video,
-              comments: [...video.comments, newComment],
-              commentsCount: video.commentsCount + 1,
-            }
+            ...video,
+            comments: [...video.comments, newComment],
+            commentsCount: video.commentsCount + 1,
+          }
           : video
       );
       setVideos(updatedVideos);
@@ -150,96 +182,39 @@ export default function Videos() {
 
       {/* Galeria de vídeos */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {videos.slice(0, visibleVideos).map((video) => (
-          <div
-            key={video.id}
-            className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
-            onClick={() => openModal(video)}
-          >
-            <Image
-              src={video.thumbnail}
-              alt={`Vídeo ${video.id}`}
-              layout="responsive"
-              width={500}
-              height={500}
-              className="w-full h-auto"
-            />
-            {/* Ícone de play no centro do vídeo */}
-            <div className="absolute inset-0 flex justify-center items-center text-white opacity-70">
-              <FaPlayCircle className="text-4xl md:text-6xl" />
-            </div>
+        {videos
+          .filter((video) => video.mediaType === "video")
+          .slice(0, visibleVideos)
+          .map((video) => (
+            <div
+              key={video.id}
+              className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
+              onClick={() => openModal(video)}
+            >
+              {video.mediaUrl ? (
+                <video
+                  src={video.mediaUrl}
+                  className="w-full h-auto"
+                  muted
+                  playsInline
+                  preload="metadata"
+                  onClick={() => openModal(video)}
+                >
+                  <track kind="captions" />
+                </video>
 
-            {/* Overlay com botões de ação (visível apenas em hover para desktop) */}
-            <div className="hidden md:flex absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 justify-center items-center">
-              <div className="flex space-x-4 text-white opacity-0 group-hover:opacity-100">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleLike(video.id);
-                  }}
-                  className="flex items-center space-x-1 focus:outline-none"
-                >
-                  <FaHeart className="text-red-500" />
-                  <span>{video.likes}</span>
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Função para abrir modal de comentários ou similar
-                    alert("Função de comentários ainda não implementada.");
-                  }}
-                  className="flex items-center space-x-1 focus:outline-none"
-                >
-                  <FaComment />
-                  <span>{video.commentsCount}</span>
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShare();
-                  }}
-                  className="flex items-center space-x-1 focus:outline-none"
-                >
-                  <FaShare />
-                </button>
+              ) : (
+                <div className="bg-gray-300 w-full h-[300px] flex items-center justify-center text-gray-500">
+                  Sem thumbnail
+                </div>
+              )}
+
+              <div className="absolute inset-0 flex justify-center items-center text-white opacity-70">
+                <FaPlayCircle className="text-4xl md:text-6xl" />
               </div>
             </div>
+          ))}
 
-            {/* Ações para dispositivos móveis */}
-            <div className="flex md:hidden justify-between items-center p-2 text-black">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleLike(video.id);
-                }}
-                className="flex items-center space-x-1 focus:outline-none"
-              >
-                <FaHeart className="text-red-500" />
-                <span>{video.likes}</span>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Função para abrir modal de comentários ou similar
-                  alert("Função de comentários ainda não implementada.");
-                }}
-                className="flex items-center space-x-1 focus:outline-none"
-              >
-                <FaComment />
-                <span>{video.commentsCount}</span>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShare();
-                }}
-                className="flex items-center space-x-1 focus:outline-none"
-              >
-                <FaShare />
-              </button>
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Modal de visualização de vídeo */}
@@ -398,9 +373,8 @@ export default function Videos() {
             <button
               onClick={handleUploadSubmit}
               disabled={uploading}
-              className={`w-full p-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition duration-300 ${
-                uploading ? "opacity-50 cursor-not-allowed" : ""
-              } focus:outline-none`}
+              className={`w-full p-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition duration-300 ${uploading ? "opacity-50 cursor-not-allowed" : ""
+                } focus:outline-none`}
             >
               {uploading ? "Enviando..." : "Enviar Vídeo"}
             </button>

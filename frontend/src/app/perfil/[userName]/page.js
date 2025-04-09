@@ -325,6 +325,7 @@ export default function Perfil() {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
         );
+        console.log(response.data);
 
         setCompanionData(response.data);
         setIsLoading(false);
@@ -799,7 +800,7 @@ export default function Perfil() {
                   <Fotos userName={companionData.userName} />
                 )}
 
-                {activeTab === "videos" && <Videos />}
+                {activeTab === "videos" && <Videos userName={companionData.userName} />}
                 {activeTab === "sobre" && <Sobre physicalCharacteristics={companionData.PhysicalCharacteristics} description={companionData.description} media={companionData.media} />}
                 {activeTab === "localidade" && <Localidade lugares={companionData.lugares} city={companionData.city} state={companionData.state} />}
                 {activeTab === "serviços" && <Servicos servicesOffered={companionData.servicesOffered} weeklySchedules={companionData.weeklySchedules} />}

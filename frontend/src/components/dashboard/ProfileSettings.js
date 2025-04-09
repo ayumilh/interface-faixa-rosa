@@ -15,6 +15,14 @@ const ProfileSettings = ({ onUpdate }) => {
   const [documentFileFront, setDocumentFileFront] = useState(null);
   const [documentFileBack, setDocumentFileBack] = useState(null);
 
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [videoTitle, setVideoTitle] = useState("");
+  const [videoDescription, setVideoDescription] = useState("");
+
   const [uploading, setUploading] = useState(false);
   const [isReadyToSend, setIsReadyToSend] = useState(false);
 
@@ -251,10 +259,93 @@ const ProfileSettings = ({ onUpdate }) => {
     }
   };
 
-  const handlePostUpload = (e, type) => {
+  const handlePostUpload = async (e) => {
+    const token = Cookies.get("userToken");
+
+    if (!selectedFile || !title || !description) {
+      alert("Preencha todos os campos antes de postar.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("media", selectedFile);
+    formData.append("title", title);
+    formData.append("description", description);
+
+    try {
+      const response = await fetch("http://localhost:4000/api/companions/feed/create", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Post enviado com sucesso!");
+        setSelectedFile(null);
+        setTitle("");
+        setDescription("");
+      } else {
+        alert(data.error || "Erro ao enviar post.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao enviar post.");
+    }
+  };
+
+  const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      openModal(file, type);
+      setSelectedFile(file);
+    }
+  };
+
+  const handleVideoUpload = async () => {
+    const token = Cookies.get("userToken");
+
+    if (!selectedVideo || !videoTitle || !videoDescription) {
+      alert("Preencha todos os campos antes de postar o vídeo.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("media", selectedVideo);
+    formData.append("title", videoTitle);
+    formData.append("description", videoDescription);
+
+    try {
+      const response = await fetch("http://localhost:4000/api/companions/feed/create", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Vídeo enviado com sucesso!");
+        setSelectedVideo(null);
+        setVideoTitle("");
+        setVideoDescription("");
+      } else {
+        alert(data.error || "Erro ao enviar vídeo.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao enviar vídeo.");
+    }
+  };
+
+  const handleVideoSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedVideo(file);
     }
   };
 
@@ -545,29 +636,99 @@ const ProfileSettings = ({ onUpdate }) => {
         <h3 className="text-2xl font-semibold mb-6">Postar no Feed</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Adicionar Foto */}
-          <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition">
-            <FaPlusCircle className="mx-auto mb-2 text-4xl" />
-            Adicionar Foto
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handlePostUpload(e, "post")}
-              aria-label="Adicionar Foto"
-            />
-          </label>
-          {/* Adicionar Vídeo */}
-          <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-green-500 hover:text-green-500 transition">
-            <FaPlusCircle className="mx-auto mb-2 text-4xl" />
-            Adicionar Vídeo
-            <input
-              type="file"
-              accept="video/*"
-              className="hidden"
-              onChange={(e) => handlePostUpload(e, "post")}
-              aria-label="Adicionar Vídeo"
-            />
-          </label>
+          <div className="space-y-4">
+            {/* Adicionar Foto */}
+            <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition">
+              <FaPlusCircle className="mx-auto mb-2 text-4xl" />
+              {selectedFile ? selectedFile.name : "Adicionar Foto"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileSelect}
+                aria-label="Adicionar Foto"
+              />
+            </label>
+
+            {/* Mostrar título e descrição só se tiver imagem */}
+            {selectedFile && (
+              <>
+                {/* Título */}
+                <input
+                  type="text"
+                  placeholder="Título da foto"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+
+                {/* Descrição */}
+                <textarea
+                  placeholder="Descrição da foto"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </>
+            )}
+
+            {/* Botão POSTAR visível só se tudo estiver preenchido */}
+            {selectedFile && title && description && (
+              <button
+                onClick={handlePostUpload}
+                className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-md font-semibold transition"
+              >
+                Postar
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            {/* Adicionar Vídeo */}
+            <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-green-500 hover:text-green-500 transition">
+              <FaPlusCircle className="mx-auto mb-2 text-4xl" />
+              {selectedVideo ? selectedVideo.name : "Adicionar Vídeo"}
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleVideoSelect}
+                aria-label="Adicionar Vídeo"
+              />
+            </label>
+
+            {/* Mostrar campos se o vídeo for selecionado */}
+            {selectedVideo && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Título do vídeo"
+                  value={videoTitle}
+                  onChange={(e) => setVideoTitle(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+
+                <textarea
+                  placeholder="Descrição do vídeo"
+                  value={videoDescription}
+                  onChange={(e) => setVideoDescription(e.target.value)}
+                  rows={3}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </>
+            )}
+
+            {/* Botão POSTAR VÍDEO visível só se tudo estiver preenchido */}
+            {selectedVideo && videoTitle && videoDescription && (
+              <button
+                onClick={handleVideoUpload}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md font-semibold transition"
+              >
+                Postar Vídeo
+              </button>
+            )}
+          </div>
         </div>
         {posts.length > 0 && (
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-6">

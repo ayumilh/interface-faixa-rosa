@@ -1,5 +1,3 @@
-// components/perfil/Denuncia.js
-
 import { FaFlag, FaBook, FaTimes } from 'react-icons/fa';
 import { useState } from 'react';
 

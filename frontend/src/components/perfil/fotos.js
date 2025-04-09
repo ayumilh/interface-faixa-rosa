@@ -42,6 +42,7 @@ export default function Fotos({ userName }) {
       );
 
       const data = response.data;
+      console.log("Feed photos data:", data);
       setPhotos(data);
 
       setCompanionData(companions[0]);
@@ -176,23 +177,47 @@ export default function Fotos({ userName }) {
 
       {/* Galeria de fotos */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {photos.slice(0, visiblePhotos).map((photo) => (
-          <div
-            key={photo.id}
-            className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
-            onClick={() => openModal(photo)}
-          >
-            <Image
-              src={photo.mediaUrl}
-              alt={`Foto ${photo.id}`}
-              layout="responsive"
-              width={500}
-              height={500}
-              className="w-full h-auto"
-            />
-            {/* Overlay com botões de ação */}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex justify-center items-center">
-              <div className="flex space-x-4 text-white opacity-0 group-hover:opacity-100">
+        {photos
+          .filter((photo) => photo.mediaType === "image")
+          .slice(0, visiblePhotos)
+          .map((photo) => (
+            <div
+              key={photo.id}
+              className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
+              onClick={() => openModal(photo)}
+            >
+              <Image
+                src={photo.mediaUrl}
+                alt={`Foto ${photo.id}`}
+                layout="responsive"
+                width={500}
+                height={500}
+                className="w-full h-auto"
+              />
+              {/* Overlay com botões de ação */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex justify-center items-center">
+                <div className="flex space-x-4 text-white opacity-0 group-hover:opacity-100">
+                  <button
+                    onClick={() => handleLike(photo.id)}
+                    className="flex items-center space-x-1 focus:outline-none"
+                  >
+                    <FaHeart className="text-red-500" />
+                    <span>{photo.likes}</span>
+                  </button>
+                  <button className="flex items-center space-x-1 focus:outline-none">
+                    <FaComment />
+                    <span>{photo.commentsCount}</span>
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center space-x-1 focus:outline-none"
+                  >
+                    <FaShare />
+                  </button>
+                </div>
+              </div>
+              {/* Ações para dispositivos móveis */}
+              <div className="mt-2 flex justify-around text-black md:hidden">
                 <button
                   onClick={() => handleLike(photo.id)}
                   className="flex items-center space-x-1 focus:outline-none"
@@ -212,28 +237,7 @@ export default function Fotos({ userName }) {
                 </button>
               </div>
             </div>
-            {/* Ações para dispositivos móveis */}
-            <div className="mt-2 flex justify-around text-black md:hidden">
-              <button
-                onClick={() => handleLike(photo.id)}
-                className="flex items-center space-x-1 focus:outline-none"
-              >
-                <FaHeart className="text-red-500" />
-                <span>{photo.likes}</span>
-              </button>
-              <button className="flex items-center space-x-1 focus:outline-none">
-                <FaComment />
-                <span>{photo.commentsCount}</span>
-              </button>
-              <button
-                onClick={handleShare}
-                className="flex items-center space-x-1 focus:outline-none"
-              >
-                <FaShare />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* Modal de visualização de foto */}

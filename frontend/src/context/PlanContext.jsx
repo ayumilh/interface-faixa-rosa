@@ -16,7 +16,6 @@ export function PlanProvider({ children }) {
       const url = queryParams ?
        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?${queryParams}` : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion`;
       const response = await axios.get(url);
-      console.log('Response:', response.data); // Log the response data
       setCompanions(response.data);
     } catch (err) {
       setError(err);

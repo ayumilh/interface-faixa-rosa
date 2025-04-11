@@ -13,7 +13,7 @@ import {
 import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 
-const CardVIP = ({ userName, location, description, reviews, contact, images, age, subscriptions, isAgeHidden, timedServiceCompanion = [] }) => {
+const CardVIP = ({ userName, location, description, reviews, contact, images, age, subscriptions, isAgeHidden, timedServiceCompanion = [], carrouselImages = [] }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
   const handleOpenModal = () => {
@@ -73,10 +73,10 @@ const CardVIP = ({ userName, location, description, reviews, contact, images, ag
   return (
     <div className="relative">
       <div className="bg-yellow-100 border border-yellow-500 rounded-lg shadow-xl p-4 transition transform hover:scale-105 hover:shadow-2xl">
-        {images && images.length > 0 ? (
+        {carrouselImages && carrouselImages.length > 0 ? (
           <Image
-            src={images[0]}
-            alt={userName ? `Imagem de ${userName}` : 'Imagem do acompanhante'}
+            src={carrouselImages[0].imageUrl}
+            alt={userName ? `Imagem de ${userName}` : 'Imagem de acompanhante'}
             width={320}
             height={192}
             className="w-full h-48 object-cover rounded-md mb-3"
@@ -94,7 +94,7 @@ const CardVIP = ({ userName, location, description, reviews, contact, images, ag
 
         {/* seleção de serviço */}
         {timedServiceCompanion.length > 0 && (
-          <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
+          <div className="relative z-0" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
             {/* Botão do dropdown */}
             <label className="text-sm text-neutral-800 flex items-center font-semibold">
               A partir de:
@@ -113,13 +113,28 @@ const CardVIP = ({ userName, location, description, reviews, contact, images, ag
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute bg-pink-50 border border-gray-200 rounded-lg shadow-lg z-10">
+              <div
+                className={`
+                 ${typeof window !== "undefined" && window.innerWidth <= 768
+                    ? "fixed left-4 right-4 top-[42%]"
+                    : "absolute"
+                  }
+                 bg-yellow-50 border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-y-auto max-h-60
+               `}
+                style={{
+                  ...(typeof window !== "undefined" && window.innerWidth <= 768
+                    ? { maxWidth: '90%', margin: '0 auto' }
+                    : {}
+                  )
+                }}
+              >
+
                 {timedServiceCompanion.map((service) =>
                   service.isOffered ? (
                     <div
                       key={service.id}
                       onClick={() => handleSelect(service)}
-                      className="p-3 hover:bg-pink-100 cursor-pointer border-b border-gray-300"
+                      className="p-3 hover:bg-yellow-100 cursor-pointer border-b border-gray-300"
                     >
                       <span className="font-bold text-neutral-700">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-700'>- {service.TimedService.name}</span></span>
                     </div>
@@ -201,9 +216,9 @@ const CardVIP = ({ userName, location, description, reviews, contact, images, ag
 
             {/* Imagem única (a mesma do card) */}
             <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
-              {images && images.length > 0 ? (
+              {carrouselImages && carrouselImages.length > 0 ? (
                 <Image
-                  src={images[0]} // Exibe a mesma imagem do card
+                  src={carrouselImages[0].imageUrl}
                   alt={`Imagem de ${userName}`}
                   layout="fill"
                   objectFit="cover"
@@ -217,15 +232,21 @@ const CardVIP = ({ userName, location, description, reviews, contact, images, ag
 
             {/* Imagem de perfil e nome */}
             <div className="flex flex-col items-center mb-4">
-              <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
-                <Image
-                  src="/assets/mulher.png" // Caminho da imagem de perfil
-                  alt="Foto de perfil"
-                  layout="fill"
-                  objectFit="cover"
-                />
-                <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
-              </div>
+              {images && images.length > 0 ? (
+                <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
+                  <Image
+                    src={images[0]}
+                    alt="Foto de perfil"
+                    layout="fill"
+                    objectFit="cover"
+                  />
+                  <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
+                </div>
+              ) : (
+                <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-lg">
+                  Sem imagem disponível
+                </div>
+              )}
               <h2 className="text-xl text-yellow-700 font-bold mt-2">{userName}</h2>
             </div>
 

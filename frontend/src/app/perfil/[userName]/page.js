@@ -325,8 +325,6 @@ export default function Perfil() {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
         );
-        console.log(response.data);
-
         setCompanionData(response.data);
         setIsLoading(false);
 
@@ -355,12 +353,17 @@ export default function Perfil() {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(companionData.contactMethods[0].phoneNumber); // Copia o número
-      setCopySuccess(true); // Atualiza o estado para exibir feedback
-      toast.success("Número copiado com sucesso!")
-      setTimeout(() => setCopySuccess(false), 2000); // Reseta o feedback após 2 segundos
+      const phoneNumber = companionData?.contactMethods?.[0]?.phoneNumber; // Copia o número
+      if (phoneNumber) {
+        await navigator.clipboard.writeText(phoneNumber);
+        setCopySuccess(true); // Atualiza o estado para exibir feedback
+        toast.success("Número copiado com sucesso!")
+        setTimeout(() => setCopySuccess(false), 2000); // Reseta o feedback após 2 segundos
+      } else {
+        toast.info("Número não disponível.");
+      }
     } catch (error) {
-      console.error("Erro ao copiar número:", error);
+      toast.error("Erro ao copiar o número.");
     }
   };
 
@@ -385,7 +388,7 @@ export default function Perfil() {
       // Redireciona para o discador de telefone
       window.location.href = `tel:${phoneNumber}`;
     } else {
-      alert("Número de telefone não disponível.");
+      toast.info("Número de telefone não disponível.");
     }
   };
 
@@ -397,7 +400,7 @@ export default function Perfil() {
       // Redireciona para o Telegram usando o nome de usuário
       window.open(`https://t.me/${telegramUsername}`, "_blank");
     } else {
-      alert("Usuário do Telegram não disponível.");
+      toast.info("Usuário do Telegram não disponível.");
     }
   };
 
@@ -564,7 +567,7 @@ export default function Perfil() {
 
               {/* Bolinhas indicadoras */}
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                {companionData.media.map((_, index) => (
+                {companionData?.bannerImage?.map((_, index) => (
                   <div key={index} className="w-2 h-2 bg-gray-400 rounded-full"></div>
                 ))}
               </div>
@@ -726,7 +729,7 @@ export default function Perfil() {
                           </span>
                         ))
                       ) : (
-                        <span>Atendimento não especificado.</span>
+                        <span> Não especificado.</span>
                       )}
                     </p>
                   </div>
@@ -738,11 +741,11 @@ export default function Perfil() {
                   <div className="flex flex-wrap justify-center md:justify-start border-t border-gray-200 pt-4">
                     {/* Cada estatística */}
                     <div className="flex flex-col items-center md:items-start mx-4 mb-4 md:mb-0">
-                      <span className="text-2xl md:text-3xl font-bold text-pink-500">150</span>
+                      <span className="text-2xl md:text-3xl font-bold text-pink-500">{companionData?.totalPosts ?? 0}</span>
                       <span className="text-sm font-semibold text-gray-700">Postagens</span>
                     </div>
                     <div className="flex flex-col items-center md:items-start mx-4 mb-4 md:mb-0">
-                      <span className="text-2xl md:text-3xl font-bold text-pink-500">45</span>
+                      <span className="text-2xl md:text-3xl font-bold text-pink-500">{companionData?.totalReviews}</span>
                       <span className="text-sm font-semibold text-gray-700">Reviews</span>
                     </div>
                   </div>
@@ -797,7 +800,7 @@ export default function Perfil() {
               {/* Conteúdo da aba selecionada */}
               <div className="mt-4 px-4 md:px-6">
                 {companionData && companionData.userName && activeTab === "fotos" && (
-                  <Fotos userName={companionData.userName} />
+                  <Fotos userName={companionData.userName} createdAtFormatted={companionData.createdAtFormatted} />
                 )}
 
                 {activeTab === "videos" && <Videos userName={companionData.userName} />}

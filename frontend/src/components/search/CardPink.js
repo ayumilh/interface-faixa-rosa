@@ -27,8 +27,10 @@ const CardPink = ({
   isAgeHidden,
   reviews,
   timedServiceCompanion = [],
+  carrouselImages = []
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
+
 
   const handleOpenModal = () => {
     setShowModalNumero(true);
@@ -70,19 +72,16 @@ const CardPink = ({
     setIsOpen(false); // Fecha o dropdown após a seleção
   };
 
-  const handleClickOutside = (e) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setIsOpen(false); // Fecha o dropdown se o clique for fora
-    }
-  };
-
   useEffect(() => {
-    // Adiciona o evento de clique fora quando o componente é montado
-    document.addEventListener('click', handleClickOutside);
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
 
-    // Limpeza do evento ao desmontar o componente
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -92,13 +91,14 @@ const CardPink = ({
         className={`${isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-pink-100 text-black'
           } border rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl`}
       >
-        {images && images.length > 0 ? (
+        {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
           <Image
-            src={images[0]}
-            alt={userName || 'Default Alt Text'}
-            width={320}
-            height={192}
-            className="w-full h-48 object-cover rounded-md mb-3"
+            src={carrouselImages[0].imageUrl}
+            alt={userName ? `Imagem de ${userName}` : 'Imagem de acompanhante'}
+            layout="responsive"
+            width={500}
+            height={200}
+            className="rounded-md mb-4 max-h-64 object-cover"
           />
         ) : (
           <div className="w-full h-48 bg-black-800 rounded-md mb-3 flex items-center justify-center text-black-500 text-lg">
@@ -134,7 +134,21 @@ const CardPink = ({
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute bg-pink-50 border border-gray-200 rounded-lg shadow-lg z-10">
+              <div
+                className={`
+                              ${typeof window !== "undefined" && window.innerWidth <= 768
+                    ? "fixed left-4 right-4 top-[42%]"
+                    : "absolute"
+                  }
+                              bg-pink-50 border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-y-auto max-h-60
+                            `}
+                style={{
+                  ...(typeof window !== "undefined" && window.innerWidth <= 768
+                    ? { maxWidth: '90%', margin: '0 auto' }
+                    : {}
+                  )
+                }}
+              >
                 {timedServiceCompanion.map((service) =>
                   service.isOffered ? (
                     <div

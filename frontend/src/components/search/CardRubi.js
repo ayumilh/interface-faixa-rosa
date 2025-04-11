@@ -16,45 +16,56 @@ import {
 import Image from 'next/image';
 
 
-const ImageCarousel = ({ images }) => {
+const ImageCarousel = ({ carrouselImages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
-    setCurrentIndex(prevIndex => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+    setCurrentIndex(prevIndex => (prevIndex === 0 ? carrouselImages.length - 1 : prevIndex - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex(prevIndex => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex(prevIndex => (prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1));
   };
 
   return (
-    <div className="relative">
-      {Array.isArray(images) && images.length > 0 ? ( // Verifica se images é um array e tem elementos
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
+      {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
         <>
           <Image
-            src={images[currentIndex] || "/default-image.jpg"} // Verifica se a URL da imagem existe, caso contrário, usa uma imagem padrão
+            src={
+              carrouselImages[currentIndex]?.imageUrl
+                ? carrouselImages[currentIndex].imageUrl
+                : '/default-image.jpg'
+            }
             alt={`Imagem ${currentIndex + 1}`}
             layout="responsive"
             width={500}
             height={200}
             className="rounded-md mb-4 max-h-64 object-cover"
           />
+
           <button
-            onClick={handlePrev}
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePrev();
+            }}
             className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
             aria-label="Imagem anterior"
           >
             <FaChevronLeft />
           </button>
           <button
-            onClick={handleNext}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNext();
+            }}
             className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
             aria-label="Próxima imagem"
           >
             <FaChevronRight />
           </button>
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {images.map((_, index) => (
+            {carrouselImages.map((_, index) => (
               <span
                 key={index}
                 className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'} transition-all`}
@@ -245,7 +256,8 @@ const CardRubi = ({
   planType,
   subscriptions,
   isAgeHidden,
-  timedServiceCompanion = []
+  timedServiceCompanion = [],
+  carrouselImages = []
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -303,7 +315,7 @@ const CardRubi = ({
   return (
     <div className="bg-white border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
       {/* Carrossel de Imagens */}
-      <ImageCarousel images={images} />
+      <ImageCarousel carrouselImages={carrouselImages} />
 
       {/* Nome e Status */}
       <div className="flex justify-between items-center mb-3">
@@ -315,51 +327,65 @@ const CardRubi = ({
       </div>
 
       {/* seleção de serviço */}
-        {timedServiceCompanion.length > 0 && (
-          <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
-            {/* Botão do dropdown */}
-            <label className="text-sm text-neutral-800 flex items-center font-semibold">
-              A partir de:
-            </label>
-            <div
-              onClick={toggleDropdown}
-              className="group flex gap-2 items-center px-2 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-none hover:border hover:border-none cursor-pointer"
-            >
-              <span className="font-bold text-neutral-700 group-hover:text-neutral-800">
-                {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
-              </span>
-              <FaChevronDown
-                className={`text-neutral-500 group-hover:text-neutral-800 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
-              />
-            </div>
-
-            {/* Dropdown */}
-            {isOpen && (
-              <div className="absolute bg-pink-50 border border-gray-200 rounded-lg shadow-lg z-10">
-                {timedServiceCompanion.map((service) =>
-                  service.isOffered ? (
-                    <div
-                      key={service.id}
-                      onClick={() => handleSelect(service)}
-                      className="p-3 hover:bg-pink-100 cursor-pointer border-b border-gray-300"
-                    >
-                      <span className="font-bold text-neutral-700">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-700'>- {service.TimedService.name}</span></span>
-                    </div>
-                  ) : (
-                    <div
-                      key={service.id}
-                      className="p-3 text-gray-400 line-through border-b border-gray-300"
-                    >
-                      <span className="font-bold">
-                        R$ {service.price || service.TimedService.defaultPrice} - {service.TimedService.name}
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
-            )}
+      {timedServiceCompanion.length > 0 && (
+        <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
+          {/* Botão do dropdown */}
+          <label className="text-sm text-neutral-800 flex items-center font-semibold">
+            A partir de:
+          </label>
+          <div
+            onClick={toggleDropdown}
+            className="group flex gap-2 items-center px-2 rounded-full focus:outline-none focus:ring-2 my-2 focus:ring-none hover:border hover:border-none cursor-pointer"
+          >
+            <span className="font-bold text-neutral-700 group-hover:text-neutral-800">
+              {selectedService ? `R$ ${selectedPrice} - ${selectedService} ` : ""}
+            </span>
+            <FaChevronDown
+              className={`text-neutral-500 group-hover:text-neutral-800 ml-2 transform transition-all duration-500 ${isOpen ? 'rotate-180' : ''}`} // Aplica a rotação quando isOpen for true
+            />
           </div>
-        )}
+
+          {/* Dropdown */}
+          {isOpen && (
+              <div
+              className={`
+                ${typeof window !== "undefined" && window.innerWidth <= 768
+                  ? "fixed left-4 right-4 top-[42%]"
+                  : "absolute"
+                }
+                bg-gray-50 border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-y-auto max-h-60
+              `}
+              style={{
+                ...(typeof window !== "undefined" && window.innerWidth <= 768
+                  ? { maxWidth: '90%', margin: '0 auto' }
+                  : {}
+                )
+              }}
+            >
+              {timedServiceCompanion.map((service) =>
+                service.isOffered ? (
+                  <div
+                    key={service.id}
+                    onClick={() => handleSelect(service)}
+                    className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-300"
+                  >
+                    <span className="font-bold text-neutral-700">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-700'>- {service.TimedService.name}</span></span>
+                  </div>
+                ) : (
+                  <div
+                    key={service.id}
+                    className="p-3 text-gray-400 line-through border-b border-gray-300"
+                  >
+                    <span className="font-bold">
+                      R$ {service.price || service.TimedService.defaultPrice} - {service.TimedService.name}
+                    </span>
+                  </div>
+                )
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Descrição curta */}
       <p className="text-sm italic text-gray-600 mb-3">{description}</p>
@@ -375,7 +401,6 @@ const CardRubi = ({
               <p className="text-green-500 font-semibold">2 reviews</p>
             </div>
           ) : null}
-
 
           {/* Exibição da idade com ícone */}
           {subscriptions.some(
@@ -413,9 +438,6 @@ const CardRubi = ({
         {/* Descrição detalhada e Serviços */}
         <div className="border-l border-gray-300 pl-4">
           <p className="text-black mb-2">{description}</p>
-          <p className="text-black font-semibold mb-1">Plano:</p>
-          <p className="text-black">Plano: {plan ? plan.name : 'Não informado'}</p>
-          <p className="text-black">Tamanho: {planType ? planType.size : 'Não informado'}</p>
         </div>
       </div>
 

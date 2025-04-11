@@ -387,9 +387,6 @@ export default function Search() {
     }
   }, [city, stateUF, fetchCompanions]);
 
-  useEffect(() => {
-    console.log("Dados do context (companions):", companions);
-  }, [companions]);
 
   return (
     <div className="bg-gray-100 text-gray-800">
@@ -478,9 +475,9 @@ export default function Search() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+         <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-3 gap-4 space-y-4">
           {Array.isArray(companions) && companions.length > 0 ? (
-            companions.map((card, index) => {
+            companions.slice().reverse().map((card, index) => {
               // Verifica se o status do documento e o status do perfil estão aprovados
               if (card.documentStatus !== "APPROVED" || card.profileStatus !== "ACTIVE") {
                 return null;
@@ -497,43 +494,46 @@ export default function Search() {
               } else if (card.plan?.name === "Plano Rubi") {
                 CardComponent = CardRubi;
               } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
-                CardComponent = CardSafiraDark;
-              } else if (card.plan?.name === "Plano Safira") {
                 CardComponent = CardSafira;
+              } else if (card.plan?.name === "Plano Safira") {
+                CardComponent = CardSafiraDark;
               } else if (card.plan?.name === "Plano Pink" && hasDarkMode) {
-                CardComponent = CardPinkDark;
-              } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
-                CardComponent = CardVIPDark;
-              } else if (card.plan?.name === "Plano Vip") {
-                CardComponent = CardVIP;
-              } else if (card.plan?.name === "Plano Pink") {
                 CardComponent = CardPink;
+              } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
+                CardComponent = CardVIP;
+              } else if (card.plan?.name === "Plano Vip") {
+                CardComponent = CardVIPDark;
+              } else if (card.plan?.name === "Plano Pink") {
+                CardComponent = CardPinkDark;
               } else {
                 CardComponent = "CardVIP"; // Usando o CardVIP se não tiver o plano "DarkMode"
               }
 
               return (
-                <Link href={`/perfil/${card.userName}`} key={index} className="h-auto">
-                  <CardComponent
-                    userName={card.userName}
-                    age={card.age}
-                    location={`${card.city}, ${card.state}`}
-                    description={card.description}
-                    images={
-                      card.profileImage
-                        ? [card.profileImage]
-                        : card.media?.length > 0
-                          ? card.media
-                          : ["/default-avatar.jpg"]
-                    }
-                    contact={true}
-                    plan={card.plan}
-                    planType={card.planType}
-                    subscriptions={card.subscriptions}
-                    isAgeHidden={card.isAgeHidden}
-                    timedServiceCompanion={card.timedServiceCompanion}
-                  />
-                </Link>
+                <div key={index} className="break-inside-avoid m-4">
+                  <Link href={`/perfil/${card.userName}`} key={index}>
+                    <CardComponent
+                      userName={card.userName}
+                      age={card.age}
+                      location={`${card.city}, ${card.state}`}
+                      description={card.description}
+                      images={
+                        card.profileImage
+                          ? [card.profileImage]
+                          : card.media?.length > 0
+                            ? card.media
+                            : ["/default-avatar.jpg"]
+                      }
+                      contact={true}
+                      plan={card.plan}
+                      planType={card.planType}
+                      subscriptions={card.subscriptions}
+                      isAgeHidden={card.isAgeHidden}
+                      timedServiceCompanion={card.timedServiceCompanion}
+                      carrouselImages={card.carrouselImages}
+                    />
+                  </Link>
+                </div>
               );
             })
           ) : (

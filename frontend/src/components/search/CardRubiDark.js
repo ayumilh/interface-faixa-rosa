@@ -22,27 +22,36 @@ const defaultServices = [
   'Serviços personalizados',
 ];
 
-const ImageCarousel = ({ images }) => {
+const ImageCarousel = ({ carrouselImages = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
     setCurrentIndex(
-      prevIndex => (prevIndex === 0 ? images.length - 1 : prevIndex - 1)
+      prevIndex => (prevIndex === 0 ? carrouselImages.length - 1 : prevIndex - 1)
     );
   };
 
   const handleNext = () => {
     setCurrentIndex(
-      prevIndex => (prevIndex === images.length - 1 ? 0 : prevIndex + 1)
+      prevIndex => (prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1)
     );
   };
 
+  const handleDivClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className="relative">
-      {images.length > 0 ? (
+    <div className="relative" onClick={handleDivClick}>
+      {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
         <>
           <Image
-            src={images[currentIndex]}
+                        src={
+                          carrouselImages[currentIndex]?.imageUrl
+                            ? carrouselImages[currentIndex].imageUrl
+                            : '/default-image.jpg'
+                        }
             alt={`Imagem ${currentIndex + 1}`}
             layout="responsive"
             width={500}
@@ -50,21 +59,27 @@ const ImageCarousel = ({ images }) => {
             className="rounded-md mb-4"
           />
           <button
-            onClick={handlePrev}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePrev();
+                        }}
             className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-300 bg-black hover:bg-gray-700 rounded-full p-2 shadow-md transition"
             aria-label="Imagem anterior"
           >
             <FaChevronLeft />
           </button>
           <button
-            onClick={handleNext}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNext();
+                        }}
             className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-300 bg-black hover:bg-gray-700 rounded-full p-2 shadow-md transition"
             aria-label="Próxima imagem"
           >
             <FaChevronRight />
           </button>
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {images.map((_, index) => (
+            {carrouselImages.map((_, index) => (
               <span
                 key={index}
                 className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-300' : 'bg-gray-700'
@@ -74,8 +89,8 @@ const ImageCarousel = ({ images }) => {
           </div>
         </>
       ) : (
-        <div className="w-full h-56 bg-gray-800 rounded-md mb-4 flex items-center justify-center text-gray-500">
-          Sem imagem disponível
+        <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
+          Nenhuma imagem disponível
         </div>
       )}
     </div>
@@ -87,6 +102,7 @@ const ModalContato = ({
   images,
   setShowModalNumero,
   phoneNumber = '(00) 00000-0000',
+  carrouselImages = [],
 }) => {
   const [currentIndexModal, setCurrentIndexModal] = useState(0);
 
@@ -121,10 +137,10 @@ const ModalContato = ({
       <div className="bg-black p-6 rounded-lg shadow-lg max-w-md w-full">
         {/* Carrossel de Imagens no Modal */}
         <div className="relative w-full h-64 mb-4 overflow-hidden rounded-lg">
-          {images.length > 0 ? (
+          {carrouselImages.length > 0 ? (
             <>
               <Image
-                src={images[currentIndexModal]}
+                src={carrouselImages[currentIndexModal]}
                 alt={`Foto de ${name}`}
                 layout="fill"
                 objectFit="cover"
@@ -144,7 +160,7 @@ const ModalContato = ({
                 <FaChevronRight />
               </button>
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                {images.map((_, index) => (
+                {carrouselImages.map((_, index) => (
                   <span
                     key={index}
                     className={`w-3 h-3 rounded-full ${index === currentIndexModal
@@ -164,15 +180,21 @@ const ModalContato = ({
 
         {/* Foto de perfil e nome */}
         <div className="flex flex-col items-center mb-4">
-          <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-red-600 via-pink-500 to-red-600 hover:from-pink-600 hover:via-red-500 hover:to-pink-600 shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105">
-            <Image
-              src={images[0] || '/assets/default-profile.png'}
-              alt="Foto de perfil"
-              layout="fill"
-              objectFit="cover"
-            />
-            <FaCheckCircle className="absolute bottom-1 right-1 text-green-500 text-2xl" />
-          </div>
+          {images && images.length > 0 ? (
+            <div className="relative w-24 h-24 rounded-full border-4 border-transparent bg-gradient-to-r from-red-600 via-pink-500 to-red-600 hover:from-pink-600 hover:via-red-500 hover:to-pink-600 shadow-lg overflow-hidden transition-all duration-300 ease-in-out transform hover:scale-105">
+              <Image
+                src={images[0] || '/assets/default-profile.png'}
+                alt="Foto de perfil"
+                layout="fill"
+                objectFit="cover"
+              />
+              <FaCheckCircle className="absolute bottom-1 right-1 text-green-500 text-2xl" />
+            </div>
+          ) : (
+            <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-lg">
+              Sem imagem disponível
+            </div>
+          )}
           <h2 className="text-2xl text-white font-bold mt-2">{name}</h2>
         </div>
 
@@ -232,6 +254,7 @@ const CardRubiDark = ({
   reviews = 0,
   isOnline = false,
   timedServiceCompanion = [],
+  carrouselImages,
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -296,7 +319,7 @@ const CardRubiDark = ({
     <>
       <div className="bg-black border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
         {/* Carrossel de Imagens */}
-        <ImageCarousel images={images} />
+        <ImageCarousel carrouselImages={carrouselImages} />
 
         {/* Nome e Status */}
         <div className="flex justify-between items-center mb-3">
@@ -335,7 +358,21 @@ const CardRubiDark = ({
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute bg-neutral-800 border border-neutral-800 rounded-lg shadow-lg z-10">
+              <div
+                className={`
+                           ${typeof window !== "undefined" && window.innerWidth <= 768
+                    ? "fixed left-4 right-4 top-[42%]"
+                    : "absolute"
+                  }
+                           bg-neutral-800 border border-neutral-800 rounded-lg shadow-lg z-[9999] overflow-y-auto max-h-60
+                         `}
+                style={{
+                  ...(typeof window !== "undefined" && window.innerWidth <= 768
+                    ? { maxWidth: '90%', margin: '0 auto' }
+                    : {}
+                  )
+                }}
+              >
                 {timedServiceCompanion.map((service) =>
                   service.isOffered ? (
                     <div
@@ -445,6 +482,7 @@ const CardRubiDark = ({
           images={images}
           setShowModalNumero={setShowModalNumero}
           phoneNumber={phoneNumber}
+          carrouselImages={carrouselImages}
         />
       )}
     </>

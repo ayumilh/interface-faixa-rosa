@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
-import { FaUpload, FaPlusCircle, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard } from "react-icons/fa";
+import { FaUpload, FaPlusCircle, FaTrash, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard } from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -42,16 +42,15 @@ const ProfileSettings = ({ onUpdate }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const [allowedCarouselImages, setAllowedCarouselImages] = useState(1);
+
   const [profileImage, setProfileImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
   const [documentsValidated, setDocumentsValidated] = useState(false);
   const [startDate, setStartDate] = useState(null); // Data de início do plano
 
   const [carouselImages, setCarouselImages] = useState([]);
-  // Exemplo: defina o plano do usuário. Em uma implementação real, isso viria da API ou do contexto do usuário.
-  const planType = "rubi"; // "rubi", "safira", "pink" ou "vip"
-  const allowedCarouselImages =
-    planType === "rubi" ? 5 : planType === "safira" ? 3 : 1;
+  const [carouselImagesURL, setCarouselImagesURL] = useState([]);
 
   useEffect(() => {
     // Simula o carregamento inicial da página
@@ -127,34 +126,61 @@ const ProfileSettings = ({ onUpdate }) => {
   }, [documentFront, documentBack]);
 
   // Chama a API para obter as imagens
-  useEffect(() => {
-    const fetchMedia = async () => {
-      const userToken = Cookies.get("userToken");
-      try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
-          {
-            headers: { Authorization: `Bearer ${userToken}` },
-          }
-        );
 
-        if (response.status === 200) {
-          const { profileImage, bannerImage, documentsValidated } = response.data.media;
-
-          // Atribuindo as variáveis de estado
-          setProfileImage(profileImage);
-          setBannerImage(bannerImage);
-          setDocumentsValidated(documentsValidated);
-          console.log("Date:", response.data);
-          setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
+  const fetchMedia = useCallback(async () => {
+    const userToken = Cookies.get("userToken");
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
+        {
+          headers: { Authorization: `Bearer ${userToken}` },
         }
-      } catch (error) {
-        console.error('Erro ao buscar mídia do acompanhante:', error);
-      }
-    };
+      );
 
-    fetchMedia();
+      if (response.status === 200) {
+        const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
+        console.log("Dados da mídia:", response.data.media.planName);
+
+        let allowedImages = 1; // padrão
+
+        if (planName.includes("Plano Rubi")) {
+          allowedImages = 5;
+        } else if (planName.includes("Plano Safira")) {
+          allowedImages = 4;
+        } else if (
+          planName.includes("Plano Vip") ||
+          planName.includes("Plano Pink")
+        ) {
+          allowedImages = 1;
+        } else if (
+          planName.includes("Contato") ||
+          planName.includes("Oculto") ||
+          planName.includes("Reviews Públicos") ||
+          planName.includes("Darkmode") ||
+          planName.includes("Plano Nitro")
+        ) {
+          allowedImages = 0;
+        }
+
+        // Atribuindo as variáveis de estado
+        setProfileImage(profileImage);
+        setBannerImage(bannerImage);
+        setDocumentsValidated(documentsValidated);
+        setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
+        setAllowedCarouselImages(Number(allowedImages));
+
+        const orderedImageURLs = response.data.media.carrouselImages
+          .sort((a, b) => a.order - b.order)
+          .map((img) => img.imageUrl);
+        setCarouselImages(orderedImageURLs);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar mídia do acompanhante:', error);
+    }
   }, []);
+  useEffect(() => {
+    fetchMedia();
+  }, [fetchMedia]);
 
   const handleFileUpload = (e, side) => {
     const file = e.target.files[0];
@@ -382,13 +408,106 @@ const ProfileSettings = ({ onUpdate }) => {
   const handleCarouselImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (carouselImages.length >= allowedCarouselImages) {
+
+    // Verifica o total real de imagens (já salvas + novas para envio)
+    const totalSelected = carouselImages.length + carouselImagesURL.length;
+
+    if (totalSelected >= allowedCarouselImages) {
       toast.error(`Limite de ${allowedCarouselImages} imagens atingido para o seu plano.`);
       return;
     }
+
     const imageUrl = URL.createObjectURL(file);
-    setCarouselImages([...carouselImages, imageUrl]);
+    setCarouselImagesURL([...carouselImagesURL, { file, url: imageUrl }]);
   };
+
+  const handleUploadCarouselImages = async () => {
+    if (carouselImagesURL.length === 0) {
+      toast.error("Nenhuma nova imagem selecionada para envio.");
+      return;
+    }
+
+    const formData = new FormData();
+    // Adicionar as imagens ao FormData
+    carouselImagesURL.forEach((imageObj) => {
+      if (imageObj.file) {
+        formData.append("carrouselImages", imageObj.file);
+      }
+    });
+
+    try {
+      const userToken = Cookies.get("userToken");
+
+      // Enviar as imagens para o servidor
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/update`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const { message, limitReached } = response.data;
+      if (response.status === 200 || response.status === 201) {
+        if (limitReached) {
+          toast.info(message || "Limite de imagens atingido.");
+        } else {
+          toast.success(message || "Imagens enviadas com sucesso!");
+        }
+
+        // Limpa os estados mesmo que tenha dado erro de limite
+        setCarouselImages([]);
+        setCarouselImagesURL([]);
+
+        await fetchMedia();
+      } else {
+        toast.error("Erro ao enviar as imagens.");
+      }
+    } catch (error) {
+      console.error("Erro ao enviar as imagens:", error);
+      toast.error("Erro ao enviar as imagens.");
+    }
+  };
+
+  // Função para remover imagem
+  const handleRemoveCarouselImage = async (indexToRemove, isSavedImage = false) => {
+    const userToken = Cookies.get("userToken");
+  
+    if (isSavedImage) {
+      const imageToDelete = carouselImages[indexToRemove];
+  
+      try {
+        const response = await axios.delete(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/delete`,
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+            data: { imageUrl: imageToDelete },
+          }
+        );
+  
+        if (response.status === 200) {
+          toast.success("Imagem removida com sucesso!");
+          await fetchMedia(); // Atualiza os dados após remoção
+        } else {
+          toast.error("Erro ao remover imagem.");
+        }
+      } catch (error) {
+        console.error("Erro ao remover imagem:", error);
+        toast.error("Erro ao remover imagem.");
+      }
+    } else {
+      // Remoção apenas local (pré-visualização antes do envio)
+      setCarouselImagesURL(prevImages =>
+        prevImages.filter((_, index) => index !== indexToRemove)
+      );
+    }
+  };
+
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-50 rounded-lg shadow-lg">
@@ -499,7 +618,6 @@ const ProfileSettings = ({ onUpdate }) => {
         </div>
       </div>
 
-
       {/* Seção de Upload de Documento */}
       <div className="mt-16">
         <h3 className="text-2xl font-semibold mb-6">Verificação de Identidade</h3>
@@ -590,7 +708,6 @@ const ProfileSettings = ({ onUpdate }) => {
           </div>
         )}
       </div>
-
 
       {/* Seção de Stories */}
       <div className="mt-16">
@@ -776,40 +893,99 @@ const ProfileSettings = ({ onUpdate }) => {
       {/* Carrossel do Card de Anúncio */}
       <div className="mt-16">
         <h3 className="text-2xl font-semibold mb-6">Carrossel do Card de Anúncio</h3>
-        <p className="text-sm text-gray-500 mb-4">
-          Você pode adicionar até {allowedCarouselImages} imagem
-          {allowedCarouselImages > 1 ? "ns" : ""} de acordo com seu plano.
-        </p>
-        <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition">
-          <FaPlusCircle className="mx-auto mb-2 text-4xl" />
-          Adicionar Imagem
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleCarouselImageUpload}
-            aria-label="Adicionar imagem para o carrossel"
-          />
-        </label>
-        {carouselImages.length > 0 && (
-          <div className="mt-6 flex space-x-4 overflow-x-auto">
-            {carouselImages.map((img, index) => (
-              <div
-                key={index}
-                className="relative w-32 h-32 rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105"
-              >
-                <Image
-                  src={img}
-                  alt={`Imagem do carrossel ${index + 1}`}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded-lg"
-                />
+
+        {typeof allowedCarouselImages !== "number" || allowedCarouselImages <= 0 ? (
+          <p className="text-sm text-red-500">
+            Seu plano atual não permite adicionar imagens ao carrossel.
+          </p>
+        ) : (
+          <>
+            <p className="text-sm text-gray-500 mb-4">
+              Você pode adicionar até {allowedCarouselImages} imagem
+              {allowedCarouselImages > 1 ? "ns" : ""} de acordo com seu plano.
+            </p>
+
+            {carouselImages.length + carouselImagesURL.length < allowedCarouselImages ? (
+              carouselImages.length === 0 ? (
+                // Primeira imagem: estilo grande com borda tracejada
+                <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition whitespace-nowrap">
+                  <FaPlusCircle className="mx-auto mb-2 text-4xl" />
+                  Adicionar Imagem
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCarouselImageUpload}
+                    aria-label="Adicionar imagem para o carrossel"
+                  />
+                </label>
+              ) : (
+                // Botão pequeno quando já existe imagem
+                <div className="text-start">
+                  <label className="flex max-w-min items-center px-4 py-2 bg-pink-500 text-white text-sm font-medium rounded-md shadow hover:bg-pink-600 transition cursor-pointer whitespace-nowrap">
+                    <FaPlusCircle className="mr-2 text-lg" />
+                    Adicionar Imagem
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleCarouselImageUpload}
+                      aria-label="Adicionar imagem para o carrossel"
+                    />
+                  </label>
+                </div>
+              )
+            ) : (
+              <p className="text-sm text-gray-500 mt-2">Limite de imagens atingido.</p>
+            )}
+
+            {/* Exibe as imagens carregadas */}
+            <div className="mt-6 flex space-x-4 overflow-x-auto">
+              {/* Imagens já salvas no backend */}
+              {carouselImages.map((image, index) => (
+                <div key={`saved-${index}`} className="relative w-32 h-32 rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105">
+                  <Image src={image} alt={`Imagem salva ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
+                  <button
+                    onClick={() => handleRemoveCarouselImage(index, true)}
+                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
+                    title="Remover imagem salva"
+                  >
+                    <FaTrash size={16} />
+                  </button>
+                </div>
+              ))}
+
+
+              {/* Imagens novas (pré-visualização antes de enviar) */}
+              {carouselImagesURL.map((imageObj, index) => (
+                <div key={`preview-${index}`} className="relative w-32 h-32 ...">
+                  <Image src={imageObj.url} alt={`Imagem nova ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
+                  <button
+                    onClick={() => handleRemoveCarouselImage(index, false)}
+                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
+                  >
+                    <FaTrash size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+
+            {/* Botão para enviar as imagens */}
+            {carouselImagesURL.length > 0 && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleUploadCarouselImages}
+                  className="px-6 py-3 bg-pink-600 text-white font-semibold rounded-md hover:bg-pink-700 transition"
+                >
+                  Enviar Imagens
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
+
 
       {/* Modal de Upload */}
       {isModalOpen && (

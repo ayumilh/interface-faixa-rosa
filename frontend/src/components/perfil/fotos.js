@@ -15,7 +15,7 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { usePlan } from "@/context/PlanContext";
 
-export default function Fotos({ userName }) {
+export default function Fotos({ userName, createdAtFormatted }) {
   const [photos, setPhotos] = useState([]);
   const [visiblePhotos, setVisiblePhotos] = useState(4);
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +42,6 @@ export default function Fotos({ userName }) {
       );
 
       const data = response.data;
-      console.log("Feed photos data:", data);
       setPhotos(data);
 
       setCompanionData(companions[0]);
@@ -184,7 +183,7 @@ export default function Fotos({ userName }) {
             <div
               key={photo.id}
               className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
-              onClick={() => openModal(photo)}
+              // onClick={() => openModal(photo)}
             >
               <Image
                 src={photo.mediaUrl}
@@ -204,10 +203,10 @@ export default function Fotos({ userName }) {
                     <FaHeart className="text-red-500" />
                     <span>{photo.likes}</span>
                   </button>
-                  <button className="flex items-center space-x-1 focus:outline-none">
+                  {/* <button className="flex items-center space-x-1 focus:outline-none">
                     <FaComment />
                     <span>{photo.commentsCount}</span>
-                  </button>
+                  </button> */}
                   <button
                     onClick={handleShare}
                     className="flex items-center space-x-1 focus:outline-none"
@@ -333,14 +332,19 @@ export default function Fotos({ userName }) {
 
               {/* Lista de comentários */}
               <div className="mt-4 max-h-32 overflow-y-auto">
-                {selectedPhoto.comments.map((comment, index) => (
-                  <p
-                    key={index}
-                    className="text-gray-700 text-sm mt-2 border-b border-gray-200 pb-2"
-                  >
-                    {comment}
-                  </p>
-                ))}
+                {Array.isArray(selectedPhoto.comments) && selectedPhoto.comments.length > 0 ? (
+                  selectedPhoto.comments.map((comment, index) => (
+                    <p
+                      key={index}
+                      className="text-gray-700 text-sm mt-2 border-b border-gray-200 pb-2"
+                    >
+                      {comment}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">Nenhum comentário ainda.</p>
+                )}
+
               </div>
             </div>
           </div>
@@ -418,7 +422,7 @@ export default function Fotos({ userName }) {
 
 
       {/* Seção de denúncia */}
-      <Denuncia dataCriacao="junho de 2022" />
+      <Denuncia dataCriacao={createdAtFormatted} />
 
     </div>
   );

@@ -29,6 +29,7 @@ const CardSafiraDark = ({
   reviews = 0,
   isOnline = false,
   timedServiceCompanion = [],
+  carrouselImages = [],
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
@@ -98,16 +99,21 @@ const CardSafiraDark = ({
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
+  const handleDivClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation();
+  };
 
   return (
     <>
       <div className="bg-black border border-gray-800 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-2xl">
         {/* Carrossel de Imagens */}
-        <div className="relative">
-          {images.length > 0 ? (
+        <div className="relative" onClick={handleDivClick}>
+          {carrouselImages && carrouselImages.length > 0 ? (
             <>
               <Image
-                src={images[currentIndex]}
+                src={carrouselImages[currentIndex].imageUrl}
                 alt={userName || 'Default Alt Text'}
                 layout="responsive"
                 width={500}
@@ -115,20 +121,26 @@ const CardSafiraDark = ({
                 className="rounded-md mb-3"
               />
               <button
-                onClick={handlePrev}
+                onClick={(e) => {
+                  e.stopPropagation(); // impede o redirecionamento
+                  handlePrev();
+                }}
                 className="absolute top-1/2 left-2 transform -translate-y-1/2 text-white bg-gray-900 hover:bg-gray-800 rounded-full p-2 shadow-md transition"
               >
                 <FaChevronLeft />
               </button>
               <button
-                onClick={handleNext}
+                onClick={(e) => {
+                  e.stopPropagation(); // impede o redirecionamento
+                  handleNext();
+                }}
                 className="absolute top-1/2 right-2 transform -translate-y-1/2 text-white bg-gray-900 hover:bg-gray-800 rounded-full p-2 shadow-md transition"
               >
                 <FaChevronRight />
               </button>
               {/* Bolinhas de Navegação */}
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                {images.map((_, index) => (
+                {carrouselImages.map((_, index) => (
                   <span
                     key={index}
                     className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-gray-600'
@@ -181,7 +193,21 @@ const CardSafiraDark = ({
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute bg-neutral-800 border border-neutral-800 rounded-lg shadow-lg z-10">
+              <div
+                className={`
+                           ${typeof window !== "undefined" && window.innerWidth <= 768
+                    ? "fixed left-4 right-4 top-[42%]"
+                    : "absolute"
+                  }
+                           bg-neutral-800 border border-neutral-800 rounded-lg shadow-lg z-[9999] overflow-y-auto max-h-60
+                         `}
+                style={{
+                  ...(typeof window !== "undefined" && window.innerWidth <= 768
+                    ? { maxWidth: '90%', margin: '0 auto' }
+                    : {}
+                  )
+                }}
+              >
                 {timedServiceCompanion.map((service) =>
                   service.isOffered ? (
                     <div

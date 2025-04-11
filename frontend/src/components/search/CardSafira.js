@@ -27,6 +27,7 @@ const CardSafira = ({
   subscriptions,
   isAgeHidden,
   timedServiceCompanion = [],
+  carrouselImages = []
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
@@ -55,31 +56,28 @@ const CardSafira = ({
     setIsOpen(false); // Fecha o dropdown após a seleção
   };
 
-  const handleClickOutside = (e) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-      setIsOpen(false); // Fecha o dropdown se o clique for fora
-    }
-  };
-
   useEffect(() => {
-    // Adiciona o evento de clique fora quando o componente é montado
-    document.addEventListener('click', handleClickOutside);
-
-    // Limpeza do evento ao desmontar o componente
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false); // apenas fecha o dropdown
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const handlePrev = () => {
     setCurrentIndex(prevIndex =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+      prevIndex === 0 ? carrouselImages.length - 1 : prevIndex - 1
     );
   };
 
   const handleNext = () => {
     setCurrentIndex(prevIndex =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1
     );
   };
 
@@ -100,11 +98,11 @@ const CardSafira = ({
     <>
       <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
         {/* Carrossel de Imagens */}
-        <div className="relative">
-          {images.length > 0 ? (
+        <div className="relative" onClick={(e) => e.stopPropagation()}>
+          {carrouselImages && carrouselImages.length > 0 ? (
             <>
               <Image
-                src={images[currentIndex]}
+                src={carrouselImages[currentIndex].imageUrl}
                 alt={userName || 'Foto do anúncio'}
                 layout="responsive"
                 width={500}
@@ -112,20 +110,26 @@ const CardSafira = ({
                 className="rounded-md mb-4"
               />
               <button
-                onClick={handlePrev}
+                onClick={(e) => {
+                  e.stopPropagation(); // impede o redirecionamento
+                  handlePrev();
+                }}
                 className="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
               >
                 <FaChevronLeft />
               </button>
               <button
-                onClick={handleNext}
+                onClick={(e) => {
+                  e.stopPropagation(); // impede o redirecionamento
+                  handleNext();
+                }}
                 className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
               >
                 <FaChevronRight />
               </button>
               {/* Bolinhas de Navegação */}
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                {images.map((_, index) => (
+                {carrouselImages.map((_, index) => (
                   <span
                     key={index}
                     className={`w-3 h-3 rounded-full ${index === currentIndex
@@ -157,7 +161,7 @@ const CardSafira = ({
 
         {/* seleção de serviço */}
         {timedServiceCompanion.length > 0 && (
-          <div className="relative" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
+          <div className="relative z-50" onClick={e => { e.preventDefault(); }} ref={dropdownRef}>
             {/* Botão do dropdown */}
             <label className="text-sm text-neutral-800 flex items-center font-semibold">
               A partir de:
@@ -176,13 +180,27 @@ const CardSafira = ({
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute bg-pink-50 border border-gray-200 rounded-lg shadow-lg z-10">
+              <div
+                className={`
+                  ${typeof window !== "undefined" && window.innerWidth <= 768
+                    ? "fixed left-4 right-4 top-[42%]"
+                    : "absolute"
+                  }
+                  bg-gray-50 border border-gray-200 rounded-lg shadow-lg z-[9999] overflow-y-auto max-h-60
+                `}
+                style={{
+                  ...(typeof window !== "undefined" && window.innerWidth <= 768
+                    ? { maxWidth: '90%', margin: '0 auto' }
+                    : {}
+                  )
+                }}
+              >
                 {timedServiceCompanion.map((service) =>
                   service.isOffered ? (
                     <div
                       key={service.id}
                       onClick={() => handleSelect(service)}
-                      className="p-3 hover:bg-pink-100 cursor-pointer border-b border-gray-300"
+                      className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-300"
                     >
                       <span className="font-bold text-neutral-700">R$ {service.price || service.TimedService.defaultPrice} <span className='font-semibold text-neutral-700'>- {service.TimedService.name}</span></span>
                     </div>
@@ -284,13 +302,19 @@ const CardSafira = ({
                     objectFit="cover"
                   />
                   <button
-                    onClick={handlePrev}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePrev();
+                    }}
                     className="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
                   >
                     <FaChevronLeft />
                   </button>
                   <button
-                    onClick={handleNext}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNext();
+                    }}
                     className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
                   >
                     <FaChevronRight />

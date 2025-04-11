@@ -25,7 +25,8 @@ const CardVIPDark = ({
   subscriptions,
   isAgeHidden,
   reviews = 0,
-  timedServiceCompanion = []
+  timedServiceCompanion = [],
+  carrouselImages = []
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -86,10 +87,10 @@ const CardVIPDark = ({
   return (
     <>
       <div className="bg-black border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
-        {images && images.length > 0 ? (
+        {carrouselImages && carrouselImages.length > 0 ? (
           <Image
-            src={images[0]}
-            alt={userName || 'Default Alt Text'}
+          src={carrouselImages[0].imageUrl}
+            alt={userName ? `Imagem de ${userName}` : 'Imagem da acompanhante'}
             width={320}
             height={192}
             className="w-full h-48 object-cover rounded-md mb-3"
@@ -130,7 +131,21 @@ const CardVIPDark = ({
 
             {/* Dropdown */}
             {isOpen && (
-              <div className="absolute bg-neutral-800 border border-neutral-800 rounded-lg shadow-lg z-10">
+              <div
+                className={`
+                             ${typeof window !== "undefined" && window.innerWidth <= 768
+                    ? "fixed left-4 right-4 top-[42%]"
+                    : "absolute"
+                  }
+                             bg-neutral-800 border border-neutral-800 rounded-lg shadow-lg z-[9999] overflow-y-auto max-h-60
+                           `}
+                style={{
+                  ...(typeof window !== "undefined" && window.innerWidth <= 768
+                    ? { maxWidth: '90%', margin: '0 auto' }
+                    : {}
+                  )
+                }}
+              >
                 {timedServiceCompanion.map((service) =>
                   service.isOffered ? (
                     <div
@@ -214,27 +229,39 @@ const CardVIPDark = ({
             {/* Carrossel de foto */}
             <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
               <div className="w-full h-48 bg-gray-800 flex-shrink-0">
-                <Image
-                  src={images[0]}
-                  alt={`Foto de ${name}`}
-                  layout="fill"
-                  objectFit="cover"
-                />
+                {carrouselImages && carrouselImages.length > 0 ? (
+                  <Image
+                  src={carrouselImages[0].imageUrl}
+                    alt={`Foto de ${name}`}
+                    layout="fill"
+                    objectFit="cover"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-lg">
+                    Sem imagem disponível
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Imagem de perfil e nome */}
             <div className="flex flex-col items-center mb-4">
-              <div className="relative w-20 h-20 rounded-full border-4 border-yellow-500 shadow-md overflow-hidden">
-                <Image
-                  src="/assets/mulher.png"
-                  alt="Foto de perfil"
-                  layout="fill"
-                  objectFit="cover"
-                />
-                <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
-              </div>
-              <h2 className="text-xl text-yellow-400 font-bold mt-2">{name}</h2>
+              {images && images.length > 0 ? (
+                <div className="relative w-20 h-20 rounded-full border-4 border-yellow-500 shadow-md overflow-hidden">
+                  <Image
+                    src={images[0]}
+                    alt="Foto de perfil"
+                    layout="fill"
+                    objectFit="cover"
+                  />
+                  <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
+                </div>
+              ) : (
+                <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-lg">
+                  Sem imagem disponível
+                </div>
+              )}
+              <h2 className="text-xl text-yellow-400 font-bold mt-2">{userName}</h2>
             </div>
 
             {/* Banner Google simulado */}

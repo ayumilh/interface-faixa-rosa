@@ -43,7 +43,6 @@ export default function Videos({ userName }) {
       );
 
       const data = response.data;
-      console.log("Feed videos data:", data);
       setVideos(data);
 
       setCompanionData(companions[0]);
@@ -189,7 +188,7 @@ export default function Videos({ userName }) {
             <div
               key={video.id}
               className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
-              onClick={() => openModal(video)}
+            // onClick={() => openModal(video)}
             >
               {video.mediaUrl ? (
                 <video
@@ -198,11 +197,8 @@ export default function Videos({ userName }) {
                   muted
                   playsInline
                   preload="metadata"
-                  onClick={() => openModal(video)}
-                >
-                  <track kind="captions" />
-                </video>
-
+                  controls // <- adiciona controles para play/pause
+                />
               ) : (
                 <div className="bg-gray-300 w-full h-[300px] flex items-center justify-center text-gray-500">
                   Sem thumbnail
@@ -238,7 +234,7 @@ export default function Videos({ userName }) {
             {/* Player de vídeo */}
             <div className="w-full md:w-2/3 flex items-center justify-center bg-black">
               <video
-                src={selectedVideo.src}
+                src={videos.mediaUrl}
                 controls
                 className="w-full h-auto max-h-[90vh] object-contain"
               />
@@ -276,7 +272,7 @@ export default function Videos({ userName }) {
                   <FaHeart />
                   <span>{selectedVideo.likes}</span>
                 </button>
-                <button
+                {/* <button
                   onClick={() => {
                     // Função para abrir modal de comentários ou similar
                     alert("Função de comentários ainda não implementada.");
@@ -285,7 +281,7 @@ export default function Videos({ userName }) {
                 >
                   <FaComment />
                   <span>{selectedVideo.commentsCount}</span>
-                </button>
+                </button> */}
                 <button
                   onClick={handleShare}
                   className="flex items-center space-x-1 text-gray-600 focus:outline-none"
@@ -295,7 +291,7 @@ export default function Videos({ userName }) {
               </div>
 
               {/* Campo para adicionar comentário */}
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <input
                   type="text"
                   value={newComment}
@@ -309,19 +305,23 @@ export default function Videos({ userName }) {
                 >
                   Comentar
                 </button>
-              </div>
+              </div> */}
 
               {/* Lista de comentários */}
-              <div className="mt-4 max-h-32 overflow-y-auto">
-                {selectedVideo.comments.map((comment, index) => (
-                  <p
-                    key={index}
-                    className="text-gray-700 text-sm mt-2 border-b border-gray-200 pb-2"
-                  >
-                    {comment}
-                  </p>
-                ))}
-              </div>
+              {/* <div className="mt-4 max-h-32 overflow-y-auto">
+                {Array.isArray(selectedVideo.comments) && selectedVideo.comments.length > 0 ? (
+                  selectedVideo.comments.map((comment, index) => (
+                    <p
+                      key={index}
+                      className="text-gray-700 text-sm mt-2 border-b border-gray-200 pb-2"
+                    >
+                      {comment}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">Nenhum comentário ainda.</p>
+                )}
+              </div> */}
             </div>
           </div>
         </div>

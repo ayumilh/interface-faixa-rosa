@@ -25,7 +25,7 @@ const CardPink = ({
   planType,
   subscriptions,
   isAgeHidden,
-  reviews,
+  totalReviews,
   timedServiceCompanion = [],
   carrouselImages = []
 }) => {
@@ -197,9 +197,9 @@ const CardPink = ({
         {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
           <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-400'} mb-3 flex items-center`}>
             <FaRegComments className="mr-1 text-pink-500" />
-            {reviews > 0 ? (
+            {totalReviews > 0 ? (
               <span className="text-green-500">
-                {reviews} review{reviews !== 1 ? 's' : ''}
+                {totalReviews} review{totalReviews !== 1 ? 's' : ''}
               </span>
             ) : (
               <span className={`${isDarkMode ? 'text-gray-500' : 'text-black-400'}`}>Sem reviews</span>

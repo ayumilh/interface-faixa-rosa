@@ -13,7 +13,19 @@ import {
 import { BsCardText } from 'react-icons/bs';
 import Image from 'next/image';
 
-const CardVIP = ({ userName, location, description, reviews, contact, images, age, subscriptions, isAgeHidden, timedServiceCompanion = [], carrouselImages = [] }) => {
+const CardVIP = ({
+  userName,
+  location,
+  description, 
+  totalReviews, 
+  contact, 
+  images, 
+  age, 
+  subscriptions, 
+  isAgeHidden, 
+  timedServiceCompanion = [], 
+  carrouselImages = []
+}) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
   const handleOpenModal = () => {
@@ -178,8 +190,8 @@ const CardVIP = ({ userName, location, description, reviews, contact, images, ag
         {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
           <p className="text-gray-500 mb-3 flex items-center">
             <FaRegComments className="mr-1 text-yellow-700" />
-            {reviews > 0 ? (
-              <span className="text-green-600">{reviews} review{reviews !== 1 ? 's' : ''}</span>
+            {totalReviews > 0 ? (
+              <span className="text-green-600">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</span>
             ) : (
               'Sem reviews'
             )}

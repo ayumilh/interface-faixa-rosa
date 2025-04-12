@@ -30,6 +30,8 @@ const CardSafiraDark = ({
   isOnline = false,
   timedServiceCompanion = [],
   carrouselImages = [],
+  totalPosts,
+  totalReviews
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
@@ -117,8 +119,8 @@ const CardSafiraDark = ({
                 alt={userName || 'Default Alt Text'}
                 layout="responsive"
                 width={500}
-                height={300}
-                className="rounded-md mb-3"
+                height={350}
+                className="rounded-md mb-3 max-h-[350px] object-cover"
               />
               <button
                 onClick={(e) => {
@@ -245,7 +247,7 @@ const CardSafiraDark = ({
               <div className="flex items-center mt-1">
                 <FaStar className="text-yellow-400 mr-1" />
                 <p className="text-green-500 font-semibold">
-                  {reviews} review{reviews !== 1 ? 's' : ''}
+                {totalReviews} review{totalReviews !== 1 ? 's' : ''}
                 </p>
               </div>
             ) : null}
@@ -273,7 +275,7 @@ const CardSafiraDark = ({
 
             <div className="flex items-center mt-1">
               <FaCamera className="mr-1 text-blue-400" />
-              <p className="text-gray-300">{images.length} fotos ou vídeos</p>
+              <p className="text-gray-300">{totalPosts} fotos ou vídeos</p>
             </div>
 
             <div className="flex items-center mt-1">

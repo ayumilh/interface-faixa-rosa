@@ -387,6 +387,10 @@ export default function Search() {
     }
   }, [city, stateUF, fetchCompanions]);
 
+  useEffect(() => {
+    console.log("Companions:", companions);
+  }, [companions]);
+  
 
   return (
     <div className="bg-gray-100 text-gray-800">
@@ -477,7 +481,7 @@ export default function Search() {
         </div>
          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-3 gap-4 space-y-4">
           {Array.isArray(companions) && companions.length > 0 ? (
-            companions.slice().reverse().map((card, index) => {
+            companions.map((card, index) => {
               // Verifica se o status do documento e o status do perfil estão aprovados
               if (card.documentStatus !== "APPROVED" || card.profileStatus !== "ACTIVE") {
                 return null;
@@ -494,17 +498,17 @@ export default function Search() {
               } else if (card.plan?.name === "Plano Rubi") {
                 CardComponent = CardRubi;
               } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
-                CardComponent = CardSafira;
-              } else if (card.plan?.name === "Plano Safira") {
                 CardComponent = CardSafiraDark;
+              } else if (card.plan?.name === "Plano Safira") {
+                CardComponent = CardSafira;
               } else if (card.plan?.name === "Plano Pink" && hasDarkMode) {
-                CardComponent = CardPink;
-              } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
-                CardComponent = CardVIP;
-              } else if (card.plan?.name === "Plano Vip") {
-                CardComponent = CardVIPDark;
-              } else if (card.plan?.name === "Plano Pink") {
                 CardComponent = CardPinkDark;
+              } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
+                CardComponent = CardVIPDark;
+              } else if (card.plan?.name === "Plano Vip") {
+                CardComponent = CardVIP;
+              } else if (card.plan?.name === "Plano Pink") {
+                CardComponent = CardPink;
               } else {
                 CardComponent = "CardVIP"; // Usando o CardVIP se não tiver o plano "DarkMode"
               }
@@ -531,6 +535,8 @@ export default function Search() {
                       isAgeHidden={card.isAgeHidden}
                       timedServiceCompanion={card.timedServiceCompanion}
                       carrouselImages={card.carrouselImages}
+                      totalPosts={card.totalPosts}
+                      totalReviews={card.totalReviews}
                     />
                   </Link>
                 </div>

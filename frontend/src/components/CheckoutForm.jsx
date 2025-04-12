@@ -278,7 +278,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
         <div>
           <h2 className="font-semibold opacity-90">Metodo de pagamento</h2>
           <div className="flex space-x-4 justify-center my-4">
-            <button
+            {/* <button
               type="button"
               onClick={() => handleSelectMethod("card")}
               className={`flex-1 py-3 border-2 rounded-md text-center ${selectedMethod === "card"
@@ -290,7 +290,7 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
               {selectedMethod === "card" && (
                 <FaRegCheckCircle className="inline-block ml-2 text-green-500" />
               )}
-            </button>
+            </button> */}
             <button
               type="button"
               onClick={() => handleSelectMethod("pix")}

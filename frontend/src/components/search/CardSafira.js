@@ -27,7 +27,9 @@ const CardSafira = ({
   subscriptions,
   isAgeHidden,
   timedServiceCompanion = [],
-  carrouselImages = []
+  carrouselImages = [],
+  totalPosts,
+  totalReviews
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModalNumero, setShowModalNumero] = useState(false);
@@ -232,7 +234,7 @@ const CardSafira = ({
             {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
               <div className="flex items-center mt-2">
                 <FaStar className="text-yellow-400 mr-1" />
-                <p className="text-green-500 font-semibold">2 reviews</p>
+                <p className="text-green-500 font-semibold">{totalReviews} reviews{totalReviews !== 1 ? 's' : ''}</p>
               </div>
             ) : null}
 
@@ -253,7 +255,7 @@ const CardSafira = ({
 
             <div className="flex items-center mt-2">
               <FaCamera className="mr-1 text-blue-500" />
-              <p className="text-gray-700">{images.length} fotos ou vídeos</p>
+              <p className="text-gray-700">{totalPosts} fotos ou vídeos</p>
             </div>
 
             <div className="flex items-center mt-2">

@@ -257,7 +257,9 @@ const CardRubi = ({
   subscriptions,
   isAgeHidden,
   timedServiceCompanion = [],
-  carrouselImages = []
+  carrouselImages = [],
+  totalPosts,
+  totalReviews
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -398,7 +400,7 @@ const CardRubi = ({
           {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
             <div className="flex items-center mt-2">
               <FaStar className="text-yellow-400 mr-1" />
-              <p className="text-green-500 font-semibold">2 reviews</p>
+              <p className="text-green-500 font-semibold">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</p>
             </div>
           ) : null}
 
@@ -426,7 +428,7 @@ const CardRubi = ({
 
           <div className="flex items-center mt-2">
             <FaCamera className="text-red-500 mr-1" />
-            <p className="text-black">{images.length} fotos ou vídeos</p>
+            <p className="text-black">{totalPosts} fotos ou vídeos</p>
           </div>
 
           <div className="flex items-center mt-2">

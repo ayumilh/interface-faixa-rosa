@@ -255,6 +255,8 @@ const CardRubiDark = ({
   isOnline = false,
   timedServiceCompanion = [],
   carrouselImages,
+  totalPosts,
+  totalReviews
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
@@ -410,7 +412,7 @@ const CardRubiDark = ({
               <div className="flex items-center mt-2">
                 <FaStar className="text-yellow-400 mr-1" />
                 <p className="text-green-500 font-semibold">
-                  {reviews} review{reviews !== 1 ? 's' : ''}
+                  {totalReviews} review{totalReviews !== 1 ? 's' : ''}
                 </p>
               </div>
             ) : null}
@@ -439,7 +441,7 @@ const CardRubiDark = ({
             <div className="flex items-center mt-2">
               <FaCamera className="text-red-500 mr-1" />
               <p className="text-white">
-                {images.length || 5} fotos ou vídeos
+                {totalPosts} fotos ou vídeos
               </p>
             </div>
 

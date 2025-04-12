@@ -139,7 +139,6 @@ const ProfileSettings = ({ onUpdate }) => {
 
       if (response.status === 200) {
         const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
-        console.log("Dados da mídia:", response.data.media.planName);
 
         let allowedImages = 1; // padrão
 
@@ -299,7 +298,8 @@ const ProfileSettings = ({ onUpdate }) => {
     formData.append("description", description);
 
     try {
-      const response = await fetch("http://localhost:4000/api/companions/feed/create", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`,
+        {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -344,7 +344,8 @@ const ProfileSettings = ({ onUpdate }) => {
     formData.append("description", videoDescription);
 
     try {
-      const response = await fetch("http://localhost:4000/api/companions/feed/create", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`,
+        {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

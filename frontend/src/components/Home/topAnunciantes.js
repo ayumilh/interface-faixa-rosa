@@ -1,10 +1,12 @@
 "use client";
 import React, { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { MapPin } from "phosphor-react";
 import { usePlan } from "@/context/PlanContext";
 
 export default function TopAnunciantes() {
+  const router = useRouter();
   const scrollRef = useRef(null);
   const isDragging = useRef(false);
 
@@ -87,11 +89,12 @@ export default function TopAnunciantes() {
           ref={scrollRef}
           className="flex overflow-x-auto gap-6 snap-x snap-mandatory px-4 scrollbar-hide cursor-grab active:cursor-grabbing select-none"
         >
-          {companions.slice(0, 10).map((anunciante, index) => (
+          {Array.isArray(companions) && companions.slice(0, 10).map((anunciante, index) => (
             <motion.div
               key={anunciante.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
+              onClick={() => router.push(`/perfil/${anunciante.userName}`)}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               className="relative bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:border-pink-500 transition-all duration-300 flex flex-col items-center text-center min-w-[250px] sm:min-w-[280px] snap-start"
             >

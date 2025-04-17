@@ -202,12 +202,11 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
   return (
     <div className="block lg:hidden bg-gray-100 p-4 rounded-lg shadow-lg mx-2">
       <h2 className="text-xl font-semibold mb-6 text-gray-800 text-center">
-        Métricas e Configurações
+        Configurações de Contato
       </h2>
 
       {/* Cards de Métricas */}
-      <div className="space-y-6">
-        {/* WhatsApp Métricas */}
+      {/* <div className="space-y-6">
         <div className="bg-white rounded-lg p-4 shadow hover:shadow-md transition">
           <h3 className="text-lg font-semibold text-green-500 flex items-center mb-4">
             <FaWhatsapp className="mr-2" /> WhatsApp
@@ -231,7 +230,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
           </div>
         </div>
 
-        {/* Telegram Métricas */}
         <div className="bg-white rounded-lg p-4 shadow hover:shadow-md transition">
           <h3 className="text-lg font-semibold text-blue-500 flex items-center mb-4">
             <FaTelegram className="mr-2" /> Telegram
@@ -255,7 +253,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
           </div>
         </div>
 
-        {/* Visitas no Perfil Métricas */}
         <div className="bg-white rounded-lg p-4 shadow hover:shadow-md transition">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center mb-4">
             <FaUser className="mr-2" /> Visitas ao Perfil
@@ -278,11 +275,10 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Configurações de Contatos */}
       <div className="mt-6">
-        {/* WhatsApp */}
         <div>
           <h3 className="text-lg font-semibold flex items-center text-green-500 mb-2">
             <FaWhatsapp className="mr-2" /> WhatsApp
@@ -293,7 +289,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
           </p>
           <div className="w-full flex gap-2 items-center justify-between mb-2">
             <div className="w-full sm:w-32 lg:w-52 flex items-center justify-between space-x-2">
-              {/* Select de códigos de país */}
               <select
                 value={contactConfig.whatsapp.countryCode}
                 onChange={(e) =>
@@ -316,7 +311,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
             </div>
 
             <div className="w-full flex items-center justify-between space-x-2">
-              {/* Input de número do WhatsApp */}
               <input
                 type="text"
                 placeholder="Número do WhatsApp (com DDD)"

@@ -117,7 +117,7 @@ export default function ModalBusca({ showModalBusca, setShowModalBusca }) {
   };
 
   const fetchCities = async (query) => {
-    if (query.length >= 1) {
+    if (query.length >= 3) {
       setLoading(true);
       try {
         const response = await fetch(

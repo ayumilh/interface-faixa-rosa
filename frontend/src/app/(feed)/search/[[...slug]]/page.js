@@ -95,7 +95,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
 
   // Buscar cidades na API do IBGE
   const fetchCities = useCallback(async (query) => {
-    if (query.length >= 1) {
+    if (query.length >= 3) {
       setLoading(true);
       try {
         const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios`);
@@ -514,7 +514,7 @@ export default function Search() {
               }
 
               return (
-                <div key={index} className="break-inside-avoid m-4">
+                <div key={index} className="break-inside-avoid px-4 pb-6 sm:pb-4">
                   <Link href={`/perfil/${card.userName}`} key={index}>
                     <CardComponent
                       userName={card.userName}

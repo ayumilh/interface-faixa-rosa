@@ -170,12 +170,6 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
             </div>
 
           </div>
-
-          <div className="mt-4 block md:hidden">
-            <button onClick={toggleMostrarMaisCaracteristicas} className="w-full text-center text-pink-500 font-bold hover:text-pink-600">
-              {mostrarMaisCaracteristicas ? "Ver menos ▲" : "Ver mais ▼"}
-            </button>
-          </div>
         </div>
       </div>
     </div>

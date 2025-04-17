@@ -127,9 +127,9 @@ export default function Navbar({ bgColor = "pink" }) {
                 onClick={toggleNotifications}
               >
                 <FaBell className={`w-6 h-6 cursor-pointer ${bgColor === "pink" ? "text-white" : "text-pink-500"}`} />
-                <span className="absolute top-0 right-0 block h-3 w-3 rounded-full bg-blue-500 text-white text-xs text-center">
+                {/* <span className="absolute top-0 right-0 block h-3 w-3 rounded-full bg-blue-500 text-white text-xs text-center">
                   1
-                </span>
+                </span> */}
               </button>
 
               {/* Menu de Notificações */}
@@ -146,8 +146,8 @@ export default function Navbar({ bgColor = "pink" }) {
                   <h3 className="px-4 py-2 text-lg font-semibold text-gray-800 border-b">
                     Notificações
                   </h3>
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-center space-x-3">
+                  <div className="p-4 space-y-3 h-16">
+                    {/* <div className="flex items-center space-x-3">
                       <MdLocationOn className="text-pink-500 w-5 h-5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-800">
@@ -173,7 +173,7 @@ export default function Navbar({ bgColor = "pink" }) {
                         </p>
                         <p className="text-xs text-gray-500">Essa semana</p>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </Transition>

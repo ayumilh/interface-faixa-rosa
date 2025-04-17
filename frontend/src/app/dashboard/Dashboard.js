@@ -113,7 +113,7 @@ const Dashboard = () => {
                   ) : (
                     <span className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
                       {/* Exibe a inicial do nome */}
-                      {user?.companion?.userName?.charAt(0).toUpperCase()}
+                      {user?.userName?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -122,7 +122,7 @@ const Dashboard = () => {
                     className="text-xl font-semibold text-gray-100"
                     style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    {user ? `${user.companion.userName}` : ""}
+                    {user ? `${user.userName}` : ""}
                   </span>
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
                 </div>
@@ -177,7 +177,7 @@ const Dashboard = () => {
                 )}
                 <div className="ml-2">
                   <h2 className="text-lg font-semibold">
-                    {user ? `${user?.companion?.userName}` : "Carregando..."}
+                    {user ? `${user?.userName}` : "Carregando..."}
                   </h2>
                   <p className="text-gray-600">Bem-vindo ao seu painel!</p>
                 </div>

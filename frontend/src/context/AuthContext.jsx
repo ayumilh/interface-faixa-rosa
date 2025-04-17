@@ -34,6 +34,8 @@ export const AuthContextProvider = ({ children }) => {
             );
 
             Cookies.set("userToken", res.data.token, { expires: 1 });
+            Cookies.set("userType", res.data.user.userType, { expires: 1 });
+
 
             if (!res.data.token || !res.data.user) return null;
 
@@ -64,6 +66,7 @@ export const AuthContextProvider = ({ children }) => {
     const logout = () => {
         Cookies.remove("token");
         Cookies.remove("userToken");
+        Cookies.remove("userType");
         setCurrentUser(null);
         setIsAuthenticated(false);
         router.push("/login");
@@ -72,19 +75,19 @@ export const AuthContextProvider = ({ children }) => {
 
     const fetchUserData = useCallback(async () => {
         const tokenId = Cookies.get("userToken");
+        const tipoPerfil = Cookies.get("userType");
 
         if (tokenId) {
             try {
 
                 const res = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info?tipoPerfil=${tipoPerfil}`,
                     {
                         headers: {
                             Authorization: `Bearer ${tokenId}`,
                         },
                     }
                 );
-
                 if (res.data) {
                     setUserInfo(res.data);
 

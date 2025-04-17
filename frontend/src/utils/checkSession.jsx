@@ -2,13 +2,13 @@ import { jwtDecode } from 'jwt-decode';
 import { cookies } from 'next/headers';
 
 const defaultRoutes = {
-  CONTRATANTE: '/userDashboard',
+  CONTRATANTE: '/',
   ACOMPANHANTE: '/dashboard',
   ADMIN: '/adminDashboard',
 };
 
 const routePermissions = {
-  CONTRATANTE: ['/userDashboard'],
+  CONTRATANTE: ['/'],
   ACOMPANHANTE: ['/dashboard'],
   ADMIN: ['/adminDashboard'],
 };
@@ -48,7 +48,7 @@ export const checkSession = async (currentRoute) => {
       return null;
     }
 
-    if (userType === "ACOMPANHANTE" && (currentRoute === "/adminDashboard" || currentRoute === "/userDashboard")) {
+    if (userType === "ACOMPANHANTE" && (currentRoute === "/adminDashboard" || currentRoute === "/")) {
       console.warn(`BLOQUEADO: Acompanhante tentou acessar ${currentRoute}.`);
       return null;
     }
@@ -58,7 +58,7 @@ export const checkSession = async (currentRoute) => {
       return null;
     }
 
-    if (userType === "CONTRATANTE" && currentRoute !== "/userDashboard") {
+    if (userType === "CONTRATANTE" && currentRoute !== "/") {
       return null;
     }
 

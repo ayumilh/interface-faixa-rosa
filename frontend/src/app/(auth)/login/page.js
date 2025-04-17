@@ -56,7 +56,7 @@ export default function AuthPage() {
       } else if (response?.token) {
         const { userType } = response;
         if (userType === "CONTRATANTE") {
-          router.push("/userDashboard");
+          router.push("/");
         } else if (userType === "ACOMPANHANTE") {
           router.push("/dashboard");
         } else if (userType === "ADMIN") {

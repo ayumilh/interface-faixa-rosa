@@ -2,7 +2,6 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaBell } from "react-icons/fa";
-import { MdLocationOn, MdVideoLibrary, MdRateReview } from "react-icons/md";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
 import { searchUserId } from "@/utils/searchUserId";
@@ -77,7 +76,7 @@ export default function Navbar({ bgColor = "pink" }) {
   };
 
   const handleLogoClick = () => {
-    router.push(user?.userType === "CONTRATANTE" ? "/userDashboard" : "/dashboard");
+    router.push(user?.userType === "CONTRATANTE" ? "/" : "/dashboard");
   };
 
   const logoSrc = bgColor === "white" ? "/assets/logofaixa.png" : "/assets/FaixaRosaSombra.png";
@@ -203,7 +202,7 @@ export default function Navbar({ bgColor = "pink" }) {
                   ) : (
                     <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
                       {/* Exibe a inicial do nome */}
-                      {user?.companion?.userName?.charAt(0).toUpperCase()}
+                      {user?.userName?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -224,7 +223,7 @@ export default function Navbar({ bgColor = "pink" }) {
                     {user ? (
                       <>
                         <p className="text-gray-800 font-semibold">
-                          {user.userType === 'ADMIN' ? user.first : user.companion.userName}
+                          {user.userType === 'ADMIN' ? user.first : user.userName}
                         </p>
                         <p className="text-sm text-gray-500">{user.email}</p>
                       </>
@@ -232,13 +231,23 @@ export default function Navbar({ bgColor = "pink" }) {
                       <p className="text-gray-500">Carregando usuário...</p>
                     )}
                   </div>
-                  <Link href="/dashboard" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
-                    Dashboard
-                  </Link>
+                  {user?.userType === 'ACOMPANHANTE' && (
+                    <>
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
+                      >
+                        Dashboard
+                      </Link>
 
-                  <Link href={`/perfil/${user?.companion?.userName || ''}`} className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
-                    Perfil
-                  </Link>
+                      <Link
+                        href={`/perfil/${user?.userName || ''}`}
+                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
+                      >
+                        Perfil
+                      </Link>
+                    </>
+                  )}
                   {/* <Link href="/settings" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                     Configurações
                   </Link> */}

@@ -111,7 +111,7 @@ const CardSafiraDark = ({
     <>
       <div className="bg-black border border-gray-800 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-2xl">
         {/* Carrossel de Imagens */}
-        <div className="relative" onClick={handleDivClick}>
+        <div className="relative">
           {carrouselImages && carrouselImages.length > 0 ? (
             <>
               <Image
@@ -124,7 +124,9 @@ const CardSafiraDark = ({
               />
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // impede o redirecionamento
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent?.stopImmediatePropagation();
                   handlePrev();
                 }}
                 className="absolute top-1/2 left-2 transform -translate-y-1/2 text-white bg-gray-900 hover:bg-gray-800 rounded-full p-2 shadow-md transition"
@@ -133,7 +135,9 @@ const CardSafiraDark = ({
               </button>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // impede o redirecionamento
+                  e.preventDefault();
+                  e.stopPropagation(); 
+                  e.nativeEvent?.stopImmediatePropagation();
                   handleNext();
                 }}
                 className="absolute top-1/2 right-2 transform -translate-y-1/2 text-white bg-gray-900 hover:bg-gray-800 rounded-full p-2 shadow-md transition"

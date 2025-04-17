@@ -37,21 +37,17 @@ const ImageCarousel = ({ carrouselImages = [] }) => {
     );
   };
 
-  const handleDivClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
 
   return (
-    <div className="relative" onClick={handleDivClick}>
+    <div className="relative">
       {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
         <>
           <Image
-                        src={
-                          carrouselImages[currentIndex]?.imageUrl
-                            ? carrouselImages[currentIndex].imageUrl
-                            : '/default-image.jpg'
-                        }
+            src={
+              carrouselImages[currentIndex]?.imageUrl
+                ? carrouselImages[currentIndex].imageUrl
+                : '/default-image.jpg'
+            }
             alt={`Imagem ${currentIndex + 1}`}
             layout="responsive"
             width={500}
@@ -59,20 +55,24 @@ const ImageCarousel = ({ carrouselImages = [] }) => {
             className="rounded-md mb-4"
           />
           <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePrev();
-                        }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
+              handlePrev();
+            }}
             className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-300 bg-black hover:bg-gray-700 rounded-full p-2 shadow-md transition"
             aria-label="Imagem anterior"
           >
             <FaChevronLeft />
           </button>
           <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNext();
-                        }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
+              handleNext();
+            }}
             className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-300 bg-black hover:bg-gray-700 rounded-full p-2 shadow-md transition"
             aria-label="Próxima imagem"
           >

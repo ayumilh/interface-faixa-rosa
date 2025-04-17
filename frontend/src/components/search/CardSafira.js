@@ -64,7 +64,7 @@ const CardSafira = ({
         setIsOpen(false); // apenas fecha o dropdown
       }
     };
-  
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -100,7 +100,7 @@ const CardSafira = ({
     <>
       <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
         {/* Carrossel de Imagens */}
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
+        <div className="relative">
           {carrouselImages && carrouselImages.length > 0 ? (
             <>
               <Image
@@ -113,7 +113,9 @@ const CardSafira = ({
               />
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // impede o redirecionamento
+                  e.stopPropagation();
+                  e.preventDefault();
+                  e.nativeEvent?.stopImmediatePropagation();
                   handlePrev();
                 }}
                 className="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
@@ -122,7 +124,9 @@ const CardSafira = ({
               </button>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // impede o redirecionamento
+                  e.stopPropagation();
+                  e.preventDefault();
+                  e.nativeEvent?.stopImmediatePropagation();
                   handleNext();
                 }}
                 className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"

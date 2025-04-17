@@ -28,7 +28,7 @@ const ImageCarousel = ({ carrouselImages }) => {
   };
 
   return (
-    <div className="relative" onClick={(e) => e.stopPropagation()}>
+    <div className="relative">
       {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
         <>
           <Image
@@ -46,7 +46,9 @@ const ImageCarousel = ({ carrouselImages }) => {
 
           <button
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
               handlePrev();
             }}
             className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
@@ -56,7 +58,9 @@ const ImageCarousel = ({ carrouselImages }) => {
           </button>
           <button
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
               handleNext();
             }}
             className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"

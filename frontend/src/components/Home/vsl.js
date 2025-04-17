@@ -71,6 +71,7 @@ export default function VideoSection() {
           muted
           loop
           playsInline
+          preload="metadata"
           className="w-full h-full object-cover"
         >
           Seu navegador não suporta o elemento de vídeo.

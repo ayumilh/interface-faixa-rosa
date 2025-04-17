@@ -16,7 +16,7 @@ import axios from "axios";
 const MetricsMobile = ({ userName, userCity, userState }) => {
   const [contactConfig, setContactConfig] = useState({
     whatsapp: { number: "", message: "", countryCode: '+55' },
-    telegram: { username: "", message: "" },
+    telegram: { username: ""},
     phone: { number: "", countryCode: '+55' },
   });
 
@@ -80,7 +80,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
           }
         );
         const { contact } = response.data;
-        console.log("Dados de contato:", contact);
 
         // Remover os dois primeiros números de contact.phoneNumber
         const phoneNumberWithoutPrefix = contact.phoneNumber ? contact.phoneNumber.slice(2) : "";
@@ -96,7 +95,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
           },
           telegram: {
             username: contact.telegramUsername || "",
-            message: contact.telegramMessage || "",
           },
           phone: {
             number: phoneNumberWithoutPrefix,
@@ -175,7 +173,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
       whatsappMessage: contactConfig.whatsapp.message,
       whatsappCountryCode: contactConfig.whatsapp.countryCode,
       telegramUsername: contactConfig.telegram.username,
-      telegramMessage: contactConfig.telegram.message,
       phoneNumber: formatPhoneBackend(phoneNumberWithCountry), // Limpa antes de enviar
       phoneCountryCode: contactConfig.phone.countryCode,
     };
@@ -336,10 +333,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
           <h3 className="text-lg font-semibold flex items-center text-blue-500 mb-2">
             <FaTelegram className="mr-2" /> Telegram
           </h3>
-          <p className="text-sm text-gray-600 italic mb-2">
-            <strong>Mensagem fixa:</strong> Olá, {userName}! Encontrei seu
-            anúncio no Faixa Rosa em {userCity}-{userState}.
-          </p>
           <input
             type="text"
             placeholder="Usuário do Telegram"
@@ -348,13 +341,6 @@ const MetricsMobile = ({ userName, userCity, userState }) => {
             onChange={(e) => handleConfigChange(e, "telegram", "username")}
             className="w-full mb-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <textarea
-            placeholder="Mensagem personalizada"
-            value={contactConfig.telegram.message}
-            maxLength={200}
-            onChange={(e) => handleConfigChange(e, "telegram", "message")}
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></textarea>
         </div>
 
         {/* Telefone */}

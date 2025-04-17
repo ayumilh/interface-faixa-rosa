@@ -51,19 +51,11 @@ export default function Rodape() {
             <a href="https://www.instagram.com/faixa.rosa.br?igsh=cmdhcTVkM3FyZjNp" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200">
               <FaInstagram size={20} />
             </a>
-            <a href="https://www.tiktok.com/@faixa.rosa.br?_t=8lAQyHcuUKs&_r=1" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200">
-              <SiTiktok size={20} />
-            </a>
+
             <a href="https://youtube.com/@faixa.rosa.br.?si=QU2dXkgl1e3rkYn6" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200">
               <SiYoutube size={20} />
             </a>
-            <a href="https://x.com/faixarosabr10?s=21" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200">
-              <FaTwitter size={20} />
-            </a>
-            <a href="https://t.me/+NPqKr1BHnoYyZWNh" target="_blank" rel="noopener noreferrer" aria-label="Telegram" className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200">
-              <FaTelegramPlane size={20} />
-            </a>
-            <a href="https://chat.whatsapp.com/JhN54ArwFFy73rjnXWwxUv" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200">
+            <a href="https://chat.whatsapp.com/FR0R57IxlTjFQjzOkGQD6B" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200">
               <FaWhatsapp size={20} />
             </a>
           </div>
@@ -86,12 +78,12 @@ export default function Rodape() {
           <h2 className="text-2xl font-semibold text-white">Suporte e Informações</h2>
           <ul className="space-y-2 text-sm">
             <li>
-            <button
-  onClick={() => setShowFAQ(true)}
-  className="bg-clip-text text-transparent bg-gradient-to-r from-[#ff007f] via-[#ff66cc] to-[#8000ff] animate-pulse font-semibold hover:underline"
->
-  Perguntas Frequentes
-</button>
+              <button
+                onClick={() => setShowFAQ(true)}
+                className="bg-clip-text text-transparent bg-gradient-to-r from-[#ff007f] via-[#ff66cc] to-[#8000ff] animate-pulse font-semibold hover:underline"
+              >
+                Perguntas Frequentes
+              </button>
             </li>
             <li>
               <Link href="/termos" className="hover:underline text-gray-300">Termos de Uso</Link>

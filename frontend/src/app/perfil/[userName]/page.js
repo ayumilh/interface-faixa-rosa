@@ -367,18 +367,43 @@ export default function Perfil() {
     }
   };
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Confira meu perfil!',
+        text: 'Veja esse conteúdo no Faixa Rosa!',
+        url: window.location.href, // ou qualquer URL personalizada
+      })
+        .then(() => console.log('Compartilhado com sucesso'))
+        .catch((error) => console.error('Erro ao compartilhar:', error));
+    } else {
+      alert("Compartilhamento não suportado neste navegador.");
+    }
+  };
+
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
   const handleWhatsAppClick = () => {
-    const whatsappNumber = companionData.contactMethods[0]?.whatsappNumber;
-    if (whatsappNumber) {
-      // Formato da URL do WhatsApp
-      const whatsappUrl = `https://wa.me/${whatsappNumber}`;
-      window.open(whatsappUrl, "_blank"); // Abre o WhatsApp em uma nova aba
+    const contact = companionData?.contactMethods?.[0];
+
+    if (!contact || !contact.whatsappNumber) {
+      toast.info("Número do WhatsApp não disponível.");
+      return;
     }
+
+    const numero = contact.whatsappNumber;
+    const apelido = companionData?.firstName || companionData?.userName || "atendente";
+    const username = companionData?.userName || "";
+    const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://www.faixarosa.com/perfil/${username}`;
+    const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+
+    window.open(link, "_blank"); // Abre o WhatsApp em uma nova aba
   };
+
 
   const handleCall = () => {
     // Supondo que o número de telefone esteja armazenado em `companionData.phoneNumber`
@@ -425,6 +450,8 @@ export default function Perfil() {
       </div>
     );
   }
+
+  console.log(companionData);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f9fc', marginTop: '60px' }}>
@@ -507,7 +534,7 @@ export default function Perfil() {
       )}
 
       {/* Modal de número */}
-      {showModalNumero && (
+      {/* {showModalNumero && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 text-black" // Fonte preta no modal de número
           onClick={(e) => {
@@ -517,7 +544,6 @@ export default function Perfil() {
           }}
         >
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
-            {/* Botão de Fechar */}
             <button
               className="absolute top-0 right-2 mt-1 mr-1 text-4xl text-gray-500 hover:text-gray-700"
               onClick={() => setShowModalNumero(false)}
@@ -525,14 +551,12 @@ export default function Perfil() {
               &times;
             </button>
 
-            {/* Carrossel de fotos */}
             <div className="relative w-full h-48 mb-4 mt-4 overflow-hidden rounded-lg">
               <div className="flex transition-transform transform">
-                {/* Imagens do carrossel */}
                 {companionData && companionData.bannerImage && (
                   <div className="w-full h-48 bg-gray-200 flex-shrink-0 mb-4">
                     <Image
-                      src={companionData.bannerImage} // Usando a URL do banner retornada da API
+                      src={companionData.bannerImage} 
                       alt="Banner do perfil"
                       width={1200}
                       height={300}
@@ -541,7 +565,7 @@ export default function Perfil() {
                   </div>
                 )}
 
-                {/* {companionData.media.map((mediaItem, index) => (
+                {companionData.media.map((mediaItem, index) => (
                   <div key={index} className="w-full h-48 bg-gray-200 flex-shrink-0">
                     <Image
                       src={mediaItem.url} // Usando a URL da mídia retornada da API
@@ -550,10 +574,9 @@ export default function Perfil() {
                       objectFit="cover"
                     />
                   </div>
-                ))} */}
+                ))}
               </div>
 
-              {/* Setas para navegação */}
               <button
                 className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow hover:bg-gray-200"
               >
@@ -565,15 +588,15 @@ export default function Perfil() {
                 &gt;
               </button>
 
-              {/* Bolinhas indicadoras */}
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                {companionData?.bannerImage?.map((_, index) => (
-                  <div key={index} className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                ))}
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  {Array.isArray(companionData?.bannerImages) && companionData.bannerImages.map((_, index) => (
+                    <div key={index} className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Imagem de perfil e nome */}
             <div className="flex flex-col items-center mb-4">
               <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
                 {companionData && companionData.profileImage && (
@@ -592,28 +615,25 @@ export default function Perfil() {
               <h2 className="text-xl text-black font-bold mt-2">{companionData.userName}</h2>
             </div>
 
-            {/* Banner Google simulado */}
             <div className="bg-purple-200 p-2 rounded-md mb-4">
               <p className="text-center text-gray-600 font-semibold">Banner GOOGLE</p>
             </div>
 
-            {/* Informações de telefone com ícone de copiar */}
             <div className="bg-purple-100 p-4 rounded-md mb-4 shadow-inner flex items-center justify-between">
               <div>
                 <p className="font-semibold text-gray-800">Telefone:</p>
-                <p className="text-lg text-gray-900">{companionData.phoneNumber}</p> {/* Exibindo o número */}
+                <p className="text-lg text-gray-900">{companionData.phoneNumber}</p> 
               </div>
               <button
-                onClick={handleCopy} // Chama a função handleCopy ao clicar
+                onClick={handleCopy}
                 className="text-gray-700 hover:text-gray-900"
               >
                 <FaRegCopy
-                  className={`text-xl ${copySuccess ? "text-green-500" : ""}`} // Altera a cor do ícone após copiar
+                  className={`text-xl ${copySuccess ? "text-green-500" : ""}`}
                 />
               </button>
             </div>
 
-            {/* Botões de ação */}
             <div className="flex justify-around mt-4 space-x-3">
               <button onClick={handleWhatsAppClick} className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105">
                 <FaWhatsapp />
@@ -629,10 +649,9 @@ export default function Perfil() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Seção de perfil com banner, informações e conteúdo da aba selecionada */}
-      {/* Adicionando um container para centralizar no desktop */}
       <div className="flex-grow">
         <div className="container mx-auto px-4 lg:px-0">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -733,7 +752,6 @@ export default function Perfil() {
                       )}
                     </p>
                   </div>
-
                 </div>
 
                 {/* Informações adicionais: Estatísticas Inspiradas no Instagram */}
@@ -756,7 +774,7 @@ export default function Perfil() {
               <div className="mt-4 px-4 md:px-6 flex flex-wrap items-center justify-center md:justify-start space-x-2">
                 {/* Botões de ação */}
                 <button
-                  onClick={() => setShowModalNumero(true)}
+                  onClick={handleWhatsAppClick}
                   className="w-full md:w-auto p-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out flex items-center justify-center space-x-2 mb-2 md:mb-0"
                 >
                   <FaWhatsapp className="text-lg" />
@@ -766,17 +784,17 @@ export default function Perfil() {
 
                 {/* Outros Botões */}
                 <button
-                  onClick={() => setShowModalNumero(true)}
+                  onClick={handleTelegramRedirect}
                   className="p-2 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 mb-2 md:mb-0"
                 >
                   <FaTelegram />
                 </button>
-                <button className="p-2 bg-pink-500 text-white rounded-full shadow-md hover:bg-pink-600 mb-2 md:mb-0">
+                <button onClick={handleShare} className="p-2 bg-pink-500 text-white rounded-full shadow-md hover:bg-pink-600 mb-2 md:mb-0">
                   <FaShareAlt />
                 </button>
-                <button className="p-2 bg-gray-400 text-white rounded-full shadow-md hover:bg-gray-500 mb-2 md:mb-0">
+                {/* <button className="p-2 bg-gray-400 text-white rounded-full shadow-md hover:bg-gray-500 mb-2 md:mb-0">
                   <FaEllipsisH />
-                </button>
+                </button> */}
               </div>
 
               {/* Abas de navegação ajustadas para mobile */}

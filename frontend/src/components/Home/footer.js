@@ -59,15 +59,6 @@ export default function Rodape() {
               <FaInstagram size={20} />
             </a>
             <a
-              href="https://www.tiktok.com/@faixa.rosa.br?_t=8lAQyHcuUKs&_r=1"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="TikTok"
-              className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200"
-            >
-              <SiTiktok size={20} />
-            </a>
-            <a
               href="https://youtube.com/@faixa.rosa.br.?si=QU2dXkgl1e3rkYn6"
               target="_blank"
               rel="noopener noreferrer"
@@ -77,25 +68,7 @@ export default function Rodape() {
               <SiYoutube size={20} />
             </a>
             <a
-              href="https://x.com/faixarosabr10?s=21"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Twitter"
-              className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200"
-            >
-              <FaTwitter size={20} />
-            </a>
-            <a
-              href="https://t.me/+NPqKr1BHnoYyZWNh"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Telegram"
-              className="bg-pink-500 p-2 rounded-full text-white hover:bg-pink-600 transition duration-200"
-            >
-              <FaTelegramPlane size={20} />
-            </a>
-            <a
-              href="https://chat.whatsapp.com/JhN54ArwFFy73rjnXWwxUv"
+              href="https://chat.whatsapp.com/FR0R57IxlTjFQjzOkGQD6B"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="WhatsApp"

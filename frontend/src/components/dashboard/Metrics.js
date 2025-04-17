@@ -15,9 +15,10 @@ import Image from "next/image";
 const Metrics = ({ userName, userCity, userState }) => {
   const [contactConfig, setContactConfig] = useState({
     whatsapp: { number: "", message: "", countryCode: '+55' },
-    telegram: { username: "", message: "" },
+    telegram: { username: "" },
     phone: { number: "", countryCode: '+55' },
   });
+  
 
   const countryCodes = [
     { code: '+55', country: 'Brasil' },
@@ -96,7 +97,6 @@ const Metrics = ({ userName, userCity, userState }) => {
           },
           telegram: {
             username: contact.telegramUsername || "",
-            message: contact.telegramMessage || "",
           },
           phone: {
             number: phoneNumberWithoutPrefix,
@@ -156,7 +156,6 @@ const Metrics = ({ userName, userCity, userState }) => {
       whatsappMessage: contactConfig.whatsapp.message,
       whatsappCountryCode: contactConfig.whatsapp.countryCode,
       telegramUsername: contactConfig.telegram.username,
-      telegramMessage: contactConfig.telegram.message,
       phoneNumber: formatPhoneBackend(phoneNumberWithCountry), // Limpa antes de enviar
       phoneCountryCode: contactConfig.phone.countryCode,
     };
@@ -200,12 +199,12 @@ const Metrics = ({ userName, userCity, userState }) => {
       </h2>
 
       {/* Gráfico Responsivo para Desktop */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <Charts className="w-full h-[450px]" />
-      </div>
+      </div> */}
 
-      {/* Inputs organizados em colunas */}
-      <div className="grid grid-cols-2 gap-8">
+      {/* Inputs organizados em uma coluna */}
+      <div className="flex flex-col gap-8">
         {/* WhatsApp */}
         <div>
           <h3 className="text-lg font-semibold flex items-center text-green-500 mb-2">
@@ -215,41 +214,37 @@ const Metrics = ({ userName, userCity, userState }) => {
             <strong>Mensagem fixa:</strong> Olá, {userName}! Encontrei seu
             anúncio no Faixa Rosa em {userCity}-{userState}.
           </p>
-          <div className="w-full flex gap-2 items-center justify-between mb-2">
-            <div className="w-full sm:w-32 lg:w-52 flex items-center justify-between space-x-2">
-              {/* Select de códigos de país */}
-              <select
-                value={contactConfig.whatsapp.countryCode}
-                onChange={(e) =>
-                  setContactConfig((prevConfig) => ({
-                    ...prevConfig,
-                    whatsapp: {
-                      ...prevConfig.whatsapp,
-                      countryCode: e.target.value,
-                    },
-                  }))
-                }
-                className="p-2 border h-10 w-full sm:max-w-xs lg:max-w-md border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                {countryCodes.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {country.code} - {country.country}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-2 mb-2">
+            {/* Select de códigos de país */}
+            <select
+              value={contactConfig.whatsapp.countryCode}
+              onChange={(e) =>
+                setContactConfig((prevConfig) => ({
+                  ...prevConfig,
+                  whatsapp: {
+                    ...prevConfig.whatsapp,
+                    countryCode: e.target.value,
+                  },
+                }))
+              }
+              className="p-2 border h-10 sm:max-w-[200px] border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {countryCodes.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.code} - {country.country}
+                </option>
+              ))}
+            </select>
 
-            <div className="w-full flex items-center justify-between space-x-2">
-              {/* Input de número do WhatsApp */}
-              <input
-                type="text"
-                placeholder="Número do WhatsApp (com DDD)"
-                value={contactConfig.whatsapp.number ? formatPhoneDisplay(contactConfig.whatsapp.number) : ""}
-                maxLength={15}
-                onChange={(e) => handleConfigChange(e, "whatsapp", "number")}
-                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
+            {/* Input de número do WhatsApp */}
+            <input
+              type="text"
+              placeholder="Número do WhatsApp (com DDD)"
+              value={contactConfig.whatsapp.number ? formatPhoneDisplay(contactConfig.whatsapp.number) : ""}
+              maxLength={15}
+              onChange={(e) => handleConfigChange(e, "whatsapp", "number")}
+              className="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
           </div>
           <textarea
             placeholder="Mensagem personalizada"
@@ -265,38 +260,27 @@ const Metrics = ({ userName, userCity, userState }) => {
           <h3 className="text-lg font-semibold flex items-center text-blue-500 mb-2">
             <FaTelegram className="mr-2" /> Telegram
           </h3>
-          <p className="text-sm text-gray-600 italic mb-2">
-            <strong>Mensagem fixa:</strong> Olá, {userName}! Encontrei seu
-            anúncio no Faixa Rosa em {userCity}-{userState}.
-          </p>
           <input
             type="text"
             placeholder="Usuário do Telegram"
             maxLength={50}
             value={contactConfig.telegram.username}
             onChange={(e) => handleConfigChange(e, "telegram", "username")}
-            className="w-full mb-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <textarea
-            placeholder="Mensagem personalizada"
-            value={contactConfig.telegram.message}
-            maxLength={200}
-            onChange={(e) => handleConfigChange(e, "telegram", "message")}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          ></textarea>
+          />
         </div>
 
         {/* Telefone */}
-        <div className="col-span-2">
+        <div>
           <h3 className="text-lg font-semibold flex items-center text-gray-800 mb-2">
             <FaPhoneAlt className="mr-2" /> Telefone
           </h3>
-          <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             {/* Select de códigos de país */}
             <select
               value={contactConfig.phone.countryCode}
               onChange={handleCountryCodeChange}
-              className="p-2 h-10 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="p-2 h-10 sm:max-w-[200px] border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               {countryCodes.map((country) => (
                 <option key={country.code} value={country.code}>
@@ -304,17 +288,20 @@ const Metrics = ({ userName, userCity, userState }) => {
                 </option>
               ))}
             </select>
+
+            {/* Input de telefone */}
             <input
               type="text"
               placeholder="Número de telefone (com DDD)"
               value={contactConfig.phone.number ? formatPhoneDisplay(contactConfig.phone.number) : ""}
               maxLength={15}
               onChange={(e) => handleConfigChange(e, "phone", "number")}
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-500"
             />
           </div>
         </div>
       </div>
+
 
       {/* Botão de Salvar */}
       <div className="mt-8">

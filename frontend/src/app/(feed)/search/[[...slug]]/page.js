@@ -297,21 +297,17 @@ ModalBusca.propTypes = {
 
 export default function Search() {
   const params = useParams();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   let slugString = "";
   if (params.slug) {
     slugString = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
   }
 
-  const [loadingSearch, setLoadingSearch] = useState(true);
   const [city, setCity] = useState("");
   const [stateUF, setStateUF] = useState("");
   const [category, setCategory] = useState("mulher");
   const [showModalBusca, setShowModalBusca] = useState(false);
   const [showModalFiltro, setShowModalFiltro] = useState(false);
-  const [cards, setCards] = useState([]);
 
   const { companions, fetchCompanions, loading } = usePlan();
 
@@ -322,30 +318,6 @@ export default function Search() {
     { label: "Trans", value: "travesti" },
   ];
 
-  // Capturar parâmetros da URL
-  // useEffect(() => {
-  //   const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
-  //   if (slugString) {
-  //     const match = slugString.match(regex);
-  //     if (match) {
-  //       const base = match[1];
-  //       const citySlug = match[2];
-  //       const uf = match[3];
-  //       const cityName = decodeURIComponent(citySlug).replace(/-/g, " ");
-  //       setCity(cityName);
-  //       setStateUF(uf.toUpperCase());
-  //       if (base === "acompanhantes") {
-  //         setCategory("mulher");
-  //       } else if (base === "garotos-de-programa") {
-  //         setCategory("homem");
-  //       } else if (base === "travestis-transex-transgenero") {
-  //         setCategory("travesti");
-  //       }
-  //     } else {
-  //       console.error("Formato do slug inválido:", slugString);
-  //     }
-  //   }
-  // }, [slugString]);
 
   useEffect(() => {
     const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
@@ -366,28 +338,11 @@ export default function Search() {
     }
   }, [slugString, fetchCompanions]);
 
-  // Capturar os dados de acompanhantes da API via query string
-  // useEffect(() => {
-  //   const resultsParam = searchParams.get("results");
-  //   if (resultsParam) {
-  //     try {
-  //       const results = JSON.parse(resultsParam);
-  //       console.log("Resultados da API:", results);
-  //       setCards(results);
-  //     } catch (error) {
-  //       console.error("Erro ao processar os resultados da API:", error);
-  //     } finally {
-  //       setLoadingSearch(false);
-  //     }
-  //   }
-  // }, [searchParams]);
-
   useEffect(() => {
     if (city && stateUF) {
       fetchCompanions({ cidade: city, estado: stateUF });
     }
   }, [city, stateUF, fetchCompanions]);
-
 
   return (
     <div className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
@@ -526,7 +481,7 @@ export default function Search() {
                               ? card.media
                               : ["/default-avatar.jpg"]
                         }
-                        contact={true}
+                        contact={card.contactMethods?.[0]}
                         plan={card.plan}
                         planType={card.planType}
                         subscriptions={card.subscriptions}

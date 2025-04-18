@@ -13,14 +13,8 @@ import {
   FaPhone,
   FaChevronDown
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import Image from 'next/image';
-
-const defaultServices = [
-  'Massagem relaxante',
-  'Atendimento VIP',
-  'Acompanhamento para eventos',
-  'Serviços personalizados',
-];
 
 const ImageCarousel = ({ carrouselImages = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -256,7 +250,6 @@ const CardRubiDark = ({
   planType,
   subscriptions,
   isAgeHidden,
-  reviews = 0,
   isOnline = false,
   timedServiceCompanion = [],
   carrouselImages,
@@ -321,6 +314,22 @@ const CardRubiDark = ({
       document.removeEventListener('click', handleClickOutside);
     };
   }, []);
+
+    const handleWhatsAppClick = () => {
+      if (!contact || !contact.whatsappNumber) {
+        toast.info("Número do WhatsApp não disponível.");
+        return;
+      }
+    
+      const numero = contact.whatsappNumber;
+      const apelido = userName || "atendente";
+      const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+      const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
+      const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+      const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+    
+      window.open(link, "_blank");
+    };
 
   return (
     <>
@@ -474,7 +483,12 @@ const CardRubiDark = ({
         {contact && hasExtraContact && (
           <button
             className="mt-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"
-            onClick={handleOpenModal}
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
+              handleWhatsAppClick();
+            }}
             aria-label="Ver contato"
           >
             <FaWhatsapp className="mr-2" /> Ver contato

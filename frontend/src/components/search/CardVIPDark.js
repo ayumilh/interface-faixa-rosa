@@ -11,6 +11,7 @@ import {
   FaChevronDown
 } from 'react-icons/fa';
 import { BsCardText } from 'react-icons/bs';
+import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 const CardVIPDark = ({
@@ -83,12 +84,28 @@ const CardVIPDark = ({
     };
   }, []);
 
+  const handleWhatsAppClick = () => {
+    if (!contact || !contact.whatsappNumber) {
+      toast.info("Número do WhatsApp não disponível.");
+      return;
+    }
+
+    const numero = contact.whatsappNumber;
+    const apelido = userName || "atendente";
+    const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
+    const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+
+    window.open(link, "_blank");
+  };
+
   return (
     <>
       <div className="bg-black border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
         {carrouselImages && carrouselImages.length > 0 ? (
           <Image
-          src={carrouselImages[0].imageUrl}
+            src={carrouselImages[0].imageUrl}
             alt={userName ? `Imagem de ${userName}` : 'Imagem da acompanhante'}
             width={320}
             height={192}
@@ -211,7 +228,12 @@ const CardVIPDark = ({
         {contact && hasExtraContact && (
           <button
             className="mt-2 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
-            onClick={handleOpenModal}
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
+              handleWhatsAppClick();
+            }}
           >
             <FaWhatsapp className="mr-2 text-lg" /> Ver contato
           </button>
@@ -230,7 +252,7 @@ const CardVIPDark = ({
               <div className="w-full h-48 bg-gray-800 flex-shrink-0">
                 {carrouselImages && carrouselImages.length > 0 ? (
                   <Image
-                  src={carrouselImages[0].imageUrl}
+                    src={carrouselImages[0].imageUrl}
                     alt={`Foto de ${name}`}
                     layout="fill"
                     objectFit="cover"

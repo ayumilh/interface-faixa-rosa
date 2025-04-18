@@ -67,9 +67,9 @@ export default function Rodape() {
           <h2 className="text-2xl font-semibold text-white">Links Importantes</h2>
           <ul className="space-y-2 text-sm">
             <li><a href="https://faixarosa.blog/" className="hover:underline text-gray-300">Conheça o Blog Faixa Rosa</a></li>
-            <li><a href="/convenio" className="hover:underline text-gray-300">Seja uma ELITE do Faixa Rosa</a></li>
+            {/* <li><a href="/convenio" className="hover:underline text-gray-300">Seja uma ELITE do Faixa Rosa</a></li> */}
             <li><a href="/planos" className="hover:underline text-gray-300">Planos para Anunciantes</a></li>
-            <li><a href="/planos-usuarios" className="hover:underline text-gray-300">Planos para Clientes</a></li>
+            {/* <li><a href="/planos-usuarios" className="hover:underline text-gray-300">Planos para Clientes</a></li> */}
           </ul>
         </div>
 

@@ -89,21 +89,21 @@ export default function Rodape() {
                 Conheça o Blog Faixa Rosa
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link href="/convenio" className="hover:underline text-gray-300">
                 Seja uma ELITE do Faixa Rosa
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link href="/planos" className="hover:underline text-gray-300">
                 Planos para Anunciantes
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link href="/planos-usuarios" className="hover:underline text-gray-300">
                 Planos para Clientes
               </Link>
-            </li>
+            </li> */}
           </ul>
         </div>
 

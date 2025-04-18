@@ -111,7 +111,7 @@ const CardSafiraDark = ({
     <>
       <div className="bg-black border border-gray-800 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-2xl">
         {/* Carrossel de Imagens */}
-        <div className="relative">
+        <div className="relative" onClick={handleDivClick}>
           {carrouselImages && carrouselImages.length > 0 ? (
             <>
               <Image

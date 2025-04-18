@@ -96,11 +96,17 @@ const CardSafira = ({
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
+  const handleDivClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation();
+  };
+
   return (
     <>
       <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
         {/* Carrossel de Imagens */}
-        <div className="relative">
+        <div className="relative" onClick={handleDivClick}>
           {carrouselImages && carrouselImages.length > 0 ? (
             <>
               <Image

@@ -27,8 +27,14 @@ const ImageCarousel = ({ carrouselImages }) => {
     setCurrentIndex(prevIndex => (prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1));
   };
 
+    const handleDivClick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.nativeEvent?.stopImmediatePropagation();
+    };
+
   return (
-    <div className="relative">
+    <div className="relative" onClick={handleDivClick}>
       {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
         <>
           <Image

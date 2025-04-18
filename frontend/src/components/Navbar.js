@@ -15,10 +15,6 @@ export default function Navbar({ bgColor = "pink" }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
 
-  console.log("userInfo", userInfo);
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("loadingUserInfo", loadingUserInfo);
-
   // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {

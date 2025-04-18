@@ -11,6 +11,7 @@ import {
   FaChevronDown
 } from 'react-icons/fa';
 import { BsCardText } from 'react-icons/bs';
+import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 const CardPinkDark = ({
@@ -83,6 +84,22 @@ const CardPinkDark = ({
       document.removeEventListener('click', handleClickOutside);
     };
   }, []);
+
+  const handleWhatsAppClick = () => {
+    if (!contact || !contact.whatsappNumber) {
+      toast.info("Número do WhatsApp não disponível.");
+      return;
+    }
+
+    const numero = contact.whatsappNumber;
+    const apelido = userName || "atendente";
+    const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
+    const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+
+    window.open(link, "_blank");
+  };
 
   return (
     <>
@@ -211,7 +228,12 @@ const CardPinkDark = ({
         {contact && hasExtraContact && (
           <button
             className="mt-2 bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
-            onClick={handleOpenModal}
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
+              handleWhatsAppClick();
+            }}
           >
             <FaWhatsapp className="mr-2 text-lg" /> Ver contato
           </button>

@@ -68,9 +68,10 @@ const ModalBusca = ({ isOpen, onClose }) => {
       window.addEventListener("keydown", handleEsc);
       return () => {
         window.removeEventListener("keydown", handleEsc);
+        document.body.style.overflow = "";
       };
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     }
   }, [isOpen, onClose]);
 
@@ -397,7 +398,7 @@ export default function Perfil() {
     const apelido = companionData?.firstName || companionData?.userName || "atendente";
     const username = companionData?.userName || "";
     const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
-    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://www.faixarosa.com/perfil/${username}`;
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${username}`;
     const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
     const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
 
@@ -451,7 +452,6 @@ export default function Perfil() {
     );
   }
 
-  console.log(companionData);
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f7f9fc', marginTop: '60px' }}>

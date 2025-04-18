@@ -68,9 +68,10 @@ const ModalBusca = ({ isOpen, onClose }) => {
       window.addEventListener("keydown", handleEsc);
       return () => {
         window.removeEventListener("keydown", handleEsc);
+        document.body.style.overflow = ""; 
       };
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     }
   }, [isOpen, onClose]);
 
@@ -296,21 +297,17 @@ ModalBusca.propTypes = {
 
 export default function Search() {
   const params = useParams();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   let slugString = "";
   if (params.slug) {
     slugString = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
   }
 
-  const [loadingSearch, setLoadingSearch] = useState(true);
   const [city, setCity] = useState("");
   const [stateUF, setStateUF] = useState("");
   const [category, setCategory] = useState("mulher");
   const [showModalBusca, setShowModalBusca] = useState(false);
   const [showModalFiltro, setShowModalFiltro] = useState(false);
-  const [cards, setCards] = useState([]);
 
   const { companions, fetchCompanions, loading } = usePlan();
 
@@ -321,30 +318,6 @@ export default function Search() {
     { label: "Trans", value: "travesti" },
   ];
 
-  // Capturar parâmetros da URL
-  // useEffect(() => {
-  //   const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
-  //   if (slugString) {
-  //     const match = slugString.match(regex);
-  //     if (match) {
-  //       const base = match[1];
-  //       const citySlug = match[2];
-  //       const uf = match[3];
-  //       const cityName = decodeURIComponent(citySlug).replace(/-/g, " ");
-  //       setCity(cityName);
-  //       setStateUF(uf.toUpperCase());
-  //       if (base === "acompanhantes") {
-  //         setCategory("mulher");
-  //       } else if (base === "garotos-de-programa") {
-  //         setCategory("homem");
-  //       } else if (base === "travestis-transex-transgenero") {
-  //         setCategory("travesti");
-  //       }
-  //     } else {
-  //       console.error("Formato do slug inválido:", slugString);
-  //     }
-  //   }
-  // }, [slugString]);
 
   useEffect(() => {
     const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
@@ -365,35 +338,14 @@ export default function Search() {
     }
   }, [slugString, fetchCompanions]);
 
-  // Capturar os dados de acompanhantes da API via query string
-  // useEffect(() => {
-  //   const resultsParam = searchParams.get("results");
-  //   if (resultsParam) {
-  //     try {
-  //       const results = JSON.parse(resultsParam);
-  //       console.log("Resultados da API:", results);
-  //       setCards(results);
-  //     } catch (error) {
-  //       console.error("Erro ao processar os resultados da API:", error);
-  //     } finally {
-  //       setLoadingSearch(false);
-  //     }
-  //   }
-  // }, [searchParams]);
-
   useEffect(() => {
     if (city && stateUF) {
       fetchCompanions({ cidade: city, estado: stateUF });
     }
   }, [city, stateUF, fetchCompanions]);
 
-  useEffect(() => {
-    console.log("Companions:", companions);
-  }, [companions]);
-  
-
   return (
-    <div className="bg-gray-100 text-gray-800">
+    <div className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
           <Image
@@ -408,146 +360,149 @@ export default function Search() {
 
       <Navbar bgColor="white" />
 
-      {/* Breadcrumbs */}
-      <div className="w-full max-w-7xl mx-auto p-4 mt-16 bg-cover flex justify-start items-center">
-        <Link href="/" className="flex items-center text-pink-500 hover:text-pink-700">
-          <IoIosArrowBack className="text-2xl mr-2" />
-        </Link>
-        <nav className="text-sm text-gray-700">
-          <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-500">Acompanhantes</span>
-        </nav>
-      </div>
+      <main className="flex-1 pb-10 min-h-screen">
+        {/* Breadcrumbs */}
+        <div className="w-full max-w-7xl mx-auto p-4 mt-16 bg-cover flex justify-start items-center">
+          <Link href="/" className="flex items-center text-pink-500 hover:text-pink-700">
+            <IoIosArrowBack className="text-2xl mr-2" />
+          </Link>
+          <nav className="text-sm text-gray-700">
+            <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
+            <span className="mx-2">/</span>
+            <span className="text-gray-500">Acompanhantes</span>
+          </nav>
+        </div>
 
-      {/* Título */}
-      <div className="w-full h-min bg-cover bg-center flex justify-center items-start mt-8">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-black text-center px-4">
-          {companions.length === 0 ? "Acompanhantes não encontradas" : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
-        </h1>
-      </div>
+        {/* Título */}
+        <div className="w-full h-min bg-cover bg-center flex justify-center items-start mt-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-black text-center px-4">
+            {companions.length === 0 ? `Acompanhantes não encontradas em ${decodeURIComponent(city)}, ${stateUF}` : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
+          </h1>
+        </div>
 
-      {/* Barra de Pesquisa */}
-      <div className="relative w-full max-w-4xl mx-auto p-4">
-        <div className="bg-white rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
-          {/* Campo de Busca - Agora com o clique para abrir o Modal */}
-          <div className="relative flex-1 flex items-center cursor-pointer" onClick={() => setShowModalBusca(true)}>
-            <FaSearch className="w-5 h-5 text-gray-500 mr-2" />
-            <input
-              id="city"
-              type="text"
-              value={city && stateUF ? `${decodeURIComponent(city)}, ${stateUF}` : "Busque por cidade..."}
-              className="w-full bg-gray-200 rounded-full px-6 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 transition cursor-pointer"
-              readOnly
-            />
+        {/* Barra de Pesquisa */}
+        <div className="relative w-full max-w-4xl mx-auto p-4">
+          <div className="bg-white rounded-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
+            {/* Campo de Busca - Agora com o clique para abrir o Modal */}
+            <div className="relative flex-1 flex items-center cursor-pointer" onClick={() => setShowModalBusca(true)}>
+              <FaSearch className="w-5 h-5 text-gray-500 mr-2" />
+              <input
+                id="city"
+                type="text"
+                value={city && stateUF ? `${decodeURIComponent(city)}, ${stateUF}` : "Busque por cidade..."}
+                className="w-full bg-gray-200 rounded-full px-6 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 transition cursor-pointer"
+                readOnly
+              />
+            </div>
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+              {categories.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setCategory(cat.value)}
+                  className={`px-4 py-2 sm:px-6 sm:py-2 rounded-full text-sm font-medium ${category === cat.value ? "bg-pink-500 text-white" : "bg-gray-100 text-gray-800"
+                    } transition transform hover:scale-105`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {categories.map((cat) => (
+        </div>
+
+        {/* ModalBusca */}
+        {showModalBusca && (
+          <ModalBusca isOpen={showModalBusca} onClose={() => setShowModalBusca(false)} />
+        )}
+
+
+        {/* Grid de Cartões */}
+        <div className="mt-6 w-full max-w-7xl mx-auto px-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 text-center sm:text-left">
+              Resultados para {category} em {city && stateUF ? `${city}, ${stateUF}` : "sua cidade"}:
+            </h2>
+            <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+              <button className="text-gray-700 text-sm">Ordenar</button>
               <button
-                key={cat.value}
-                type="button"
-                onClick={() => setCategory(cat.value)}
-                className={`px-4 py-2 sm:px-6 sm:py-2 rounded-full text-sm font-medium ${category === cat.value ? "bg-pink-500 text-white" : "bg-gray-100 text-gray-800"
-                  } transition transform hover:scale-105`}
+                className="px-6 py-3 bg-pink-500 text-white font-semibold rounded-full shadow-lg hover:bg-pink-600 transition-transform transform hover:scale-105"
+                onClick={() => setShowModalFiltro(true)}
               >
-                {cat.label}
+                Filtros
               </button>
-            ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            {Array.isArray(companions) && companions.length > 0 ? (
+              companions.map((card, index) => {
+                // Verifica se o status do documento e o status do perfil estão aprovados
+                if (card.documentStatus !== "APPROVED" || card.profileStatus !== "ACTIVE") {
+                  return null;
+                }
+
+                if (!card.plan) return null;
+
+                let CardComponent;
+
+                const hasDarkMode = card.subscriptions.some(subscription => subscription.extraPlan?.name === "DarkMode");
+
+                if (card.plan?.name === "Plano Rubi" && hasDarkMode) {
+                  CardComponent = CardRubiDark;
+                } else if (card.plan?.name === "Plano Rubi") {
+                  CardComponent = CardRubi;
+                } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
+                  CardComponent = CardSafiraDark;
+                } else if (card.plan?.name === "Plano Safira") {
+                  CardComponent = CardSafira;
+                } else if (card.plan?.name === "Plano Pink" && hasDarkMode) {
+                  CardComponent = CardPinkDark;
+                } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
+                  CardComponent = CardVIPDark;
+                } else if (card.plan?.name === "Plano Vip") {
+                  CardComponent = CardVIP;
+                } else if (card.plan?.name === "Plano Pink") {
+                  CardComponent = CardPink;
+                } else {
+                  CardComponent = "CardVIP"; // Usando o CardVIP se não tiver o plano "DarkMode"
+                }
+
+                return (
+                  <div key={index} className="break-inside-avoid px-4 pb-6 sm:pb-4">
+                    <Link href={`/perfil/${card.userName}`} key={index}>
+                      <CardComponent
+                        userName={card.userName}
+                        age={card.age}
+                        location={`${card.city}, ${card.state}`}
+                        description={card.description}
+                        images={
+                          card.profileImage
+                            ? [card.profileImage]
+                            : card.media?.length > 0
+                              ? card.media
+                              : ["/default-avatar.jpg"]
+                        }
+                        contact={card.contactMethods?.[0]}
+                        plan={card.plan}
+                        planType={card.planType}
+                        subscriptions={card.subscriptions}
+                        isAgeHidden={card.isAgeHidden}
+                        timedServiceCompanion={card.timedServiceCompanion}
+                        carrouselImages={card.carrouselImages}
+                        totalPosts={card.totalPosts}
+                        totalReviews={card.totalReviews}
+                      />
+                    </Link>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* ModalBusca */}
-      {showModalBusca && (
-        <ModalBusca isOpen={showModalBusca} onClose={() => setShowModalBusca(false)} />
-      )}
-
-
-      {/* Grid de Cartões */}
-      <div className="mt-6 w-full max-w-7xl mx-auto px-4">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 text-center sm:text-left">
-            Resultados para {category} em {city && stateUF ? `${city}, ${stateUF}` : "sua cidade"}:
-          </h2>
-          <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-            <button className="text-gray-700 text-sm">Ordenar</button>
-            <button
-              className="px-6 py-3 bg-pink-500 text-white font-semibold rounded-full shadow-lg hover:bg-pink-600 transition-transform transform hover:scale-105"
-              onClick={() => setShowModalFiltro(true)}
-            >
-              Filtros
-            </button>
-          </div>
-        </div>
-         <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-3 gap-4 space-y-4">
-          {Array.isArray(companions) && companions.length > 0 ? (
-            companions.map((card, index) => {
-              // Verifica se o status do documento e o status do perfil estão aprovados
-              if (card.documentStatus !== "APPROVED" || card.profileStatus !== "ACTIVE") {
-                return null;
-              }
-
-              if (!card.plan) return null;
-
-              let CardComponent;
-
-              const hasDarkMode = card.subscriptions.some(subscription => subscription.extraPlan?.name === "DarkMode");
-
-              if (card.plan?.name === "Plano Rubi" && hasDarkMode) {
-                CardComponent = CardRubiDark;
-              } else if (card.plan?.name === "Plano Rubi") {
-                CardComponent = CardRubi;
-              } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
-                CardComponent = CardSafiraDark;
-              } else if (card.plan?.name === "Plano Safira") {
-                CardComponent = CardSafira;
-              } else if (card.plan?.name === "Plano Pink" && hasDarkMode) {
-                CardComponent = CardPinkDark;
-              } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
-                CardComponent = CardVIPDark;
-              } else if (card.plan?.name === "Plano Vip") {
-                CardComponent = CardVIP;
-              } else if (card.plan?.name === "Plano Pink") {
-                CardComponent = CardPink;
-              } else {
-                CardComponent = "CardVIP"; // Usando o CardVIP se não tiver o plano "DarkMode"
-              }
-
-              return (
-                <div key={index} className="break-inside-avoid px-4 pb-6 sm:pb-4">
-                  <Link href={`/perfil/${card.userName}`} key={index}>
-                    <CardComponent
-                      userName={card.userName}
-                      age={card.age}
-                      location={`${card.city}, ${card.state}`}
-                      description={card.description}
-                      images={
-                        card.profileImage
-                          ? [card.profileImage]
-                          : card.media?.length > 0
-                            ? card.media
-                            : ["/default-avatar.jpg"]
-                      }
-                      contact={true}
-                      plan={card.plan}
-                      planType={card.planType}
-                      subscriptions={card.subscriptions}
-                      isAgeHidden={card.isAgeHidden}
-                      timedServiceCompanion={card.timedServiceCompanion}
-                      carrouselImages={card.carrouselImages}
-                      totalPosts={card.totalPosts}
-                      totalReviews={card.totalReviews}
-                    />
-                  </Link>
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-center text-gray-500">Nenhuma acompanhante encontrada.</p>
-          )}
-        </div>
-      </div>
       <Final />
+      </main>
+
     </div>
   );
 }

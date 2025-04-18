@@ -12,6 +12,7 @@ import {
   FaChevronRight,
   FaChevronDown
 } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 const CardSafira = ({
@@ -20,7 +21,6 @@ const CardSafira = ({
   location,
   description,
   images,
-  reviews,
   contact,
   plan,
   planType,
@@ -101,6 +101,23 @@ const CardSafira = ({
     e.stopPropagation();
     e.nativeEvent?.stopImmediatePropagation();
   };
+
+  const handleWhatsAppClick = () => {
+    if (!contact || !contact.whatsappNumber) {
+      toast.info("Número do WhatsApp não disponível.");
+      return;
+    }
+  
+    const numero = contact.whatsappNumber;
+    const apelido = userName || "atendente";
+    const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
+    const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+  
+    window.open(link, "_blank");
+  };
+  
 
   return (
     <>
@@ -286,13 +303,14 @@ const CardSafira = ({
             className="mt-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"
             onClick={e => {
               e.preventDefault();
-              handleOpenModal();
+              e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
+              handleWhatsAppClick();
             }}
           >
             <FaWhatsapp className="mr-2" /> Ver contato
           </button>
         )}
-
       </div>
 
       {/* Modal de contato */}

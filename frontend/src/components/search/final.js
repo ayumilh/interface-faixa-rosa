@@ -38,7 +38,7 @@ export default function Rodape() {
   const closeModal = () => setShowFAQ(false);
 
   return (
-    <footer className="bg-black py-12 text-gray-300 mt-8">
+    <footer className="bg-black py-12 text-gray-300 mt-8 flex flex-col">
       <div className="container mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
         {/* Coluna Sobre */}

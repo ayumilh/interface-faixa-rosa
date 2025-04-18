@@ -11,19 +11,20 @@ import {
   FaChevronDown
 } from 'react-icons/fa';
 import { BsCardText } from 'react-icons/bs';
+import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 const CardVIP = ({
   userName,
   location,
-  description, 
-  totalReviews, 
-  contact, 
-  images, 
-  age, 
-  subscriptions, 
-  isAgeHidden, 
-  timedServiceCompanion = [], 
+  description,
+  totalReviews,
+  contact,
+  images,
+  age,
+  subscriptions,
+  isAgeHidden,
+  timedServiceCompanion = [],
   carrouselImages = []
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
@@ -81,6 +82,22 @@ const CardVIP = ({
       document.removeEventListener('click', handleClickOutside);
     };
   }, []);
+
+  const handleWhatsAppClick = () => {
+    if (!contact || !contact.whatsappNumber) {
+      toast.info("Número do WhatsApp não disponível.");
+      return;
+    }
+
+    const numero = contact.whatsappNumber;
+    const apelido = userName || "atendente";
+    const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
+    const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+
+    window.open(link, "_blank");
+  };
 
   return (
     <div className="relative">
@@ -202,7 +219,9 @@ const CardVIP = ({
           <button
             onClick={e => {
               e.preventDefault();
-              handleOpenModal();
+              e.stopPropagation();
+              e.nativeEvent?.stopImmediatePropagation();
+              handleWhatsAppClick();
             }}
             className="mt-2 bg-yellow-500 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg flex items-center justify-center w-full font-semibold transition-colors duration-200"
           >

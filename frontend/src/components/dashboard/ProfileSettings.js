@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useContext } from "react";
 import Image from "next/image";
+import { AuthContext } from "@/context/AuthContext";
 import { FaUpload, FaPlusCircle, FaTrash, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard } from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
 import axios from "axios";
@@ -10,6 +11,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ProfileSettings = ({ onUpdate }) => {
+  const { userInfo, fetchUserData } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
   const [documentFront, setDocumentFront] = useState(null);
   const [documentBack, setDocumentBack] = useState(null);
   const [documentFileFront, setDocumentFileFront] = useState(null);
@@ -26,8 +29,7 @@ const ProfileSettings = ({ onUpdate }) => {
   const [uploading, setUploading] = useState(false);
   const [isReadyToSend, setIsReadyToSend] = useState(false);
 
-  const rankingPosition = 35;
-  const planExpirationDate = useMemo(() => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), []);
+  const [rankingPosition, setRankingPosition] = useState(null);
   const [timeLeft, setTimeLeft] = useState("");
   const [timeProgress, setTimeProgress] = useState(100);
 
@@ -51,6 +53,23 @@ const ProfileSettings = ({ onUpdate }) => {
 
   const [carouselImages, setCarouselImages] = useState([]);
   const [carouselImagesURL, setCarouselImagesURL] = useState([]);
+
+
+  // Chama fetchUserData quando o componente é carregado ou quando userInfo muda
+  useEffect(() => {
+    if (!userInfo) {
+      fetchUserData(); // Chama a função para buscar os dados se userInfo estiver vazio
+    } else {
+      setUser(userInfo); // Se userInfo já estiver disponível, apenas define os dados no estado
+      if (userInfo?.ranking) {
+        setRankingPosition(userInfo.ranking);
+      } else {
+        setRankingPosition("Não disponível"); // Define como "Não disponível" se não houver ranking
+      }
+    }
+  }, [userInfo, fetchUserData]);
+
+  console.log("User Info:", userInfo);
 
   useEffect(() => {
     // Simula o carregamento inicial da página
@@ -300,12 +319,12 @@ const ProfileSettings = ({ onUpdate }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`,
         {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
 
       const data = await response.json();
 
@@ -346,12 +365,12 @@ const ProfileSettings = ({ onUpdate }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`,
         {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
 
       const data = await response.json();
 
@@ -476,10 +495,10 @@ const ProfileSettings = ({ onUpdate }) => {
   // Função para remover imagem
   const handleRemoveCarouselImage = async (indexToRemove, isSavedImage = false) => {
     const userToken = Cookies.get("userToken");
-  
+
     if (isSavedImage) {
       const imageToDelete = carouselImages[indexToRemove];
-  
+
       try {
         const response = await axios.delete(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/delete`,
@@ -490,7 +509,7 @@ const ProfileSettings = ({ onUpdate }) => {
             data: { imageUrl: imageToDelete },
           }
         );
-  
+
         if (response.status === 200) {
           toast.success("Imagem removida com sucesso!");
           await fetchMedia(); // Atualiza os dados após remoção
@@ -537,8 +556,13 @@ const ProfileSettings = ({ onUpdate }) => {
         {/* Bloco 1: Ranking Nacional */}
         <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
           <h2 className="text-lg font-semibold text-gray-700 text-center">Ranking Nacional</h2>
-          <p className="text-4xl sm:text-5xl font-bold text-blue-600 mt-4">#{rankingPosition}</p>
-          <span className="text-sm text-gray-500 mt-2 text-center">Sua posição no ranking</span>
+          <p className="text-4xl sm:text-5xl font-bold text-blue-600 mt-4">
+            {rankingPosition ? `#${rankingPosition}` : "—"}
+          </p>
+          <span className="text-sm text-gray-500 mt-2 text-center">
+            {rankingPosition ? "Sua posição no ranking" : "Sem colocação no momento"}
+          </span>
+
         </div>
 
         {/* Bloco 2: Planos Ativos */}

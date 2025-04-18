@@ -1,20 +1,31 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { MapPin } from "phosphor-react";
-import { usePlan } from "@/context/PlanContext";
+import axios from "axios";
 
 export default function TopAnunciantes() {
   const router = useRouter();
   const scrollRef = useRef(null);
   const isDragging = useRef(false);
 
-  const { companions, fetchCompanions, loading } = usePlan();
+  const [companions, setCompanions] = useState([]);
+
+  const fetchCompanions = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top10`,
+    );
+      setCompanions(res.data);
+    } catch (error) {
+      console.error("Erro ao buscar top 10:", error);
+    }
+  };
 
   useEffect(() => {
-    fetchCompanions(); // Busca as acompanhantes reais do backend
-  }, [fetchCompanions]);
+    fetchCompanions();
+  }, []);
 
   // Rolagem automática
   useEffect(() => {
@@ -89,9 +100,9 @@ export default function TopAnunciantes() {
           ref={scrollRef}
           className="flex overflow-x-auto gap-6 snap-x snap-mandatory px-4 scrollbar-hide cursor-grab active:cursor-grabbing select-none"
         >
-          {Array.isArray(companions) && companions.slice(0, 10).map((anunciante, index) => (
+          {companions.slice(0, 10).map((anunciante, index) => (
             <motion.div
-              key={anunciante.id}
+              key={anunciante.userName}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               onClick={() => router.push(`/perfil/${anunciante.userName}`)}
@@ -118,7 +129,8 @@ export default function TopAnunciantes() {
               </p>
 
               <p className="text-sm text-gray-500 mt-1">
-                {anunciante.plan?.name} — {anunciante.points} pts
+              {anunciante.plan} — {anunciante.points} pts
+
               </p>
 
               <div className="absolute inset-0 bg-gradient-to-br from-pink-200 to-purple-200 opacity-0 hover:opacity-20 transition-all duration-300 rounded-xl"></div>

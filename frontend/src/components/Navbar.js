@@ -4,44 +4,20 @@ import { useRouter } from "next/navigation";
 import { FaBell } from "react-icons/fa";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
-import { searchUserId } from "@/utils/searchUserId";
 import Link from "next/link";
 import { Transition } from "@headlessui/react";
 
 export default function Navbar({ bgColor = "pink" }) {
-  const { logout, userInfo } = useContext(AuthContext);
+  const { logout, userInfo, isAuthenticated, loadingUserInfo } = useContext(AuthContext);
   const profileRef = useRef();
   const notificationsRef = useRef();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    if (userInfo) {
-      setUser(userInfo);
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
-  }, [userInfo]);
-
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await searchUserId();
-        if (userData) {
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        setIsAuthenticated(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  console.log("userInfo", userInfo);
+  console.log("isAuthenticated", isAuthenticated);
+  console.log("loadingUserInfo", loadingUserInfo);
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -72,17 +48,17 @@ export default function Navbar({ bgColor = "pink" }) {
 
   const handleLogout = () => {
     logout();
-    setIsAuthenticated(false);
   };
 
   const handleLogoClick = () => {
-    router.push(user?.userType === "CONTRATANTE" ? "/" : "/dashboard");
+    router.push(userInfo?.userType === "CONTRATANTE" ? "/" : "/dashboard");
   };
+
 
   const logoSrc = bgColor === "white" ? "/assets/logofaixa.png" : "/assets/FaixaRosaSombra.png";
   const backgroundClass = bgColor === "white" ? "bg-white" : "bg-pink-600";
 
-  if (isLoading) {
+  if (loadingUserInfo) {
     return (
       <header className={`w-full shadow-sm fixed top-0 left-0 z-50 ${backgroundClass}`}>
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
@@ -119,7 +95,7 @@ export default function Navbar({ bgColor = "pink" }) {
         {/* Right Side of Navbar */}
         <div className="flex items-center space-x-4">
           {/* Notificações */}
-          {isAuthenticated && (
+          {!loadingUserInfo && isAuthenticated && (
             <div className="relative" ref={notificationsRef}>
               <button
                 className="flex items-center text-gray-700 hover:text-pink-500 transition focus:outline-none"
@@ -180,7 +156,7 @@ export default function Navbar({ bgColor = "pink" }) {
           )}
 
           {/* Condicional: Perfil ou Botões de Login/Cadastro */}
-          {isAuthenticated ? (
+          {!loadingUserInfo && isAuthenticated ? (
             <div className="relative" ref={profileRef}>
               <button
                 className="flex items-center text-white hover:text-pink-500 transition focus:outline-none"
@@ -189,20 +165,17 @@ export default function Navbar({ bgColor = "pink" }) {
               >
                 <div className="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold shadow-md">
                   {/* Verifique se userInfo existe antes de renderizar */}
-                  {user?.companion?.profileImage ? (
-                    <div>
-                      <Image
-                        src={user.companion.profileImage}
-                        alt="Imagem de Perfil"
-                        width={40}
-                        height={40}
-                        className="rounded-full w-10 h-10 object-cover"
-                      />
-                    </div>
+                  {userInfo?.companion?.profileImage ? (
+                    <Image
+                      src={userInfo.companion.profileImage}
+                      alt="Imagem de Perfil"
+                      width={40}
+                      height={40}
+                      className="rounded-full w-10 h-10 object-cover"
+                    />
                   ) : (
                     <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
-                      {/* Exibe a inicial do nome */}
-                      {user?.userName?.charAt(0).toUpperCase()}
+                      {userInfo?.userName?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -220,18 +193,21 @@ export default function Navbar({ bgColor = "pink" }) {
               >
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
                   <div className="px-4 py-2 border-b">
-                    {user ? (
+                    {loadingUserInfo ? (
+                      <p className="text-gray-500">Carregando usuário...</p>
+                    ) : userInfo ? (
                       <>
                         <p className="text-gray-800 font-semibold">
-                          {user.userType === 'ADMIN' ? user.first : user.userName}
+                          {userInfo.userType === 'ADMIN' ? userInfo.first : userInfo.userName}
                         </p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <p className="text-sm text-gray-500">{userInfo.email}</p>
                       </>
                     ) : (
-                      <p className="text-gray-500">Carregando usuário...</p>
+                      <p className="text-gray-500">Usuário não encontrado.</p>
                     )}
+
                   </div>
-                  {user?.userType === 'ACOMPANHANTE' && (
+                  {!loadingUserInfo && userInfo?.userType === 'ACOMPANHANTE' && (
                     <>
                       <Link
                         href="/dashboard"
@@ -241,13 +217,14 @@ export default function Navbar({ bgColor = "pink" }) {
                       </Link>
 
                       <Link
-                        href={`/perfil/${user?.userName || ''}`}
+                        href={`/perfil/${userInfo?.userName || ''}`}
                         className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
                       >
                         Perfil
                       </Link>
                     </>
                   )}
+
                   {/* <Link href="/settings" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
                     Configurações
                   </Link> */}

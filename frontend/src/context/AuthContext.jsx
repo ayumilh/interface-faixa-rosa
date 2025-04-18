@@ -4,6 +4,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { searchUserId } from "@/utils/searchUserId";
 
 export const AuthContext = createContext();
 
@@ -12,6 +13,7 @@ export const AuthContextProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
+    const [loadingUserInfo, setLoadingUserInfo] = useState(true);
 
     // usado no BtnSignOut
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,12 +41,9 @@ export const AuthContextProvider = ({ children }) => {
 
             if (!res.data.token || !res.data.user) return null;
 
-            if (!currentUser || currentUser.id !== res.data.user.id) {
-                setCurrentUser(res.data.user);
-            }
-            if (!isAuthenticated) {
-                setIsAuthenticated(true);
-            }
+            setIsAuthenticated(true);
+            setCurrentUser(res.data.user);
+            await fetchUserData();
             return {
                 user: res.data.user,
                 token: res.data.token,
@@ -69,6 +68,7 @@ export const AuthContextProvider = ({ children }) => {
         Cookies.remove("userType");
         setCurrentUser(null);
         setIsAuthenticated(false);
+        setUserInfo(null);
         router.push("/login");
     };
 
@@ -76,6 +76,13 @@ export const AuthContextProvider = ({ children }) => {
     const fetchUserData = useCallback(async () => {
         const tokenId = Cookies.get("userToken");
         const tipoPerfil = Cookies.get("userType");
+
+        if (!tokenId || !tipoPerfil) {
+            setUserInfo(null);
+            setIsAuthenticated(false);
+            setLoadingUserInfo(false);
+            return;
+        }
 
         if (tokenId) {
             try {
@@ -90,49 +97,37 @@ export const AuthContextProvider = ({ children }) => {
                 );
                 if (res.data) {
                     setUserInfo(res.data);
-
-                    if (!currentUser || currentUser.id !== res.data.id) {
-                        setCurrentUser(res.data);
-                    }
-                    if (!isAuthenticated) {
-                        setIsAuthenticated(true);
-                    }
+                    setCurrentUser(res.data);
+                    setIsAuthenticated(true);
                 }
-            } catch {
+            } catch (err) {
+                console.error("Erro ao buscar dados do usuário:", err);
                 setIsAuthenticated(false);
-                return null;
+                setUserInfo(null);
+            } finally {
+                setLoadingUserInfo(false);
             }
         }
     }, [currentUser, isAuthenticated]);
-    
+
+    // Decodifica o token e faz login automático
     useEffect(() => {
-        if (!currentUser) {
-            fetchUserData();
-        }
-    }, [currentUser, isAuthenticated, fetchUserData]);
+        const token = Cookies.get("userToken");
 
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            const token = Cookies.get("userToken");
-
-            if (token && !currentUser) {
-                try {
-                    const decodedToken = jwtDecode(token);
-
-                    setCurrentUser(decodedToken);
-                    setIsAuthenticated(true);
-                } catch (error) {
-                    setIsAuthenticated(false);
-                    setCurrentUser(null);
-                    Cookies.remove("token");
-                }
+        if (token && !currentUser) {
+            try {
+                const decoded = jwtDecode(token);
+                setCurrentUser(decoded);
+                setIsAuthenticated(true);
+            } catch (err) {
+                setCurrentUser(null);
+                setIsAuthenticated(false);
+                Cookies.remove("userToken");
             }
-        };
+        }
 
-        checkAuth();
-    }, [currentUser]);
-
+        fetchUserData(); // ✅ garante que userInfo venha completo
+    }, [fetchUserData]);
 
     return (
         <AuthContext.Provider
@@ -147,7 +142,8 @@ export const AuthContextProvider = ({ children }) => {
                 setIsAuthenticated,
                 isModalOpen,
                 setIsModalOpen,
-                toggleModal
+                toggleModal,
+                loadingUserInfo
             }}
         >
             {children}

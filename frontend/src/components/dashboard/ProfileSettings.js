@@ -12,7 +12,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 const ProfileSettings = ({ onUpdate }) => {
   const { userInfo, fetchUserData } = useContext(AuthContext);
-  const [user, setUser] = useState(null);
   const [documentFront, setDocumentFront] = useState(null);
   const [documentBack, setDocumentBack] = useState(null);
   const [documentFileFront, setDocumentFileFront] = useState(null);
@@ -60,7 +59,6 @@ const ProfileSettings = ({ onUpdate }) => {
     if (!userInfo) {
       fetchUserData(); // Chama a função para buscar os dados se userInfo estiver vazio
     } else {
-      setUser(userInfo); // Se userInfo já estiver disponível, apenas define os dados no estado
       if (userInfo?.ranking) {
         setRankingPosition(userInfo.ranking);
       } else {
@@ -69,7 +67,6 @@ const ProfileSettings = ({ onUpdate }) => {
     }
   }, [userInfo, fetchUserData]);
 
-  console.log("User Info:", userInfo);
 
   useEffect(() => {
     // Simula o carregamento inicial da página

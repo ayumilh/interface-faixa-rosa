@@ -656,9 +656,6 @@ const PlanoRubi = () => {
             {/* Texto acima do preço */}
             <p className="text-gray-400 text-sm">A partir de:</p>
 
-            {/* Preço do plano */}
-            <p className="text-3xl font-bold text-gray-800">R$ 327,90</p>
-
             {/* Detalhe do desconto */}
             <span className="text-sm text-green-600 font-medium mt-2 block">
               Economize 10% no pagamento

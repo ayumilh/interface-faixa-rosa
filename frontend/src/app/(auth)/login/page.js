@@ -7,8 +7,8 @@ import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import Link from "next/link";
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import IconButton from '@mui/material/IconButton';
+import InputField from "@/components/ui/input/InputField";
+import PasswordField from "@/components/ui/input/PasswordField";
 
 
 export default function AuthPage() {
@@ -173,88 +173,67 @@ export default function AuthPage() {
           </div>
 
           <form onSubmit={handleLoginSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                E-mail
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={handleEmailChange}
-                required
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-              />
-            </div>
+            <InputField
+              label="E-mail"
+              name="email"
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
+              required
+              error={errorsInput.email}
+            />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Senha
-              </label>
-              <div className="relative mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={handlePasswordChange}
-                  required
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
+
+              <PasswordField
+                label="Senha"
+                name="password"
+                value={password}
+                onChange={handlePasswordChange}
+                show={showPassword}
+                toggleShow={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+                required
+                error={errorsInput.password}
+              />
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember_me"
+                    name="remember_me"
+                    type="checkbox"
+                    className="h-4 w-4 text-pink-500 focus:ring-pink-400 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="remember_me"
+                    className="ml-2 block text-sm text-gray-900"
                   >
-                    {showPassword ? <FaEye className='dark:text-neutral-700' /> : <FaEyeSlash className='dark:text-neutral-700' />}
-                  </IconButton>
+                    Lembrar de mim
+                  </label>
+                </div>
+                <div className="text-sm">
+                  <Link
+                    href="esqueceu-senha"
+                    className="font-medium text-pink-500 hover:text-pink-600"
+                  >
+                    Esqueceu sua senha?
+                  </Link>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember_me"
-                  name="remember_me"
-                  type="checkbox"
-                  className="h-4 w-4 text-pink-500 focus:ring-pink-400 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="remember_me"
-                  className="ml-2 block text-sm text-gray-900"
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition"
                 >
-                  Lembrar de mim
-                </label>
+                  {loading ? (
+                    <FaSpinner className="animate-spin h-5 w-5" />
+                  ) : (
+                    "Entrar"
+                  )}
+                </button>
               </div>
-              <div className="text-sm">
-                <Link
-                  href="esqueceu-senha"
-                  className="font-medium text-pink-500 hover:text-pink-600"
-                >
-                  Esqueceu sua senha?
-                </Link>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition"
-              >
-                {loading ? (
-                  <FaSpinner className="animate-spin h-5 w-5" />
-                ) : (
-                  "Entrar"
-                )}
-              </button>
-            </div>
           </form>
 
           <div className="text-center mt-4 text-sm">

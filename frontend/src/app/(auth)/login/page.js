@@ -25,51 +25,37 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (isAuthenticated && currentUser) {
-      // Verifica se o toast já foi exibido
       if (!sessionStorage.getItem("loginToastShown")) {
         toast.success("Login realizado com sucesso!");
         sessionStorage.setItem("loginToastShown", "true");
       }
 
-      // Redireciona conforme o tipo de usuário
-      if (currentUser.userType === "CONTRATANTE") {
-        router.push("/userDashboard");
-      } else if (currentUser.userType === "ACOMPANHANTE") {
-        router.push("/dashboard");
-      } else if (currentUser.userType === "ADMIN") {
-        router.push("/adminDashboard");
-      } else {
-        router.push("/login");
-      }
+      const { userType } = currentUser;
+
+      const pathMap = {
+        CONTRATANTE: "/userDashboard",
+        ACOMPANHANTE: "/dashboard",
+        ADMIN: "/adminDashboard",
+      };
+
+      router.push(pathMap[userType] || "/login");
     }
   }, [isAuthenticated, currentUser, router]);
+
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const response = await login({ email, password });
+    const response = await login({ email, password });
 
-      if (response?.status === 401) {
-        toast.error(response.message);
-      } else if (response?.token) {
-        const { userType } = response;
-        if (userType === "CONTRATANTE") {
-          router.push("/");
-        } else if (userType === "ACOMPANHANTE") {
-          router.push("/dashboard");
-        } else if (userType === "ADMIN") {
-          router.push("/adminDashboard");
-        } else {
-          router.push("/login");
-        }
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
-    } finally {
-      setLoading(false);
+    if (response?.status === 401 || response?.status === 404) {
+      toast.error(response.message);
+    } else if (!response?.token) {
+      toast.error("Erro inesperado ao fazer login.");
     }
+
+    setLoading(false);
   };
 
   const sanitizeInput = (value, regex, shouldTrim = true) => {

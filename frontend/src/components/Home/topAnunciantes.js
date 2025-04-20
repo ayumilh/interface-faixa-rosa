@@ -15,8 +15,9 @@ export default function TopAnunciantes() {
   const fetchCompanions = async () => {
     try {
       const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top10`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top10/listar`,
     );
+    console.log(res.data);
       setCompanions(res.data);
     } catch (error) {
       console.error("Erro ao buscar top 10:", error);

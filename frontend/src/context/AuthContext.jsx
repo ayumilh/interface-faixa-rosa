@@ -47,6 +47,7 @@ export const AuthContextProvider = ({ children }) => {
             return {
                 user: res.data.user,
                 token: res.data.token,
+                userType: res.data.userType
             }
         } catch (error) {
             setIsAuthenticated(false);
@@ -71,7 +72,6 @@ export const AuthContextProvider = ({ children }) => {
         setUserInfo(null);
         router.push("/login");
     };
-
 
     const fetchUserData = useCallback(async () => {
         const tokenId = Cookies.get("userToken");
@@ -113,21 +113,24 @@ export const AuthContextProvider = ({ children }) => {
     // Decodifica o token e faz login automático
     useEffect(() => {
         const token = Cookies.get("userToken");
-
-        if (token && !currentUser) {
-            try {
-                const decoded = jwtDecode(token);
-                setCurrentUser(decoded);
-                setIsAuthenticated(true);
-            } catch (err) {
-                setCurrentUser(null);
-                setIsAuthenticated(false);
-                Cookies.remove("userToken");
-            }
+        const tipoPerfil = Cookies.get("userType");
+      
+        if (token && tipoPerfil && !currentUser) {
+          try {
+            const decoded = jwtDecode(token);
+            setCurrentUser(decoded);
+            setIsAuthenticated(true);
+            fetchUserData();
+          } catch (err) {
+            setCurrentUser(null);
+            setIsAuthenticated(false);
+            Cookies.remove("userToken");
+          }
+        } else {
+          setLoadingUserInfo(false);
         }
-
-        fetchUserData(); // ✅ garante que userInfo venha completo
-    }, [fetchUserData]);
+      }, [fetchUserData]);
+      
 
     return (
         <AuthContext.Provider

@@ -77,6 +77,12 @@ export default function CadastroPage() {
         e.preventDefault();
         setLoading(true);
 
+        if (!isFormValid) {
+            toast.error("Por favor, preencha todos os campos corretamente.");
+            setLoading(false);
+            return;
+        }
+
         try {
             const formatDateToISO = (dateString) => {
                 const [day, month, year] = dateString.split("/");
@@ -242,7 +248,7 @@ export default function CadastroPage() {
 
     const verifyCpf = async () => {
         console.log("Verificando CPF:", cpf); // Log do CPF sendo verificado
-        
+
         const cpfLimpo = cpf.replace(/\D/g, ""); // Remove pontos e traços
 
         if (cpfLimpo.length !== 11 || !dataNascimento) {
@@ -489,10 +495,7 @@ export default function CadastroPage() {
                         <div>
                             <button
                                 type="submit"
-                                disabled={!isFormValid || loading}
-                                className={`w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white 
-                    ${isFormValid ? "bg-pink-500 hover:bg-pink-600 focus:ring-pink-500" : "bg-pink-400 cursor-not-allowed"} 
-                    focus:outline-none focus:ring-2 focus:ring-offset-2 transition`}
+                                className='w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-pink-500 hover:bg-pink-600'
                             >
                                 {loading ? <FaSpinner className="animate-spin h-5 w-5" /> : "Cadastrar"}
                             </button>

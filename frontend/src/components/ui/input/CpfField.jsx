@@ -58,7 +58,7 @@ export default function CpfField({
               type="button"
               onClick={onVerify}
               disabled={value.replace(/\D/g, "").length !== 11}
-              className="text-xs bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded"
+              className="text-xs bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 mr-2 rounded"
             >
               Verificar
             </button>

@@ -33,7 +33,7 @@ export default function CadastroPage() {
     const [userNameError, setUserNameError] = useState("");
     const [isUserNameValid, setIsUserNameValid] = useState(null);
     const [cpf, setCpf] = useState("");
-    const [userType, setUserType] = useState("CONTRATANTE");
+    const [userType, setUserType] = useState(null);
     const [loading, setLoading] = useState(false);
     const [isCpfValid, setIsCpfValid] = useState(null);
     const [loadingCpf, setLoadingCpf] = useState(false);
@@ -63,7 +63,7 @@ export default function CadastroPage() {
             firstName.trim().length >= 3 &&
             lastName.trim().length >= 3 &&
             email.includes("@") &&
-            cpf.length === 15 &&
+            cpf.replace(/\D/g, "").length === 11 &&
             dataNascimento &&
             password.length >= 8 &&
             password === confirmPassword &&

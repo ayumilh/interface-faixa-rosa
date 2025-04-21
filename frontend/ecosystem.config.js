@@ -1,14 +1,12 @@
 module.exports = {
   apps: [
     {
-      name: 'faixarosa-frontend',  // Nome do processo
-      script: 'npm',               // Usando npm para rodar o Next.js
-      args: 'start',               // O comando que deve ser executado
+      name: 'faixarosa-frontend',
+      cwd: '/var/www/faixarosa/frontend/frontend',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start -p 3000',
       env: {
-        PORT: 3000,                // Definindo a porta como 3000
-      },
-      env_production: {
-        NODE_ENV: 'production',   // Definindo o ambiente como produção
+        NODE_ENV: 'production',
         PORT: 3000,
       },
     },

@@ -63,7 +63,7 @@ export default function CadastroPage() {
             firstName.trim().length >= 3 &&
             lastName.trim().length >= 3 &&
             email.includes("@") &&
-            cpf.length === 11 &&
+            cpf.length === 15 &&
             dataNascimento &&
             password.length >= 8 &&
             password === confirmPassword &&

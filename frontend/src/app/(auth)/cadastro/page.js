@@ -33,7 +33,7 @@ export default function CadastroPage() {
     const [userNameError, setUserNameError] = useState("");
     const [isUserNameValid, setIsUserNameValid] = useState(null);
     const [cpf, setCpf] = useState("");
-    const [userType, setUserType] = useState(null);
+    const [userType, setUserType] = useState("");
     const [loading, setLoading] = useState(false);
     const [isCpfValid, setIsCpfValid] = useState(null);
     const [loadingCpf, setLoadingCpf] = useState(false);

@@ -422,7 +422,6 @@ const CardRubi = ({
       {/* Informações */}
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
         <div>
-          <p className="font-semibold text-red-600">{formattedPrice}</p>
 
           {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
             <div className="flex items-center mt-2">

@@ -52,7 +52,7 @@ export default function AcompanhantesBrasil() {
         </h1>
 
         {/* Filtros de Gênero */}
-        <div className="flex justify-center space-x-4 mb-8">
+        {/* <div className="flex justify-center space-x-4 mb-8">
           <button
             onClick={() => setFilter("mulheres")}
             className={`py-2 px-4 rounded-full flex items-center space-x-2 ${
@@ -77,7 +77,7 @@ export default function AcompanhantesBrasil() {
           >
             <FaTransgender /> <span>Trans</span>
           </button>
-        </div>
+        </div> */}
 
         {/* Botões de Exibição */}
         <div className="flex justify-center space-x-4 mb-8">

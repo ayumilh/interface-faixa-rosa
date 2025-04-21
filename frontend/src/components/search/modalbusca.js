@@ -198,7 +198,7 @@ export default function ModalBusca({ showModalBusca, setShowModalBusca }) {
               </div>
             )}
           </div>
-          <div className="flex flex-col sm:flex-row sm:justify-between mt-4 gap-2">
+          {/* <div className="flex flex-col sm:flex-row sm:justify-between mt-4 gap-2">
             <button
               className={`flex-1 px-4 py-3 rounded-full font-semibold transition-all ${
                 category === "mulher"
@@ -229,7 +229,7 @@ export default function ModalBusca({ showModalBusca, setShowModalBusca }) {
             >
               Trans
             </button>
-          </div>
+          </div> */}
           <button
             onClick={handleUseGeoLocation}
             className="flex items-center justify-center gap-2 text-sm text-gray-700 hover:text-pink-500 transition mt-4 focus:outline-none"

@@ -188,7 +188,7 @@ export default function Videos({ userName }) {
             <div
               key={video.id}
               className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
-            // onClick={() => openModal(video)}
+              onClick={() => openModal(video)}
             >
               {video.mediaUrl ? (
                 <video
@@ -197,7 +197,6 @@ export default function Videos({ userName }) {
                   muted
                   playsInline
                   preload="metadata"
-                  controls // <- adiciona controles para play/pause
                 />
               ) : (
                 <div className="bg-gray-300 w-full h-[300px] flex items-center justify-center text-gray-500">
@@ -213,119 +212,36 @@ export default function Videos({ userName }) {
 
       </div>
 
-      {/* Modal de visualização de vídeo */}
       {showModal && selectedVideo && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
           onClick={closeModal}
         >
           <div
-            className="relative w-full max-w-5xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden md:flex"
+            className="relative w-full max-w-5xl mx-auto p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Botão de fechar maior e mais visível */}
+            {/* Botão de fechar */}
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 focus:outline-none"
+              className="absolute top-4 right-4 text-white bg-gray-800 bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none z-50"
             >
               <FaTimes className="text-2xl" />
             </button>
 
-            {/* Player de vídeo */}
-            <div className="w-full md:w-2/3 flex items-center justify-center bg-black">
+            {/* Player de vídeo centralizado */}
+            <div className="flex justify-center items-center">
               <video
-                src={videos.mediaUrl}
+                src={selectedVideo.mediaUrl || selectedVideo.src}
                 controls
-                className="w-full h-auto max-h-[90vh] object-contain"
+                autoPlay
+                className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
               />
-            </div>
-
-            {/* Informações e interações do vídeo */}
-            <div className="w-full md:w-1/3 p-4 md:p-6 flex flex-col">
-              {/* Informações do usuário ou do vídeo */}
-              <div className="flex items-center mb-4">
-                <Image
-                  src="/assets/mulher.png"
-                  alt="Perfil"
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
-                <div className="ml-3">
-                  <h3 className="text-black font-bold">Melissa Nascimento</h3>
-                  <p className="text-gray-500 text-sm">Moema, São Paulo - SP</p>
-                </div>
-              </div>
-              {/* Curtidas e data de postagem */}
-              <p className="text-gray-700 mb-4">
-                <span className="font-semibold">{selectedVideo.likes} curtidas</span> • Postado há 1 ano
-              </p>
-              {/* Legenda do vídeo */}
-              <p className="text-gray-600">Confira este vídeo incrível!</p>
-
-              {/* Botões de interação */}
-              <div className="flex space-x-4 mt-4">
-                <button
-                  onClick={() => handleLike(selectedVideo.id)}
-                  className="flex items-center space-x-1 text-pink-500 focus:outline-none"
-                >
-                  <FaHeart />
-                  <span>{selectedVideo.likes}</span>
-                </button>
-                {/* <button
-                  onClick={() => {
-                    // Função para abrir modal de comentários ou similar
-                    alert("Função de comentários ainda não implementada.");
-                  }}
-                  className="flex items-center space-x-1 text-gray-600 focus:outline-none"
-                >
-                  <FaComment />
-                  <span>{selectedVideo.commentsCount}</span>
-                </button> */}
-                <button
-                  onClick={handleShare}
-                  className="flex items-center space-x-1 text-gray-600 focus:outline-none"
-                >
-                  <FaShare />
-                </button>
-              </div>
-
-              {/* Campo para adicionar comentário */}
-              {/* <div className="mt-4">
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={handleCommentChange}
-                  placeholder="Escreva um comentário..."
-                  className="w-full p-2 border border-gray-300 rounded-md text-black focus:outline-none"
-                />
-                <button
-                  onClick={addComment}
-                  className="w-full mt-2 p-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition duration-300 focus:outline-none"
-                >
-                  Comentar
-                </button>
-              </div> */}
-
-              {/* Lista de comentários */}
-              {/* <div className="mt-4 max-h-32 overflow-y-auto">
-                {Array.isArray(selectedVideo.comments) && selectedVideo.comments.length > 0 ? (
-                  selectedVideo.comments.map((comment, index) => (
-                    <p
-                      key={index}
-                      className="text-gray-700 text-sm mt-2 border-b border-gray-200 pb-2"
-                    >
-                      {comment}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-sm">Nenhum comentário ainda.</p>
-                )}
-              </div> */}
             </div>
           </div>
         </div>
       )}
+
 
       {/* Carregar mais vídeos */}
       <div className="mt-6 flex justify-center">

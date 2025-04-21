@@ -16,8 +16,11 @@ export default function TopAnunciantes() {
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top10/listar`,
-    );
-    console.log(res.data);
+      );
+      if (res.data.length === 0) {
+        console.log("Nenhum anunciante encontrado.");
+        return;
+      }
       setCompanions(res.data);
     } catch (error) {
       console.error("Erro ao buscar top 10:", error);
@@ -130,7 +133,7 @@ export default function TopAnunciantes() {
               </p>
 
               <p className="text-sm text-gray-500 mt-1">
-              {anunciante.plan} — {anunciante.points} pts
+                {anunciante.plan} — {anunciante.points} pts
 
               </p>
 

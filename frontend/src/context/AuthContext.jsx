@@ -4,7 +4,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { searchUserId } from "@/utils/searchUserId";
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 export const AuthContext = createContext();
 
@@ -23,9 +23,18 @@ export const AuthContextProvider = ({ children }) => {
 
     const login = async (inputs) => {
         try {
+            const fp = await FingerprintJS.load();
+            const result = await fp.get();
+            const fingerprint = result.visitorId;
+
+            const loginData = {
+                ...inputs,
+                browser_fingerprint: fingerprint
+            };
+            
             const res = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
-                inputs,
+                loginData,
                 {
                     withCredentials: true,
                     headers: {
@@ -114,23 +123,23 @@ export const AuthContextProvider = ({ children }) => {
     useEffect(() => {
         const token = Cookies.get("userToken");
         const tipoPerfil = Cookies.get("userType");
-      
+
         if (token && tipoPerfil && !currentUser) {
-          try {
-            const decoded = jwtDecode(token);
-            setCurrentUser(decoded);
-            setIsAuthenticated(true);
-            fetchUserData();
-          } catch (err) {
-            setCurrentUser(null);
-            setIsAuthenticated(false);
-            Cookies.remove("userToken");
-          }
+            try {
+                const decoded = jwtDecode(token);
+                setCurrentUser(decoded);
+                setIsAuthenticated(true);
+                fetchUserData();
+            } catch (err) {
+                setCurrentUser(null);
+                setIsAuthenticated(false);
+                Cookies.remove("userToken");
+            }
         } else {
-          setLoadingUserInfo(false);
+            setLoadingUserInfo(false);
         }
-      }, [fetchUserData]);
-      
+    }, [fetchUserData]);
+
 
     return (
         <AuthContext.Provider

@@ -486,7 +486,7 @@ export default function Perfil() {
             />
           </div>
           <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {categories.map((cat) => (
+            {/* {categories.map((cat) => (
               <button
                 key={cat.value}
                 type="button"
@@ -496,7 +496,7 @@ export default function Perfil() {
               >
                 {cat.label}
               </button>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>

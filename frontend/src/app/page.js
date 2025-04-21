@@ -8,6 +8,7 @@ import Footer from "@/components/Home/footer";
 import VerMais from "@/components/Home/vermais";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
+import ConsentModal from "@/components/ConsentModal";
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,8 @@ export default function HomePage() {
         </div>
       )}
 
+      {!loading && <ConsentModal />}
+      
       <div className={`transition-opacity duration-1000 ${loading ? "opacity-0" : "opacity-100"}`}>
         <Navbar bgColor="white" />
         <HeroSection />

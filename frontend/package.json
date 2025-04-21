@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.1.5",
     "@mercadopago/sdk-js": "^0.0.3",

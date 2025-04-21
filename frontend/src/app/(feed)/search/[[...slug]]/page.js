@@ -394,7 +394,7 @@ export default function Search() {
                 readOnly
               />
             </div>
-            <div className="flex items-center justify-between gap-2 sm:gap-4">
+            {/* <div className="flex items-center justify-between gap-2 sm:gap-4">
               {categories.map((cat) => (
                 <button
                   key={cat.value}
@@ -406,7 +406,7 @@ export default function Search() {
                   {cat.label}
                 </button>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
 

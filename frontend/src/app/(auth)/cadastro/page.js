@@ -241,7 +241,11 @@ export default function CadastroPage() {
     };
 
     const verifyCpf = async () => {
-        if (cpf.length !== 11 || !dataNascimento) {
+        console.log("Verificando CPF:", cpf); // Log do CPF sendo verificado
+        
+        const cpfLimpo = cpf.replace(/\D/g, ""); // Remove pontos e traços
+
+        if (cpfLimpo.length !== 11 || !dataNascimento) {
             setErrorsInput((prevErrors) => ({
                 ...prevErrors,
                 cpf: "CPF e data de nascimento são obrigatórios.",
@@ -253,11 +257,14 @@ export default function CadastroPage() {
         setLoadingCpf(true);
         setIsCpfValid(null);
 
+
+        console.log("Dados enviados:", { cpf: cpfLimpo, dataNascimento }); // Log dos dados enviados
+
         try {
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-cpf`,
                 {
-                    cpf: cpf,
+                    cpf: cpfLimpo,
                     data_nascimento: dataNascimento,
                 },
                 {
@@ -266,7 +273,7 @@ export default function CadastroPage() {
                     },
                 }
             );
-
+            console.log("Resposta do servidor:", response.data); // Log da resposta do servidor
             if (response.data.maior_de_idade) {
                 setIsCpfValid(true);
                 setErrorsInput((prevErrors) => {

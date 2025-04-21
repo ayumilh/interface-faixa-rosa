@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { tv } from "tailwind-variants";
 
 const inputClass = tv({
-  base: "block w-full px-4 py-2 border rounded-lg shadow-sm transition duration-200 text-gray-800",
+  base: "block w-full px-4 py-2 pr-28 border rounded-lg shadow-sm transition duration-200 text-gray-800", // espaço extra à direita
   variants: {
     valid: {
       true: "border-gray-300 focus:ring-pink-500 focus:border-pink-500",
@@ -25,12 +24,6 @@ export default function CpfField({
   isLoading,
   error,
 }) {
-  useEffect(() => {
-    if (value.length === 11) {
-      onVerify();
-    }
-  }, [value]);
-
   const handleMask = (v) => {
     return v
       .replace(/\D/g, "")
@@ -56,12 +49,23 @@ export default function CpfField({
           maxLength={14}
           className={inputClass({ valid: isValid !== false })}
         />
-        {isLoading && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <FaSpinner className="animate-spin text-pink-500" />
-          </div>
-        )}
+
+        <div className="absolute right-1 top-1/2 transform -translate-y-1/2">
+          {isLoading ? (
+            <FaSpinner className="animate-spin text-pink-500 text-lg" />
+          ) : (
+            <button
+              type="button"
+              onClick={onVerify}
+              disabled={value.replace(/\D/g, "").length !== 11}
+              className="text-xs bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 rounded"
+            >
+              Verificar
+            </button>
+          )}
+        </div>
       </div>
+
       {isValid !== null && (
         <p className={`mt-1 text-sm ${isValid ? "text-green-500" : "text-red-500"}`}>
           {isValid ? "CPF válido e maior de idade" : error || "CPF inválido"}

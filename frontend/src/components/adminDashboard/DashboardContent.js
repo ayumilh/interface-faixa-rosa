@@ -86,18 +86,18 @@ const DashboardContent = () => {
       icon: FaFileInvoiceDollar,
       subItems: [],
     },
-    {
-      id: "estatisticas",
-      label: "Estatísticas e Relatórios",
-      icon: FaChartLine,
-      subItems: [],
-    },
-    {
-      id: "suporte",
-      label: "Suporte e Atendimento",
-      icon: FaLifeRing,
-      subItems: [],
-    },
+    // {
+    //   id: "estatisticas",
+    //   label: "Estatísticas e Relatórios",
+    //   icon: FaChartLine,
+    //   subItems: [],
+    // },
+    // {
+    //   id: "suporte",
+    //   label: "Suporte e Atendimento",
+    //   icon: FaLifeRing,
+    //   subItems: [],
+    // },
   ];
 
   const handleMainTabClick = (tabId) => {

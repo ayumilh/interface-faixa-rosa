@@ -9,13 +9,23 @@ import {
     FaHistory,
     FaFlag,
     FaSpinner,
-    FaVideo
+    FaVideo,
+    FaTrash,
+    FaUser,
+    FaClipboardList,
+    FaMapMarkerAlt,
+    FaCalendarAlt,
+    FaPhoneAlt,
+    FaRuler,
+    FaWeight,
+    FaStar
 } from "react-icons/fa";
 import Modal from "./Modal";
 import Tooltip from "../common/Tooltip";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import ModalEditarPlano from "./modalAction/ModalEditarPlano";
 
 const Anunciantes = () => {
     const [modal, setModal] = useState({ isOpen: false, content: null });
@@ -31,7 +41,6 @@ const Anunciantes = () => {
                         headers: { Authorization: `Bearer ${userToken}` },
                     }
                 );
-                console.log("Anunciantes carregados:", response.data); // Verifique se os dados estão corretos
                 setAnunciantes(response.data);
             } catch (error) {
                 console.error("Erro ao buscar anunciantes:", error);
@@ -304,8 +313,8 @@ const Anunciantes = () => {
 
     const [planos, setPlanos] = useState([]);
     const [planosExtras, setPlanosExtras] = useState([]);
-    const [selectedPlano, setSelectedPlano] = useState("");
-    const [selectedPlanoExtra, setSelectedPlanoExtra] = useState(null);
+    const [selectedPlano, setSelectedPlano] = useState(null);
+    const [selectedPlanoExtra, setSelectedPlanoExtra] = useState([]);
 
     // Carregar planos e planos extras
     useEffect(() => {
@@ -315,7 +324,6 @@ const Anunciantes = () => {
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans`,
                 );
                 const planosData = response.data;
-                console.log("Planos carregados:", planosData);  // Verifique se os dados estão corretos
                 setPlanos(planosData.filter(plano => plano.isBasic)); // Filtra os planos básicos
                 setPlanosExtras(planosData.filter(plano => !plano.isBasic)); // Filtra os planos extras
             } catch (error) {
@@ -326,64 +334,118 @@ const Anunciantes = () => {
         fetchPlanos();
     }, []);
 
-    const handleEditarPlano = (anunciante) => {
-        console.log("Editar plano de:", anunciante);  // Verifique se o nome do anunciante está correto
+    const handleSalvarPlanoBasico = async (
+        anuncianteId,
+        selectedPlano,
+        userToken,
+        anunciantePlanId,
+        setModal
+    ) => {
+        console.log("Plano a ser salvo:", selectedPlano);
+        if (selectedPlano === null || isNaN(selectedPlano)) {
+            toast.error("Selecione um plano válido.");
+            return;
+        }
 
-        setSelectedPlano(anunciante.plan?.id || "");
+        try {
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-plan`,
+                { planId: Number(selectedPlano) },
+                {
+                    headers: {
+                        Authorization: `Bearer ${userToken}`,
+                    },
+                }
+            );
+            toast.success("Plano básico atualizado com sucesso!");
 
-        const handleAtualizarPlano = async (selectedPlano) => {
-            console.log("ID do plano selecionado:", selectedPlano);  // Verifique se o ID do plano está correto
-            if (!selectedPlano) {
-                console.log("Selecione um plano antes de atualizar");
-                return;  // Se o plano não for selecionado, não faça nada
-            }
+            const updatedPlan = planos.find((p) => p.id === Number(selectedPlano));
+            setAnunciantes((prev) =>
+                prev.map((a) =>
+                    a.id === anuncianteId ? { ...a, plan: updatedPlan } : a
+                )
+            );
 
-            try {
-                // Atualiza o plano básico
+            setModal({ isOpen: false, content: null });
+        } catch (err) {
+            console.error("Erro ao salvar plano básico:", err);
+            toast.error("Erro ao atualizar o plano básico.");
+        }
+    };
+
+
+    const handleSalvarPlanoExtra = async (
+        anuncianteId,
+        selectedPlanoExtra,
+        userToken,
+        setModal
+    ) => {
+        try {
+            const allExtrasIds = planosExtras.map((extra) => extra.id);
+            const selecionados = new Set(selectedPlanoExtra);
+
+            for (const extraId of allExtrasIds) {
+                const isChecked = selecionados.has(extraId);
+
                 await axios.put(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/update-plan`,
-                    { planId: selectedPlano },  // Garantir que o selectedPlano seja um número
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
+                    {
+                        extraPlanId: extraId,
+                        isChecked: isChecked,
+                    },
                     {
                         headers: {
-                            Authorization: `Bearer ${userToken}`,  // Certifique-se de incluir o token aqui
-                        }
+                            Authorization: `Bearer ${userToken}`,
+                        },
                     }
                 );
-                toast.success("Plano atualizado com sucesso!");
-            } catch (error) {
-                console.error("Erro ao atualizar o plano:", error);
             }
-        };
 
+            toast.success("Planos extras atualizados com sucesso!");
+
+            const extrasSelecionados = planosExtras.filter((p) =>
+                selectedPlanoExtra.includes(p.id)
+            );
+
+            setAnunciantes((prev) =>
+                prev.map((a) =>
+                    a.id === anuncianteId
+                        ? {
+                            ...a,
+                            subscriptions: extrasSelecionados.map((extra) => ({
+                                extraPlan: extra,
+                            })),
+                        }
+                        : a
+                )
+            );
+
+            setModal({ isOpen: false, content: null });
+        } catch (err) {
+            console.error("Erro ao salvar planos extras:", err);
+            toast.error("Erro ao atualizar os planos extras.");
+        }
+    };
+
+
+    const handleEditarPlano = (anunciante) => {
         setModal({
             isOpen: true,
             content: (
-                <>
-                    <h2 className="text-xl font-semibold">Editar Plano de {anunciante.name}</h2>
-                    <div className="mt-4">
-                        <label htmlFor="planoBasico" className="block text-sm font-medium text-gray-700">Plano Básico</label>
-                        <select
-                            id="planoBasico"
-                            value={selectedPlano}  // Vincule o value ao estado selecionado
-                            onChange={(e) => {
-                                const selectedValue = e.target.value;
-                                console.log("Plano selecionado:", selectedValue);  // Verifique o valor do ID
-                                handleAtualizarPlano(selectedValue);  // Passa o ID do plano diretamente para a função
-                            }}
-                            className="mt-1 block w-full border-gray-300 rounded-md"
-                        >
-                            <option value="">Selecione um plano básico</option>
-                            {planos.map((plano) => (
-                                <option key={plano.id} value={plano.id}>  {/* O value é o ID do plano */}
-                                    {plano.name} - {plano.price} R$
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </>
-            ),
+                <ModalEditarPlano
+                    anunciante={anunciante}
+                    planos={planos}
+                    planosExtras={planosExtras}
+                    userToken={userToken}
+                    onClose={() => setModal({ isOpen: false, content: null })}
+                    onSalvarPlanoBasico={handleSalvarPlanoBasico}
+                    onSalvarPlanoExtra={handleSalvarPlanoExtra}
+                />
+            )
         });
+
     };
+
 
     const handleMonitorarPostagens = async (anunciante) => {
         try {
@@ -563,6 +625,49 @@ const Anunciantes = () => {
         }
     };
 
+    const handleDeletarAnunciante = (anunciante) => {
+        const confirmarExclusao = async (id) => {
+            try {
+                await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/deletar/${id}`, {
+                    headers: { Authorization: `Bearer ${userToken}` },
+                });
+                toast.success("Anunciante excluído com sucesso!");
+                setAnunciantes(prev => prev.filter(a => a.id !== id));
+                setModal({ isOpen: false, content: null });
+            } catch (error) {
+                console.error("Erro ao excluir anunciante:", error);
+                toast.error("Erro ao excluir anunciante.");
+            }
+        };
+
+        setModal({
+            isOpen: true,
+            content: (
+                <>
+                    <h2 className="text-xl font-semibold text-red-600">Excluir Anunciante</h2>
+                    <p className="text-gray-700 mt-2">
+                        Tem certeza que deseja <strong>excluir</strong> o perfil de <strong>{anunciante.name}</strong>?<br />
+                        Essa ação é <span className="text-red-500 font-bold">irreversível</span>!
+                    </p>
+                    <div className="mt-4 flex justify-end space-x-2">
+                        <button
+                            onClick={() => confirmarExclusao(anunciante.id)}
+                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                            Confirmar Exclusão
+                        </button>
+                        <button
+                            onClick={() => setModal({ isOpen: false, content: null })}
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </>
+            ),
+        });
+    };
+
     const handleAprovarRejeitarVideo = (anunciante) => {
         // Aprovar vídeo
         const handleAprovarVideo = async (anunciante) => {
@@ -699,6 +804,140 @@ const Anunciantes = () => {
         });
     };
 
+    // Adicione dentro do componente Anunciantes
+    const handleVerDetalhesAnunciante = async (anunciante) => {
+        try {
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/detalhes`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${userToken}`,
+                    },
+                }
+            );
+            console.log("Dados do anunciante:", response.data);
+            const dados = response.data;
+
+            setModal({
+                isOpen: true,
+                content: (
+                    <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-xl text-sm overflow-y-auto max-h-[80vh] relative pr-6 ">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <FaUser className="text-gray-500" /> Perfil da Acompanhante
+                        </h2>
+
+                        {/* Dados da Usuária */}
+                        <section className="mb-6 border-b pb-4">
+                            <h3 className="text-lg font-semibold text-pink-500 mb-2 flex items-center gap-2">
+                                Dados da Usuária
+                            </h3>
+                            <div className="grid grid-cols-2 gap-2 text-gray-700 text-sm">
+                                <div><strong>ID:</strong> {dados.user?.id}</div>
+                                <div><strong>Nome:</strong> {dados.user?.firstName} {dados.user?.lastName}</div>
+                                <div><strong>Email:</strong> {dados.user?.email}</div>
+                                <div><strong>CPF:</strong> {dados.user?.cpf}</div>
+                                <div><strong>Nascimento:</strong> {dados.user?.birthDate && new Date(dados.user.birthDate).toLocaleDateString()}</div>
+                                <div><strong>Tipo:</strong> {dados.user?.userType}</div>
+                                <div><strong>Visível:</strong> {dados.user?.profileVisibility ? "Sim" : "Não"}</div>
+                                <div><strong>Criado:</strong> {new Date(dados.user?.createdAt).toLocaleString()}</div>
+                            </div>
+                        </section>
+
+                        {/* Status e Local */}
+                        <section className="mb-6 border-b pb-4">
+                            <h3 className="text-lg font-semibold text-pink-500 mb-2 flex items-center gap-2">
+                                Plano e Status
+                            </h3>
+                            <ul className="text-gray-700 text-sm space-y-1">
+                                <li><strong>Plano:</strong> {dados.plan?.name || "Sem plano"}</li>
+                                <li><strong>Status do Perfil:</strong> {dados.profileStatus}</li>
+                                <li><strong>Status Documento:</strong> {dados.documentStatus}</li>
+                                <li><strong>Status da Mídia:</strong> {dados.media?.[0]?.status || "Sem mídia"}</li>
+                                <li><strong>Localização:</strong> <FaMapMarkerAlt className="inline mr-1 text-gray-400" /> {dados.city} / {dados.state}</li>
+                            </ul>
+                        </section>
+
+                        {/* Descrição */}
+                        <section className="mb-6 border-b pb-4">
+                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Descrição</h3>
+                            <p className="text-gray-700 text-sm whitespace-pre-line">{dados.description || "Não informada"}</p>
+                        </section>
+
+                        {/* Contato */}
+                        <section className="mb-6 border-b pb-4">
+                            <h3 className="text-lg font-semibold text-pink-500 mb-2 flex items-center gap-2">
+                                Contato
+                            </h3>
+                            {dados.contactMethods?.length > 0 ? (
+                                <ul className="text-sm text-gray-700">
+                                    {dados.contactMethods.map((c, i) => (
+                                        <li key={i}>
+                                            WhatsApp: {c.whatsappNumber || "—"} ({c.whatsappCountryCode || "—"})<br />
+                                            Telegram: {c.telegramUsername || "—"}<br />
+                                            Telefone: {c.phoneNumber || "—"} ({c.phoneCountryCode || "—"})
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-gray-500 text-sm">Nenhum contato cadastrado.</p>
+                            )}
+                        </section>
+
+                        {/* Serviços */}
+                        <section className="mb-6 border-b pb-4">
+                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Serviços Oferecidos</h3>
+                            {dados.servicesOffered?.length > 0 ? (
+                                <ul className="grid grid-cols-2 gap-x-6 text-sm text-gray-700 list-disc list-inside">
+                                    {dados.servicesOffered.map((s) => (
+                                        <li key={s.id}>{s.service.name} - R$ {s.price?.toFixed(2) || "N/A"}</li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-gray-500 text-sm">Nenhum serviço informado.</p>
+                            )}
+                        </section>
+
+                        {/* Físico */}
+                        <section className="mb-6 border-b pb-4">
+                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Características Físicas</h3>
+                            <div className="text-gray-700 text-sm grid grid-cols-2 gap-2">
+                                <div><FaWeight className="inline mr-1 text-gray-400" /> Peso: {dados.PhysicalCharacteristics?.weight || "N/A"} kg</div>
+                                <div><FaRuler className="inline mr-1 text-gray-400" /> Altura: {dados.PhysicalCharacteristics?.height || "N/A"} cm</div>
+                                <div><strong>Etnia:</strong> {dados.PhysicalCharacteristics?.ethnicity || "N/A"}</div>
+                                <div><strong>Silicone:</strong> {dados.PhysicalCharacteristics?.hasSilicone ? "Sim" : "Não"}</div>
+                                <div><strong>Tatuagens:</strong> {dados.PhysicalCharacteristics?.hasTattoos ? "Sim" : "Não"}</div>
+                            </div>
+                        </section>
+
+                        {/* Extras */}
+                        <section className="mb-6">
+                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Outros Dados</h3>
+                            <ul className="text-gray-700 text-sm space-y-1">
+                                <li><FaFileAlt className="inline mr-1 text-gray-400" /> Stories Ativos: {dados.Story?.length || 0}</li>
+                                <li><FaFileAlt className="inline mr-1 text-gray-400" /> Documentos Enviados: {dados.documents?.length || 0}</li>
+                                <li><FaStar className="inline mr-1 text-gray-400" /> Total de Reviews: {dados.reviews?.length || 0}</li>
+                            </ul>
+                        </section>
+
+                        <div className="flex justify-end mt-6">
+                            <button
+                                onClick={() => setModal({ isOpen: false, content: null })}
+                                className="px-5 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition"
+                            >
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                )
+            });
+
+        } catch (error) {
+            console.error("Erro ao buscar detalhes:", error);
+            toast.error("Erro ao buscar detalhes da anunciante.");
+        }
+    };
+
+
     const renderTable = (anunciantes) => {
         return (
             <div className="overflow-x-auto">
@@ -715,7 +954,7 @@ const Anunciantes = () => {
                     </thead>
                     <tbody>
                         {anunciantes.map((anunciante) => (
-                            <tr key={anunciante.id} className="border-b hover:bg-gray-50">
+                            <tr key={anunciante.id} onClick={() => handleVerDetalhesAnunciante(anunciante)} className="border-b hover:bg-gray-50 cursor-pointer">
                                 <td className="py-4 px-4 text-gray-700">{anunciante.name}</td>
                                 <td className="py-4 px-4 text-gray-700">{anunciante.plan?.name}</td>
                                 <td className="py-4 px-4">
@@ -791,11 +1030,12 @@ const Anunciantes = () => {
                                                         : "Sem Vídeo"}
                                     </span>
                                 </td>
-
                                 <td className="py-4 px-4 text-center space-x-2 flex justify-center">
-
-                                    {anunciante.documentStatus && (
-                                        <>
+                                    <div
+                                        className="flex space-x-2"
+                                        onClick={(e) => e.stopPropagation()} // <-- impede abrir o modal
+                                    >
+                                        {anunciante.documentStatus && (
                                             <Tooltip content="Verificar Documentos">
                                                 <button
                                                     onClick={() => handleVerificarDocumentos(anunciante)}
@@ -805,72 +1045,83 @@ const Anunciantes = () => {
                                                     <FaFileAlt size={16} />
                                                 </button>
                                             </Tooltip>
-                                        </>
-                                    )}
+                                        )}
 
-                                    <Tooltip content={anunciante.profileStatus === "ACTIVE" ? "Suspender Perfil" : "Ativar Perfil"}>
-                                        <button
-                                            onClick={() => handleAtivarDesativar(anunciante)}
-                                            className={`${anunciante.profileStatus === "ACTIVE"
-                                                ? "text-yellow-600 hover:text-yellow-800"
-                                                : "text-green-600 hover:text-green-800"
-                                                } transition`}
-                                            aria-label={anunciante.profileStatus === "ACTIVE" ? "Suspender Perfil" : "Ativar Perfil"}
-                                        >
-                                            {anunciante.profileStatus === "ACTIVE" ? <FaBan size={16} /> : <FaCheck size={16} />}
-                                        </button>
-                                    </Tooltip>
+                                        <Tooltip content={anunciante.profileStatus === "ACTIVE" ? "Suspender Perfil" : "Ativar Perfil"}>
+                                            <button
+                                                onClick={() => handleAtivarDesativar(anunciante)}
+                                                className={`${anunciante.profileStatus === "ACTIVE"
+                                                    ? "text-yellow-600 hover:text-yellow-800"
+                                                    : "text-green-600 hover:text-green-800"
+                                                    } transition`}
+                                                aria-label="Ativar/Suspender Perfil"
+                                            >
+                                                {anunciante.profileStatus === "ACTIVE" ? <FaBan size={16} /> : <FaCheck size={16} />}
+                                            </button>
+                                        </Tooltip>
 
-                                    <Tooltip content="Aprovar/Rejeitar Vídeo">
-                                        <button
-                                            onClick={() => handleAprovarRejeitarVideo(anunciante)}
-                                            className="text-green-600 hover:text-green-800 transition"
-                                            aria-label="Aprovar/Rejeitar Vídeo"
-                                        >
-                                            <FaVideo size={16} />
-                                        </button>
-                                    </Tooltip>
+                                        <Tooltip content="Aprovar/Rejeitar Vídeo">
+                                            <button
+                                                onClick={() => handleAprovarRejeitarVideo(anunciante)}
+                                                className="text-green-600 hover:text-green-800 transition"
+                                                aria-label="Aprovar/Rejeitar Vídeo"
+                                            >
+                                                <FaVideo size={16} />
+                                            </button>
+                                        </Tooltip>
 
-                                    <Tooltip content="Editar Plano">
-                                        <button
-                                            onClick={() => handleEditarPlano(anunciante)}
-                                            className="text-purple-600 hover:text-purple-800 transition"
-                                            aria-label="Editar Plano"
-                                        >
-                                            <FaEdit size={16} />
-                                        </button>
-                                    </Tooltip>
+                                        <Tooltip content="Editar Plano">
+                                            <button
+                                                onClick={() => handleEditarPlano(anunciante)}
+                                                className="text-purple-600 hover:text-purple-800 transition"
+                                                aria-label="Editar Plano"
+                                            >
+                                                <FaEdit size={16} />
+                                            </button>
+                                        </Tooltip>
 
-                                    <Tooltip content="Monitorar Postagens">
-                                        <button
-                                            onClick={() => handleMonitorarPostagens(anunciante)}
-                                            className="text-gray-600 hover:text-gray-800 transition"
-                                            aria-label="Monitorar Postagens"
-                                        >
-                                            <FaEye size={16} />
-                                        </button>
-                                    </Tooltip>
+                                        <Tooltip content="Monitorar Postagens">
+                                            <button
+                                                onClick={() => handleMonitorarPostagens(anunciante)}
+                                                className="text-gray-600 hover:text-gray-800 transition"
+                                                aria-label="Monitorar Postagens"
+                                            >
+                                                <FaEye size={16} />
+                                            </button>
+                                        </Tooltip>
 
-                                    <Tooltip content="Reportar Conteúdo Indevido">
-                                        <button
-                                            onClick={() => handleReportarConteudo(anunciante)}
-                                            className="text-pink-500 hover:text-pink-700 transition"
-                                            aria-label="Reportar Conteúdo Indevido"
-                                        >
-                                            <FaFlag size={16} />
-                                        </button>
-                                    </Tooltip>
+                                        <Tooltip content="Reportar Conteúdo Indevido">
+                                            <button
+                                                onClick={() => handleReportarConteudo(anunciante)}
+                                                className="text-pink-500 hover:text-pink-700 transition"
+                                                aria-label="Reportar Conteúdo Indevido"
+                                            >
+                                                <FaFlag size={16} />
+                                            </button>
+                                        </Tooltip>
 
-                                    <Tooltip content="Ver Histórico">
-                                        <button
-                                            onClick={() => handleVerHistorico(anunciante)}
-                                            className="text-indigo-600 hover:text-indigo-800 transition"
-                                            aria-label="Ver Histórico"
-                                        >
-                                            <FaHistory size={16} />
-                                        </button>
-                                    </Tooltip>
+                                        <Tooltip content="Ver Histórico">
+                                            <button
+                                                onClick={() => handleVerHistorico(anunciante)}
+                                                className="text-indigo-600 hover:text-indigo-800 transition"
+                                                aria-label="Ver Histórico"
+                                            >
+                                                <FaHistory size={16} />
+                                            </button>
+                                        </Tooltip>
+
+                                        <Tooltip content="Excluir Anunciante">
+                                            <button
+                                                onClick={() => handleDeletarAnunciante(anunciante)}
+                                                className="text-red-500 hover:text-red-700 transition"
+                                                aria-label="Excluir Anunciante"
+                                            >
+                                                <FaTrash size={16} />
+                                            </button>
+                                        </Tooltip>
+                                    </div>
                                 </td>
+
                             </tr>
                         ))}
                     </tbody>

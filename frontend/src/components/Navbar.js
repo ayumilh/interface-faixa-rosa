@@ -171,8 +171,10 @@ export default function Navbar({ bgColor = "pink" }) {
                     />
                   ) : (
                     <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
-                      {userInfo?.userName?.charAt(0).toUpperCase()}
-                    </span>
+                    {userInfo?.userType === "ADMIN"
+                      ? userInfo?.firstName?.charAt(0).toUpperCase()
+                      : userInfo?.userName?.charAt(0).toUpperCase()}
+                  </span>
                   )}
                 </div>
               </button>

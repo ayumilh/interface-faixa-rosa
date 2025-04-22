@@ -15,7 +15,7 @@ export default function TopAnunciantes() {
   const fetchCompanions = async () => {
     try {
       const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top10/listar`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top5/listar`,
       );
       if (res.data.length === 0) {
         console.log("Nenhum anunciante encontrado.");
@@ -23,7 +23,7 @@ export default function TopAnunciantes() {
       }
       setCompanions(res.data);
     } catch (error) {
-      console.error("Erro ao buscar top 10:", error);
+      console.error("Erro ao buscar top 5:", error);
     }
   };
 
@@ -95,8 +95,8 @@ export default function TopAnunciantes() {
 
   return (
     <div className="bg-[#ebeff1] py-16 px-4">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-10 font-[Poppins]">
-        Top 10 Anunciantes do Brasil
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-5 font-[Poppins]">
+        Top 5 Anunciantes do Brasil
       </h2>
 
       <div className="relative max-w-5xl mx-auto">
@@ -104,7 +104,7 @@ export default function TopAnunciantes() {
           ref={scrollRef}
           className="flex overflow-x-auto gap-6 snap-x snap-mandatory px-4 scrollbar-hide cursor-grab active:cursor-grabbing select-none"
         >
-          {companions.slice(0, 10).map((anunciante, index) => (
+          {companions.slice(0, 5).map((anunciante, index) => (
             <motion.div
               key={anunciante.userName}
               initial={{ opacity: 0, y: 30 }}

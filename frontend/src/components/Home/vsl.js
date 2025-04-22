@@ -1,28 +1,30 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
-import { PlayCircle } from "phosphor-react"; // Ícone de Play
+import { PlayCircle } from "phosphor-react";
 
 export default function VideoSection() {
-  const videoRef = useRef(null);
+  const videoRef = useRef(null); // ✅ corrigido
+
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Alternar entre play e pause
   const togglePlayPause = () => {
     const video = videoRef.current;
     if (!video) return;
 
     if (video.paused) {
-      video.muted = false; // Ativar som
+      video.muted = false;
       video.play()
         .then(() => setIsPlaying(true))
-        .catch((error) => console.error("Erro ao tentar reproduzir o vídeo:", error));
+        .catch((error) =>
+          console.error("Erro ao tentar reproduzir o vídeo:", error)
+        );
     } else {
       video.pause();
       setIsPlaying(false);
     }
   };
 
-  // Sincronizar estado com eventos do vídeo
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -44,7 +46,6 @@ export default function VideoSection() {
 
   return (
     <div className="flex flex-col items-center py-12 px-4 bg-[#FFFFFF] -mt-6">
-      {/* Título com tipografia aprimorada */}
       <h2 className="text-center font-[Poppins] text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-6">
         A{" "}
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-black via-black to-black">
@@ -55,19 +56,16 @@ export default function VideoSection() {
           Publicidade Digital
         </span>{" "}
         chegou ao Brasil!
-        {" "}
-    
       </h2>
 
-      {/* Contêiner do Vídeo */}
       <div
         className="w-full max-w-md sm:max-w-lg md:max-w-xl aspect-video bg-gray-300 rounded-xl overflow-hidden shadow-xl relative cursor-pointer"
         onClick={togglePlayPause}
       >
-        {/* Vídeo */}
         <video
           ref={videoRef}
           src="/vd-faixarosa-01.mp4"
+          poster="/thumb-vd-faixarosa.jpg"
           muted
           loop
           playsInline
@@ -77,7 +75,6 @@ export default function VideoSection() {
           Seu navegador não suporta o elemento de vídeo.
         </video>
 
-        {/* Overlay com Ícone de Play */}
         {!isPlaying && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[rgba(0,0,0,0.6)] transition-opacity duration-300">
             <PlayCircle
@@ -92,7 +89,6 @@ export default function VideoSection() {
         )}
       </div>
 
-      {/* Estilo da Animação do Ícone */}
       <style jsx>{`
         @keyframes pulseGlow {
           0% { transform: scale(1); opacity: 1; }

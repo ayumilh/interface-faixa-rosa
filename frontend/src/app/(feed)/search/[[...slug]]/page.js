@@ -41,7 +41,7 @@ import CardRubiDark from "@/components/search/CardRubiDark";
 const ModalBusca = ({ isOpen, onClose }) => {
   const [city, setCity] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [category, setCategory] = useState("mulher");
+  const [category, setCategory] = useState("acompanhantes");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const inputRef = useRef(null);
@@ -52,7 +52,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
       setCity("");
       setSuggestions([]);
       setLoading(false);
-      setCategory("mulher");
+      setCategory("acompanhantes");
       document.body.style.overflow = "hidden";
 
       if (inputRef.current) {
@@ -217,13 +217,13 @@ const ModalBusca = ({ isOpen, onClose }) => {
               {/* Botões de Categoria */}
               {/* <div className="flex flex-col sm:flex-row sm:justify-between mt-4 gap-2">
                               <button
-                                  className={`flex-1 px-4 py-3 rounded-full font-semibold transition-all ${category === "mulher"
+                                  className={`flex-1 px-4 py-3 rounded-full font-semibold transition-all ${category === "acompanhantes"
                                       ? "bg-pink-500 text-white"
                                       : "bg-gray-100 text-gray-800 hover:bg-pink-100"
                                       }`}
-                                  onClick={() => setCategory("mulher")}
+                                  onClick={() => setCategory("acompanhantes")}
                               >
-                                  Mulheres
+                                  acompanhanteses
                               </button>
                               <button
                                   className={`flex-1 px-4 py-3 rounded-full font-semibold transition-all ${category === "homem"
@@ -305,7 +305,7 @@ export default function Search() {
 
   const [city, setCity] = useState("");
   const [stateUF, setStateUF] = useState("");
-  const [category, setCategory] = useState("mulher");
+  const [category, setCategory] = useState("acompanhantes");
   const [showModalBusca, setShowModalBusca] = useState(false);
   const [showModalFiltro, setShowModalFiltro] = useState(false);
 
@@ -313,7 +313,7 @@ export default function Search() {
 
   // Categorias disponíveis
   const categories = [
-    { label: "Mulheres", value: "mulher" },
+    { label: "acompanhanteses", value: "acompanhantes" },
     { label: "Homens", value: "homem" },
     { label: "Trans", value: "travesti" },
   ];

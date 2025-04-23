@@ -449,7 +449,7 @@ export default function Search() {
                 if (card.plan?.name === "Plano Rubi" && hasDarkMode) {
                   CardComponent = CardRubiDark;
                 } else if (card.plan?.name === "Plano Rubi") {
-                  CardComponent = CardRubi;
+                  CardComponent = CardPink
                 } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
                   CardComponent = CardSafiraDark;
                 } else if (card.plan?.name === "Plano Safira") {

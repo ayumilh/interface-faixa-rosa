@@ -17,7 +17,7 @@ import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 
-const ImageCarousel = ({ carrouselImages }) => {
+const ImageCarousel = ({ carrouselImages, images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
@@ -28,11 +28,11 @@ const ImageCarousel = ({ carrouselImages }) => {
     setCurrentIndex(prevIndex => (prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1));
   };
 
-    const handleDivClick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.nativeEvent?.stopImmediatePropagation();
-    };
+  const handleDivClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation();
+  };
 
   return (
     <div className="relative" onClick={handleDivClick}>
@@ -48,6 +48,8 @@ const ImageCarousel = ({ carrouselImages }) => {
             layout="responsive"
             width={500}
             height={200}
+            loading="eager"
+            priority
             className="rounded-md mb-4 max-h-64 object-cover"
           />
 
@@ -79,17 +81,28 @@ const ImageCarousel = ({ carrouselImages }) => {
             {carrouselImages.map((_, index) => (
               <span
                 key={index}
-                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'} transition-all`}
+                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'
+                  } transition-all`}
               ></span>
             ))}
           </div>
         </>
+      ) : Array.isArray(images) && images.length > 0 && images[0].trim() !== "" ? (
+        <Image
+          src={images[0]}
+          alt="Imagem de perfil"
+          width={500}
+          height={200}
+          layout="responsive"
+          className="rounded-md mb-4 max-h-64 object-cover"
+        />
       ) : (
         <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
           Nenhuma imagem disponível
         </div>
       )}
     </div>
+
   );
 };
 
@@ -274,11 +287,21 @@ const CardRubi = ({
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
+  const [expandido, setExpandido] = useState(false);
+  const [precisaExpandir, setPrecisaExpandir] = useState(false);
+  const textoRef = useRef(null);
+
+  useEffect(() => {
+    const el = textoRef.current;
+    if (el) {
+      // Verifica se o conteúdo está sendo cortado
+      setPrecisaExpandir(el.scrollHeight > el.clientHeight);
+    }
+  }, [description]);
+
   const handleOpenModal = () => {
     setShowModalNumero(true);
   };
-
-  const formattedPrice = plan ? plan.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'A consultar';
 
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
@@ -329,14 +352,14 @@ const CardRubi = ({
       toast.info("Número do WhatsApp não disponível.");
       return;
     }
-  
+
     const numero = contact.whatsappNumber;
     const apelido = userName || "atendente";
     const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
     const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
     const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
     const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
-  
+
     window.open(link, "_blank");
   };
 
@@ -344,15 +367,15 @@ const CardRubi = ({
   return (
     <div className="bg-white border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
       {/* Carrossel de Imagens */}
-      <ImageCarousel carrouselImages={carrouselImages} />
+      <ImageCarousel carrouselImages={carrouselImages} images={images} />
 
       {/* Nome e Status */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-xl font-bold text-red-600">{userName}</h3>
-        <div className="flex items-center">
+        {/* <div className="flex items-center">
           <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
           <span className="text-sm text-green-600">Online</span>
-        </div>
+        </div> */}
       </div>
 
       {/* seleção de serviço */}
@@ -376,7 +399,7 @@ const CardRubi = ({
 
           {/* Dropdown */}
           {isOpen && (
-              <div
+            <div
               className={`
                 ${typeof window !== "undefined" && window.innerWidth <= 768
                   ? "fixed left-4 right-4 top-[42%]"
@@ -415,9 +438,6 @@ const CardRubi = ({
           )}
         </div>
       )}
-
-      {/* Descrição curta */}
-      <p className="text-sm italic text-gray-600 mb-3">{description}</p>
 
       {/* Informações */}
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
@@ -462,11 +482,24 @@ const CardRubi = ({
             <p className="text-black">{location}</p>
           </div>
         </div>
-
-        {/* Descrição detalhada e Serviços */}
         <div className="border-l border-gray-300 pl-4">
-          <p className="text-black mb-2">{description}</p>
+
+        {/* descrição */}
+        <div className="text-black mb-2" onClick={e => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+          <p ref={textoRef} className={`${expandido ? '' : 'line-clamp-6'} transition-all`}>
+            {description}
+          </p>
+
+          {precisaExpandir && (
+            <button
+              onClick={() => setExpandido(!expandido)}
+              className="text-pink-500 underline text-sm mt-1"
+            >
+              {expandido ? "Ver menos" : "Ver mais"}
+            </button>
+          )}
         </div>
+      </div>
       </div>
 
       {/* Botão de contato aprimorado */}

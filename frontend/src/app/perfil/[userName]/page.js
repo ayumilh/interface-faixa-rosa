@@ -22,6 +22,8 @@ import {
   FaMale,
   FaSearch,
   FaRegCopy,
+  FaTimes,
+  FaRegHeart,
 } from 'react-icons/fa';
 import { IoIosArrowBack } from "react-icons/io";
 import Final from '@/components/search/final';
@@ -35,6 +37,7 @@ import {
   ArrowRight,
   MapPin,
 } from "phosphor-react";
+
 import { toast } from 'react-toastify';
 
 // Componente de Modal para Busca
@@ -306,13 +309,15 @@ export default function Perfil() {
   const [showModalNumero, setShowModalNumero] = useState(false); // Controle do modal de número
   const [companionData, setCompanionData] = useState(null); // Para armazenar os dados da acompanhante
 
-  const [category, setCategory] = useState("mulher"); // Categoria selecionada
-  // Categorias disponíveis
-  const categories = [
-    { label: "Mulheres", value: "mulher" },
-    { label: "Homens", value: "homem" },
-    { label: "Trans", value: "travesti" },
-  ];
+
+  const [showProfileImageModal, setShowProfileImageModal] = useState(false);
+  const [selectedProfileImage, setSelectedProfileImage] = useState(null);
+
+  const [showBannerModal, setShowBannerModal] = useState(false);
+  const [selectedBannerImage, setSelectedBannerImage] = useState(null);
+
+
+
   const [city, setCity] = useState(""); // Cidade selecionada
   const [stateUF, setStateUF] = useState(""); // Estado selecionado 
 
@@ -664,7 +669,11 @@ export default function Perfil() {
                     alt="Foto de perfil"
                     width={1200}
                     height={300}
-                    className="object-cover h-60 w-[1200px]"
+                    className="object-cover h-60 w-[1200px] cursor-pointer"
+                    onClick={() => {
+                      setSelectedBannerImage(companionData.bannerImage);
+                      setShowBannerModal(true);
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -682,9 +691,12 @@ export default function Perfil() {
                       alt="Foto do perfil"
                       fill
                       sizes="(max-width: 768px) 112px, 128px"
-                      className="object-cover rounded-full"
+                      className="object-cover rounded-full cursor-pointer"
+                      onClick={() => {
+                        setSelectedProfileImage(companionData.profileImage);
+                        setShowProfileImageModal(true);
+                      }}
                     />
-
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                       <span className="text-gray-500 text-sm">Sem foto</span>
@@ -693,6 +705,70 @@ export default function Perfil() {
                   <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-lg" />
                 </div>
               </div>
+
+              {showBannerModal && selectedBannerImage && (
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[9999]"
+                  onClick={() => setShowBannerModal(false)}
+                >
+                  <div
+                    className="relative max-w-6xl w-full mx-auto p-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Botão de fechar */}
+                    <button
+                      onClick={() => setShowBannerModal(false)}
+                      className="absolute top-4 right-4 text-white bg-gray-800 bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none z-50"
+                    >
+                      <FaTimes className="text-2xl" />
+                    </button>
+
+                    {/* Imagem expandida */}
+                    <div className="flex justify-center items-center">
+                      <Image
+                        src={selectedBannerImage}
+                        alt="Banner em tamanho grande"
+                        width={1400}
+                        height={600}
+                        className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
+
+              {showProfileImageModal && selectedProfileImage && (
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[9999]"
+                  onClick={() => setShowProfileImageModal(false)}
+                >
+                  <div
+                    className="relative max-w-3xl w-full mx-auto p-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Botão de fechar */}
+                    <button
+                      onClick={() => setShowProfileImageModal(false)}
+                      className="absolute top-4 right-4 text-white bg-gray-800 bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none z-50"
+                    >
+                      <FaTimes className="text-2xl" />
+                    </button>
+
+                    {/* Imagem expandida */}
+                    <div className="flex justify-center items-center">
+                      <Image
+                        src={selectedProfileImage}
+                        alt="Foto de perfil grande"
+                        width={900}
+                        height={900}
+                        className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
 
               {/* Conteúdo posicionado abaixo da foto */}

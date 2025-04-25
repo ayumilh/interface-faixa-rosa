@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   FaWhatsapp,
   FaMapMarkerAlt,
@@ -41,6 +41,29 @@ const CardSafiraDark = ({
   const [selectedService, setSelectedService] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
 
+  const [expanded, setExpanded] = useState(false);
+  const descRef = useRef(null);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  useEffect(() => {
+    if (expanded && descRef.current) {
+      descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
+
+  const activeImages = useMemo(() => {
+    const base = Array.isArray(carrouselImages) && carrouselImages.length > 0
+      ? carrouselImages
+      : Array.isArray(images) ? images : [];
+
+    return base.map((img) =>
+      typeof img === "string" ? { imageUrl: img } : img
+    );
+  }, [carrouselImages, images]);
+
   useEffect(() => {
     // Definir o primeiro serviço como selecionado por padrão, se disponível
     if (timedServiceCompanion.length > 0) {
@@ -77,16 +100,12 @@ const CardSafiraDark = ({
   }, []);
 
   const handlePrev = () => {
-    setCurrentIndex(prevIndex =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
+    setCurrentIndex(prev => prev === 0 ? activeImages.length - 1 : prev - 1);
   };
 
   const handleNext = () => {
-    setCurrentIndex(prevIndex =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+    setCurrentIndex(prev => prev === activeImages.length - 1 ? 0 : prev + 1);
+  }
 
   const handleOpenModal = () => {
     setShowModalNumero(true);
@@ -107,73 +126,67 @@ const CardSafiraDark = ({
     e.nativeEvent?.stopImmediatePropagation();
   };
 
-    const handleWhatsAppClick = () => {
-      if (!contact || !contact.whatsappNumber) {
-        toast.info("Número do WhatsApp não disponível.");
-        return;
-      }
-    
-      const numero = contact.whatsappNumber;
-      const apelido = userName || "atendente";
-      const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
-      const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
-      const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
-      const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
-    
-      window.open(link, "_blank");
-    };
-    
+  const handleWhatsAppClick = () => {
+    if (!contact || !contact.whatsappNumber) {
+      toast.info("Número do WhatsApp não disponível.");
+      return;
+    }
+
+    const numero = contact.whatsappNumber;
+    const apelido = userName || "atendente";
+    const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
+    const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+
+    window.open(link, "_blank");
+  };
+
 
   return (
     <>
       <div className="bg-black border border-gray-800 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-2xl">
         {/* Carrossel de Imagens */}
-        <div className="relative" onClick={handleDivClick}>
-          {carrouselImages && carrouselImages.length > 0 ? (
+        <div className="relative w-full h-64" onClick={handleDivClick}>
+          {activeImages.length > 0 ? (
             <>
               <Image
-                src={carrouselImages[currentIndex].imageUrl}
-                alt={userName || 'Default Alt Text'}
-                layout="responsive"
-                width={500}
-                height={350}
-                className="rounded-md mb-3 max-h-[350px] object-cover"
+                src={activeImages[currentIndex]?.imageUrl || "/default-image.jpg"}
+                alt={userName || "Foto do anúncio"}
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className="object-cover rounded-md"
+                priority={currentIndex === 0}
               />
+
               <button
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent?.stopImmediatePropagation();
-                  handlePrev();
+                  e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); handlePrev();
                 }}
-                className="absolute top-1/2 left-2 transform -translate-y-1/2 text-white bg-gray-900 hover:bg-gray-800 rounded-full p-2 shadow-md transition"
+                className="absolute top-1/2 left-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
               >
                 <FaChevronLeft />
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation(); 
-                  e.nativeEvent?.stopImmediatePropagation();
-                  handleNext();
+                  e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); handleNext();
                 }}
-                className="absolute top-1/2 right-2 transform -translate-y-1/2 text-white bg-gray-900 hover:bg-gray-800 rounded-full p-2 shadow-md transition"
+                className="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
               >
                 <FaChevronRight />
               </button>
-              {/* Bolinhas de Navegação */}
+
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                {carrouselImages.map((_, index) => (
+                {activeImages.map((_, index) => (
                   <span
                     key={index}
-                    className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-gray-600'
-                      } transition-all`}
+                    className={`w-3 h-3 rounded-full ${index === currentIndex ? "bg-gray-700" : "bg-gray-300"} transition-all`}
                   ></span>
                 ))}
               </div>
             </>
           ) : (
-            <div className="w-full h-56 bg-gray-800 rounded-md mb-3 flex items-center justify-center text-gray-500">
+            <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
               Sem imagem disponível
             </div>
           )}
@@ -257,9 +270,23 @@ const CardSafiraDark = ({
         )}
 
         {/* Descrição curta */}
-        <p className="text-sm italic text-gray-400 mb-3">
-          {description}
-        </p>
+        <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+          <p
+            className={`text-sm italic text-gray-300 transition-all duration-300 ${expanded ? "" : "line-clamp-3 overflow-hidden"
+              }`}
+          >
+            {description}
+          </p>
+
+          {description?.length > 120 && (
+            <button
+              className="text-pink-500 text-xs mt-1 hover:underline focus:outline-none"
+              onClick={toggleExpand}
+            >
+              {expanded ? "Ver menos" : "Ver mais"}
+            </button>
+          )}
+        </div>
 
         {/* Informações */}
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
@@ -268,7 +295,7 @@ const CardSafiraDark = ({
               <div className="flex items-center mt-1">
                 <FaStar className="text-yellow-400 mr-1" />
                 <p className="text-green-500 font-semibold">
-                {totalReviews} review{totalReviews !== 1 ? 's' : ''}
+                  {totalReviews} review{totalReviews !== 1 ? 's' : ''}
                 </p>
               </div>
             ) : null}
@@ -303,11 +330,6 @@ const CardSafiraDark = ({
               <FaMapMarkerAlt className="mr-1 text-red-500" />
               <p className="text-gray-300">{location}</p>
             </div>
-          </div>
-
-          {/* Descrição */}
-          <div className="border-l border-gray-700 pl-4">
-            <p className="text-gray-300">{description}</p>
           </div>
         </div>
 

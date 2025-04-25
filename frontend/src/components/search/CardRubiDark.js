@@ -16,18 +16,28 @@ import {
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
-const ImageCarousel = ({ carrouselImages = [] }) => {
+const ImageCarousel = ({ carrouselImages, images }) => {
+  const fallbackImages = Array.isArray(images) ? images : [];
+  const activeImages =
+    Array.isArray(carrouselImages) && carrouselImages.length > 0
+      ? carrouselImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      )
+      : fallbackImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      );
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
-    setCurrentIndex(
-      prevIndex => (prevIndex === 0 ? carrouselImages.length - 1 : prevIndex - 1)
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? activeImages.length - 1 : prevIndex - 1
     );
   };
 
   const handleNext = () => {
-    setCurrentIndex(
-      prevIndex => (prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1)
+    setCurrentIndex((prevIndex) =>
+      prevIndex === activeImages.length - 1 ? 0 : prevIndex + 1
     );
   };
 
@@ -39,20 +49,20 @@ const ImageCarousel = ({ carrouselImages = [] }) => {
 
   return (
     <div className="relative" onClick={handleDivClick}>
-      {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
+      {activeImages.length > 0 ? (
         <>
           <Image
             src={
-              carrouselImages[currentIndex]?.imageUrl
-                ? carrouselImages[currentIndex].imageUrl
-                : '/default-image.jpg'
+              activeImages[currentIndex]?.imageUrl ||
+              "/default-image.jpg"
             }
             alt={`Imagem ${currentIndex + 1}`}
             layout="responsive"
             width={500}
-            height={300}
-            className="rounded-md mb-4"
+            height={200}
+            className="rounded-md mb-4 max-h-64 object-cover"
           />
+
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -60,7 +70,7 @@ const ImageCarousel = ({ carrouselImages = [] }) => {
               e.nativeEvent?.stopImmediatePropagation();
               handlePrev();
             }}
-            className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-300 bg-black hover:bg-gray-700 rounded-full p-2 shadow-md transition"
+            className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
             aria-label="Imagem anterior"
           >
             <FaChevronLeft />
@@ -72,16 +82,18 @@ const ImageCarousel = ({ carrouselImages = [] }) => {
               e.nativeEvent?.stopImmediatePropagation();
               handleNext();
             }}
-            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-300 bg-black hover:bg-gray-700 rounded-full p-2 shadow-md transition"
+            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
             aria-label="Próxima imagem"
           >
             <FaChevronRight />
           </button>
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {carrouselImages.map((_, index) => (
+            {activeImages.map((_, index) => (
               <span
                 key={index}
-                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-300' : 'bg-gray-700'
+                className={`w-3 h-3 rounded-full ${index === currentIndex
+                    ? "bg-gray-700"
+                    : "bg-gray-300"
                   } transition-all`}
               ></span>
             ))}
@@ -271,6 +283,19 @@ const CardRubiDark = ({
     }
   };
 
+  const [expanded, setExpanded] = useState(false);
+  const descRef = useRef(null);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  useEffect(() => {
+    if (expanded && descRef.current) {
+      descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
+
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
@@ -315,27 +340,27 @@ const CardRubiDark = ({
     };
   }, []);
 
-    const handleWhatsAppClick = () => {
-      if (!contact || !contact.whatsappNumber) {
-        toast.info("Número do WhatsApp não disponível.");
-        return;
-      }
-    
-      const numero = contact.whatsappNumber;
-      const apelido = userName || "atendente";
-      const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
-      const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
-      const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
-      const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
-    
-      window.open(link, "_blank");
-    };
+  const handleWhatsAppClick = () => {
+    if (!contact || !contact.whatsappNumber) {
+      toast.info("Número do WhatsApp não disponível.");
+      return;
+    }
+
+    const numero = contact.whatsappNumber;
+    const apelido = userName || "atendente";
+    const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
+    const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
+    const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
+
+    window.open(link, "_blank");
+  };
 
   return (
     <>
       <div className="bg-black border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
         {/* Carrossel de Imagens */}
-        <ImageCarousel carrouselImages={carrouselImages} />
+        <ImageCarousel carrouselImages={carrouselImages} images={images} />
 
         {/* Nome e Status */}
         <div className="flex justify-between items-center mb-3">
@@ -415,7 +440,23 @@ const CardRubiDark = ({
         )}
 
         {/* Descrição curta */}
-        <p className="text-sm italic text-gray-400 mb-3">{description}</p>
+        <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+          <p
+            className={`text-sm italic text-gray-300 transition-all duration-300 ${expanded ? "" : "line-clamp-3 overflow-hidden"
+              }`}
+          >
+            {description}
+          </p>
+
+          {description?.length > 120 && (
+            <button
+              className="text-pink-500 text-xs mt-1 hover:underline focus:outline-none"
+              onClick={toggleExpand}
+            >
+              {expanded ? "Ver menos" : "Ver mais"}
+            </button>
+          )}
+        </div>
 
         {/* Informações */}
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
@@ -467,8 +508,7 @@ const CardRubiDark = ({
 
           {/* Descrição detalhada e Serviços */}
           <div className="border-l border-gray-500 pl-4">
-            <p className="text-white mb-2">{description}</p>
-            <p className="text-white font-semibold mb-1">Serviços:</p>
+            {/* <p className="text-white font-semibold mb-1">Serviços:</p> */}
             {/* <ul className="list-disc list-inside text-white space-y-1">
               {(services.length > 0 ? services : defaultServices).map(
                 (service, index) => (

@@ -16,33 +16,45 @@ import {
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
+const ImageCarousel = ({ carrouselImages, images }) => {
+  const fallbackImages = Array.isArray(images) ? images : [];
+  const activeImages =
+    Array.isArray(carrouselImages) && carrouselImages.length > 0
+      ? carrouselImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      )
+      : fallbackImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      );
 
-const ImageCarousel = ({ carrouselImages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
-    setCurrentIndex(prevIndex => (prevIndex === 0 ? carrouselImages.length - 1 : prevIndex - 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? activeImages.length - 1 : prevIndex - 1
+    );
   };
 
   const handleNext = () => {
-    setCurrentIndex(prevIndex => (prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === activeImages.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
-    const handleDivClick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.nativeEvent?.stopImmediatePropagation();
-    };
+  const handleDivClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation();
+  };
 
   return (
     <div className="relative" onClick={handleDivClick}>
-      {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
+      {activeImages.length > 0 ? (
         <>
           <Image
             src={
-              carrouselImages[currentIndex]?.imageUrl
-                ? carrouselImages[currentIndex].imageUrl
-                : '/default-image.jpg'
+              activeImages[currentIndex]?.imageUrl ||
+              "/default-image.jpg"
             }
             alt={`Imagem ${currentIndex + 1}`}
             layout="responsive"
@@ -76,10 +88,13 @@ const ImageCarousel = ({ carrouselImages }) => {
             <FaChevronRight />
           </button>
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {carrouselImages.map((_, index) => (
+            {activeImages.map((_, index) => (
               <span
                 key={index}
-                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'} transition-all`}
+                className={`w-3 h-3 rounded-full ${index === currentIndex
+                    ? "bg-gray-700"
+                    : "bg-gray-300"
+                  } transition-all`}
               ></span>
             ))}
           </div>
@@ -92,6 +107,7 @@ const ImageCarousel = ({ carrouselImages }) => {
     </div>
   );
 };
+
 
 const ModalContato = ({
   name,
@@ -277,9 +293,18 @@ const CardRubi = ({
   const handleOpenModal = () => {
     setShowModalNumero(true);
   };
+  const [expanded, setExpanded] = useState(false);
+  const descRef = useRef(null);
 
-  const formattedPrice = plan ? plan.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'A consultar';
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
 
+  useEffect(() => {
+    if (expanded && descRef.current) {
+      descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
@@ -329,14 +354,14 @@ const CardRubi = ({
       toast.info("Número do WhatsApp não disponível.");
       return;
     }
-  
+
     const numero = contact.whatsappNumber;
     const apelido = userName || "atendente";
     const mensagemExtra = contact?.whatsappMessage || "Olá, podemos conversar?";
     const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${userName}`;
     const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
     const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
-  
+
     window.open(link, "_blank");
   };
 
@@ -344,7 +369,7 @@ const CardRubi = ({
   return (
     <div className="bg-white border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
       {/* Carrossel de Imagens */}
-      <ImageCarousel carrouselImages={carrouselImages} />
+      <ImageCarousel carrouselImages={carrouselImages} images={images} />
 
       {/* Nome e Status */}
       <div className="flex justify-between items-center mb-3">
@@ -376,7 +401,7 @@ const CardRubi = ({
 
           {/* Dropdown */}
           {isOpen && (
-              <div
+            <div
               className={`
                 ${typeof window !== "undefined" && window.innerWidth <= 768
                   ? "fixed left-4 right-4 top-[42%]"
@@ -417,7 +442,23 @@ const CardRubi = ({
       )}
 
       {/* Descrição curta */}
-      <p className="text-sm italic text-gray-600 mb-3">{description}</p>
+      <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+        <p
+          className={`text-sm italic text-gray-600 transition-all duration-300 ${expanded ? "" : "line-clamp-3 overflow-hidden"
+            }`}
+        >
+          {description}
+        </p>
+
+        {description?.length > 120 && (
+          <button
+            className="text-pink-500 text-xs mt-1 hover:underline focus:outline-none"
+            onClick={toggleExpand}
+          >
+            {expanded ? "Ver menos" : "Ver mais"}
+          </button>
+        )}
+      </div>
 
       {/* Informações */}
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
@@ -464,9 +505,9 @@ const CardRubi = ({
         </div>
 
         {/* Descrição detalhada e Serviços */}
-        <div className="border-l border-gray-300 pl-4">
+        {/* <div className="border-l border-gray-300 pl-4">
           <p className="text-black mb-2">{description}</p>
-        </div>
+        </div> */}
       </div>
 
       {/* Botão de contato aprimorado */}

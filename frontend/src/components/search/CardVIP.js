@@ -39,6 +39,17 @@ const CardVIP = ({
     }
   };
 
+  const fallbackImages = Array.isArray(images) ? images : [];
+  const activeImages =
+    Array.isArray(carrouselImages) && carrouselImages.length > 0
+      ? carrouselImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      )
+      : fallbackImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      );
+
+
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
@@ -47,6 +58,19 @@ const CardVIP = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedService, setSelectedService] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
+
+  const [expanded, setExpanded] = useState(false);
+  const descRef = useRef(null);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  useEffect(() => {
+    if (expanded && descRef.current) {
+      descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
 
   useEffect(() => {
     // Definir o primeiro serviço como selecionado por padrão, se disponível
@@ -102,24 +126,51 @@ const CardVIP = ({
   return (
     <div className="relative">
       <div className="bg-yellow-100 border border-yellow-500 rounded-lg shadow-xl p-4 transition transform hover:scale-105 hover:shadow-2xl">
-        {carrouselImages && carrouselImages.length > 0 ? (
-          <Image
-            src={carrouselImages[0].imageUrl}
-            alt={userName ? `Imagem de ${userName}` : 'Imagem de acompanhante'}
-            width={320}
-            height={192}
-            className="w-full h-48 object-cover rounded-md mb-3"
-          />
+        {activeImages.length > 0 ? (
+          <>
+            <Image
+              src={activeImages[0]?.imageUrl || "/default-image.jpg"}
+              alt={`Imagem de ${userName}`}
+              layout="responsive"
+              width={500}
+              height={200}
+              className="rounded-md mb-4 max-h-64 object-cover"
+            />
+
+            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              {activeImages.map((_, index) => (
+                <span
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all`}
+                ></span>
+              ))}
+            </div>
+          </>
         ) : (
-          <div className="w-full h-48 bg-gray-200 rounded-md mb-3 flex items-center justify-center text-gray-500 text-lg">
-            Sem imagem disponível
+          <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
+            Nenhuma imagem disponível
           </div>
         )}
 
         <h3 className="text-xl font-extrabold text-yellow-700 mb-1">{userName}</h3>
-        <p className="text-sm text-black italic mb-2 flex items-center">
-          <BsCardText className="mr-2 text-yellow-500" /> {description}
-        </p>
+        {/* Descrição curta */}
+        <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+          <p
+            className={`text-sm italic text-black transition-all duration-300 ${expanded ? "" : "line-clamp-3 overflow-hidden"
+              }`}
+          >
+            {description}
+          </p>
+
+          {description?.length > 120 && (
+            <button
+              className="text-yellow-500 text-xs mt-1 hover:underline focus:outline-none"
+              onClick={toggleExpand}
+            >
+              {expanded ? "Ver menos" : "Ver mais"}
+            </button>
+          )}
+        </div>
 
         {/* seleção de serviço */}
         {timedServiceCompanion.length > 0 && (

@@ -146,53 +146,58 @@ const ProfileSettings = ({ onUpdate }) => {
   const fetchMedia = useCallback(async () => {
     const userToken = Cookies.get("userToken");
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
-        {
-          headers: { Authorization: `Bearer ${userToken}` },
+        const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
+            {
+                headers: { Authorization: `Bearer ${userToken}` },
+            }
+        );
+
+        if (response.status === 200) {
+            const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
+
+            let allowedImages = 1; // padrão
+
+            // Verifique se planName é uma string antes de usar .includes()
+            if (typeof planName === "string") {
+                if (planName.includes("Plano Rubi")) {
+                    allowedImages = 5;
+                } else if (planName.includes("Plano Safira")) {
+                    allowedImages = 4;
+                } else if (
+                    planName.includes("Plano Vip") ||
+                    planName.includes("Plano Pink")
+                ) {
+                    allowedImages = 1;
+                } else if (
+                    planName.includes("Contato") ||
+                    planName.includes("Oculto") ||
+                    planName.includes("Reviews Públicos") ||
+                    planName.includes("Darkmode") ||
+                    planName.includes("Plano Nitro")
+                ) {
+                    allowedImages = 0;
+                }
+            }
+
+            // Atribuindo as variáveis de estado
+            setProfileImage(profileImage);
+            setBannerImage(bannerImage);
+            setDocumentsValidated(documentsValidated);
+            setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
+            setAllowedCarouselImages(Number(allowedImages));
+
+            const orderedImageURLs = response.data.media.carrouselImages
+                .sort((a, b) => a.order - b.order)
+                .map((img) => img.imageUrl);
+            setCarouselImages(orderedImageURLs);
         }
-      );
-
-      if (response.status === 200) {
-        const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
-
-        let allowedImages = 1; // padrão
-
-        if (planName.includes("Plano Rubi")) {
-          allowedImages = 5;
-        } else if (planName.includes("Plano Safira")) {
-          allowedImages = 4;
-        } else if (
-          planName.includes("Plano Vip") ||
-          planName.includes("Plano Pink")
-        ) {
-          allowedImages = 1;
-        } else if (
-          planName.includes("Contato") ||
-          planName.includes("Oculto") ||
-          planName.includes("Reviews Públicos") ||
-          planName.includes("Darkmode") ||
-          planName.includes("Plano Nitro")
-        ) {
-          allowedImages = 0;
-        }
-
-        // Atribuindo as variáveis de estado
-        setProfileImage(profileImage);
-        setBannerImage(bannerImage);
-        setDocumentsValidated(documentsValidated);
-        setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
-        setAllowedCarouselImages(Number(allowedImages));
-
-        const orderedImageURLs = response.data.media.carrouselImages
-          .sort((a, b) => a.order - b.order)
-          .map((img) => img.imageUrl);
-        setCarouselImages(orderedImageURLs);
-      }
     } catch (error) {
-      console.error('Erro ao buscar mídia do acompanhante:', error);
+        console.error("Erro ao buscar mídia do acompanhante:", error);
     }
-  }, []);
+}, []);
+
+
   useEffect(() => {
     fetchMedia();
   }, [fetchMedia]);

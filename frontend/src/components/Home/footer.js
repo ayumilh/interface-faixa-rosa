@@ -11,27 +11,88 @@ export default function Rodape() {
   const [activeIndex, setActiveIndex] = useState(null);
 
   const faqs = [
-    { question: "O que é o Faixa Rosa?", answer: "O Faixa Rosa é uma plataforma inovadora para anúncios e serviços de acompanhantes no Brasil, conectando clientes e profissionais de forma segura e eficiente." },
-    { question: "Quem pode anunciar no Faixa Rosa?", answer: "Apenas acompanhantes maiores de 18 anos que atendam aos critérios de qualidade e profissionalismo da plataforma podem anunciar no Faixa Rosa." },
-    { question: "Como faço para me cadastrar como cliente?", answer: "Para se cadastrar como cliente, basta acessar a página de cadastro e preencher os dados solicitados. É rápido e gratuito!" },
-    { question: "Quais são os planos disponíveis para clientes?", answer: "Os clientes podem escolher entre três planos: Básico, Avançado e Premium, cada um com benefícios específicos. Confira mais detalhes na página de planos." },
-    { question: "Quais os benefícios do plano Premium para clientes?", answer: "O plano Premium oferece suporte prioritário, perfil visível para a comunidade, brindes exclusivos e todos os benefícios dos planos anteriores." },
-    { question: "Como funcionam os convênios?", answer: "Os convênios são benefícios exclusivos para acompanhantes com planos Pink, Safira e Rubi. Esses profissionais têm acesso a descontos em academias, psicólogos, hotéis, entre outros estabelecimentos parceiros." },
-    { question: "Como selecionar a cidade no convênio?", answer: "Na página de convênios, você pode selecionar a cidade desejada para visualizar os estabelecimentos parceiros disponíveis em sua região." },
-    { question: "Quais descontos posso obter com o convênio?", answer: "Os descontos variam de 5% a 10%, dependendo do estabelecimento e da cidade. Acesse a página de convênios para ver os detalhes de cada parceria." },
-    { question: "Como faço para entrar em contato com um estabelecimento conveniado?", answer: "Nos cartões de cada estabelecimento na página de convênios, você encontrará as informações de contato, como telefone e endereço, para facilitar o agendamento do serviço." },
-    { question: "Como é garantida a privacidade dos meus dados?", answer: "O Faixa Rosa segue uma política rigorosa de privacidade e segurança de dados, garantindo que todas as informações sejam tratadas de forma confidencial e protegida." },
-    { question: "Os pagamentos são seguros?", answer: "Sim, utilizamos métodos de pagamento seguros e confiáveis, como cartão de crédito e Pix. Nossos parceiros de pagamento são auditados e certificados." },
-    { question: "O nome do Faixa Rosa aparece na fatura?", answer: "Não, para garantir a privacidade dos nossos clientes, o nome 'Faixa Rosa' não aparece na fatura de pagamentos." },
-    { question: "Posso cancelar um plano de assinatura?", answer: "Sim, você pode cancelar a assinatura a qualquer momento. Consulte nossos Termos de Uso para informações sobre o processo e prazos." },
-    { question: "O que devo fazer se encontrar um perfil suspeito?", answer: "Caso encontre um perfil suspeito, entre em contato com o nosso suporte ou utilize o botão de denúncia disponível na plataforma para que possamos tomar as devidas providências." },
-    { question: "O Faixa Rosa é acessível para todas as cidades?", answer: "Sim, o Faixa Rosa atende clientes e profissionais de todas as cidades do Brasil. No entanto, a disponibilidade de serviços pode variar por região." },
-    { question: "Como posso me tornar membro da elite do Faixa Rosa?", answer: "Para se tornar membro da elite do Faixa Rosa, você precisa adquirir um dos planos de assinatura específicos e manter um histórico de boas avaliações." },
-    { question: "Os anunciantes são verificados?", answer: "Sim, todos os anunciantes passam por um processo de verificação para garantir a segurança e qualidade dos serviços oferecidos na plataforma." },
-    { question: "Quais métodos de pagamento são aceitos?", answer: "Atualmente, aceitamos pagamentos via cartão de crédito, Pix e boleto bancário, proporcionando flexibilidade e segurança." },
-    { question: "Como faço para anunciar no Faixa Rosa?", answer: "Acesse a página de planos para anunciantes e escolha o plano que melhor atende às suas necessidades. Após isso, você será guiado pelo processo de criação do perfil." },
-    { question: "O que faço se precisar de suporte?", answer: "Nosso time de suporte está disponível para ajudar. Entre em contato por meio do canal de Suporte e Informações no rodapé do site." },
+    {
+      question: "O que é o Faixa Rosa?",
+      answer: "O Faixa Rosa é a principal plataforma brasileira de acompanhantes de alto nível, criada para conectar clientes a perfis verificados com segurança, descrição e qualidade."
+    },
+    {
+      question: "Quem pode anunciar no Faixa Rosa?",
+      answer: "Somente acompanhantes maiores de 18 anos com perfil profissional, que atendam aos critérios de qualidade e responsabilidade definidos pela plataforma."
+    },
+    {
+      question: "Como me cadastro como cliente?",
+      answer: "Basta acessar a página de cadastro, preencher os dados básicos e criar sua conta gratuitamente em poucos segundos."
+    },
+    {
+      question: "Quais planos estão disponíveis para clientes?",
+      answer: "Clientes podem escolher entre os planos Básico, Avançado e Premium — cada um com vantagens progressivas em visibilidade, suporte e recursos exclusivos."
+    },
+    {
+      question: "O que o plano Premium oferece?",
+      answer: "O plano Premium inclui suporte prioritário, acesso completo à plataforma, brindes exclusivos e máxima visibilidade entre os membros da comunidade."
+    },
+    {
+      question: "O que são os convênios para acompanhantes?",
+      answer: "Convênios são parcerias com descontos exclusivos em academias, clínicas, hotéis e serviços diversos — disponíveis para acompanhantes com planos Pink, Safira ou Rubi."
+    },
+    {
+      question: "Como filtrar por cidade nos convênios?",
+      answer: "Na página de convênios, você pode selecionar sua cidade para visualizar todos os estabelecimentos parceiros disponíveis na sua região."
+    },
+    {
+      question: "Quais descontos estão disponíveis nos convênios?",
+      answer: "Os descontos variam entre 5% e 10%, conforme o tipo de serviço e a parceria local. Consulte a página de convênios para ver todas as ofertas."
+    },
+    {
+      question: "Como entrar em contato com um parceiro conveniado?",
+      answer: "Cada cartão de parceiro exibe telefone, endereço e formas de contato para você agendar diretamente com o estabelecimento."
+    },
+    {
+      question: "Como o Faixa Rosa protege meus dados?",
+      answer: "Seguimos rigorosamente a LGPD e utilizamos protocolos avançados de segurança para garantir que suas informações estejam sempre protegidas e confidenciais."
+    },
+    {
+      question: "O pagamento na plataforma é seguro?",
+      answer: "Sim! Trabalhamos exclusivamente com Pix, garantindo transações rápidas, seguras e sem riscos de golpes ou clonagem de cartão."
+    },
+    {
+      question: "O nome 'Faixa Rosa' aparece na fatura?",
+      answer: "Não. Para garantir a sua privacidade, o nome da plataforma não aparece no comprovante do Pix. A cobrança é feita de forma discreta."
+    },
+    {
+      question: "Posso cancelar minha assinatura?",
+      answer: "Sim, o cancelamento pode ser feito a qualquer momento através do seu painel. Consulte os Termos de Uso para mais informações."
+    },
+    {
+      question: "E se eu encontrar um perfil suspeito?",
+      answer: "Você pode reportar diretamente através do botão de denúncia disponível em cada perfil ou entrar em contato com nosso suporte."
+    },
+    {
+      question: "O Faixa Rosa está disponível em todo o Brasil?",
+      answer: "Sim! A plataforma é nacional e atende todas as cidades. A oferta de acompanhantes pode variar conforme a região."
+    },
+    {
+      question: "Como faço parte da elite do Faixa Rosa?",
+      answer: "Adquirindo planos específicos e mantendo boas avaliações, você pode se tornar parte da elite — com benefícios e visibilidade premium."
+    },
+    {
+      question: "Os perfis são realmente verificados?",
+      answer: "Sim, todos os anunciantes passam por um processo de verificação manual e automatizada, garantindo autenticidade e confiança."
+    },
+    {
+      question: "Quais formas de pagamento são aceitas?",
+      answer: "Atualmente, aceitamos apenas pagamentos via Pix — a forma mais segura, rápida e prática para sua assinatura."
+    },
+    {
+      question: "Como posso anunciar no Faixa Rosa?",
+      answer: "Acesse a seção de planos para anunciantes, escolha o ideal para você e siga o passo a passo para criar seu perfil profissional."
+    },
+    {
+      question: "Preciso de ajuda. Onde encontro suporte?",
+      answer: "Nosso time de suporte está sempre à disposição. Você pode entrar em contato pelo link de Suporte e Informações disponível no rodapé do site."
+    },
   ];
+  
 
   const toggleFAQ = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -44,10 +105,11 @@ export default function Rodape() {
       <div className="container mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Coluna Sobre */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold text-white">Sobre o Faixa Rosa</h2>
-          <p className="text-sm leading-relaxed">
-            Lançada para conectar e interagir com o melhor conteúdo do Brasil, o Faixa Rosa é uma plataforma inovadora para anúncios e serviços de acompanhantes.
-          </p>
+        <h2 className="text-2xl font-semibold text-white">Sobre o Faixa Rosa</h2>
+<p className="text-sm leading-relaxed">
+  O <strong>Faixa Rosa</strong> é a plataforma nº1 para quem busca <strong>acompanhantes de alto nível</strong> em todo o Brasil. Criada para oferecer uma experiência segura, elegante e moderna, conectamos você aos melhores anúncios de acompanhantes com <strong>verificação de perfil, fotos reais</strong> e total descrição. Explore agora e descubra um novo padrão de exclusividade.
+</p>
+
           <div className="flex space-x-3 mt-4">
             <a
               href="https://www.instagram.com/faixa.rosa.br?igsh=cmdhcTVkM3FyZjNp"

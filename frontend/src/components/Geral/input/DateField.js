@@ -1,9 +1,6 @@
-// components/ui/input/DateField.jsx
 'use client';
 
 import React from 'react';
-import dayjs from 'dayjs';
-import 'dayjs/locale/pt-br';
 
 export default function DateField({
   label,
@@ -14,15 +11,17 @@ export default function DateField({
   required = false,
 }) {
   const handleInputChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, '');
+    let raw = e.target.value.replace(/\D/g, ''); // Remove caracteres não numéricos
     let masked = raw;
 
+    // Aplica a máscara de data conforme o número de caracteres
     if (raw.length >= 3 && raw.length <= 4)
       masked = `${raw.slice(0, 2)}/${raw.slice(2)}`;
     else if (raw.length >= 5)
       masked = `${raw.slice(0, 2)}/${raw.slice(2, 4)}/${raw.slice(4, 8)}`;
 
-    onChange(masked);
+    // Atualiza o estado com o valor mascarado
+    onChange(masked); // Passa o valor mascarado para o parent (no caso, o componente pai)
   };
 
   return (
@@ -37,8 +36,8 @@ export default function DateField({
         type="text"
         id={name}
         name={name}
-        value={value || ""}
-        onChange={handleInputChange}
+        value={value || ""} // Exibe o valor com máscara
+        onChange={handleInputChange} // Chama handleInputChange para formatar o valor
         placeholder="DD/MM/AAAA"
         maxLength={10}
         required={required}

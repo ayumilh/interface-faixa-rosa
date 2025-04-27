@@ -1,15 +1,3 @@
-// {
-//   "compilerOptions": {
-//     "baseUrl": "src",
-//     "paths": {
-//       "@context/*": ["context/*"],
-//       "@components/*": ["components/*"],
-//       "@/*": ["*"]
-//     }
-//   },
-//   "include": ["src"]
-// }
-
 {
   "compilerOptions": {
     "baseUrl": ".",

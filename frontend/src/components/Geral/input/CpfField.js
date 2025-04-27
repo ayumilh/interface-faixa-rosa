@@ -1,10 +1,10 @@
 "use client";
 
-import { FaSpinner } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 import { tv } from "tailwind-variants";
 
 const inputClass = tv({
-  base: "block w-full px-4 py-2 pr-28 border rounded-lg shadow-sm transition duration-200 text-gray-800", // espaço extra à direita
+  base: "block w-full px-4 py-2 pr-10 border rounded-lg shadow-sm transition duration-200 text-gray-800", 
   variants: {
     valid: {
       true: "border-gray-300 focus:ring-pink-500 focus:border-pink-500",
@@ -16,14 +16,7 @@ const inputClass = tv({
   },
 });
 
-export default function CpfField({
-  value,
-  onChange,
-  onVerify,
-  isValid,
-  isLoading,
-  error,
-}) {
+export default function CpfField({ value, onChange, error }) {
   const handleMask = (v) => {
     return v
       .replace(/\D/g, "")
@@ -32,6 +25,8 @@ export default function CpfField({
       .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
       .slice(0, 14);
   };
+
+  const isCpfValidLength = value.replace(/\D/g, "").length === 11;
 
   return (
     <div>
@@ -47,28 +42,19 @@ export default function CpfField({
           onChange={onChange}
           required
           maxLength={14}
-          className={inputClass({ valid: isValid !== false })}
+          className={inputClass({ valid: error ? false : true })}
         />
 
-        <div className="absolute right-1 top-1/2 transform -translate-y-1/2">
-          {isLoading ? (
-            <FaSpinner className="animate-spin text-pink-500 text-lg" />
-          ) : (
-            <button
-              type="button"
-              onClick={onVerify}
-              disabled={value.replace(/\D/g, "").length !== 11}
-              className="text-xs bg-pink-500 hover:bg-pink-600 text-white px-3 py-1 mr-2 rounded"
-            >
-              Verificar
-            </button>
-          )}
-        </div>
+        {isCpfValidLength && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
+            <FaCheckCircle className="text-lg" />
+          </div>
+        )}
       </div>
 
-      {isValid !== null && (
-        <p className={`mt-1 text-sm ${isValid ? "text-green-500" : "text-red-500"}`}>
-          {isValid ? "CPF válido e maior de idade" : error || "CPF inválido"}
+      {error && (
+        <p className="mt-1 text-sm text-red-500">
+          {error}
         </p>
       )}
     </div>

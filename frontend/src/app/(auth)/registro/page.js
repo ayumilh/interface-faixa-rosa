@@ -64,7 +64,8 @@ export default function CadastroPage() {
             );
         }
         if (step === 2) {
-            return isCpfValid && formData.documents.fileFront && formData.documents.fileBack; // Verifica CPF e documentos
+            const cpfValido = formData.cpf.replace(/\D/g, "").length === 11;
+            return cpfValido && formData.documents.fileFront && formData.documents.fileBack;
         }
         if (step === 3) {
             return formData.comparisonMedia !== null;
@@ -527,17 +528,14 @@ export default function CadastroPage() {
 
                                 {/* CPF */}
                                 <CpfField
-                                    value={formData.cpf} // Usando formData para o valor
-                                    onChange={(e) => setFormData({ ...formData, cpf: e.target.value })} // Atualiza formData
-                                    onVerify={verifyCpf}
-                                    isValid={isCpfValid}
-                                    isLoading={loadingCpf}
+                                    value={formData.cpf}
+                                    onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
                                     required
-                                    error={"CPF inválido"}
+                                    error={errorsInput.cpf}
                                 />
 
                                 {/* Upload de documentos */}
-                                {isCpfValid && (
+                                {formData.cpf.replace(/\D/g, "").length === 11 && (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* Upload Frente */}
                                         <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center cursor-pointer">

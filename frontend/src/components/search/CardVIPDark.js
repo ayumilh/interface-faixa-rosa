@@ -34,19 +34,6 @@ const CardVIPDark = ({
     setShowModalNumero(true);
   };
 
-<<<<<<< HEAD
-  const [expandido, setExpandido] = useState(false);
-  const [precisaExpandir, setPrecisaExpandir] = useState(false);
-  const textoRef = useRef(null);
-
-  useEffect(() => {
-    const el = textoRef.current;
-    if (el) {
-      // Verifica se o conteúdo está sendo cortado
-      setPrecisaExpandir(el.scrollHeight > el.clientHeight);
-    }
-  }, [description]);
-=======
   const [expanded, setExpanded] = useState(false);
   const descRef = useRef(null);
 
@@ -59,7 +46,6 @@ const CardVIPDark = ({
       descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [expanded]);
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
 
   const handleCloseModal = (e) => {
     if (e.target.id === 'modal-overlay') {
@@ -140,93 +126,6 @@ const CardVIPDark = ({
   return (
     <>
       <div className="bg-black border border-yellow-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
-<<<<<<< HEAD
-        {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
-          <>
-            <Image
-              src={
-                carrouselImages[currentIndex]?.imageUrl
-                  ? carrouselImages[currentIndex].imageUrl
-                  : '/default-image.jpg'
-              }
-              alt={`Imagem ${currentIndex + 1}`}
-              layout="responsive"
-              width={500}
-              height={200}
-              loading="eager"
-              priority
-              className="rounded-md mb-4 max-h-64 object-cover"
-            />
-
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent?.stopImmediatePropagation();
-                handlePrev();
-              }}
-              className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
-              aria-label="Imagem anterior"
-            >
-              <FaChevronLeft />
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                e.nativeEvent?.stopImmediatePropagation();
-                handleNext();
-              }}
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
-              aria-label="Próxima imagem"
-            >
-              <FaChevronRight />
-            </button>
-            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {carrouselImages.map((_, index) => (
-                <span
-                  key={index}
-                  className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'
-                    } transition-all`}
-                ></span>
-              ))}
-            </div>
-          </>
-        ) : Array.isArray(images) && images.length > 0 && images[0].trim() !== "" ? (
-          <Image
-            src={images[0]}
-            alt="Imagem de perfil"
-            width={500}
-            height={200}
-            layout="responsive"
-            className="rounded-md mb-4 max-h-64 object-cover"
-          />
-        ) : (
-          <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
-            Nenhuma imagem disponível
-          </div>
-        )}
-
-        <h3 className="text-xl font-extrabold text-yellow-400 mb-1">{userName}</h3>
-
-        <div className="text-sm text-white italic mb-2 flex items-start">
-
-          {/* descrição */}
-          <div className="text-gray-200 mb-2" onClick={e => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
-            <p ref={textoRef} className={`${expandido ? '' : 'line-clamp-3'} transition-all`}>
-              {description}
-            </p>
-
-            {precisaExpandir && (
-              <button
-                onClick={() => setExpandido(!expandido)}
-                className="text-yellow-400 underline text-sm mt-1"
-              >
-                {expandido ? "Ver menos" : "Ver mais"}
-              </button>
-            )}
-          </div>
-=======
       {activeImages.length > 0 ? (
         <>
           <Image
@@ -273,7 +172,6 @@ const CardVIPDark = ({
               {expanded ? "Ver menos" : "Ver mais"}
             </button>
           )}
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
         </div>
 
         {/* seleção de serviço */}

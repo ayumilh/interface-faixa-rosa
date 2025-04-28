@@ -225,7 +225,7 @@ export default function AuthPage() {
           <div className="text-center mt-4 text-sm">
             Novo no Faixa Rosa?{" "}
             <button
-              onClick={() => router.push("/cadastro")}
+              onClick={() => router.push("/registro")}
               className="font-medium text-pink-500 hover:text-pink-600"
             >
               Cadastre-se

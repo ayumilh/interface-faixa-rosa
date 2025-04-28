@@ -71,9 +71,15 @@ export default function UserNameField({
     }
   };
 
-  // Bloqueia espaços digitados
+  // Permite apenas letras e espaços
+  // Permite apenas letras, números e espaços
   const handleInputChange = (e) => {
-    const sanitizedValue = e.target.value.replace(/\s/g, ""); // remove espaços
+    const sanitizedValue = e.target.value
+      .normalize("NFD")                // Remove acentos
+      .replace(/[\u0300-\u036f]/g, "") // Remove marcas de acentuação
+      .replace(/[^a-zA-Z0-9\s]/g, "")  // Permite apenas letras, números e espaços
+      .replace(/\s+/g, " ")            // Converte múltiplos espaços em um único espaço
+      .trimStart();                    // Remove espaços no começo
     onChange({ target: { value: sanitizedValue } });
   };
 

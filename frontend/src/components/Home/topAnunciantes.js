@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { MapPin } from "phosphor-react";
 import axios from "axios";
+import Image from "next/image";
 
 export default function TopAnunciantes() {
   const router = useRouter();
@@ -15,10 +16,9 @@ export default function TopAnunciantes() {
   const fetchCompanions = async () => {
     try {
       const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top5/listar`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top10/listar`,
       );
       if (res.data.length === 0) {
-        console.log("Nenhum anunciante encontrado.");
         return;
       }
       setCompanions(res.data);
@@ -117,9 +117,11 @@ export default function TopAnunciantes() {
                 #{index + 1}
               </div>
 
-              <img
+              <Image
                 src={anunciante.profileImage}
                 alt={anunciante.userName}
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-full object-cover mb-4"
               />
 

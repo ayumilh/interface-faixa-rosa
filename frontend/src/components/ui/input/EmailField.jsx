@@ -39,6 +39,31 @@ export default function EmailField({
   const [isAvailable, setIsAvailable] = useState(null);
 
   useEffect(() => {
+    const verificarEmail = async (email) => {
+      setLoading(true);
+      setIsAvailable(null);
+
+      try {
+        const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-email`, { email });
+        console.log(res.data);
+        if (res.data.valid) {
+          setValid(true);
+          setError('');
+          setIsAvailable(true);
+        } else {
+          setValid(false);
+          setError(res.data.message || 'E-mail já cadastrado');
+          setIsAvailable(false);
+        }
+      } catch (err) {
+        setValid(false);
+        setError('Erro ao verificar e-mail.');
+        setIsAvailable(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const timeout = setTimeout(() => {
       if (value && value.length >= 5 && value.includes('@')) {
         verificarEmail(value);
@@ -46,32 +71,7 @@ export default function EmailField({
     }, 600);
 
     return () => clearTimeout(timeout);
-  }, [value]);
-
-  const verificarEmail = async (email) => {
-    setLoading(true);
-    setIsAvailable(null);
-
-    try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-email`, { email });
-    console.log(res.data);
-      if (res.data.valid) {
-        setValid(true);
-        setError('');
-        setIsAvailable(true);
-      } else {
-        setValid(false);
-        setError(res.data.message || 'E-mail já cadastrado');
-        setIsAvailable(false);
-      }
-    } catch (err) {
-      setValid(false);
-      setError('Erro ao verificar e-mail.');
-      setIsAvailable(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [value, setError, setValid]);
 
   const handleChange = (e) => {
     const cleaned = e.target.value.replace(/\s/g, '');

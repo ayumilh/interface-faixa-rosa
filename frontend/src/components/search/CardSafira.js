@@ -39,20 +39,6 @@ const CardSafira = ({
   const [selectedService, setSelectedService] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
 
-<<<<<<< HEAD
-
-  const [expandido, setExpandido] = useState(false);
-  const [precisaExpandir, setPrecisaExpandir] = useState(false);
-  const textoRef = useRef(null);
-
-  useEffect(() => {
-    const el = textoRef.current;
-    if (el) {
-      // Verifica se o conteúdo está sendo cortado
-      setPrecisaExpandir(el.scrollHeight > el.clientHeight);
-    }
-  }, [description]);
-=======
   const [expanded, setExpanded] = useState(false);
   const descRef = useRef(null);
 
@@ -76,7 +62,6 @@ const CardSafira = ({
       typeof img === "string" ? { imageUrl: img } : img
     );
   }, [carrouselImages, images]);
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
 
   useEffect(() => {
     // Definir o primeiro serviço como selecionado por padrão, se disponível
@@ -159,24 +144,6 @@ const CardSafira = ({
     <>
       <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
         {/* Carrossel de Imagens */}
-<<<<<<< HEAD
-        <div className="relative" onClick={handleDivClick}>
-          {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
-            <>
-              <Image
-                src={
-                  carrouselImages[currentIndex]?.imageUrl
-                    ? carrouselImages[currentIndex].imageUrl
-                    : '/default-image.jpg'
-                }
-                alt={`Imagem ${currentIndex + 1}`}
-                layout="responsive"
-                width={500}
-                height={200}
-                loading="eager"
-                priority
-                className="rounded-md mb-4 max-h-64 object-cover"
-=======
         <div className="relative w-full h-64" onClick={handleDivClick}>
           {activeImages.length > 0 ? (
             <>
@@ -187,19 +154,11 @@ const CardSafira = ({
                 sizes="(max-width: 768px) 100vw, 500px"
                 className="object-cover rounded-md"
                 priority={currentIndex === 0}
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
               />
 
               <button
                 onClick={(e) => {
-<<<<<<< HEAD
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent?.stopImmediatePropagation();
-                  handlePrev();
-=======
                   e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); handlePrev();
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
                 }}
                 className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
                 aria-label="Imagem anterior"
@@ -208,34 +167,18 @@ const CardSafira = ({
               </button>
               <button
                 onClick={(e) => {
-<<<<<<< HEAD
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent?.stopImmediatePropagation();
-                  handleNext();
-=======
                   e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); handleNext();
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
                 }}
                 className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 shadow-md transition"
                 aria-label="Próxima imagem"
               >
                 <FaChevronRight />
               </button>
-<<<<<<< HEAD
-=======
-
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
               <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
                 {activeImages.map((_, index) => (
                   <span
                     key={index}
-<<<<<<< HEAD
-                    className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'
-                      } transition-all`}
-=======
                     className={`w-3 h-3 rounded-full ${index === currentIndex ? "bg-gray-700" : "bg-gray-300"} transition-all`}
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
                   ></span>
                 ))}
               </div>
@@ -250,13 +193,8 @@ const CardSafira = ({
               className="rounded-md mb-4 max-h-64 object-cover"
             />
           ) : (
-<<<<<<< HEAD
-            <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
-              Nenhuma imagem disponível
-=======
             <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center text-gray-500">
               Sem imagem disponível
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
             </div>
           )}
         </div>
@@ -388,42 +326,6 @@ const CardSafira = ({
               <p className="text-gray-700">{location}</p>
             </div>
           </div>
-<<<<<<< HEAD
-
-          {/* Descrição */}
-          <div className="border-l border-gray-300 pl-4">
-            {/* descrição */}
-            <div className="text-gray-700 mb-2" onClick={e => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
-              <p
-                ref={textoRef}
-                className={`transition-all ${!expandido ? 'line-clamp-6' : ''}`}
-                style={
-                  expandido
-                    ? {
-                      display: 'block',
-                      WebkitLineClamp: 'unset',
-                      WebkitBoxOrient: 'unset',
-                      overflow: 'visible',
-                      textOverflow: 'unset'
-                    }
-                    : {}
-                }
-              >
-                {description}
-              </p>
-
-              {precisaExpandir && (
-                <button
-                  onClick={() => setExpandido(!expandido)}
-                  className="text-pink-500 underline text-sm mt-1"
-                >
-                  {expandido ? "Ver menos" : "Ver mais"}
-                </button>
-              )}
-            </div>
-          </div>
-=======
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
         </div>
 
 

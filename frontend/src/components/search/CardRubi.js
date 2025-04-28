@@ -27,10 +27,6 @@ const ImageCarousel = ({ carrouselImages, images }) => {
         typeof img === "string" ? { imageUrl: img } : img
       );
 
-<<<<<<< HEAD
-const ImageCarousel = ({ carrouselImages, images }) => {
-=======
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
@@ -97,13 +93,9 @@ const ImageCarousel = ({ carrouselImages, images }) => {
             {activeImages.map((_, index) => (
               <span
                 key={index}
-<<<<<<< HEAD
-                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'
-=======
                 className={`w-3 h-3 rounded-full ${index === currentIndex
                     ? "bg-gray-700"
                     : "bg-gray-300"
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
                   } transition-all`}
               ></span>
             ))}
@@ -328,8 +320,6 @@ const CardRubi = ({
   const [expanded, setExpanded] = useState(false);
   const descRef = useRef(null);
 
-<<<<<<< HEAD
-=======
   const toggleExpand = () => {
     setExpanded(!expanded);
   };
@@ -339,7 +329,6 @@ const CardRubi = ({
       descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [expanded]);
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
@@ -476,8 +465,6 @@ const CardRubi = ({
         </div>
       )}
 
-<<<<<<< HEAD
-=======
       {/* Descrição curta */}
       <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
         <p
@@ -497,11 +484,9 @@ const CardRubi = ({
         )}
       </div>
 
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
       {/* Informações */}
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
         <div>
-
           {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
             <div className="flex items-center mt-2">
               <FaStar className="text-yellow-400 mr-1" />
@@ -541,35 +526,14 @@ const CardRubi = ({
             <p className="text-black">{location}</p>
           </div>
         </div>
-<<<<<<< HEAD
-        <div className="border-l border-gray-300 pl-4">
-
-        {/* descrição */}
-        <div className="text-black mb-2" onClick={e => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
-          <p ref={textoRef} className={`${expandido ? '' : 'line-clamp-6'} transition-all`}>
-            {description}
-          </p>
-
-          {precisaExpandir && (
-            <button
-              onClick={() => setExpandido(!expandido)}
-              className="text-pink-500 underline text-sm mt-1"
-            >
-              {expandido ? "Ver menos" : "Ver mais"}
-            </button>
-          )}
-        </div>
-=======
 
         {/* Descrição detalhada e Serviços */}
         {/* <div className="border-l border-gray-300 pl-4">
           <p className="text-black mb-2">{description}</p>
         </div> */}
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
-      </div>
+
       </div>
 
-      {/* Botão de contato aprimorado */}
       {contact && hasExtraContact && (
         <button
           className="mt-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-2 px-6 rounded-full flex items-center justify-center font-semibold transition-all shadow-md hover:shadow-lg text-lg"

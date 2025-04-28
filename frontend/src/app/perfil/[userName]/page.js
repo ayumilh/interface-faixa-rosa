@@ -331,6 +331,19 @@ export default function Perfil() {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
         );
+        console.log("Dados do perfil:", response.data);
+        if (!response.data) {
+          toast.error("Acompanhante não encontrada.");
+          setIsLoading(false);
+          setCompanionData([]);
+          return;
+        } else if (response.data.error) {
+          toast.error("Acompanhante não encontrada.");
+          setIsLoading(false);
+          setCompanionData([]);
+          return;
+        } 
+
         setCompanionData(response.data);
         setIsLoading(false);
 

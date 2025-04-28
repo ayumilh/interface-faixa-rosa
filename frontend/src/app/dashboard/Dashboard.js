@@ -79,7 +79,7 @@ const Dashboard = () => {
   const menuTabs = [
     { id: "profile", label: "Perfil", icon: FaCogs },
     { id: "description", label: "Descrição", icon: FaEdit },
-    { id: "metrics", label: "Métricas", icon: FaPhotoVideo },
+    { id: "metrics", label: "Contato", icon: FaPhotoVideo },
     { id: "services", label: "Serviços", icon: FaDollarSign },
     { id: "hours", label: "Horários", icon: FaRegClock },
     { id: "city", label: "Cidade", icon: FaMapMarkerAlt },

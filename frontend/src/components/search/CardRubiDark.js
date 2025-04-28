@@ -17,8 +17,6 @@ import { toast } from 'react-toastify';
 import Image from 'next/image';
 
 const ImageCarousel = ({ carrouselImages, images }) => {
-<<<<<<< HEAD
-=======
   const fallbackImages = Array.isArray(images) ? images : [];
   const activeImages =
     Array.isArray(carrouselImages) && carrouselImages.length > 0
@@ -29,7 +27,6 @@ const ImageCarousel = ({ carrouselImages, images }) => {
         typeof img === "string" ? { imageUrl: img } : img
       );
 
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
@@ -63,11 +60,6 @@ const ImageCarousel = ({ carrouselImages, images }) => {
             layout="responsive"
             width={500}
             height={200}
-<<<<<<< HEAD
-            loading="eager"
-            priority
-=======
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
             className="rounded-md mb-4 max-h-64 object-cover"
           />
 
@@ -99,13 +91,9 @@ const ImageCarousel = ({ carrouselImages, images }) => {
             {activeImages.map((_, index) => (
               <span
                 key={index}
-<<<<<<< HEAD
-                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'
-=======
                 className={`w-3 h-3 rounded-full ${index === currentIndex
                     ? "bg-gray-700"
                     : "bg-gray-300"
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
                   } transition-all`}
               ></span>
             ))}
@@ -391,11 +379,7 @@ const CardRubiDark = ({
     <>
       <div className="bg-black border border-red-500 rounded-xl shadow-lg p-6 relative transition transform hover:scale-105 hover:shadow-xl">
         {/* Carrossel de Imagens */}
-<<<<<<< HEAD
-        <ImageCarousel carrouselImages={[]} images={images} />
-=======
         <ImageCarousel carrouselImages={carrouselImages} images={images} />
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
 
         {/* Nome e Status */}
         <div className="flex justify-between items-center mb-3">
@@ -474,8 +458,6 @@ const CardRubiDark = ({
           </div>
         )}
 
-<<<<<<< HEAD
-=======
         {/* Descrição curta */}
         <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
           <p
@@ -495,7 +477,6 @@ const CardRubiDark = ({
           )}
         </div>
 
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
         {/* Informações */}
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
@@ -544,25 +525,7 @@ const CardRubiDark = ({
 
           {/* Descrição detalhada e Serviços */}
           <div className="border-l border-gray-500 pl-4">
-<<<<<<< HEAD
-            {/* descrição */}
-            <div className="text-white mb-2" onClick={e => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
-              <p ref={textoRef} className={`${expandido ? '' : 'line-clamp-6'} transition-all`}>
-                {description}
-              </p>
-
-              {precisaExpandir && (
-                <button
-                  onClick={() => setExpandido(!expandido)}
-                  className="text-pink-500 underline text-sm mt-1"
-                >
-                  {expandido ? "Ver menos" : "Ver mais"}
-                </button>
-              )}
-            </div>
-=======
             {/* <p className="text-white font-semibold mb-1">Serviços:</p> */}
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
             {/* <ul className="list-disc list-inside text-white space-y-1">
               {(services.length > 0 ? services : defaultServices).map(
                 (service, index) => (

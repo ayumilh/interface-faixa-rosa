@@ -68,7 +68,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
       window.addEventListener("keydown", handleEsc);
       return () => {
         window.removeEventListener("keydown", handleEsc);
-        document.body.style.overflow = ""; 
+        document.body.style.overflow = "";
       };
     } else {
       document.body.style.overflow = "";
@@ -311,6 +311,11 @@ export default function Search() {
 
   const { companions, fetchCompanions, loading } = usePlan();
 
+  const slugify = (text) => {
+    return text.replace(/\s+/g, '-'); // Apenas troca espaço por hífen
+  };
+  
+
 
   useEffect(() => {
     const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
@@ -461,7 +466,7 @@ export default function Search() {
 
                 return (
                   <div key={index} className="break-inside-avoid px-4 pb-6 sm:pb-4">
-                    <Link href={`/perfil/${card.userName}`} key={index}>
+                    <Link href={`/perfil/${slugify(card.userName)}`} key={index}>
                       <CardComponent
                         userName={card.userName}
                         age={card.age}
@@ -493,7 +498,7 @@ export default function Search() {
             )}
           </div>
         </div>
-      <Final />
+        <Final />
       </main>
 
     </div>

@@ -596,7 +596,7 @@ const DescriptionManagement = () => {
         </div>
 
         {/* Seção de Upload de Vídeo */}
-        <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+        {/* <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
             <FaVideo className="text-pink-500 mr-2 text-xl md:text-2xl" />
             <h3 className="text-lg md:text-xl font-semibold text-gray-800">
@@ -648,7 +648,7 @@ const DescriptionManagement = () => {
               )}
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Seção de Características Físicas */}
         <div className="bg-gray-50 p-6 rounded-lg shadow-sm">

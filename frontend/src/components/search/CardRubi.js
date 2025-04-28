@@ -16,16 +16,33 @@ import {
 import { toast } from 'react-toastify';
 import Image from 'next/image';
 
-
 const ImageCarousel = ({ carrouselImages, images }) => {
+  const fallbackImages = Array.isArray(images) ? images : [];
+  const activeImages =
+    Array.isArray(carrouselImages) && carrouselImages.length > 0
+      ? carrouselImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      )
+      : fallbackImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      );
+
+<<<<<<< HEAD
+const ImageCarousel = ({ carrouselImages, images }) => {
+=======
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
-    setCurrentIndex(prevIndex => (prevIndex === 0 ? carrouselImages.length - 1 : prevIndex - 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? activeImages.length - 1 : prevIndex - 1
+    );
   };
 
   const handleNext = () => {
-    setCurrentIndex(prevIndex => (prevIndex === carrouselImages.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === activeImages.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
   const handleDivClick = (e) => {
@@ -36,13 +53,12 @@ const ImageCarousel = ({ carrouselImages, images }) => {
 
   return (
     <div className="relative" onClick={handleDivClick}>
-      {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
+      {activeImages.length > 0 ? (
         <>
           <Image
             src={
-              carrouselImages[currentIndex]?.imageUrl
-                ? carrouselImages[currentIndex].imageUrl
-                : '/default-image.jpg'
+              activeImages[currentIndex]?.imageUrl ||
+              "/default-image.jpg"
             }
             alt={`Imagem ${currentIndex + 1}`}
             layout="responsive"
@@ -78,10 +94,16 @@ const ImageCarousel = ({ carrouselImages, images }) => {
             <FaChevronRight />
           </button>
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {carrouselImages.map((_, index) => (
+            {activeImages.map((_, index) => (
               <span
                 key={index}
+<<<<<<< HEAD
                 className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-gray-700' : 'bg-gray-300'
+=======
+                className={`w-3 h-3 rounded-full ${index === currentIndex
+                    ? "bg-gray-700"
+                    : "bg-gray-300"
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
                   } transition-all`}
               ></span>
             ))}
@@ -105,6 +127,7 @@ const ImageCarousel = ({ carrouselImages, images }) => {
 
   );
 };
+
 
 const ModalContato = ({
   name,
@@ -302,7 +325,21 @@ const CardRubi = ({
   const handleOpenModal = () => {
     setShowModalNumero(true);
   };
+  const [expanded, setExpanded] = useState(false);
+  const descRef = useRef(null);
 
+<<<<<<< HEAD
+=======
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  useEffect(() => {
+    if (expanded && descRef.current) {
+      descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
   // Verificar se o usuário possui o plano extra com acesso ao contato
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
@@ -439,6 +476,28 @@ const CardRubi = ({
         </div>
       )}
 
+<<<<<<< HEAD
+=======
+      {/* Descrição curta */}
+      <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+        <p
+          className={`text-sm italic text-gray-600 transition-all duration-300 ${expanded ? "" : "line-clamp-3 overflow-hidden"
+            }`}
+        >
+          {description}
+        </p>
+
+        {description?.length > 120 && (
+          <button
+            className="text-pink-500 text-xs mt-1 hover:underline focus:outline-none"
+            onClick={toggleExpand}
+          >
+            {expanded ? "Ver menos" : "Ver mais"}
+          </button>
+        )}
+      </div>
+
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
       {/* Informações */}
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
         <div>
@@ -482,6 +541,7 @@ const CardRubi = ({
             <p className="text-black">{location}</p>
           </div>
         </div>
+<<<<<<< HEAD
         <div className="border-l border-gray-300 pl-4">
 
         {/* descrição */}
@@ -499,6 +559,13 @@ const CardRubi = ({
             </button>
           )}
         </div>
+=======
+
+        {/* Descrição detalhada e Serviços */}
+        {/* <div className="border-l border-gray-300 pl-4">
+          <p className="text-black mb-2">{description}</p>
+        </div> */}
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
       </div>
       </div>
 

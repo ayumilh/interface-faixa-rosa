@@ -31,6 +31,19 @@ const CardPinkDark = ({
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
+    const [expanded, setExpanded] = useState(false);
+    const descRef = useRef(null);
+  
+    const toggleExpand = () => {
+      setExpanded(!expanded);
+    };
+  
+    useEffect(() => {
+      if (expanded && descRef.current) {
+        descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, [expanded]);
+
   const handleOpenModal = () => {
     setShowModalNumero(true);
   };
@@ -49,6 +62,17 @@ const CardPinkDark = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedService, setSelectedService] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
+
+  const fallbackImages = Array.isArray(images) ? images : [];
+  const activeImages =
+  Array.isArray(carrouselImages) && carrouselImages.length > 0
+    ? carrouselImages.map((img) =>
+      typeof img === "string" ? { imageUrl: img } : img
+    )
+    : fallbackImages.map((img) =>
+      typeof img === "string" ? { imageUrl: img } : img
+    );
+
 
   useEffect(() => {
     // Definir o primeiro serviço como selecionado por padrão, se disponível
@@ -104,26 +128,51 @@ const CardPinkDark = ({
   return (
     <>
       <div className="bg-black border border-pink-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
-        {carrouselImages && carrouselImages.length > 0 ? (
+      {activeImages.length > 0 ? (
+        <>
           <Image
-            src={carrouselImages[0].imageUrl}
-            alt={userName || 'Default Alt Text'}
-            width={320}
-            height={192}
-            className="w-full h-48 object-cover rounded-md mb-3"
+            src={activeImages[0]?.imageUrl || "/default-image.jpg"}
+            alt={`Imagem de ${userName}`}
+            layout="responsive"
+            width={500}
+            height={200}
+            className="rounded-md mb-4 max-h-64 object-cover"
           />
-        ) : (
-          <div className="w-full h-48 bg-gray-800 rounded-md mb-3 flex items-center justify-center text-gray-500 text-lg">
-            Sem imagem disponível
+
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {activeImages.map((_, index) => (
+              <span
+                key={index}
+                className={`w-3 h-3 rounded-full transition-all`}
+              ></span>
+            ))}
           </div>
-        )}
+        </>
+      ) : (
+        <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
+          Nenhuma imagem disponível
+        </div>
+      )}
+
         <h3 className="text-xl font-extrabold text-pink-400 mb-1">{userName}</h3>
 
-        <div className="text-sm text-white italic mb-2 flex items-start">
-          <span>
-            <BsCardText className="mr-2 text-pink-500 w-4 h-4 mt-1" />
-          </span>
-          <span className="text-gray-200">{description}</span>
+        {/* Descrição curta */}
+        <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+          <p
+            className={`text-sm italic text-gray-200 transition-all duration-300 ${expanded ? "" : "line-clamp-3 overflow-hidden"
+              }`}
+          >
+            {description}
+          </p>
+
+          {description?.length > 120 && (
+            <button
+              className="text-pink-500 text-xs mt-1 hover:underline focus:outline-none"
+              onClick={toggleExpand}
+            >
+              {expanded ? "Ver menos" : "Ver mais"}
+            </button>
+          )}
         </div>
 
         {/* seleção de serviço */}

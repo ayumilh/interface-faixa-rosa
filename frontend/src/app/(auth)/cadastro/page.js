@@ -29,7 +29,6 @@ export default function CadastroPage() {
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [phone, setPhone] = useState("");
     const [userNameError, setUserNameError] = useState("");
     const [isUserNameValid, setIsUserNameValid] = useState(null);
     const [cpf, setCpf] = useState("");
@@ -39,6 +38,7 @@ export default function CadastroPage() {
     const [loadingCpf, setLoadingCpf] = useState(false);
     const [userName, setUserName] = useState("");
     const [dataNascimento, setDataNascimento] = useState(null);
+    
     const [errorsInput, setErrorsInput] = useState({});
     const [locale, setLocale] = useState("pt-br");
     const [isFormValid, setIsFormValid] = useState(false);

@@ -55,6 +55,30 @@ const CardPink = ({
     }
   };
 
+    const [expanded, setExpanded] = useState(false);
+    const descRef = useRef(null);
+  
+    const toggleExpand = () => {
+      setExpanded(!expanded);
+    };
+  
+    useEffect(() => {
+      if (expanded && descRef.current) {
+        descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, [expanded]);
+
+    const fallbackImages = Array.isArray(images) ? images : [];
+    const activeImages =
+    Array.isArray(carrouselImages) && carrouselImages.length > 0
+      ? carrouselImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      )
+      : fallbackImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      );
+  
+
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
   // Verificar se o plano é o DarkMode
@@ -122,6 +146,7 @@ const CardPink = ({
         className={`${isDarkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-pink-100 text-black'
           } border rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl`}
       >
+<<<<<<< HEAD
       {Array.isArray(carrouselImages) && carrouselImages.length > 0 ? (
         <>
           <Image
@@ -187,11 +212,39 @@ const CardPink = ({
           Nenhuma imagem disponível
         </div>
       )}
+=======
+        {activeImages.length > 0 ? (
+          <>
+            <Image
+              src={activeImages[0]?.imageUrl || "/default-image.jpg"}
+              alt={`Imagem de ${userName}`}
+              layout="responsive"
+              width={500}
+              height={200}
+              className="rounded-md mb-4 max-h-64 object-cover"
+            />
+
+            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              {activeImages.map((_, index) => (
+                <span
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all`}
+                ></span>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
+            Nenhuma imagem disponível
+          </div>
+        )}
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
 
         <h3 className={`${isDarkMode ? 'text-pink-400' : 'text-pink-400'} text-xl font-extrabold mb-1`}>
           {userName}
         </h3>
 
+<<<<<<< HEAD
         <div className="text-black mb-2" onClick={e => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
           <p ref={textoRef} className={`${expandido ? '' : 'line-clamp-3'} transition-all`}>
             {description}
@@ -203,6 +256,23 @@ const CardPink = ({
               className="text-pink-500 underline text-sm mt-1"
             >
               {expandido ? "Ver menos" : "Ver mais"}
+=======
+        {/* Descrição curta */}
+        <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>
+          <p
+            className={`text-sm italic text-black transition-all duration-300 ${expanded ? "" : "line-clamp-3 overflow-hidden"
+              }`}
+          >
+            {description}
+          </p>
+
+          {description?.length > 120 && (
+            <button
+              className="text-pink-500 text-xs mt-1 hover:underline focus:outline-none"
+              onClick={toggleExpand}
+            >
+              {expanded ? "Ver menos" : "Ver mais"}
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
             </button>
           )}
         </div>

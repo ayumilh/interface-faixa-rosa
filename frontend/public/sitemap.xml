@@ -32634,4 +32634,8 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+<<<<<<< HEAD
 </urlset>
+=======
+<url><loc>https://www.faixarosa.com/planos</loc><lastmod>2025-04-24</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url><url><loc>https://www.faixarosa.com/termos</loc><lastmod>2025-04-24</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url><url><loc>https://www.faixarosa.com/perfil/exemplo123</loc><lastmod>2025-04-24</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url></urlset>
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7

@@ -311,6 +311,7 @@ export default function Search() {
 
   const { companions, fetchCompanions, loading } = usePlan();
 
+<<<<<<< HEAD
   // Categorias disponíveis
   const categories = [
     { label: "acompanhanteses", value: "acompanhantes" },
@@ -318,6 +319,8 @@ export default function Search() {
     { label: "Trans", value: "travesti" },
   ];
 
+=======
+>>>>>>> b991144975ff085220a8971934dc34af0c9009a7
 
   useEffect(() => {
     const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
@@ -376,7 +379,7 @@ export default function Search() {
         {/* Título */}
         <div className="w-full h-min bg-cover bg-center flex justify-center items-start mt-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-black text-center px-4">
-            {companions.length === 0 ? `Acompanhantes não encontradas em ${decodeURIComponent(city)}, ${stateUF}` : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
+            {companions.length === 0 ? `Acompanhantes não encontradas em  ${decodeURIComponent(city)}, ${stateUF}` : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
           </h1>
         </div>
 

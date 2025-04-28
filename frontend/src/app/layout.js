@@ -3,11 +3,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContextProvider } from "@/context/AuthContext";
 import { PlanProvider } from "@/context/PlanContext";
+import { generateMetadata } from "./metadata";
 
-export const metadata = {
-  title: "Faixa Rosa",
-  description: "Faixa Rosa Acompanhantes",
-};
+export const metadata = await generateMetadata()
+
 
 export default function RootLayout({ children }) {
   return (

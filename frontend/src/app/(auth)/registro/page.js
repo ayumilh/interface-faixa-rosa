@@ -471,7 +471,17 @@ export default function CadastroPage() {
                                 <UserNameField
                                     label="Nome de Usuário"
                                     value={formData.userName} // Usando formData para o valor
-                                    onChange={(e) => setFormData({ ...formData, userName: e.target.value })} // Atualiza formData
+                                    onChange={(e) => {
+                                        const sanitizedValue = e.target.value
+                                          .normalize("NFD")
+                                          .replace(/[\u0300-\u036f]/g, "") // remove acentos
+                                          .replace(/[^\w]/g, "")           // aceita apenas letras, números e _
+                                          .replace(/_/g, "")               // remove underline
+                                          .replace(/\s+/g, "")             // remove espaços
+                                          .toLowerCase();                  // deixa minúsculo (opcional)
+                                    
+                                        setFormData({ ...formData, userName: sanitizedValue });
+                                      }}
                                     required
                                     maxLength={50}
                                     error={errorsInput.userName} // Pode armazenar o erro do nome de usuário

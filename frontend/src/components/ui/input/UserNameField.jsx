@@ -71,10 +71,31 @@ export default function UserNameField({
     }
   };
 
-  // Bloqueia espaços digitados
+  const sanitizeUsername = (text) => {
+    return text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")  // remove acentos
+      .replace(/[^a-zA-Z0-9]/g, "")     // permite só letras e números
+      .replace(/\s+/g, "");              // remove espaços
+  };
+
   const handleInputChange = (e) => {
-    const sanitizedValue = e.target.value.replace(/\s/g, ""); // remove espaços
+    const inputValue = e.target.value;
+    const sanitizedValue = sanitizeUsername(inputValue);
     onChange({ target: { value: sanitizedValue } });
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === " " || e.code === "Space") {
+      e.preventDefault(); // bloqueia espaço na hora de digitar
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text');
+    const sanitized = sanitizeUsername(pasted);
+    onChange({ target: { value: sanitized } });
   };
 
   return (
@@ -89,11 +110,14 @@ export default function UserNameField({
           id={name}
           name={name}
           type="text"
-          value={value}
+          value={sanitizeUsername(value)}   {/* << BLOQUEIA ao renderizar também */}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           required={required}
           maxLength={maxLength}
           className={inputVariants({ intent: error ? "error" : "default" })}
+          autoComplete="off"
         />
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
           {loading ? (

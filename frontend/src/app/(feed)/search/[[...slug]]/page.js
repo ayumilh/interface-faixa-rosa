@@ -311,16 +311,6 @@ export default function Search() {
 
   const { companions, fetchCompanions, loading } = usePlan();
 
-<<<<<<< HEAD
-  // Categorias disponíveis
-  const categories = [
-    { label: "acompanhanteses", value: "acompanhantes" },
-    { label: "Homens", value: "homem" },
-    { label: "Trans", value: "travesti" },
-  ];
-
-=======
->>>>>>> b991144975ff085220a8971934dc34af0c9009a7
 
   useEffect(() => {
     const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;

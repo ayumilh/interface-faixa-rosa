@@ -110,7 +110,7 @@ export default function UserNameField({
           id={name}
           name={name}
           type="text"
-          value={sanitizeUsername(value)}   {/* << BLOQUEIA ao renderizar também */}
+          value={sanitizeUsername(value)} 
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}

@@ -198,7 +198,7 @@ const FinancialControl = () => {
                         alt="Ícone oficial Faixa Rosa"
                         width={50}
                         height={50}
-                        className="animate-pulse w-auto h-auto"
+                        className="animate-pulse w-12 h-12"
                       />
           </div>
         )}

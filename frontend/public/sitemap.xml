@@ -32634,4 +32634,8 @@
     <ns0:changefreq>weekly</ns0:changefreq>
     <ns0:priority>0.7</ns0:priority>
   </ns0:url>
-<url><loc>https://www.faixarosa.com/login</loc></url><url><loc>https://www.faixarosa.com/registro</loc></url><url><loc>https://www.faixarosa.com/</loc></url></ns0:urlset>
+<url><loc>https://www.faixarosa.com/login</loc></url>
+<url><loc>https://www.faixarosa.com/registro</loc></url>
+<url><loc>https://www.faixarosa.com/</loc></url>
+<url><loc>https://www.faixarosa.com/planos</loc></url>
+</ns0:urlset>

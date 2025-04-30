@@ -23,8 +23,8 @@ import Clientes from "@/components/adminDashboard/Clientes";
 import EstatisticasERelatorios from "@/components/adminDashboard/EstatisticasERelatorios";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
-import GerenciamentoDePlanos from "./planos/GerenciamentoDePlanos";
-import GerenciamentoDeAssinaturas from "./planos/GerenciamentoDeAssinaturas";
+import GerenciamentoDePlanos from "@/components/adminDashboard/planos/GerenciamentoDePlanos";
+import GerenciamentoDeAssinaturas from "@/components/adminDashboard/planos/GerenciamentoDeAssinaturas";
 
 // Componente Placeholder para seções não implementadas
 const Placeholder = ({ title, items = [] }) => (
@@ -42,7 +42,7 @@ const Placeholder = ({ title, items = [] }) => (
   </div>
 );
 
-const DashboardContent = () => {
+const AdminDashboardContent = () => {
   const [activeMainTab, setActiveMainTab] = useState("usuarios");
   const [activeSubTab, setActiveSubTab] = useState("anunciantes"); // valor padrão
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -513,4 +513,4 @@ const DashboardContent = () => {
   );
 };
 
-export default DashboardContent;
+export default AdminDashboardContent;

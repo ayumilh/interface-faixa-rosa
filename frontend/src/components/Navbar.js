@@ -171,10 +171,10 @@ export default function Navbar({ bgColor = "pink" }) {
                     />
                   ) : (
                     <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
-                    {userInfo?.userType === "ADMIN"
-                      ? userInfo?.firstName?.charAt(0).toUpperCase()
-                      : userInfo?.userName?.charAt(0).toUpperCase()}
-                  </span>
+                      {userInfo?.userType === "ADMIN"
+                        ? userInfo?.firstName?.charAt(0).toUpperCase()
+                        : userInfo?.userName?.charAt(0).toUpperCase()}
+                    </span>
                   )}
                 </div>
               </button>
@@ -205,27 +205,46 @@ export default function Navbar({ bgColor = "pink" }) {
                     )}
 
                   </div>
-                  {!loadingUserInfo && userInfo?.userType === 'ACOMPANHANTE' && (
+                  {!loadingUserInfo && userInfo && (
                     <>
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
-                      >
-                        Dashboard
-                      </Link>
+                      {userInfo.userType === 'ACOMPANHANTE' && (
+                        <>
+                          <Link
+                            href="/dashboard"
+                            className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
+                          >
+                            Dashboard
+                          </Link>
 
-                      <Link
-                        href={`/perfil/${userInfo?.userName || ''}`}
-                        className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
-                      >
-                        Perfil
-                      </Link>
+                          <Link
+                            href={`/perfil/${userInfo?.userName || ''}`}
+                            className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
+                          >
+                            Perfil
+                          </Link>
+                        </>
+                      )}
+
+                      {userInfo.userType === 'ADMIN' && (
+                        <>
+                          <Link
+                            href="/adminDashboard"
+                            className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
+                          >
+                            Painel Admin
+                          </Link>
+
+                          <Link
+                            href="/"
+                            className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition"
+                          >
+                            Início
+                          </Link>
+                        </>
+                      )}
                     </>
                   )}
 
-                  {/* <Link href="/settings" className="flex items-center px-4 py-2 text-gray-700 hover:bg-pink-100 transition">
-                    Configurações
-                  </Link> */}
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-red-600 hover:bg-pink-100 transition"

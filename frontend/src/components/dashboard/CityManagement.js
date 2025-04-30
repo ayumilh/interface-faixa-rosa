@@ -24,6 +24,7 @@ import Modal from "@/components/dashboard/Modal";
 import ModalBusca from "@/components/search/modalbuscaconvenio";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 const CityManagement = ({ onUpdate }) => {
   const {
@@ -39,7 +40,7 @@ const CityManagement = ({ onUpdate }) => {
   });
 
   const [showModalBusca, setShowModalBusca] = useState(false);
-   const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedUF, setSelectedUF] = useState("");
@@ -125,8 +126,6 @@ const CityManagement = ({ onUpdate }) => {
   };
 
   const confirmCityChange = () => {
-    console.log("Cidade alterada para:", selectedCity, selectedUF);
-
     onUpdate({
       city: `${selectedCity} - ${selectedUF}`,
       localities: intermediaries.localities,
@@ -170,32 +169,24 @@ const CityManagement = ({ onUpdate }) => {
           .replace(/[\u0300-\u036f]/g, "");
 
       // Converte os valores para os ENUMs esperados pelo backend
-      const locations = intermediaries.localities.map((loc) =>
-        formatEnum(loc)
-      );
-
+      const locations = intermediaries.localities.map((loc) => formatEnum(loc));
       const amenities = intermediaries.amenities.map(formatEnum);
 
-      // Verifica se houve mudanças nos arrays
-      const hasLocalitiesChanged =
-        intermediaries.localities.length !== locations.length ||
-        intermediaries.localities.some((loc) => !locations.includes(formatEnum(loc)));
+      // Tratamento para evitar erro do backend
+      const treatedLocations = locations
+        .filter((loc) => loc && typeof loc === "string")
+        .map((loc) => ({ name: loc, type: loc }));
 
-      const hasAmenitiesChanged =
-        intermediaries.amenities.length !== amenities.length ||
-        intermediaries.amenities.some((amenity) => !amenities.includes(formatEnum(amenity)));
+      const treatedAmenities = amenities.filter((a) => typeof a === "string");
 
-      // Garante que os valores sejam enviados corretamente
       const payload = {
-        city: selectedCity,
-        state: selectedUF,
-        locations: locations.length > 0 ? locations.map((loc) => ({ name: loc })) : intermediaries.localities.map((loc) => ({ name: formatEnum(loc) })),
-        amenities: amenities.length > 0 ? amenities : intermediaries.amenities.map(formatEnum),
+        city: selectedCity || null,
+        state: selectedUF || null,
+        locations: treatedLocations,
+        amenities: treatedAmenities,
       };
 
-      console.log("Payload FINAL para o Backend:", JSON.stringify(payload, null, 2));
-
-      const response = await axios.put(
+      await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/locations/update`,
         payload,
         {
@@ -203,24 +194,24 @@ const CityManagement = ({ onUpdate }) => {
         }
       );
 
-      alert("Dados atualizados com sucesso!");
+      toast.success("Dados de localidade atualizados com sucesso!");
 
       // Atualiza o estado corretamente sem sobrescrever os valores existentes
       setIntermediaries((prev) => ({
-        localities: hasLocalitiesChanged ? locations : prev.localities,
-        amenities: hasAmenitiesChanged ? amenities : prev.amenities,
+        localities: locations,
+        amenities: amenities,
       }));
 
       setShowLocalitiesModal(false);
       setShowAmenitiesModal(false);
       setIsConfirmModalOpen(false);
     } catch (error) {
-      console.error("Erro ao atualizar:", error);
-      if (error.response) {
-        console.error("Detalhes do erro da API:", error.response.data);
-        alert(`Erro: ${JSON.stringify(error.response.data)}`);
+      if (error.response?.data?.details?.includes("LocationType")) {
+        toast.error("Erro: Localidade inválida ou não encontrada.");
+      } else if (error.response?.data?.error) {
+        toast.error(`Erro: ${error.response.data.error}`);
       } else {
-        alert("Erro ao atualizar. Tente novamente.");
+        toast.error("Erro ao atualizar os dados. Tente novamente mais tarde.");
       }
     }
   };
@@ -241,7 +232,6 @@ const CityManagement = ({ onUpdate }) => {
         ? prev.localities.filter((loc) => loc !== enumValue)
         : [...prev.localities, enumValue];
 
-      console.log("Localidades Atualizadas:", updatedLocalities);
       return { ...prev, localities: updatedLocalities };
     });
   };
@@ -259,19 +249,16 @@ const CityManagement = ({ onUpdate }) => {
         ? prev.amenities.filter((amenity) => amenity !== enumValue)
         : [...prev.amenities, enumValue];
 
-      console.log("Comodidades Atualizadas:", updatedAmenities);
       return { ...prev, amenities: updatedAmenities };
     });
   };
 
   // Salva os valores corretamente antes de enviar ao backend
   const handleSaveLocalities = () => {
-    console.log("Salvando locais selecionados:", intermediaries.localities);
     updateLocationsAndAmenities();
   };
 
   const handleSaveAmenities = () => {
-    console.log("Salvando comodidades selecionadas:", intermediaries.amenities);
     updateLocationsAndAmenities();
   };
 
@@ -280,13 +267,13 @@ const CityManagement = ({ onUpdate }) => {
       {/* Carregamento com ícone de fogo */}
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-                    <Image
-                      src="/iconOficial_faixaRosa.png"
-                      alt="Ícone oficial Faixa Rosa"
-                      width={50}
-                      height={50}
-                      className="animate-pulse w-auto h-auto"
-                    />
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Ícone oficial Faixa Rosa"
+            width={50}
+            height={50}
+            className="animate-pulse w-auto h-auto"
+          />
         </div>
       )}
       <h2 className="text-2xl font-semibold mb-6 text-gray-800 flex items-center">

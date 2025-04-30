@@ -17,7 +17,7 @@ const publicRoutes = ['/planos', '/login', '/register'];
 
 export const checkSession = async (currentRoute) => {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const userToken = cookieStore.get('userToken');
 
     if (!userToken) {

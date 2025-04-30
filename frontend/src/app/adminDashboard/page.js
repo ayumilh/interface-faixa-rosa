@@ -1,6 +1,8 @@
+export const dynamic = "force-dynamic";
+
 import { checkSession } from "@/utils/checkSession";
 import { redirect } from "next/navigation";
-import DashboardContent from "@/components/adminDashboard/DashboardContent";
+import AdminDashboardContent from "./AdminDashboardContent";
 
 export default async function AdminDashboard() {
   const session = await checkSession('/adminDashboard');
@@ -9,5 +11,5 @@ export default async function AdminDashboard() {
     redirect('/');
   }
 
-  return <DashboardContent />;
+  return <AdminDashboardContent />;
 }

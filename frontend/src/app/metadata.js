@@ -2,7 +2,7 @@ const siteUrl = "https://www.faixarosa.com";
 const defaultImage = `${siteUrl}/public/Faixa Rosa- Fundo branco.png`;
 
 export async function generateMetadata() {
-  const title = "Faixa Rosa - Acompanhantes Verificadas em Todo o Brasil";
+  const title = "Faixa Rosa Acompanhantes";
   const description = "Descubra as melhores acompanhantes do Brasil com segurança, descrição e fotos reais. Cadastre-se gratuitamente na plataforma líder do país.";
   const keywords = [
     "acompanhantes",
@@ -32,8 +32,6 @@ export async function generateMetadata() {
     authors: [{ name: "Equipe Faixa Rosa", url: siteUrl }],
     creator: "Faixa Rosa",
     publisher: "Faixa Rosa",
-    themeColor: "#ff1493",
-    colorScheme: "light",
     referrer: "origin-when-cross-origin",
     category: "adult",
 
@@ -53,7 +51,7 @@ export async function generateMetadata() {
           url: defaultImage,
           width: 1200,
           height: 630,
-          alt: "Acompanhantes Verificadas em Todo o Brasil - Faixa Rosa",
+          alt: "Faixa Rosa Acompanhantes",
         },
       ],
     },

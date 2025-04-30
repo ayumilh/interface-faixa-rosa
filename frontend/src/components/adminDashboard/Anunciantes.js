@@ -8,14 +8,10 @@ import {
     FaFileAlt,
     FaHistory,
     FaFlag,
-    FaSpinner,
     FaVideo,
     FaTrash,
     FaUser,
-    FaClipboardList,
     FaMapMarkerAlt,
-    FaCalendarAlt,
-    FaPhoneAlt,
     FaRuler,
     FaWeight,
     FaStar
@@ -26,6 +22,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import ModalEditarPlano from "./modalAction/ModalEditarPlano";
+import ModalVerificarDocumentos from "./modalAction/ModalVerificarDocumentos";
+import ModalVerificarVideo from "./modalAction/ModalVerificarVideo";
+
 
 const Anunciantes = () => {
     const [modal, setModal] = useState({ isOpen: false, content: null });
@@ -54,34 +53,9 @@ const Anunciantes = () => {
     const [documentStatusModal, setDocumentStatusModal] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const traduzirStatusDocumento = (status) => {
-        switch (status) {
-            case 'APPROVED':
-                return { texto: 'Aprovado', cor: 'text-green-600' };
-            case 'IN_ANALYSIS':
-                return { texto: 'Em Análise', cor: 'text-orange-500' };
-            case 'REJECTED':
-                return { texto: 'Rejeitado', cor: 'text-red-600' };
-            case 'PENDING':
-                return { texto: 'Pendente', cor: 'text-yellow-500' };
-            default:
-                return { texto: 'Indefinido', cor: 'text-gray-600' }; // Caso não seja um dos status esperados
-        }
-    };
-
-    // Atualizar status da mídia no estado local
-    const atualizarStatusMedia = (id, status) => {
-        setAnunciantes((prev) =>
-            prev.map((item) =>
-                item.id === id ? { ...item, media: status } : item
-            )
-        );
-    };
-
+    // MODAL VERIFICAR DOCUMENTOS
     const handleVerificarDocumentos = (anunciante) => {
         const documentStatus = anunciante?.documents?.[0]?.documentStatus ?? "PENDING";
-
-        const status = traduzirStatusDocumento(documentStatus);
 
         const atualizarStatusDocumento = (novoStatus) => {
             setAnunciantes((prev) =>
@@ -92,113 +66,28 @@ const Anunciantes = () => {
             setDocumentStatusModal(novoStatus);
         };
 
-        const aprovarDocumento = async () => {
-            try {
-                setIsLoading(true);
-                await axios.post(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/documents/approve`,
-                    {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${userToken}`,
-                        },
-                    }
-                );
-                atualizarStatusDocumento("APPROVED");
-                toast.success("Documento aprovado com sucesso!");
-                setModal({ isOpen: false, content: null });
-            } catch (error) {
-                console.error("Erro ao aprovar documento:", error);
-                toast.error("Erro ao aprovar documento.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        const rejeitarDocumento = async () => {
-            try {
-                setIsLoading(true);
-                await axios.post(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/documents/reject`,
-                    {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${userToken}`,
-                        },
-                    }
-                );
-                atualizarStatusDocumento("REJECTED");
-                toast.success("Documento rejeitado com sucesso!");
-                setModal({ isOpen: false, content: null });
-            } catch (error) {
-                console.error("Erro ao rejeitar documento:", error);
-                toast.error("Erro ao rejeitar documento.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         setDocumentStatusModal(documentStatus);
 
         setModal({
             isOpen: true,
             content: (
-                <>
-                    <h2 className="text-xl font-semibold">Verificar Documentos</h2>
-                    <p>
-                        O documento de <strong>{anunciante.name}</strong> está atualmente:{" "}
-                        <strong className={status.cor}>{status.texto}</strong>
-                    </p>
-                    <div className="mt-4 flex justify-end space-x-2">
-                        {documentStatus === "IN_ANALYSIS" ? (
-                            <>
-                                <button
-                                    onClick={aprovarDocumento}
-                                    className={`px-4 py-2 text-white rounded bg-green-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                    disabled={isLoading}
-                                >
-                                    Aprovar
-                                </button>
-                                <button
-                                    onClick={rejeitarDocumento}
-                                    className={`px-4 py-2 text-white rounded bg-red-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                    disabled={isLoading}
-                                >
-                                    Rejeitar
-                                </button>
-                            </>
-                        ) : documentStatus === "REJECTED" ? (
-                            <button
-                                onClick={aprovarDocumento}
-                                className={`px-4 py-2 text-white rounded bg-green-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                disabled={isLoading}
-                            >
-                                Aprovar
-                            </button>
-                        ) : documentStatus === "PENDING" ? (
-                            <div className="w-full flex items-center space-x-2">
-                                <p className="text-gray-500">Acompanhante não enviou documento.</p>
-                            </div>
-                        ) : documentStatus === "APPROVED" ? (
-                            <div className="w-full flex flex-col space-x-2">
-                                <p className="text-green-500 font-medium">Documento já aprovado.</p>
-                                <div className="flex mt-2 items-end justify-end">
-                                    <button
-                                        onClick={rejeitarDocumento}
-                                        className={`px-4 py-2 text-white rounded bg-red-600 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                                        disabled={isLoading}
-                                    >
-                                        Rejeitar
-                                    </button>
-                                </div>
-                            </div>
-                        ) : null}
-                    </div>
-                </>
+                <ModalVerificarDocumentos
+                    anunciante={anunciante}
+                    documentStatus={documentStatus}
+                    atualizarStatusDocumento={atualizarStatusDocumento}
+                    userToken={userToken}
+                    onClose={() => setModal({ isOpen: false, content: null })}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                    setDocumentStatusModal={setDocumentStatusModal}
+                />
             ),
         });
     };
 
+
+
+    // Atualizar status do perfil
     const handleAtivarDesativar = (anunciante) => {
 
         const atualizarStatusPerfil = (novoStatus) => {
@@ -311,10 +200,10 @@ const Anunciantes = () => {
         });
     };
 
+
+
     const [planos, setPlanos] = useState([]);
     const [planosExtras, setPlanosExtras] = useState([]);
-    const [selectedPlano, setSelectedPlano] = useState(null);
-    const [selectedPlanoExtra, setSelectedPlanoExtra] = useState([]);
 
     // Carregar planos e planos extras
     useEffect(() => {
@@ -334,6 +223,7 @@ const Anunciantes = () => {
         fetchPlanos();
     }, []);
 
+    // MODAL EDITAR PLANOS
     const handleSalvarPlanoBasico = async (
         anuncianteId,
         selectedPlano,
@@ -341,7 +231,6 @@ const Anunciantes = () => {
         anunciantePlanId,
         setModal
     ) => {
-        console.log("Plano a ser salvo:", selectedPlano);
         if (selectedPlano === null || isNaN(selectedPlano)) {
             toast.error("Selecione um plano válido.");
             return;
@@ -372,7 +261,6 @@ const Anunciantes = () => {
             toast.error("Erro ao atualizar o plano básico.");
         }
     };
-
 
     const handleSalvarPlanoExtra = async (
         anuncianteId,
@@ -427,7 +315,6 @@ const Anunciantes = () => {
         }
     };
 
-
     const handleEditarPlano = (anunciante) => {
         setModal({
             isOpen: true,
@@ -445,6 +332,7 @@ const Anunciantes = () => {
         });
 
     };
+
 
 
     const handleMonitorarPostagens = async (anunciante) => {
@@ -668,142 +556,43 @@ const Anunciantes = () => {
         });
     };
 
+
+
+
+    // MODAL VERIFICAR VÍDEO
+    const atualizarStatusMedia = (id, newStatus) => {
+        setAnunciantes((prev) =>
+          prev.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  media: {
+                    ...item.media,
+                    status: newStatus, // preserva o url e altera só o status
+                  },
+                }
+              : item
+          )
+        );
+      };
+      
+
     const handleAprovarRejeitarVideo = (anunciante) => {
-        // Aprovar vídeo
-        const handleAprovarVideo = async (anunciante) => {
-            try {
-                await axios.post(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/approve`,
-                    {},
-                    { headers: { Authorization: `Bearer ${userToken}` } }
-                );
-                toast.success("Vídeo aprovado com sucesso!");
-                // Atualiza o estado local para refletir a aprovação da mídia
-                atualizarStatusMedia(anunciante.id, "APPROVED");
-                setModal({ isOpen: false, content: null });
-            } catch (error) {
-                console.error("Erro ao aprovar vídeo:", error);
-                toast.error("Erro ao aprovar o vídeo.");
-            }
-        };
-
-        // Rejeitar vídeo
-        const handleRejeitarVideo = async (anunciante) => {
-            try {
-                await axios.post(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/reject`,
-                    {},
-                    { headers: { Authorization: `Bearer ${userToken}` } }
-                );
-                toast.success("Vídeo rejeitado com sucesso!");
-                // Atualiza o estado local para refletir a rejeição da mídia
-                atualizarStatusMedia(anunciante.id, "REJECTED");
-                setModal({ isOpen: false, content: null });
-            } catch (error) {
-                console.error("Erro ao rejeitar vídeo:", error);
-                toast.error("Erro ao rejeitar o vídeo.");
-            }
-        };
-
-        // Suspender vídeo
-        const handleSuspenderVideo = async (anunciante) => {
-            try {
-                await axios.post(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/suspend`,
-                    {},
-                    { headers: { Authorization: `Bearer ${userToken}` } }
-                );
-                toast.success("Vídeo suspenso com sucesso!");
-                // Atualiza o estado local para refletir a suspensão da mídia
-                atualizarStatusMedia(anunciante.id, "SUSPENDED");
-                setModal({ isOpen: false, content: null });
-            } catch (error) {
-                console.error("Erro ao suspender vídeo:", error);
-                toast.error("Erro ao suspender o vídeo.");
-            }
-        };
-
-        // Abre o modal para aprovar, rejeitar ou suspender o vídeo
         setModal({
             isOpen: true,
             content: (
-                <>
-                    <h2 className="text-xl font-semibold">Aprovar ou Rejeitar Vídeo</h2>
-                    <p className="mb-4">
-                        O vídeo de <strong>{anunciante.name}</strong> está atualmente:{" "}
-                        <span className="font-semibold">{anunciante.media}</span>
-                    </p>
-
-                    <div className="mt-4 flex justify-end space-x-2">
-
-                        {/* Se a mídia estiver em análise, exibe as opções de Aprovar ou Rejeitar */}
-                        {anunciante.media === "IN_ANALYSIS" && (
-                            <>
-                                <button
-                                    onClick={() => handleAprovarVideo(anunciante)}
-                                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                                >
-                                    Aprovar Vídeo
-                                </button>
-                                <button
-                                    onClick={() => handleRejeitarVideo(anunciante)}
-                                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                                >
-                                    Rejeitar Vídeo
-                                </button>
-                            </>
-                        )}
-
-                        {/* Se a mídia estiver aprovada, exibe as opções de Rejeitar ou Suspender */}
-                        {anunciante.media === "APPROVED" && (
-                            <>
-                                <button
-                                    onClick={() => handleRejeitarVideo(anunciante)}
-                                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                                >
-                                    Rejeitar Vídeo
-                                </button>
-                                <button
-                                    onClick={() => handleSuspenderVideo(anunciante)}
-                                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-                                >
-                                    Suspender Vídeo
-                                </button>
-                            </>
-                        )}
-
-                        {/* Se a mídia estiver suspensa, exibe a opção de Aprovar */}
-                        {anunciante.media === "SUSPENDED" && (
-                            <button
-                                onClick={() => handleAprovarVideo(anunciante)}
-                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                            >
-                                Aprovar Vídeo
-                            </button>
-                        )}
-                        {/* Se a mídia estiver aprovada, exibe as opções de Rejeitar ou Suspender */}
-                        {anunciante.media === "REJECTED" && (
-                            <>
-                                <button
-                                    onClick={() => handleSuspenderVideo(anunciante)}
-                                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-                                >
-                                    Suspender Vídeo
-                                </button>
-                                <button
-                                    onClick={() => handleAprovarVideo(anunciante)}
-                                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                                >
-                                    Aprovar Vídeo
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </>
-            ),
+                <ModalVerificarVideo
+                    anunciante={anunciante}
+                    userToken={userToken}
+                    atualizarStatusMedia={atualizarStatusMedia}
+                    onClose={() => setModal({ isOpen: false, content: null })}
+                />
+            )
         });
     };
 
+
+    
     // Adicione dentro do componente Anunciantes
     const handleVerDetalhesAnunciante = async (anunciante) => {
         try {
@@ -1009,27 +798,31 @@ const Anunciantes = () => {
                                 </td>
                                 <td className="py-4 px-4">
                                     <span className={`px-2 py-1 rounded-full text-xs font-semibold 
-                                        ${anunciante.media === "APPROVED"
-                                            ? "bg-green-100 text-green-800" // Verde para mídia aprovada
-                                            : anunciante.media === "IN_ANALYSIS"
-                                                ? "bg-orange-100 text-orange-800" // Laranja para mídia em análise
-                                                : anunciante.media === "REJECTED"
-                                                    ? "bg-red-100 text-red-800" // Vermelho para mídia rejeitada
-                                                    : anunciante.media === "SUSPENDED"
-                                                        ? "bg-gray-100 text-gray-800" // Cinza para mídia suspensa
-                                                        : "bg-gray-100 text-gray-800" // Cinza para "Sem mídia"
+    ${anunciante.media?.status === "APPROVED"
+                                            ? "bg-green-100 text-green-800"
+                                            : anunciante.media?.status === "IN_ANALYSIS"
+                                                ? "bg-orange-100 text-orange-800"
+                                                : anunciante.media?.status === "REJECTED"
+                                                    ? "bg-red-100 text-red-800"
+                                                    : anunciante.media?.status === "SUSPENDED"
+                                                        ? "bg-gray-100 text-gray-800"
+                                                        : "bg-gray-100 text-gray-800"
                                         }`}>
-                                        {anunciante.media === "APPROVED"
-                                            ? "Vídeo Aprovado"
-                                            : anunciante.media === "IN_ANALYSIS"
-                                                ? "Vídeo em Análise"
-                                                : anunciante.media === "REJECTED"
-                                                    ? "Vídeo Rejeitado"
-                                                    : anunciante.media === "SUSPENDED"
-                                                        ? "Vídeo Suspenso" // Texto para "SUSPENDED"
-                                                        : "Sem Vídeo"}
+                                        {anunciante.media && anunciante.media.status
+                                            ? anunciante.media.status === "APPROVED"
+                                                ? "Vídeo Aprovado"
+                                                : anunciante.media.status === "IN_ANALYSIS"
+                                                    ? "Vídeo em Análise"
+                                                    : anunciante.media.status === "REJECTED"
+                                                        ? "Vídeo Rejeitado"
+                                                        : anunciante.media.status === "SUSPENDED"
+                                                            ? "Vídeo Suspenso"
+                                                            : "Sem Vídeo"
+                                            : "Sem Vídeo"}
                                     </span>
                                 </td>
+
+
                                 <td className="py-4 px-4 text-center space-x-2 flex justify-center">
                                     <div
                                         className="flex space-x-2"
@@ -1121,7 +914,6 @@ const Anunciantes = () => {
                                         </Tooltip>
                                     </div>
                                 </td>
-
                             </tr>
                         ))}
                     </tbody>

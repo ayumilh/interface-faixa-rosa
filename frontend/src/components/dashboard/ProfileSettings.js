@@ -146,56 +146,56 @@ const ProfileSettings = ({ onUpdate }) => {
   const fetchMedia = useCallback(async () => {
     const userToken = Cookies.get("userToken");
     try {
-        const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
-            {
-                headers: { Authorization: `Bearer ${userToken}` },
-            }
-        );
-
-        if (response.status === 200) {
-            const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
-
-            let allowedImages = 1; // padrão
-
-            // Verifique se planName é uma string antes de usar .includes()
-            if (typeof planName === "string") {
-                if (planName.includes("Plano Rubi")) {
-                    allowedImages = 5;
-                } else if (planName.includes("Plano Safira")) {
-                    allowedImages = 4;
-                } else if (
-                    planName.includes("Plano Vip") ||
-                    planName.includes("Plano Pink")
-                ) {
-                    allowedImages = 1;
-                } else if (
-                    planName.includes("Contato") ||
-                    planName.includes("Oculto") ||
-                    planName.includes("Reviews Públicos") ||
-                    planName.includes("Darkmode") ||
-                    planName.includes("Plano Nitro")
-                ) {
-                    allowedImages = 0;
-                }
-            }
-
-            // Atribuindo as variáveis de estado
-            setProfileImage(profileImage);
-            setBannerImage(bannerImage);
-            setDocumentsValidated(documentsValidated);
-            setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
-            setAllowedCarouselImages(Number(allowedImages));
-
-            const orderedImageURLs = response.data.media.carrouselImages
-                .sort((a, b) => a.order - b.order)
-                .map((img) => img.imageUrl);
-            setCarouselImages(orderedImageURLs);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
+        {
+          headers: { Authorization: `Bearer ${userToken}` },
         }
+      );
+
+      if (response.status === 200) {
+        const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
+
+        let allowedImages = 1; // padrão
+
+        // Verifique se planName é uma string antes de usar .includes()
+        if (typeof planName === "string") {
+          if (planName.includes("Plano Rubi")) {
+            allowedImages = 5;
+          } else if (planName.includes("Plano Safira")) {
+            allowedImages = 4;
+          } else if (
+            planName.includes("Plano Vip") ||
+            planName.includes("Plano Pink")
+          ) {
+            allowedImages = 1;
+          } else if (
+            planName.includes("Contato") ||
+            planName.includes("Oculto") ||
+            planName.includes("Reviews Públicos") ||
+            planName.includes("Darkmode") ||
+            planName.includes("Plano Nitro")
+          ) {
+            allowedImages = 0;
+          }
+        }
+
+        // Atribuindo as variáveis de estado
+        setProfileImage(profileImage);
+        setBannerImage(bannerImage);
+        setDocumentsValidated(documentsValidated);
+        setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
+        setAllowedCarouselImages(Number(allowedImages));
+
+        const orderedImageURLs = response.data.media.carrouselImages
+          .sort((a, b) => a.order - b.order)
+          .map((img) => img.imageUrl);
+        setCarouselImages(orderedImageURLs);
+      }
     } catch (error) {
-        console.error("Erro ao buscar mídia do acompanhante:", error);
+      console.error("Erro ao buscar mídia do acompanhante:", error);
     }
-}, []);
+  }, []);
 
 
   useEffect(() => {
@@ -559,36 +559,74 @@ const ProfileSettings = ({ onUpdate }) => {
         {/* Bloco 1: Ranking Nacional */}
         <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
           <h2 className="text-lg font-semibold text-gray-700 text-center">Ranking Nacional</h2>
-          <p className="text-4xl sm:text-5xl font-bold text-blue-600 mt-4">
-            {rankingPosition ? `#${rankingPosition}` : "—"}
-          </p>
-          <span className="text-sm text-gray-500 mt-2 text-center">
-            {rankingPosition ? "Sua posição no ranking" : "Sem colocação no momento"}
-          </span>
 
+          {rankingPosition && rankingPosition !== "Não disponível" ? (
+            <>
+              <p className="text-4xl sm:text-5xl font-bold text-blue-600 mt-4">
+                #{rankingPosition}
+              </p>
+              <span className="text-sm text-gray-500 mt-2 text-center">
+                Sua posição no ranking
+              </span>
+            </>
+          ) : userInfo?.companion?.city && userInfo?.companion?.state && userInfo?.companion?.planId ? (
+            <>
+              <p className="text-lg sm:text-xl font-bold text-yellow-500 mt-4 text-center">
+                Aguardando atualização
+              </p>
+              <span className="text-sm text-gray-500 mt-2 text-center">
+                Seu perfil será ranqueado em breve
+              </span>
+            </>
+          ) : (
+            <>
+              <p className="text-lg sm:text-xl font-bold text-pink-600 mt-4 text-center">
+                Ative seu perfil
+              </p>
+              <span className="text-sm text-gray-500 mt-2 text-center">
+                Para aparecer no ranking
+              </span>
+            </>
+          )}
         </div>
+
 
         {/* Bloco 2: Planos Ativos */}
         <ActivePlans />
 
         {/* Bloco 3: Expiração do Plano */}
-        <div className="p-4 bg-white shadow-md rounded-lg">
+        <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
           <h2 className="text-lg font-semibold text-gray-700 text-center">Expiração do Plano</h2>
-          <p className="text-2xl sm:text-3xl font-bold text-red-500 mt-4 text-center">
-            {timeLeft || "Indeterminado"}
-          </p>
-          {timeProgress > 0 && (
-            <div className="mt-6">
-              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-green-500 rounded-full transition-all"
-                  style={{ width: `${timeProgress}%` }}
-                ></div>
-              </div>
-              <span className="block text-sm text-gray-500 mt-2 text-center">Progresso do Plano</span>
-            </div>
+
+          {timeLeft && timeLeft !== "Expirado" ? (
+            <>
+              <p className="text-2xl sm:text-3xl font-bold text-red-500 mt-4 text-center">
+                {timeLeft}
+              </p>
+              {timeProgress > 0 && (
+                <div className="mt-6 w-full">
+                  <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full transition-all"
+                      style={{ width: `${timeProgress}%` }}
+                    ></div>
+                  </div>
+                  <span className="block text-sm text-gray-500 mt-2 text-center">Progresso do Plano</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <p className="text-lg font-semibold text-pink-600 mt-4 text-center">
+                Assine um plano
+              </p>
+              <span className="text-sm text-gray-500 mt-2 text-center">
+                Para começar a receber visitas no seu perfil
+              </span>
+            </>
           )}
         </div>
+
       </div>
 
       {/* Cobertura e Imagem de Perfil */}
@@ -646,8 +684,8 @@ const ProfileSettings = ({ onUpdate }) => {
         </div>
       </div>
 
-            {/* Carrossel do Card de Anúncio */}
-            <div className="mt-16">
+      {/* Carrossel do Card de Anúncio */}
+      <div className="mt-16">
         <h3 className="text-2xl font-semibold mb-6">Carrossel do Card de Anúncio</h3>
 
         {typeof allowedCarouselImages !== "number" || allowedCarouselImages <= 0 ? (

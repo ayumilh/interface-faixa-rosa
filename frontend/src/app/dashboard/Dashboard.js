@@ -11,6 +11,7 @@ import {
   FaTimes
 } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
+import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import Modal from "@/components/dashboard/Modal";
 import Image from "next/image";
@@ -27,6 +28,7 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 
 const Dashboard = () => {
   const { userInfo, fetchUserData } = useContext(AuthContext);
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,6 +44,30 @@ const Dashboard = () => {
     }
   }, [userInfo, fetchUserData]);
 
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+
+
+  useEffect(() => {
+    if (userInfo?.userType === "ACOMPANHANTE") {
+      const companionData = userInfo?.companion;
+
+      const isMissingCity = !companionData?.city || !companionData?.state;
+      const isMissingPlan = !companionData?.planId || !companionData?.planTypeId;
+
+      if (isMissingCity || isMissingPlan) {
+        setShowOnboarding(true);
+        console.log("Exibindo onboarding para o acompanhante.");
+      }
+    }
+  }, [userInfo]);
+
+  useEffect(() => {
+    if (showOnboarding) {
+      setShowOnboardingModal(true);
+    }
+  }, [showOnboarding]);
+
 
   // Detecta se está em mobile
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -55,25 +81,25 @@ const Dashboard = () => {
     setModalOpen((prev) => !prev);
   };
 
-    // Fecha o menu mobile ao clicar fora dele
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
-          setMobileMenuOpen(false);
-        }
-      };
-  
-      if (mobileMenuOpen) {
-        document.addEventListener("mousedown", handleClickOutside);
-      } else {
-        document.removeEventListener("mousedown", handleClickOutside);
+  // Fecha o menu mobile ao clicar fora dele
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setMobileMenuOpen(false);
       }
-  
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [mobileMenuOpen]);
-  
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
+
 
   // Definição dos itens do menu
   const menuTabs = [
@@ -118,13 +144,16 @@ const Dashboard = () => {
                   )}
                 </div>
                 <div>
-                  <span
-                    className="text-xl font-semibold text-gray-100"
-                    style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
+                  <span className="text-xl font-semibold text-gray-100 truncate block max-w-[140px] lg:max-w-[190px] xl:max-w-[215px]">
                     {user ? `${user.userName}` : ""}
                   </span>
+
                   <p className="text-gray-400">Bem-vindo ao seu painel!</p>
+                  {user?.companion?.points !== undefined && (
+                    <span className="text-sm font-medium text-green-400">
+                      Pontos: {user.companion.points}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -171,7 +200,7 @@ const Dashboard = () => {
                   <div className="mr-4">
                     <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
                       {/* Exibe a inicial do nome */}
-                      {user?.companion?.userName?.charAt(0).toUpperCase()}
+                      {user?.userName?.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
@@ -193,16 +222,16 @@ const Dashboard = () => {
 
           {/* Sidebar Mobile */}
           <div
-           ref={mobileMenuRef}
+            ref={mobileMenuRef}
             className={`fixed top-0 left-0 h-full w-64 bg-gray-800 z-40 transform transition-transform duration-300 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
               }`}
           >
             {/* Perfil do Usuário */}
             <div className="flex items-center w-full p-4 mt-16">
-              {user?.companion?.profileImage ? (
+              {userInfo?.companion?.profileImage ? (
                 <div>
                   <Image
-                    src={user.companion.profileImage}
+                    src={userInfo?.companion?.profileImage}
                     alt="Imagem de Perfil"
                     width={40}
                     height={40}
@@ -212,16 +241,25 @@ const Dashboard = () => {
               ) : (
                 <div className="mr-4">
                   <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-pink-600 text-xl font-semibold">
-                    {user?.companion?.userName?.charAt(0).toUpperCase()}
+                    {userInfo?.userName?.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
-              <div className="ml-2">
-                <h2 className="text-lg font-semibold text-gray-200">
-                  {user ? `${user?.companion?.userName}` : "Carregando..."}
-                </h2>
+              <div className="flex flex-col">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-200 truncate max-w-[170px] sm:max-w-[180px]">
+                    {userInfo ? `${userInfo?.userName}` : "Carregando..."}
+                  </h2>
+
+                </div>
+                {user?.companion?.points !== undefined && (
+                  <span className="text-sm font-medium text-green-400">
+                    Pontos: {user.companion.points}
+                  </span>
+                )}
               </div>
             </div>
+
             <hr className="w-full border-gray-700 my-2" />
 
             <ul className="space-y-2 px-4">
@@ -240,6 +278,61 @@ const Dashboard = () => {
 
           {/* Área de Conteúdo da Aba Selecionada */}
           <div className="bg-white shadow rounded-lg p-6">
+            <div className="max-w-6xl mx-auto">
+              {/* Ativar perfil */}
+              {showOnboarding && activeTab !== "city" && (
+                <div className="bg-white border border-pink-300 rounded-xl p-4 mb-6 shadow-lg">
+                  <h3 className="text-base font-bold text-pink-600 mb-3 flex items-center gap-2">
+                    Ative seu perfil agora:
+                  </h3>
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    {/* Etapa: Cidade */}
+                    {!user?.companion?.city || !user?.companion?.state ? (
+                      <div className="flex items-center bg-pink-50 px-3 py-2 rounded-lg gap-3 flex-1">
+                        <div className="bg-pink-500 text-white rounded-full p-2">
+                          <FaMapMarkerAlt className="text-sm" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800 flex items-center gap-1">
+                            Adicione sua cidade
+                            <span className="text-xs font-semibold text-pink-500 ml-2">+100 pontos</span>
+                          </p>
+                          <button
+                            onClick={() => handleTabClick("city")}
+                            className="mt-1 text-xs bg-pink-500 hover:bg-pink-600 text-white py-1 px-3 rounded-full"
+                          >
+                            Atualizar
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* Etapa: Plano */}
+                    {!user?.companion?.planId || !user?.companion?.planTypeId ? (
+                      <div className="flex items-center bg-pink-50 px-3 py-2 rounded-lg gap-3 flex-1">
+                        <div className="bg-pink-500 text-white rounded-full p-2">
+                          <FaDollarSign className="text-sm" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800 flex items-center gap-1">
+                            Escolha um plano
+                            <span className="text-xs font-semibold text-pink-500 ml-2">+100 pontos</span>
+                          </p>
+                          <button
+                            onClick={() => router.push("/planos")}
+                            className="mt-1 text-xs bg-pink-500 hover:bg-pink-600 text-white py-1 px-3 rounded-full"
+                          >
+                            Ver planos
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {activeTab === "metrics" && (
               <div className="w-full">
                 {isMobile ? (
@@ -280,6 +373,73 @@ const Dashboard = () => {
           </div>
         </Modal>
       )}
+
+      {/* Modal de Onboarding */}
+      {showOnboardingModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-pink-600">Ative seu perfil agora</h2>
+              <button
+                onClick={() => setShowOnboardingModal(false)}
+                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                <FaTimes size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {!user?.companion?.city || !user?.companion?.state ? (
+                <div className="flex items-center bg-pink-50 px-3 py-2 rounded-lg gap-3">
+                  <div className="bg-pink-500 text-white rounded-full p-2">
+                    <FaMapMarkerAlt className="text-sm" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800 flex items-center gap-1">
+                      Adicione sua cidade
+                      <span className="text-xs font-semibold text-pink-500 ml-2">+100 pontos</span>
+                    </p>
+                    <button
+                      onClick={() => {
+                        setShowOnboardingModal(false);
+                        handleTabClick("city");
+                      }}
+                      className="mt-1 text-xs bg-pink-500 hover:bg-pink-600 text-white py-1 px-3 rounded-full"
+                    >
+                      Atualizar
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {!user?.companion?.planId || !user?.companion?.planTypeId ? (
+                <div className="flex items-center bg-pink-50 px-3 py-2 rounded-lg gap-3">
+                  <div className="bg-pink-500 text-white rounded-full p-2">
+                    <FaDollarSign className="text-sm" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800 flex items-center gap-1">
+                      Escolha um plano
+                      <span className="text-xs font-semibold text-pink-500 ml-2">+100 pontos</span>
+                    </p>
+                    <button
+                      onClick={() => {
+                        setShowOnboardingModal(false);
+                        router.push("/planos");
+                      }}
+                      className="mt-1 text-xs bg-pink-500 hover:bg-pink-600 text-white py-1 px-3 rounded-full"
+                    >
+                      Ver planos
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

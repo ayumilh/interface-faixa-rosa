@@ -195,7 +195,7 @@ export default function ActivePlans() {
                                 <div className={`p-6 rounded-xl shadow-md ${planToManage.isBasic ? 'bg-blue-50' : 'bg-pink-50'}`}>
                                     <h3 className={`text-2xl font-semibold ${planToManage.isBasic ? 'text-blue-800' : 'text-pink-800'}  mb-4 text-center`}>{planToManage.name}</h3>
                                     <div className="space-y-4">
-                                        <div>
+                                        {/* <div>
                                             <ul className="list-disc pl-6 mt-2">
                                                 {planToManage?.hasContact && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Contato com clientes</li>}
                                                 {planToManage?.canHideAge && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Esconder idade</li>}
@@ -203,7 +203,7 @@ export default function ActivePlans() {
                                                 {planToManage?.hasPublicReviews && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Reviews públicos</li>}
                                                 {planToManage?.hasStories && <li className="flex items-center"><FaCheckCircle className="text-green-500 mr-2" /> Stories</li>}
                                             </ul>
-                                        </div>
+                                        </div> */}
 
                                         <div className="flex justify-center gap-4 mt-6">
                                             <button onClick={handleDeactivatePlan} className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600">Desativar Plano</button>

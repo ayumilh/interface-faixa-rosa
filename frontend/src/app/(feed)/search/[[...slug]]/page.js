@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { FaSearch } from "react-icons/fa";
 import Link from "next/link";
 import { usePlan } from "@/context/PlanContext";
@@ -9,20 +9,15 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FileText,
-  Camera,
-  CheckCircle,
-  Heartbeat,
   X,
-  MagnifyingGlass,
   ArrowRight,
   MapPin,
-  IconContext,
 } from "phosphor-react";
 import { IoIosArrowBack } from "react-icons/io";
-import axios from "axios";
+import useStatusTracker from "@/hooks/useStatusTracker";
 
 // Componentes necessários
+import Storys from "@/components/search/stories.js";
 import PropTypes from "prop-types";
 import Navbar from "@/components/Navbar";
 import ModalFiltro from "@/components/search/modalfiltro";
@@ -314,7 +309,6 @@ export default function Search() {
   const slugify = (text) => {
     return text.replace(/\s+/g, '-'); // Apenas troca espaço por hífen
   };
-  
 
 
   useEffect(() => {
@@ -341,6 +335,9 @@ export default function Search() {
       fetchCompanions({ cidade: city, estado: stateUF });
     }
   }, [city, stateUF, fetchCompanions]);
+
+  const companionIds = companions.map(c => c.userId);
+  const statusMap = useStatusTracker(companionIds);
 
   return (
     <div className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
@@ -408,6 +405,10 @@ export default function Search() {
           </div>
         </div>
 
+        <div className="w-full max-w-7xl mx-auto mt-6 px-4">
+          <Stories />
+        </div>
+
         {/* ModalBusca */}
         {showModalBusca && (
           <ModalBusca isOpen={showModalBusca} onClose={() => setShowModalBusca(false)} />
@@ -447,7 +448,7 @@ export default function Search() {
                 if (card.plan?.name === "Plano Rubi" && hasDarkMode) {
                   CardComponent = CardRubiDark;
                 } else if (card.plan?.name === "Plano Rubi") {
-                  CardComponent = CardPink
+                  CardComponent = CardRubi;
                 } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
                   CardComponent = CardSafiraDark;
                 } else if (card.plan?.name === "Plano Safira") {
@@ -480,6 +481,7 @@ export default function Search() {
                               : ["/default-avatar.jpg"]
                         }
                         contact={card.contactMethods?.[0]}
+                        isOnline={statusMap[card.userId] === "online"}
                         plan={card.plan}
                         planType={card.planType}
                         subscriptions={card.subscriptions}

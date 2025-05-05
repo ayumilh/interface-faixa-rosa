@@ -9,6 +9,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import StoryUploader from "./StoryUploader";
 
 const ProfileSettings = ({ onUpdate }) => {
   const { userInfo, fetchUserData } = useContext(AuthContext);
@@ -867,7 +868,7 @@ const ProfileSettings = ({ onUpdate }) => {
       </div> */}
 
       {/* Seção de Stories */}
-      <div className="mt-16">
+      {/* <div className="mt-16">
         <h3 className="text-2xl font-semibold mb-6">Postar Stories</h3>
         <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition">
           <FaPlusCircle className="mx-auto mb-2 text-4xl" />
@@ -903,7 +904,9 @@ const ProfileSettings = ({ onUpdate }) => {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
+
+      <StoryUploader />
 
       {/* Seção de Posts */}
       <div className="mt-16">

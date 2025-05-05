@@ -94,8 +94,8 @@ const ImageCarousel = ({ carrouselImages, images }) => {
               <span
                 key={index}
                 className={`w-3 h-3 rounded-full ${index === currentIndex
-                    ? "bg-gray-700"
-                    : "bg-gray-300"
+                  ? "bg-gray-700"
+                  : "bg-gray-300"
                   } transition-all`}
               ></span>
             ))}
@@ -292,7 +292,7 @@ const CardRubi = ({
   images,
   contact,
   plan,
-  planType,
+  isOnline,
   subscriptions,
   isAgeHidden,
   timedServiceCompanion = [],
@@ -398,10 +398,15 @@ const CardRubi = ({
       {/* Nome e Status */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-xl font-bold text-red-600">{userName}</h3>
-        {/* <div className="flex items-center">
-          <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
-          <span className="text-sm text-green-600">Online</span>
-        </div> */}
+        {typeof isOnline !== "undefined" && (
+          <div className="flex items-center">
+            <span className={`w-2 h-2 rounded-full mr-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}></span>
+            <span className={`text-sm ${isOnline ? "text-green-600" : "text-gray-500"}`}>
+              {isOnline ? "Online" : "Offline"}
+            </span>
+          </div>
+        )}
+
       </div>
 
       {/* seleção de serviço */}

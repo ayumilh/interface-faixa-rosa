@@ -27,7 +27,7 @@ const CardSafiraDark = ({
   planType,
   subscriptions,
   isAgeHidden,
-  isOnline = false,
+  isOnline,
   timedServiceCompanion = [],
   carrouselImages = [],
   totalPosts,
@@ -204,17 +204,14 @@ const CardSafiraDark = ({
         {/* Nome e Status */}
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-2xl font-bold text-white">{userName}</h3>
-          {/* {isOnline ? (
+          {typeof isOnline !== "undefined" && (
             <div className="flex items-center">
-              <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
-              <span className="text-sm text-green-400">Online</span>
+              <span className={`w-2 h-2 rounded-full mr-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}></span>
+              <span className={`text-sm ${isOnline ? "text-green-600" : "text-gray-500"}`}>
+                {isOnline ? "Online" : "Offline"}
+              </span>
             </div>
-          ) : (
-            <div className="flex items-center">
-              <span className="bg-gray-600 w-2 h-2 rounded-full mr-2"></span>
-              <span className="text-sm text-gray-500">Offline</span>
-            </div>
-          )} */}
+          )}
         </div>
 
         {/* seleção de serviço */}

@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthContextProvider } from "@/context/AuthContext";
 import { PlanProvider } from "@/context/PlanContext";
 import { generateMetadata } from "./metadata";
+import SocketWrapper from "@/providers/SocketWrapper";
 
 export const metadata = await generateMetadata()
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
       <body className="antialiased">
         <AuthContextProvider>
           <PlanProvider>
+            <SocketWrapper />
             {children}
             <ToastContainer
               position="top-right"

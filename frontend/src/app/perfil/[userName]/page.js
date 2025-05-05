@@ -37,7 +37,7 @@ import {
   ArrowRight,
   MapPin,
 } from "phosphor-react";
-
+import { useSocketStatus } from "@/hooks/useSocketStatus";
 import { toast } from 'react-toastify';
 
 // Componente de Modal para Busca
@@ -304,10 +304,10 @@ export default function Perfil() {
   const [maisAcompanhantes, setMaisAcompanhantes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("fotos");
-  const [status, setStatus] = useState("online"); // Status do usuário ("online", "offline")
   const [showModalBusca, setShowModalBusca] = useState(false); // Controle do modal de busca
   const [showModalNumero, setShowModalNumero] = useState(false); // Controle do modal de número
   const [companionData, setCompanionData] = useState(null); // Para armazenar os dados da acompanhante
+  const [companionId, setCompanionId] = useState(null);
 
 
   const [showProfileImageModal, setShowProfileImageModal] = useState(false);
@@ -345,6 +345,7 @@ export default function Perfil() {
         } 
 
         setCompanionData(response.data);
+        setCompanionId(response.data.id);
         setIsLoading(false);
 
         // Buscar mais acompanhantes com base na cidade e estado
@@ -367,6 +368,7 @@ export default function Perfil() {
 
     fetchProfile();
   }, [userName]);
+    const status = useSocketStatus(companionId);
 
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -795,7 +797,7 @@ export default function Perfil() {
                   <Link href="#" className="flex items-center space-x-1">
                     <span className={`w-2 h-2 rounded-full ${getStatusColor()} ${getStatusAnimation()}`}></span>
                     <p className={`text-sm ${status === "online" ? "text-green-500" : "text-gray-500"}`}>
-                      {status === "online" ? "Online agora" : "Offline há 30 minutos"}
+                      {status === "online" ? "Online agora" : "Offline"}
                     </p>
                   </Link>
                 </div>

@@ -1,34 +1,62 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from "react";
-import { FaWhatsapp } from "react-icons/fa";
+import { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { FaWhatsapp } from "react-icons/fa";
 
-export default function Stories({ stories }) {
+export default function Stories() {
+  const [stories, setStories] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedStory, setSelectedStory] = useState(null);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const modalRef = useRef(null);
   const storyDuration = 10000;
+  const slugify = (text) => text?.replace(/\s+/g, "-");
+  const router = useRouter();
 
-  const openStory = useCallback((index) => {
+
+  useEffect(() => {
+    async function fetchStories() {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/story/`
+        );
+
+        setStories(res.data);
+      } catch (err) {
+        console.error("Erro ao buscar stories:", err);
+      }
+    }
+
+    fetchStories();
+  }, []);
+
+  const openStory = (index) => {
     setSelectedStory(stories[index]);
     setCurrentIndex(index);
     setProgress(0);
-  }, [stories]);
+  };
 
   const closeModal = () => {
     setSelectedStory(null);
     setProgress(0);
   };
 
-  const nextStory = useCallback(() => {
+  const nextStory = () => {
     if (currentIndex < stories.length - 1) {
       openStory(currentIndex + 1);
     } else {
       closeModal();
     }
-  }, [currentIndex, stories.length, openStory]);
+  };
+
+  const prevStory = () => {
+    if (currentIndex > 0) {
+      openStory(currentIndex - 1);
+    }
+  };
 
   useEffect(() => {
     if (selectedStory && !isPaused) {
@@ -44,13 +72,7 @@ export default function Stories({ stories }) {
 
       return () => clearInterval(interval);
     }
-  }, [selectedStory, isPaused, nextStory]);
-
-  const prevStory = () => {
-    if (currentIndex > 0) {
-      openStory(currentIndex - 1);
-    }
-  };
+  }, [selectedStory, isPaused]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -69,18 +91,23 @@ export default function Stories({ stories }) {
           {stories.map((story, index) => (
             <div key={index} className="w-20 flex-shrink-0 text-center">
               <div
-                className="w-20 h-20 rounded-full overflow-hidden border-4 border-gradient-to-r from-pink-500 to-purple-500 cursor-pointer hover:scale-105 transform transition-transform duration-300"
+                className="w-14 h-14 rounded-full overflow-hidden border-4 border-gradient-to-r from-pink-500 to-purple-500 cursor-pointer hover:scale-105 transform transition-transform duration-300"
                 onClick={() => openStory(index)}
               >
-                <Image
-                  src={story.image}
-                  alt={story.name}
-                  layout="fill"
-                  className="w-full h-full object-cover"
-                />
+                {story.companion?.profileImage ? (
+                  <Image
+                    src={story.companion.profileImage}
+                    alt={story.companion?.userName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-pink-600 font-bold text-2xl">
+                    {story.companion?.userName?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                )}
               </div>
-              <span className="block mt-2 text-sm text-gray-700 font-medium">
-                {story.name}
+              <span className="block mt-2 text-xs text-gray-700 font-medium max-w-[4.5rem] truncate mx-auto">
+                {story.companion?.userName}
               </span>
             </div>
           ))}
@@ -90,7 +117,7 @@ export default function Stories({ stories }) {
       {selectedStory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm transition-opacity duration-300">
           <div
-            className="bg-gray-800 w-full max-w-sm md:max-w-2xl p-6 rounded-xl shadow-lg relative flex flex-col items-center"
+            className="bg-gray-800 w-full max-w-sm md:max-w-2xl p-6 rounded-xl shadow-lg relative flex flex-col items-center max-h-[90vh] overflow-y-auto"
             ref={modalRef}
           >
             <div
@@ -98,15 +125,21 @@ export default function Stories({ stories }) {
               style={{ width: `${progress}%` }}
             ></div>
 
-            {/* Navegação Desktop */}
-            <div className="absolute left-0 top-0 h-full w-1/2 cursor-pointer group" onClick={prevStory}>
+            <div
+              className="absolute left-0 top-0 h-full w-1/2 cursor-pointer group"
+              onClick={prevStory}
+            >
               <div className="hidden md:flex justify-center items-center h-full">
                 <div className="w-10 h-10 bg-black bg-opacity-50 rounded-full flex justify-center items-center group-hover:bg-opacity-70 transition">
                   <span className="text-white text-lg font-bold">&lt;</span>
                 </div>
               </div>
             </div>
-            <div className="absolute right-0 top-0 h-full w-1/2 cursor-pointer group" onClick={nextStory}>
+
+            <div
+              className="absolute right-0 top-0 h-full w-1/2 cursor-pointer group"
+              onClick={nextStory}
+            >
               <div className="hidden md:flex justify-center items-center h-full">
                 <div className="w-10 h-10 bg-black bg-opacity-50 rounded-full flex justify-center items-center group-hover:bg-opacity-70 transition">
                   <span className="text-white text-lg font-bold">&gt;</span>
@@ -115,7 +148,7 @@ export default function Stories({ stories }) {
             </div>
 
             <div
-              className="flex-1 w-full flex items-center justify-center bg-black rounded-lg overflow-hidden cursor-pointer relative"
+              className="flex-1 w-full flex items-center justify-center bg-black rounded-lg overflow-hidden cursor-pointer relative max-h-[80vh]"
               onClick={(e) => {
                 const { clientX } = e;
                 const elementWidth = e.currentTarget.offsetWidth;
@@ -131,35 +164,56 @@ export default function Stories({ stories }) {
               onTouchStart={() => setIsPaused(true)}
               onTouchEnd={() => setIsPaused(false)}
             >
-              <Image
-                src={selectedStory.image}
-                alt={selectedStory.name}
-                width={96}
-                height={96}
-                className="w-full h-auto object-contain"
-              />
+              {selectedStory.mediaType === "video" ? (
+                <video
+                  src={selectedStory.url}
+                  autoPlay
+                  muted
+                  className="max-h-[80vh] w-auto object-contain"
+                />
+              ) : (
+                <Image
+                  src={selectedStory.url}
+                  alt={selectedStory.companion?.userName}
+                  className="max-h-[80vh] w-auto object-contain"
+                />
+              )}
             </div>
 
-            <div className="mt-4 flex flex-col items-center">
-              <Image
-                src={selectedStory.profileImage}
-                alt={selectedStory.name}
-                width={96}
-                height={96}
-                className="w-24 h-24 rounded-full border-4 border-gradient-to-r from-pink-500 to-purple-500 mb-2"
-              />
+            <div
+                className="mt-4 flex flex-col items-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  e.stopImmediatePropagation();
+                  router.push(`/perfil/${slugify(selectedStory.companion?.userName)}`);
+                  closeModal(); 
+                }}
+              >
+                {selectedStory.companion?.profileImage ? (
+                  <Image
+                    src={selectedStory.companion.profileImage}
+                    alt={selectedStory.companion?.userName}
+                    className="w-14 h-14 object-cover rounded-full cursor-pointer"
+                  />
+                ) : (
+                  <div className="w-14 h-14 bg-gray-200 flex items-center justify-center text-pink-600 font-bold text-2xl rounded-full cursor-pointer">
+                    {selectedStory.companion?.userName?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                )}
+
               <h3 className="text-xl md:text-2xl font-semibold text-white">
-                {selectedStory.name}
+                {selectedStory.companion?.userName}
               </h3>
               <p className="text-sm md:text-base text-gray-300 mt-2 text-center">
-                {selectedStory.description || "Descrição breve da usuária"}
+                {selectedStory.companion?.description}
               </p>
             </div>
-
+            {/*
             <button className="mt-6 px-6 py-2 bg-green-500 text-white text-lg rounded-lg shadow-lg hover:bg-green-600 transition duration-300 flex items-center">
               <FaWhatsapp className="mr-2" />
               Ver Contato
-            </button>
+            </button> */}
           </div>
         </div>
       )}

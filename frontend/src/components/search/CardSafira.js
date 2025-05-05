@@ -23,7 +23,7 @@ const CardSafira = ({
   images,
   contact,
   plan,
-  planType,
+  isOnline,
   subscriptions,
   isAgeHidden,
   timedServiceCompanion = [],
@@ -205,11 +205,15 @@ const CardSafira = ({
           <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
             {userName}
           </h3>
-          {/* Considerando que isOnline não foi passado, você pode usar alguma lógica para determinar se está online */}
-          {/* <div className="flex items-center">
-            <span className="animate-pulse bg-green-500 w-2 h-2 rounded-full mr-2"></span>
-            <span className="text-sm text-green-600">Online</span>
-          </div> */}
+          {typeof isOnline !== "undefined" && (
+            <div className="flex items-center">
+              <span className={`w-2 h-2 rounded-full mr-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}></span>
+              <span className={`text-sm ${isOnline ? "text-green-600" : "text-gray-500"}`}>
+                {isOnline ? "Online" : "Offline"}
+              </span>
+            </div>
+          )}
+
         </div>
 
         <div ref={descRef} className="mb-3" onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent?.stopImmediatePropagation(); }}>

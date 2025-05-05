@@ -185,14 +185,29 @@ export default function Fotos({ userName, createdAtFormatted }) {
               className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
               onClick={() => openModal(photo)}
             >
-              <Image
-                src={photo.mediaUrl}
-                alt={`Foto ${photo.id}`}
-                layout="responsive"
-                width={500}
-                height={500}
-                className="w-full h-auto"
-              />
+              <div className="relative w-full h-auto">
+                <Image
+                  src={photo.mediaUrl}
+                  alt={`Foto ${photo.id}`}
+                  layout="responsive"
+                  width={500}
+                  height={500}
+                  className="w-full h-auto"
+                />
+
+                {/* Marca d'água - logo no canto inferior direito */}
+                <div className="absolute bottom-2 right-2 bg-white bg-opacity-70 px-2 py-1 rounded flex items-center space-x-1 text-xs text-gray-800">
+                  <Image
+                    src="/iconOficial_faixaRosa.png" // ou substitua pelo seu logo
+                    alt="Logo"
+                    width={16}
+                    height={16}
+                    className="object-contain"
+                  />
+                  <span>www.faixarosa.com</span>
+                </div>
+              </div>
+
               {/* Overlay com botões de ação */}
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition duration-300 flex justify-center items-center">
                 <div className="flex space-x-4 text-white opacity-0 group-hover:opacity-100">
@@ -258,13 +273,28 @@ export default function Fotos({ userName, createdAtFormatted }) {
 
             {/* Imagem centralizada */}
             <div className="flex justify-center items-center">
-              <Image
-                src={selectedPhoto.mediaUrl || selectedPhoto.src}
-                alt={`Foto ${selectedPhoto.id}`}
-                width={900}
-                height={900}
-                className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
-              />
+              <div className="relative">
+                <Image
+                  src={selectedPhoto.mediaUrl || selectedPhoto.src}
+                  alt={`Foto ${selectedPhoto.id}`}
+                  width={900}
+                  height={900}
+                  className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
+                />
+
+                {/* Marca d'água no modal */}
+                <div className="absolute bottom-4 right-4 bg-white bg-opacity-80 px-3 py-1 rounded flex items-center space-x-2 text-sm text-gray-800">
+                  <Image
+                    src="/iconOficial_faixaRosa.png"
+                    alt="Logo"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                  />
+                  <span>www.faixarosa.com</span>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

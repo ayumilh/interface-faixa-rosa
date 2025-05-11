@@ -36,8 +36,8 @@ import {
   X,
   ArrowRight,
   MapPin,
-} from "phosphor-react";
-import { useSocketStatus } from "@/hooks/useSocketStatus";
+} from "phosphor-react";  
+import useSocket from "@/hooks/useSocket"; 
 import { toast } from 'react-toastify';
 
 // Componente de Modal para Busca
@@ -316,7 +316,7 @@ export default function Perfil() {
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [selectedBannerImage, setSelectedBannerImage] = useState(null);
 
-
+  const [status, setStatus] = useState('offline'); 
 
   const [city, setCity] = useState(""); // Cidade selecionada
   const [stateUF, setStateUF] = useState(""); // Estado selecionado 
@@ -331,7 +331,6 @@ export default function Perfil() {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
         );
-        console.log("Dados do perfil:", response.data);
         if (!response.data) {
           toast.error("Acompanhante não encontrada.");
           setIsLoading(false);
@@ -342,7 +341,7 @@ export default function Perfil() {
           setIsLoading(false);
           setCompanionData([]);
           return;
-        } 
+        }
 
         setCompanionData(response.data);
         setCompanionId(response.data.id);
@@ -368,7 +367,34 @@ export default function Perfil() {
 
     fetchProfile();
   }, [userName]);
-    const status = useSocketStatus(companionId);
+
+  const socket = useSocket(companionId);
+
+  // Gerenciar status do socket
+  useEffect(() => {
+    if (!socket) return;
+
+    console.log("Socket conectado:", socket.id);
+
+    socket.on("connect", () => {
+      console.log("Conectado ao socket");
+      setStatus("online");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Desconectado do socket");
+      setStatus("offline");
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    console.log("Status atualizado:", status);
+  }, [status]);
 
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -544,132 +570,6 @@ export default function Perfil() {
         </button>
       </div> */}
 
-      {/* Modal de busca */}
-      {showModalBusca && (
-        <ModalBusca
-          showModalBusca={showModalBusca}
-          setShowModalBusca={setShowModalBusca}
-          className="text-black" // Adiciona fonte preta ao modal de busca
-        />
-      )}
-
-      {/* Modal de número */}
-      {/* {showModalNumero && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 text-black" // Fonte preta no modal de número
-          onClick={(e) => {
-            if (e.target.classList.contains("fixed")) {
-              setShowModalNumero(false);
-            }
-          }}
-        >
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
-            <button
-              className="absolute top-0 right-2 mt-1 mr-1 text-4xl text-gray-500 hover:text-gray-700"
-              onClick={() => setShowModalNumero(false)}
-            >
-              &times;
-            </button>
-
-            <div className="relative w-full h-48 mb-4 mt-4 overflow-hidden rounded-lg">
-              <div className="flex transition-transform transform">
-                {companionData && companionData.bannerImage && (
-                  <div className="w-full h-48 bg-gray-200 flex-shrink-0 mb-4">
-                    <Image
-                      src={companionData.bannerImage} 
-                      alt="Banner do perfil"
-                      width={1200}
-                      height={300}
-                      className="object-cover w-auto h-auto"
-                    />
-                  </div>
-                )}
-
-                {companionData.media.map((mediaItem, index) => (
-                  <div key={index} className="w-full h-48 bg-gray-200 flex-shrink-0">
-                    <Image
-                      src={mediaItem.url} // Usando a URL da mídia retornada da API
-                      alt={`Foto ${index + 1}`}
-                      layout="fill"
-                      objectFit="cover"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <button
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow hover:bg-gray-200"
-              >
-                &lt;
-              </button>
-              <button
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow hover:bg-gray-200"
-              >
-                &gt;
-              </button>
-
-              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                  {Array.isArray(companionData?.bannerImages) && companionData.bannerImages.map((_, index) => (
-                    <div key={index} className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center mb-4">
-              <div className="relative w-20 h-20 rounded-full border-4 border-pink-500 shadow-md overflow-hidden">
-                {companionData && companionData.profileImage && (
-                  <div className="w-full h-48 bg-gray-200 flex-shrink-0 mb-4 relative">
-                    <Image
-                      src={companionData.profileImage}
-                      alt="Foto do perfil"
-                      fill
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                )}
-
-                <FaCheckCircle className="absolute bottom-0 right-0 text-green-500 text-xl" />
-              </div>
-              <h2 className="text-xl text-black font-bold mt-2">{companionData.userName}</h2>
-            </div>
-
-            <div className="bg-purple-200 p-2 rounded-md mb-4">
-              <p className="text-center text-gray-600 font-semibold">Banner GOOGLE</p>
-            </div>
-
-            <div className="bg-purple-100 p-4 rounded-md mb-4 shadow-inner flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-800">Telefone:</p>
-                <p className="text-lg text-gray-900">{companionData.phoneNumber}</p> 
-              </div>
-              <button
-                onClick={handleCopy}
-                className="text-gray-700 hover:text-gray-900"
-              >
-                <FaRegCopy
-                  className={`text-xl ${copySuccess ? "text-green-500" : ""}`}
-                />
-              </button>
-            </div>
-
-            <div className="flex justify-around mt-4 space-x-3">
-              <button onClick={handleWhatsAppClick} className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105">
-                <FaWhatsapp />
-                <span>WhatsApp</span>
-              </button>
-              <button onClick={handleCall} className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-red-600 transition-transform transform hover:scale-105">
-                <span>Ligar</span>
-              </button>
-              <button onClick={handleTelegramRedirect} className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-105">
-                <FaTelegram />
-                <span>Telegram</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       {/* Seção de perfil com banner, informações e conteúdo da aba selecionada */}
       <div className="flex-grow">
@@ -740,18 +640,30 @@ export default function Perfil() {
 
                     {/* Imagem expandida */}
                     <div className="flex justify-center items-center">
-                      <Image
-                        src={selectedBannerImage}
-                        alt="Banner em tamanho grande"
-                        width={1400}
-                        height={600}
-                        className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
-                      />
+                      <div className="relative">
+                        <Image
+                          src={selectedBannerImage}
+                          alt="Banner em tamanho grande"
+                          width={1400}
+                          height={600}
+                          className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
+                        />
+                        {/* Marca d'água - logo no canto inferior direito */}
+                        <div className="absolute bottom-2 right-2 bg-white/30 px-2 py-1 rounded flex items-center space-x-1 text-xs text-gray-800">
+                          <Image
+                            src="/iconOficial_faixaRosa.png"
+                            alt="Logo"
+                            width={16}
+                            height={16}
+                            className="object-contain"
+                          />
+                          <span>www.faixarosa.com</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
-
 
 
               {showProfileImageModal && selectedProfileImage && (
@@ -773,6 +685,7 @@ export default function Perfil() {
 
                     {/* Imagem expandida */}
                     <div className="flex justify-center items-center">
+                    <div className="relative w-full h-auto">
                       <Image
                         src={selectedProfileImage}
                         alt="Foto de perfil grande"
@@ -780,6 +693,19 @@ export default function Perfil() {
                         height={900}
                         className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
                       />
+
+                      {/* Marca d'água - logo no canto inferior direito */}
+                      <div className="absolute bottom-2 right-2 bg-white/30 px-2 py-1 rounded flex items-center space-x-1 text-xs text-gray-800">
+                        <Image
+                          src="/iconOficial_faixaRosa.png"
+                          alt="Logo"
+                          width={16}
+                          height={16}
+                          className="object-contain"
+                        />
+                        <span>www.faixarosa.com</span>
+                      </div>
+                      </div>
                     </div>
                   </div>
                 </div>

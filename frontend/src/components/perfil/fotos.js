@@ -196,9 +196,9 @@ export default function Fotos({ userName, createdAtFormatted }) {
                 />
 
                 {/* Marca d'água - logo no canto inferior direito */}
-                <div className="absolute bottom-2 right-2 bg-white bg-opacity-70 px-2 py-1 rounded flex items-center space-x-1 text-xs text-gray-800">
+                <div className="absolute bottom-2 right-2 bg-white/30 px-2 py-1 rounded flex items-center space-x-1 text-xs text-gray-800">
                   <Image
-                    src="/iconOficial_faixaRosa.png" // ou substitua pelo seu logo
+                    src="/iconOficial_faixaRosa.png"
                     alt="Logo"
                     width={16}
                     height={16}
@@ -283,7 +283,7 @@ export default function Fotos({ userName, createdAtFormatted }) {
                 />
 
                 {/* Marca d'água no modal */}
-                <div className="absolute bottom-4 right-4 bg-white bg-opacity-80 px-3 py-1 rounded flex items-center space-x-2 text-sm text-gray-800">
+                <div className="absolute bottom-4 right-4 bg-white/30 px-3 py-1 rounded flex items-center space-x-2 text-sm text-gray-800">
                   <Image
                     src="/iconOficial_faixaRosa.png"
                     alt="Logo"
@@ -291,7 +291,7 @@ export default function Fotos({ userName, createdAtFormatted }) {
                     height={20}
                     className="object-contain"
                   />
-                  <span>www.faixarosa.com</span>
+                  <span className="text-lg">www.faixarosa.com</span>
                 </div>
               </div>
 

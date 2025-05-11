@@ -17,10 +17,8 @@ import { IoIosArrowBack } from "react-icons/io";
 import useStatusTracker from "@/hooks/useStatusTracker";
 
 // Componentes necessários
-import Storys from "@/components/search/stories.js";
 import PropTypes from "prop-types";
 import Navbar from "@/components/Navbar";
-import ModalFiltro from "@/components/search/modalfiltro";
 import Stories from "@/components/search/stories";
 import Final from "@/components/search/final";
 import CardVIP from "@/components/search/CardVIP";
@@ -209,37 +207,6 @@ const ModalBusca = ({ isOpen, onClose }) => {
                 )}
               </div>
 
-              {/* Botões de Categoria */}
-              {/* <div className="flex flex-col sm:flex-row sm:justify-between mt-4 gap-2">
-                              <button
-                                  className={`flex-1 px-4 py-3 rounded-full font-semibold transition-all ${category === "acompanhantes"
-                                      ? "bg-pink-500 text-white"
-                                      : "bg-gray-100 text-gray-800 hover:bg-pink-100"
-                                      }`}
-                                  onClick={() => setCategory("acompanhantes")}
-                              >
-                                  acompanhanteses
-                              </button>
-                              <button
-                                  className={`flex-1 px-4 py-3 rounded-full font-semibold transition-all ${category === "homem"
-                                      ? "bg-blue-500 text-white"
-                                      : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-                                      }`}
-                                  onClick={() => setCategory("homem")}
-                              >
-                                  Homens
-                              </button>
-                              <button
-                                  className={`flex-1 px-4 py-3 rounded-full font-semibold transition-all ${category === "travesti"
-                                      ? "bg-purple-500 text-white"
-                                      : "bg-gray-100 text-gray-800 hover:bg-purple-100"
-                                      }`}
-                                  onClick={() => setCategory("travesti")}
-                              >
-                                  Trans
-                              </button>
-                          </div> */}
-
               {/* Botão de Geolocalização */}
               <button
                 onClick={handleUseGeoLocation}
@@ -336,7 +303,8 @@ export default function Search() {
     }
   }, [city, stateUF, fetchCompanions]);
 
-  const companionIds = companions.map(c => c.userId);
+  const companionIds = Array.isArray(companions) ? companions.map(c => c.userId) : [];
+
   const statusMap = useStatusTracker(companionIds);
 
   return (

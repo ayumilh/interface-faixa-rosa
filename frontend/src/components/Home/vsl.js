@@ -1,12 +1,10 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { PlayCircle } from "phosphor-react";
 
 export default function VideoSection() {
   const videoRef = useRef(null); // ✅ corrigido
-
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);  // Track hydration
 
   const togglePlayPause = () => {
     const video = videoRef.current;
@@ -26,22 +24,8 @@ export default function VideoSection() {
   };
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-    const handleEnded = () => setIsPlaying(false);
-
-    video.addEventListener("play", handlePlay);
-    video.addEventListener("pause", handlePause);
-    video.addEventListener("ended", handleEnded);
-
-    return () => {
-      video.removeEventListener("play", handlePlay);
-      video.removeEventListener("pause", handlePause);
-      video.removeEventListener("ended", handleEnded);
-    };
+    // Mark as hydrated after component mounts
+    setIsHydrated(true);
   }, []);
 
   return (
@@ -62,20 +46,22 @@ export default function VideoSection() {
         className="w-full max-w-md sm:max-w-lg md:max-w-xl aspect-video bg-gray-300 rounded-xl overflow-hidden shadow-xl relative cursor-pointer"
         onClick={togglePlayPause}
       >
-        <video
-          ref={videoRef}
-          src="/vd-faixarosa-01.mp4"
-          poster="/thumb-vd-faixarosa.jpg"
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="w-full h-full object-cover"
-        >
-          Seu navegador não suporta o elemento de vídeo.
-        </video>
+        {isHydrated && (
+          <video
+            ref={videoRef}
+            src="/vd-faixarosa-01.mp4"
+            poster="/thumb-vd-faixarosa.jpg"
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+          >
+            Seu navegador não suporta o elemento de vídeo.
+          </video>
+        )}
 
-        {!isPlaying && (
+        {!isPlaying && isHydrated && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[rgba(0,0,0,0.6)] transition-opacity duration-300">
             <PlayCircle
               size={70}

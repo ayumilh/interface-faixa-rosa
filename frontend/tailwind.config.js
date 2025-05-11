@@ -18,6 +18,9 @@ module.exports = {
       backgroundImage: theme => ({
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       }),
+      animation: {
+        'spin-slow': 'spin 4s linear',
+      },
     },
   },
   plugins: [

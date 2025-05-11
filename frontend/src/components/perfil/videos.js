@@ -28,7 +28,7 @@ export default function Videos({ userName }) {
   const [uploadError, setUploadError] = useState("");
   const [newVideo, setNewVideo] = useState(null);
   const [companionData, setCompanionData] = useState(null);
-  const { companions, fetchCompanions, loading, error } = usePlan();
+  const { companions, fetchCompanions } = usePlan();
 
   useEffect(() => {
     if (userName) {
@@ -191,13 +191,25 @@ export default function Videos({ userName }) {
               onClick={() => openModal(video)}
             >
               {video.mediaUrl ? (
-                <video
-                  src={video.mediaUrl}
-                  className="w-full h-auto"
-                  muted
-                  playsInline
-                  preload="metadata"
-                />
+                <div className="relative w-full h-auto">
+                  <video
+                    src={video.mediaUrl}
+                    className="w-full h-auto"
+                    muted
+                    playsInline
+                    preload="metadata"
+                  />
+                  <div className="absolute bottom-2 right-2 bg-white/30 px-2 py-1 rounded flex items-center space-x-1 text-xs text-gray-800">
+                    <Image
+                      src="/iconOficial_faixaRosa.png"
+                      alt="Logo"
+                      width={16}
+                      height={16}
+                      className="object-contain"
+                    />
+                    <span>www.faixarosa.com</span>
+                  </div>
+                </div>
               ) : (
                 <div className="bg-gray-300 w-full h-[300px] flex items-center justify-center text-gray-500">
                   Sem thumbnail
@@ -231,12 +243,26 @@ export default function Videos({ userName }) {
 
             {/* Player de vídeo centralizado */}
             <div className="flex justify-center items-center">
-              <video
-                src={selectedVideo.mediaUrl || selectedVideo.src}
-                controls
-                autoPlay
-                className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
-              />
+              <div className="relative">
+                <video
+                  src={selectedVideo.mediaUrl || selectedVideo.src}
+                  controls
+                  autoPlay
+                  className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
+                />
+
+                {/* Marca d'água no modal */}
+                <div className="absolute bottom-4 right-4 bg-white/30 px-3 py-1 rounded flex items-center space-x-2 text-sm text-gray-800">
+                  <Image
+                    src="/iconOficial_faixaRosa.png"
+                    alt="Logo"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                  />
+                  <span className="text-lg">www.faixarosa.com</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

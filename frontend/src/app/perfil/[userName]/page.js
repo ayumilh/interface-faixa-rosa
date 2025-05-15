@@ -367,34 +367,10 @@ export default function Perfil() {
 
     fetchProfile();
   }, [userName]);
-
-  const socket = useSocket(companionId);
-
-  // Gerenciar status do socket
-  useEffect(() => {
-    if (!socket) return;
-
-    console.log("Socket conectado:", socket.id);
-
-    socket.on("connect", () => {
-      console.log("Conectado ao socket");
-      setStatus("online");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Desconectado do socket");
-      setStatus("offline");
-    });
-
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    console.log("Status atualizado:", status);
-  }, [status]);
+  
+  const socket = useSocket(companionId, (newStatus) => {
+    setStatus(newStatus);
+  });
 
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -511,7 +487,7 @@ export default function Perfil() {
         <nav className="text-sm text-gray-700">
           <Link href="/" className="text-pink-500 hover:text-pink-700">Início</Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-500">Acompanhantes</span>   {/* incluir o redirecionamento */}
+          <Link href="/search" className="text-pink-500 hover:text-pink-700">Acompanhantes</Link>
           <span className="mx-2">/</span>
           <span className="text-gray-500">Perfil</span>
         </nav>
@@ -720,12 +696,12 @@ export default function Perfil() {
                   ) : (
                     <></>
                   )}
-                  <Link href="#" className="flex items-center space-x-1">
+                  {/* <Link href="#" className="flex items-center space-x-1">
                     <span className={`w-2 h-2 rounded-full ${getStatusColor()} ${getStatusAnimation()}`}></span>
                     <p className={`text-sm ${status === "online" ? "text-green-500" : "text-gray-500"}`}>
                       {status === "online" ? "Online agora" : "Offline"}
                     </p>
-                  </Link>
+                  </Link> */}
                 </div>
 
                 <div className="flex flex-col space-y-1 text-gray-700 mt-2">

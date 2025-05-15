@@ -205,14 +205,14 @@ const CardSafira = ({
           <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
             {userName}
           </h3>
-          {typeof isOnline !== "undefined" && (
+          {/* {typeof isOnline !== "undefined" && (
             <div className="flex items-center">
               <span className={`w-2 h-2 rounded-full mr-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}></span>
               <span className={`text-sm ${isOnline ? "text-green-600" : "text-gray-500"}`}>
                 {isOnline ? "Online" : "Offline"}
               </span>
             </div>
-          )}
+          )} */}
 
         </div>
 

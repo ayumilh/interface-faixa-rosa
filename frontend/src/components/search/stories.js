@@ -19,43 +19,47 @@ export default function Stories() {
   const inputRef = useRef(null);
   const router = useRouter();
   const storyDuration = 10000;
-
-  const imageRef = useRef(null); // Ref para a imagem
+  const imageRef = useRef(null);
 
   useEffect(() => {
-    if (!userInfo) {
-      fetchUserData();
-    }
+    if (!userInfo) fetchUserData();
   }, [userInfo, fetchUserData]);
 
   const groupStoriesByUser = (stories) => {
-    const groupedStories = {};
+    const grouped = {};
     stories.forEach((story) => {
       const userName = story.companion.userName;
-      if (!groupedStories[userName]) {
-        groupedStories[userName] = {
-          ...story.companion, 
-          stories: [story], 
+      if (!grouped[userName]) {
+        grouped[userName] = {
+          companion: story.companion,
+          stories: [story],
         };
       } else {
-        groupedStories[userName].stories.push(story); 
+        grouped[userName].stories.push(story);
       }
     });
-    return Object.values(groupedStories);
-  };
 
-  useEffect(() => {
-    async function fetchStories() {
-      try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/story/`
-        );
-        const groupedStories = groupStoriesByUser(res.data || []);
-        setStories(groupedStories);
-      } catch (err) {
-        console.error("Erro ao buscar stories:", err);
+    const all = Object.values(grouped);
+    if (userInfo) {
+      const ownIndex = all.findIndex((g) => g.companion.userName === userInfo.userName);
+      if (ownIndex > -1) {
+        const [own] = all.splice(ownIndex, 1);
+        all.unshift(own);
       }
     }
+    return all;
+  };
+
+  async function fetchStories() {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/story/`);
+      setStories(groupStoriesByUser(res.data || []));
+    } catch (err) {
+      console.error("Erro ao buscar stories:", err);
+    }
+  }
+
+  useEffect(() => {
     fetchStories();
   }, []);
 
@@ -79,16 +83,8 @@ export default function Stories() {
         }
       );
       if (res.data) {
-        const updatedStory = {
-          ...res.data,
-          companion: {
-            ...res.data.companion,
-            userName: userInfo.userName,
-            profileImage: res.data.companion.profileImage || "/default-avatar.jpg", // Default fallback if no image
-          }
-        };
-        setStories((prev) => [updatedStory, ...prev]);
         toast.success("Story enviado com sucesso!");
+        fetchStories();
       }
     } catch (err) {
       console.error("Erro ao enviar story:", err);
@@ -96,33 +92,91 @@ export default function Stories() {
     }
   };
 
+  const handleDeleteStory = async (id) => {
+    const storyId = selectedStory.stories[currentIndex]?.id;
+    if (!storyId || !userToken) return;
+
+    const confirm = window.confirm("Tem certeza que deseja deletar este story?");
+    if (!confirm) return;
+
+    try {
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/${id}/delete`, {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
+      toast.success("Story deletado com sucesso!");
+      closeModal();
+      fetchStories();
+    } catch (err) {
+      console.error("Erro ao deletar story:", err);
+      toast.error("Erro ao deletar story.");
+    }
+  };
+
   const slugify = (text) => text?.replace(/\s+/g, "-").toLowerCase();
 
-  const openStory = (index) => {
-    setSelectedStory(stories[index]);
-    setCurrentIndex(index);
-    setProgress(0);
-    console.log("Story selecionado:", stories[index]);  // Verifique os dados de selectedStory aqui
-  };
+const openStory = (index) => {
+  const storyGroup = stories[index];
+  if (!storyGroup) return;
+  setSelectedStory(storyGroup);
+  setCurrentIndex(0);
+  setProgress(0);
+};
 
   const closeModal = () => {
     setSelectedStory(null);
     setProgress(0);
   };
 
-  const nextStory = () => {
-    if (currentIndex < stories.length - 1) {
-      openStory(currentIndex + 1);
+  const nextStory = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation();
+
+    const currentStories = selectedStory?.stories || [];
+
+    if (currentIndex < currentStories.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setProgress(0);
     } else {
-      closeModal();
+      // Ir para o próximo grupo
+      const currentGroupIndex = stories.findIndex(
+        (group) => group.companion.userName === selectedStory.companion.userName
+      );
+      if (currentGroupIndex < stories.length - 1) {
+        const nextGroup = stories[currentGroupIndex + 1];
+        setSelectedStory(nextGroup);
+        setCurrentIndex(0);
+        setProgress(0);
+      } else {
+        closeModal();
+      }
     }
   };
 
-  const prevStory = () => {
+  const prevStory = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation();
+
     if (currentIndex > 0) {
-      openStory(currentIndex - 1);
+      setCurrentIndex(currentIndex - 1);
+      setProgress(0);
+    } else {
+      // Ir para o grupo anterior
+      const currentGroupIndex = stories.findIndex(
+        (group) => group.companion.userName === selectedStory.companion.userName
+      );
+      if (currentGroupIndex > 0) {
+        const prevGroup = stories[currentGroupIndex - 1];
+        setSelectedStory(prevGroup);
+        setCurrentIndex(prevGroup.stories.length - 1);
+        setProgress(0);
+      } else {
+        closeModal();
+      }
     }
   };
+
 
   useEffect(() => {
     if (selectedStory && !isPaused) {
@@ -135,7 +189,6 @@ export default function Stories() {
           return prev + 1;
         });
       }, storyDuration / 100);
-
       return () => clearInterval(interval);
     }
   }, [selectedStory, isPaused]);
@@ -150,27 +203,30 @@ export default function Stories() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Função para avançar história ao clicar na imagem
   const handleImageClick = (e) => {
-    e.stopPropagation(); // Impede o evento de propagação para outros elementos
+    e.stopPropagation();
     const { clientX } = e;
     const width = e.currentTarget.offsetWidth;
     clientX > width / 2 ? nextStory() : prevStory();
   };
 
-  // Verificação se o selectedStory possui uma URL válida antes de tentar renderizar
   const renderMediaContent = () => {
     if (selectedStory) {
-      const story = selectedStory.stories[currentIndex];  // Seleciona a história correta
+      const story = selectedStory.stories[currentIndex];
       const { url, mediaType } = story;
 
-      if (mediaType === "video" && url) {
+      if (mediaType === "video" && url)
         return <video src={url} autoPlay muted className="max-h-[80vh] w-auto object-contain" />;
-      } else if (mediaType === "image" && url) {
-        return <Image src={url} alt={selectedStory.userName || "Desconhecido"} width={500} height={800} className="max-h-[80vh] w-auto object-contain" />;
-      } else {
-        return <div className="text-white">Imagem ou vídeo não encontrado</div>;
-      }
+      else if (mediaType === "image" && url)
+        return (
+          <Image
+            src={url}
+            alt={selectedStory.userName || "Desconhecido"}
+            width={500}
+            height={800}
+            className="max-h-[80vh] w-auto object-contain"
+          />
+        );
     }
     return <div className="text-white">Carregando...</div>;
   };
@@ -178,14 +234,11 @@ export default function Stories() {
   return (
     <>
       <div className="w-full py-4 px-4 bg-gray-50 shadow-md">
-        <div className="flex overflow-x-auto space-x-4">
+        <div className="flex overflow-x-auto space-x-4 items-center">
           {userInfo?.userType === "ACOMPANHANTE" && (
             <div className="w-20 flex-shrink-0 text-center">
-              <div
-                className="w-16 h-16 rounded-full p-[2px] mx-auto bg-gradient-to-r from-pink-400 via-pink-700 to-pink-300 hover:animate-spin-slow"
-                onClick={() => inputRef.current?.click()}
-              >
-                <div className="w-full h-full rounded-full bg-white text-pink-500 text-3xl flex items-center justify-center cursor-pointer">
+              <label className="w-16 h-16 rounded-full p-[2px] mx-auto bg-gradient-to-r from-pink-400 via-pink-700 to-pink-300 flex items-center justify-center cursor-pointer hover:animate-spin-slow">
+                <div className="w-full h-full rounded-full bg-white text-pink-500 text-3xl flex items-center justify-center">
                   +
                 </div>
                 <input
@@ -195,9 +248,9 @@ export default function Stories() {
                   ref={inputRef}
                   onChange={handleStoryUpload}
                 />
-              </div>
+              </label>
               <span className="block mt-2 text-xs text-gray-700 font-medium max-w-[4.5rem] truncate mx-auto">
-                Seu Story
+                Adicionar
               </span>
             </div>
           )}
@@ -208,22 +261,22 @@ export default function Stories() {
                 className="w-14 h-14 rounded-full overflow-hidden border-4 border-gradient-to-r from-pink-500 to-purple-500 cursor-pointer hover:scale-105 transform transition-transform duration-300"
                 onClick={() => openStory(index)}
               >
-                {storyGroup.profileImage ? (
+                {storyGroup.companion?.profileImage ? (
                   <Image
-                    src={storyGroup.profileImage || "/default-avatar.jpg"}  // Default fallback if no image
-                    alt={storyGroup.userName || "Desconhecido"}
+                    src={storyGroup.companion.profileImage || "/default-avatar.jpg"}
+                    alt={storyGroup.companion.userName || "Desconhecido"}
                     width={56}
                     height={56}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center text-pink-600 font-bold text-2xl">
-                    {storyGroup.userName?.charAt(0)?.toUpperCase() || "?"}
+                    {storyGroup.companion?.userName?.charAt(0)?.toUpperCase() || "?"}
                   </div>
                 )}
               </div>
               <span className="block mt-2 text-xs text-gray-700 font-medium max-w-[4.5rem] truncate mx-auto">
-                {storyGroup.userName || "Desconhecido"}
+                {storyGroup.companion?.userName || "Desconhecido"}
               </span>
             </div>
           ))}
@@ -241,7 +294,20 @@ export default function Stories() {
               style={{ width: `${progress}%` }}
             ></div>
 
-            <div className="absolute left-0 top-0 h-full w-1/2 cursor-pointer group" onClick={prevStory}>
+            {selectedStory?.companion?.userName === userInfo?.userName && (
+              <button
+                onClick={() => handleDeleteStory(selectedStory.stories[currentIndex]?.id)}
+                className="absolute top-10 right-10 z-[9999] bg-red-600 hover:bg-red-700 text-white text-lg font-bold px-3 py-2 rounded-full shadow-lg transition-all"
+                aria-label="Deletar story"
+              >
+                Deletar
+              </button>
+            )}
+            <div
+              className="absolute left-0 top-0 h-full w-1/2 cursor-pointer group z-50"
+              onClick={prevStory}
+              ref={imageRef}
+            >
               <div className="hidden md:flex justify-center items-center h-full">
                 <div className="w-10 h-10 bg-black bg-opacity-50 rounded-full group-hover:bg-opacity-70 transition flex items-center justify-center">
                   <span className="text-white text-lg font-bold">&lt;</span>
@@ -249,7 +315,23 @@ export default function Stories() {
               </div>
             </div>
 
-            <div className="absolute right-0 top-0 h-full w-1/2 cursor-pointer group" onClick={nextStory}>
+            <div
+              className="absolute right-0 top-0 h-full w-1/2 cursor-pointer group z-50"
+              onClick={nextStory}
+              ref={imageRef}
+            >
+              <div className="hidden md:flex justify-center items-center h-full">
+                <div className="w-10 h-10 bg-black bg-opacity-50 rounded-full group-hover:bg-opacity-70 transition flex items-center justify-center">
+                  <span className="text-white text-lg font-bold">&gt;</span>
+                </div>
+              </div>
+            </div>
+
+
+            <div
+              className="absolute right-0 top-0 h-full w-1/2 cursor-pointer group"
+              onClick={nextStory}
+            >
               <div className="hidden md:flex justify-center items-center h-full">
                 <div className="w-10 h-10 bg-black bg-opacity-50 rounded-full group-hover:bg-opacity-70 transition flex items-center justify-center">
                   <span className="text-white text-lg font-bold">&gt;</span>
@@ -262,7 +344,7 @@ export default function Stories() {
               className="flex-1 w-full flex items-center justify-center bg-black rounded-lg overflow-hidden cursor-pointer relative max-h-[80vh]"
               onClick={handleImageClick}
             >
-              {renderMediaContent()} {/* Chama a função que renderiza o conteúdo */}
+              {renderMediaContent()}
             </div>
 
             <div

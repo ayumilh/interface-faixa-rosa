@@ -473,15 +473,15 @@ export default function CadastroPage() {
                                     value={formData.userName} // Usando formData para o valor
                                     onChange={(e) => {
                                         const sanitizedValue = e.target.value
-                                          .normalize("NFD")
-                                          .replace(/[\u0300-\u036f]/g, "") // remove acentos
-                                          .replace(/[^\w]/g, "")           // aceita apenas letras, números e _
-                                          .replace(/_/g, "")               // remove underline
-                                          .replace(/\s+/g, "")             // remove espaços
-                                          .toLowerCase();                  // deixa minúsculo (opcional)
-                                    
+                                            .normalize("NFD")
+                                            .replace(/[\u0300-\u036f]/g, "") // remove acentos
+                                            .replace(/[^\w]/g, "")           // aceita apenas letras, números e _
+                                            .replace(/_/g, "")               // remove underline
+                                            .replace(/\s+/g, "")             // remove espaços
+                                            .toLowerCase();                  // deixa minúsculo (opcional)
+
                                         setFormData({ ...formData, userName: sanitizedValue });
-                                      }}
+                                    }}
                                     required
                                     maxLength={50}
                                     error={errorsInput.userName} // Pode armazenar o erro do nome de usuário
@@ -545,8 +545,14 @@ export default function CadastroPage() {
                                 />
 
                                 {/* Upload de documentos */}
-                                {formData.cpf.replace(/\D/g, "").length === 11 && (
+                                {formData.cpf.replace(/\D/g, "").length === 11 && (<>
+                                    <div className="mb-4">
+                                        <p className="text-sm text-gray-600 mb-2 px-2">
+                                            Envie uma foto <span className="font-bold text-gray-700">frente e verso</span> do seu documento de identidade (RG).
+                                        </p>
+                                    </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
                                         {/* Upload Frente */}
                                         <label className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-center cursor-pointer">
                                             {documentFileFront ? (
@@ -589,7 +595,7 @@ export default function CadastroPage() {
                                             />
                                         </label>
                                     </div>
-                                )}
+                                </>)}
 
 
                                 <div className="flex items-center gap-4 justify-between mt-4">

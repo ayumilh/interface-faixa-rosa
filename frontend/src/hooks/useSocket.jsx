@@ -3,13 +3,12 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
-export default function useSocket(userId) {
+export default function useSocket(userId, onStatusChange) {
   const socketRef = useRef(null);
 
   useEffect(() => {
     if (!userId) return;
 
-    // Conecta apenas uma vez
     if (!socketRef.current) {
       socketRef.current = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
         query: { userId },
@@ -24,15 +23,18 @@ export default function useSocket(userId) {
         console.log("Desconectado do Socket.IO");
       });
 
-      socketRef.current.on("userStatus", ({ userId, status }) => {
-        console.log(`Usuário ${userId} está agora ${status}`);
+      socketRef.current.on("userStatus", ({ userId: id, status }) => {
+        console.log(`Usuário ${id} está agora ${status}`);
+        if (onStatusChange && typeof onStatusChange === "function") {
+          onStatusChange(status);
+        }
       });
     }
 
     return () => {
       socketRef.current?.disconnect();
     };
-  }, [userId]);
+  }, [userId, onStatusChange]);
 
   return socketRef.current;
 }

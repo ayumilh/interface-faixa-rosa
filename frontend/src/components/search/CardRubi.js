@@ -398,14 +398,14 @@ const CardRubi = ({
       {/* Nome e Status */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-xl font-bold text-red-600">{userName}</h3>
-        {typeof isOnline !== "undefined" && (
+        {/* {typeof isOnline !== "undefined" && (
           <div className="flex items-center">
             <span className={`w-2 h-2 rounded-full mr-2 ${isOnline ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}></span>
             <span className={`text-sm ${isOnline ? "text-green-600" : "text-gray-500"}`}>
               {isOnline ? "Online" : "Offline"}
             </span>
           </div>
-        )}
+        )} */}
 
       </div>
 

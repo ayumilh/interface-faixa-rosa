@@ -298,10 +298,15 @@ export default function Search() {
   }, [slugString, fetchCompanions]);
 
   useEffect(() => {
+    // Se cidade e estado estiverem definidos, faz busca filtrada
     if (city && stateUF) {
       fetchCompanions({ cidade: city, estado: stateUF });
+    } else {
+      // Caso contrário, busca todas as acompanhantes
+      fetchCompanions();
     }
   }, [city, stateUF, fetchCompanions]);
+
 
   const companionIds = Array.isArray(companions) ? companions.map(c => c.userId) : [];
 
@@ -339,8 +344,13 @@ export default function Search() {
         {/* Título */}
         <div className="w-full h-min bg-cover bg-center flex justify-center items-start mt-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-black text-center px-4">
-            {companions.length === 0 ? `Acompanhantes não encontradas em  ${decodeURIComponent(city)}, ${stateUF}` : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
+            {!city
+              ? "Acompanhantes disponíveis em todo o Brasil"
+              : companions.length === 0
+                ? `Acompanhantes não encontradas em ${decodeURIComponent(city)}, ${stateUF}`
+                : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
           </h1>
+
         </div>
 
         {/* Barra de Pesquisa */}
@@ -387,7 +397,9 @@ export default function Search() {
         <div className="mt-6 w-full max-w-7xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 className="text-lg font-semibold text-gray-800 text-center sm:text-left">
-              Resultados para {category} em {city && stateUF ? `${city}, ${stateUF}` : "sua cidade"}:
+              {city && stateUF
+                ? `Resultados para ${category} em ${city}, ${stateUF}:`
+                : `Resultados para ${category} em todo o Brasil:`}
             </h2>
             <div className="flex items-center space-x-4 mt-4 sm:mt-0">
               <button className="text-gray-700 text-sm">Ordenar</button>

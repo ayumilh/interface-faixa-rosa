@@ -298,14 +298,17 @@ export default function Search() {
   }, [slugString, fetchCompanions]);
 
   useEffect(() => {
-    // Se cidade e estado estiverem definidos, faz busca filtrada
-    if (city && stateUF) {
-      fetchCompanions({ cidade: city, estado: stateUF });
+    if (slugString) {
+      // Se vier da URL, e já temos cidade e estado, faz busca filtrada
+      if (city && stateUF) {
+        fetchCompanions({ cidade: city, estado: stateUF });
+      }
     } else {
-      // Caso contrário, busca todas as acompanhantes
+      // Se não veio da URL (ou acesso direto sem filtros), busca todas
       fetchCompanions();
     }
-  }, [city, stateUF, fetchCompanions]);
+  }, [slugString, city, stateUF, fetchCompanions]);
+
 
 
   const companionIds = Array.isArray(companions) ? companions.map(c => c.userId) : [];

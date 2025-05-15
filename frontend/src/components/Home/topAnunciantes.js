@@ -117,13 +117,19 @@ export default function TopAnunciantes() {
                 #{index + 1}
               </div>
 
-              <Image
-                src={anunciante.profileImage}
-                alt={anunciante.userName}
-                width={80}
-                height={80}
-                className="w-20 h-20 rounded-full object-cover mb-4"
-              />
+              {anunciante.profileImage ? (
+                <Image
+                  src={anunciante.profileImage}
+                  alt={anunciante.userName}
+                  width={80}
+                  height={80}
+                  className="w-20 h-20 rounded-full object-cover mb-4"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-pink-500 font-bold text-xl mb-4">
+                  {anunciante.userName?.charAt(0).toUpperCase() || "?"}
+                </div>
+              )}
 
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                 {anunciante.userName}

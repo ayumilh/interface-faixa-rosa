@@ -53,11 +53,25 @@ export default function Stories() {
   async function fetchStories() {
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/story/`);
-      setStories(groupStoriesByUser(res.data || []));
+      const grouped = groupStoriesByUser(res.data || []);
+      setStories(grouped);
+
+      // Atualiza selectedStory se o grupo ainda existir
+      if (selectedStory) {
+        const updatedGroup = grouped.find(
+          (g) => g.companion.userName === selectedStory.companion.userName
+        );
+        if (updatedGroup) {
+          setSelectedStory(updatedGroup);
+        } else {
+          setSelectedStory(null); // ou manter como estava
+        }
+      }
     } catch (err) {
       console.error("Erro ao buscar stories:", err);
     }
   }
+
 
   useEffect(() => {
     fetchStories();
@@ -114,13 +128,13 @@ export default function Stories() {
 
   const slugify = (text) => text?.replace(/\s+/g, "-").toLowerCase();
 
-const openStory = (index) => {
-  const storyGroup = stories[index];
-  if (!storyGroup) return;
-  setSelectedStory(storyGroup);
-  setCurrentIndex(0);
-  setProgress(0);
-};
+  const openStory = (index) => {
+    const storyGroup = stories[index];
+    if (!storyGroup) return;
+    setSelectedStory(storyGroup);
+    setCurrentIndex(0);
+    setProgress(0);
+  };
 
   const closeModal = () => {
     setSelectedStory(null);
@@ -177,21 +191,43 @@ const openStory = (index) => {
     }
   };
 
-
   useEffect(() => {
     if (selectedStory && !isPaused) {
       const interval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
-            nextStory();
+            const currentStories = selectedStory?.stories || [];
+            if (currentIndex < currentStories.length - 1) {
+              setCurrentIndex(currentIndex + 1);
+            } else {
+              const currentGroupIndex = stories.findIndex(
+                (group) => group.companion.userName === selectedStory.companion.userName
+              );
+              if (currentGroupIndex < stories.length - 1) {
+                const nextGroup = stories[currentGroupIndex + 1];
+                setSelectedStory(nextGroup);
+                setCurrentIndex(0);
+              } else {
+                closeModal();
+              }
+            }
             return 0;
           }
+
           return prev + 1;
         });
       }, storyDuration / 100);
       return () => clearInterval(interval);
     }
   }, [selectedStory, isPaused]);
+
+  useEffect(() => {
+    if (selectedStory?.stories) {
+      setCurrentIndex(0);
+      setProgress(0);
+    }
+  }, [selectedStory?.stories]);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {

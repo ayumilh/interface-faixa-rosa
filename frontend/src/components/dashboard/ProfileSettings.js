@@ -685,102 +685,6 @@ const ProfileSettings = ({ onUpdate }) => {
         </div>
       </div>
 
-      {/* Carrossel do Card de Anúncio */}
-      <div className="mt-16">
-        <h3 className="text-2xl font-semibold mb-6">Carrossel do Card de Anúncio</h3>
-
-        {typeof allowedCarouselImages !== "number" || allowedCarouselImages <= 0 ? (
-          <p className="text-sm text-red-500">
-            Seu plano atual não permite adicionar imagens ao carrossel.
-          </p>
-        ) : (
-          <>
-            <p className="text-sm text-gray-500 mb-4">
-              Você pode adicionar até {allowedCarouselImages} imagem
-              {allowedCarouselImages > 1 ? "ns" : ""} de acordo com seu plano.
-            </p>
-
-            {carouselImages.length + carouselImagesURL.length < allowedCarouselImages ? (
-              carouselImages.length === 0 ? (
-                // Primeira imagem: estilo grande com borda tracejada
-                <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition whitespace-nowrap">
-                  <FaPlusCircle className="mx-auto mb-2 text-4xl" />
-                  Adicionar Imagem
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleCarouselImageUpload}
-                    aria-label="Adicionar imagem para o carrossel"
-                  />
-                </label>
-              ) : (
-                // Botão pequeno quando já existe imagem
-                <div className="text-start">
-                  <label className="flex max-w-min items-center px-4 py-2 bg-pink-500 text-white text-sm font-medium rounded-md shadow hover:bg-pink-600 transition cursor-pointer whitespace-nowrap">
-                    <FaPlusCircle className="mr-2 text-lg" />
-                    Adicionar Imagem
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleCarouselImageUpload}
-                      aria-label="Adicionar imagem para o carrossel"
-                    />
-                  </label>
-                </div>
-              )
-            ) : (
-              <p className="text-sm text-gray-500 mt-2">Limite de imagens atingido.</p>
-            )}
-
-            {/* Exibe as imagens carregadas */}
-            <div className="mt-6 flex space-x-4 overflow-x-auto">
-              {/* Imagens já salvas no backend */}
-              {carouselImages.map((image, index) => (
-                <div key={`saved-${index}`} className="relative w-32 h-32 rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105">
-                  <Image src={image} alt={`Imagem salva ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
-                  <button
-                    onClick={() => handleRemoveCarouselImage(index, true)}
-                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
-                    title="Remover imagem salva"
-                  >
-                    <FaTrash size={16} />
-                  </button>
-                </div>
-              ))}
-
-
-              {/* Imagens novas (pré-visualização antes de enviar) */}
-              {carouselImagesURL.map((imageObj, index) => (
-                <div key={`preview-${index}`} className="relative w-32 h-32 ...">
-                  <Image src={imageObj.url} alt={`Imagem nova ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
-                  <button
-                    onClick={() => handleRemoveCarouselImage(index, false)}
-                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
-                  >
-                    <FaTrash size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-
-            {/* Botão para enviar as imagens */}
-            {carouselImagesURL.length > 0 && (
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleUploadCarouselImages}
-                  className="px-6 py-3 bg-pink-600 text-white font-semibold rounded-md hover:bg-pink-700 transition"
-                >
-                  Enviar Imagens
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
       <StoryUploader />
 
       {/* Seção de Posts */}
@@ -922,6 +826,102 @@ const ProfileSettings = ({ onUpdate }) => {
               </div>
             ))}
           </div>
+        )}
+      </div>
+
+      {/* Carrossel do Card de Anúncio */}
+      <div className="mt-16">
+        <h3 className="text-2xl font-semibold mb-6">Carrossel do Card de Anúncio</h3>
+
+        {typeof allowedCarouselImages !== "number" || allowedCarouselImages <= 0 ? (
+          <p className="text-sm text-red-500">
+            Seu plano atual não permite adicionar imagens ao carrossel.
+          </p>
+        ) : (
+          <>
+            <p className="text-sm text-gray-500 mb-4">
+              Você pode adicionar até {allowedCarouselImages} imagem
+              {allowedCarouselImages > 1 ? "ns" : ""} de acordo com seu plano.
+            </p>
+
+            {carouselImages.length + carouselImagesURL.length < allowedCarouselImages ? (
+              carouselImages.length === 0 ? (
+                // Primeira imagem: estilo grande com borda tracejada
+                <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition whitespace-nowrap">
+                  <FaPlusCircle className="mx-auto mb-2 text-4xl" />
+                  Adicionar Imagem
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCarouselImageUpload}
+                    aria-label="Adicionar imagem para o carrossel"
+                  />
+                </label>
+              ) : (
+                // Botão pequeno quando já existe imagem
+                <div className="text-start">
+                  <label className="flex max-w-min items-center px-4 py-2 bg-pink-500 text-white text-sm font-medium rounded-md shadow hover:bg-pink-600 transition cursor-pointer whitespace-nowrap">
+                    <FaPlusCircle className="mr-2 text-lg" />
+                    Adicionar Imagem
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleCarouselImageUpload}
+                      aria-label="Adicionar imagem para o carrossel"
+                    />
+                  </label>
+                </div>
+              )
+            ) : (
+              <p className="text-sm text-gray-500 mt-2">Limite de imagens atingido.</p>
+            )}
+
+            {/* Exibe as imagens carregadas */}
+            <div className="mt-6 flex space-x-4 overflow-x-auto">
+              {/* Imagens já salvas no backend */}
+              {carouselImages.map((image, index) => (
+                <div key={`saved-${index}`} className="relative w-32 h-32 rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105">
+                  <Image src={image} alt={`Imagem salva ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
+                  <button
+                    onClick={() => handleRemoveCarouselImage(index, true)}
+                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
+                    title="Remover imagem salva"
+                  >
+                    <FaTrash size={16} />
+                  </button>
+                </div>
+              ))}
+
+
+              {/* Imagens novas (pré-visualização antes de enviar) */}
+              {carouselImagesURL.map((imageObj, index) => (
+                <div key={`preview-${index}`} className="relative w-32 h-32 ...">
+                  <Image src={imageObj.url} alt={`Imagem nova ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
+                  <button
+                    onClick={() => handleRemoveCarouselImage(index, false)}
+                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
+                  >
+                    <FaTrash size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+
+            {/* Botão para enviar as imagens */}
+            {carouselImagesURL.length > 0 && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleUploadCarouselImages}
+                  className="px-6 py-3 bg-pink-600 text-white font-semibold rounded-md hover:bg-pink-700 transition"
+                >
+                  Enviar Imagens
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

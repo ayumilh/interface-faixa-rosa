@@ -5,7 +5,6 @@ import axios from "axios";
 const ModalVerificarVideo = ({ anunciante, userToken, atualizarStatusMedia, onClose }) => {
   const status = anunciante.media?.status || "NONE";
   const url = anunciante.media?.url || null;
-  const isVideo = url && url.toLowerCase().endsWith(".mp4");
 
   const statusLabel = {
     "APPROVED": { texto: "Aprovado", cor: "text-green-600" },
@@ -73,17 +72,13 @@ const ModalVerificarVideo = ({ anunciante, userToken, atualizarStatusMedia, onCl
         <span className={`font-semibold ${label.cor}`}>{label.texto}</span>
       </p>
 
-      {url && isVideo ? (
+      {url ? (
         <div className="mb-4">
           <video controls className="w-full max-h-64 rounded shadow">
-            <source src={url} type="video/mp4" />
+            <source src={url} />
             Seu navegador não suporta a tag de vídeo.
           </video>
         </div>
-      ) : url && !isVideo ? (
-        <p className="text-red-500 mb-4">
-          ⚠️ A mídia enviada não é um vídeo válido (.mp4).
-        </p>
       ) : (
         <p className="text-gray-500 mb-4">Nenhum vídeo enviado.</p>
       )}

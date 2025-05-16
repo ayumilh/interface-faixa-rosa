@@ -262,58 +262,70 @@ const Anunciantes = () => {
         }
     };
 
-    const handleSalvarPlanoExtra = async (
-        anuncianteId,
-        selectedPlanoExtra,
-        userToken,
-        setModal
-    ) => {
-        try {
-            const allExtrasIds = planosExtras.map((extra) => extra.id);
-            const selecionados = new Set(selectedPlanoExtra);
+const handleSalvarPlanoExtra = async (
+    anunciante,
+    anuncianteId,
+    selectedPlanoExtra,
+    userToken,
+    setModal
+) => {
+    try {
+        const extrasOriginais = anunciante.subscriptions?.map(sub => sub.extraPlan?.id) || [];
 
-            for (const extraId of allExtrasIds) {
-                const isChecked = selecionados.has(extraId);
+        const novos = new Set(selectedPlanoExtra);
+        const antigos = new Set(extrasOriginais);
 
-                await axios.put(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
-                    {
-                        extraPlanId: extraId,
-                        isChecked: isChecked,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${userToken}`,
-                        },
-                    }
-                );
-            }
+        const extrasParaAdicionar = [...novos].filter(id => !antigos.has(id));
+        const extrasParaRemover = [...antigos].filter(id => !novos.has(id));
 
-            toast.success("Planos extras atualizados com sucesso!");
-
-            const extrasSelecionados = planosExtras.filter((p) =>
-                selectedPlanoExtra.includes(p.id)
+        // Atualiza no backend
+        for (const extraId of extrasParaAdicionar) {
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
+                { extraPlanId: extraId, isChecked: true },
+                { headers: { Authorization: `Bearer ${userToken}` } }
             );
-
-            setAnunciantes((prev) =>
-                prev.map((a) =>
-                    a.id === anuncianteId
-                        ? {
-                            ...a,
-                            subscriptions: extrasSelecionados.map((extra) => ({
-                                extraPlan: extra,
-                            })),
-                        }
-                        : a
-                )
-            );
-
-            setModal({ isOpen: false, content: null });
-        } catch (err) {
-            console.error("Erro ao salvar planos extras:", err);
-            toast.error("Erro ao atualizar os planos extras.");
         }
-    };
+
+        for (const extraId of extrasParaRemover) {
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
+                { extraPlanId: extraId, isChecked: false },
+                { headers: { Authorization: `Bearer ${userToken}` } }
+            );
+        }
+
+        toast.success("Planos extras atualizados com sucesso!");
+
+        // ✅ Atualiza o estado do anunciante com os planos atualizados
+        const novosExtras = planosExtras.filter(p => selectedPlanoExtra.includes(p.id));
+
+        setAnunciantes((prev) =>
+            prev.map((a) =>
+                a.id === anuncianteId
+                    ? {
+                        ...a,
+                        subscriptions: novosExtras.map((extra) => ({
+                            extraPlan: extra,
+                        })),
+                    }
+                    : a
+            )
+        );
+
+        // ✅ Força reatribuição para o componente ModalEditarPlano reconhecer os novos valores
+        anunciante.subscriptions = novosExtras.map((extra) => ({
+            extraPlan: extra,
+        }));
+
+        setModal({ isOpen: false, content: null });
+
+    } catch (err) {
+        console.error("Erro ao salvar planos extras:", err);
+        toast.error("Erro ao atualizar os planos extras.");
+    }
+};
+
 
     const handleEditarPlano = (anunciante) => {
         setModal({
@@ -562,20 +574,20 @@ const Anunciantes = () => {
     // MODAL VERIFICAR VÍDEO
     const atualizarStatusMedia = (id, newStatus) => {
         setAnunciantes((prev) =>
-          prev.map((item) =>
-            item.id === id
-              ? {
-                  ...item,
-                  media: {
-                    ...item.media,
-                    status: newStatus, // preserva o url e altera só o status
-                  },
-                }
-              : item
-          )
+            prev.map((item) =>
+                item.id === id
+                    ? {
+                        ...item,
+                        media: {
+                            ...item.media,
+                            status: newStatus, // preserva o url e altera só o status
+                        },
+                    }
+                    : item
+            )
         );
-      };
-      
+    };
+
 
     const handleAprovarRejeitarVideo = (anunciante) => {
         setModal({
@@ -592,7 +604,7 @@ const Anunciantes = () => {
     };
 
 
-    
+
     // Adicione dentro do componente Anunciantes
     const handleVerDetalhesAnunciante = async (anunciante) => {
         try {

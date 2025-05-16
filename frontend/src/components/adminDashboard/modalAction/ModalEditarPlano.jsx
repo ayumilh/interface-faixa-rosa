@@ -36,7 +36,7 @@ const ModalEditarPlano = ({
     };
 
     const handleSalvarPlanoExtra = async () => {
-        await onSalvarPlanoExtra(anunciante.id, selectedPlanoExtra, userToken, () => { });
+        await onSalvarPlanoExtra(anunciante, anunciante.id, selectedPlanoExtra, userToken, onClose);
         setExtrasAlterados(false);
         setExtrasSalvos(true);
     };

@@ -129,7 +129,7 @@ const ProfileSettings = ({ onUpdate }) => {
       };
 
       updateTimeLeft();
-      const interval = setInterval(updateTimeLeft, 60000); // Atualiza a cada minuto
+      const interval = setInterval(updateTimeLeft, 1000); // Atualiza a cada minuto
 
       return () => clearInterval(interval);
     }
@@ -185,7 +185,7 @@ const ProfileSettings = ({ onUpdate }) => {
         setProfileImage(profileImage);
         setBannerImage(bannerImage);
         setDocumentsValidated(documentsValidated);
-        setStartDate(new Date(response.data.media.startDate)); // Data de início do plano
+        setStartDate(new Date(response.data.media.startDate));
         setAllowedCarouselImages(Number(allowedImages));
 
         const orderedImageURLs = response.data.media.carrouselImages
@@ -685,7 +685,7 @@ const ProfileSettings = ({ onUpdate }) => {
         </div>
       </div>
 
-      <StoryUploader />
+      {/* <StoryUploader /> */}
 
       {/* Seção de Posts */}
       <div className="mt-16">

@@ -49,6 +49,35 @@ export default function CadastroPage() {
 
     const router = useRouter();
 
+    useEffect(() => {
+        try {
+            const savedForm = localStorage.getItem("cadastroStepForm");
+
+            if (!savedForm) return;
+
+            const parsed = JSON.parse(savedForm);
+
+            // Checa se os campos principais existem e são válidos
+            const isValidData =
+                parsed &&
+                typeof parsed === "object" &&
+                parsed.formData &&
+                typeof parsed.formData === "object" &&
+                typeof parsed.step === "number";
+
+            if (isValidData) {
+                setFormData((prev) => ({ ...prev, ...parsed.formData }));
+                setStep(parsed.step);
+            } else {
+                localStorage.removeItem("cadastroStepForm");
+            }
+        } catch (err) {
+            // Limpa storage se o JSON estiver mal formatado ou inválido
+            localStorage.removeItem("cadastroStepForm");
+        }
+    }, []);
+
+
     // Função de validação
     const validateForm = () => {
         if (step === 0) {
@@ -77,6 +106,30 @@ export default function CadastroPage() {
             return formData.password && formData.confirmPassword && formData.password === formData.confirmPassword;
         }
         return false;
+    };
+
+    const handleClearForm = () => {
+        setFormData({
+            userType: "",
+            firstName: "",
+            lastName: "",
+            userName: "",
+            email: "",
+            cpf: "",
+            birthDate: "",
+            password: "",
+            confirmPassword: "",
+            comparisonMedia: null,
+            profilePic: null,
+            documents: { fileFront: null, fileBack: null },
+        });
+        setStep(0);
+        setErrorsInput({});
+        setIsCpfValid(null);
+        setDocumentFileFront(null);
+        setDocumentFileBack(null);
+        localStorage.removeItem("cadastroStepForm");
+        toast.info("Formulário limpo com sucesso!");
     };
 
 
@@ -132,6 +185,15 @@ export default function CadastroPage() {
             setLoadingCpf(false);
         }
     };
+
+
+    useEffect(() => {
+        const dataToStore = {
+            formData,
+            step
+        };
+        localStorage.setItem("cadastroStepForm", JSON.stringify(dataToStore));
+    }, [formData, step]);
 
 
     const sanitizeInput = (value, regex, shouldTrim = true) => {
@@ -307,6 +369,7 @@ export default function CadastroPage() {
             );
 
             if (response.status === 200 || response.status === 201) {
+                localStorage.removeItem("cadastroStepForm"); // <- remove o cache salvo
                 toast.success("Cadastro realizado com sucesso!");
                 setTimeout(() => {
                     router.push("/login");
@@ -314,9 +377,12 @@ export default function CadastroPage() {
                 }, 2000);
             } else {
                 toast.error(response.data.message || "Erro no cadastro");
+                localStorage.removeItem("cadastroStepForm"); // <- remove o cache salvo
+
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Erro no cadastro");
+            localStorage.removeItem("cadastroStepForm"); // <- remove o cache salvo
         } finally {
             setLoading(false);
         }
@@ -418,6 +484,39 @@ export default function CadastroPage() {
                                 "Escolha seu tipo de conta para começar"
                             )}
                         </h2>
+                        {/* Botão limpar formulário */}
+                        <div className="flex justify-end mb-6">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFormData({
+                                        userType: "",
+                                        firstName: "",
+                                        lastName: "",
+                                        userName: "",
+                                        email: "",
+                                        cpf: "",
+                                        birthDate: "",
+                                        password: "",
+                                        confirmPassword: "",
+                                        comparisonMedia: null,
+                                        profilePic: null,
+                                        documents: { fileFront: null, fileBack: null },
+                                    });
+                                    setStep(0);
+                                    setErrorsInput({});
+                                    setIsCpfValid(null);
+                                    setDocumentFileFront(null);
+                                    setDocumentFileBack(null);
+                                    localStorage.removeItem("cadastroStepForm");
+                                    toast.info("Formulário limpo com sucesso!");
+                                }}
+                                className="text-sm text-gray-600 hover:underline hover:text-pink-500 transition duration-150"
+                            >
+                                Limpar formulário
+                            </button>
+
+                        </div>
                     </div>
 
                     <form onSubmit={handleSubmit}>

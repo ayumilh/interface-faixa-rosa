@@ -262,69 +262,69 @@ const Anunciantes = () => {
         }
     };
 
-const handleSalvarPlanoExtra = async (
-    anunciante,
-    anuncianteId,
-    selectedPlanoExtra,
-    userToken,
-    setModal
-) => {
-    try {
-        const extrasOriginais = anunciante.subscriptions?.map(sub => sub.extraPlan?.id) || [];
+    const handleSalvarPlanoExtra = async (
+        anunciante,
+        anuncianteId,
+        selectedPlanoExtra,
+        userToken,
+        setModal
+    ) => {
+        try {
+            const extrasOriginais = anunciante.subscriptions?.map(sub => sub.extraPlan?.id) || [];
 
-        const novos = new Set(selectedPlanoExtra);
-        const antigos = new Set(extrasOriginais);
+            const novos = new Set(selectedPlanoExtra);
+            const antigos = new Set(extrasOriginais);
 
-        const extrasParaAdicionar = [...novos].filter(id => !antigos.has(id));
-        const extrasParaRemover = [...antigos].filter(id => !novos.has(id));
+            const extrasParaAdicionar = [...novos].filter(id => !antigos.has(id));
+            const extrasParaRemover = [...antigos].filter(id => !novos.has(id));
 
-        // Atualiza no backend
-        for (const extraId of extrasParaAdicionar) {
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
-                { extraPlanId: extraId, isChecked: true },
-                { headers: { Authorization: `Bearer ${userToken}` } }
+            // Atualiza no backend
+            for (const extraId of extrasParaAdicionar) {
+                await axios.put(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
+                    { extraPlanId: extraId, isChecked: true },
+                    { headers: { Authorization: `Bearer ${userToken}` } }
+                );
+            }
+
+            for (const extraId of extrasParaRemover) {
+                await axios.put(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
+                    { extraPlanId: extraId, isChecked: false },
+                    { headers: { Authorization: `Bearer ${userToken}` } }
+                );
+            }
+
+            toast.success("Planos extras atualizados com sucesso!");
+
+            // ✅ Atualiza o estado do anunciante com os planos atualizados
+            const novosExtras = planosExtras.filter(p => selectedPlanoExtra.includes(p.id));
+
+            setAnunciantes((prev) =>
+                prev.map((a) =>
+                    a.id === anuncianteId
+                        ? {
+                            ...a,
+                            subscriptions: novosExtras.map((extra) => ({
+                                extraPlan: extra,
+                            })),
+                        }
+                        : a
+                )
             );
+
+            // ✅ Força reatribuição para o componente ModalEditarPlano reconhecer os novos valores
+            anunciante.subscriptions = novosExtras.map((extra) => ({
+                extraPlan: extra,
+            }));
+
+            setModal({ isOpen: false, content: null });
+
+        } catch (err) {
+            console.error("Erro ao salvar planos extras:", err);
+            toast.error("Erro ao atualizar os planos extras.");
         }
-
-        for (const extraId of extrasParaRemover) {
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
-                { extraPlanId: extraId, isChecked: false },
-                { headers: { Authorization: `Bearer ${userToken}` } }
-            );
-        }
-
-        toast.success("Planos extras atualizados com sucesso!");
-
-        // ✅ Atualiza o estado do anunciante com os planos atualizados
-        const novosExtras = planosExtras.filter(p => selectedPlanoExtra.includes(p.id));
-
-        setAnunciantes((prev) =>
-            prev.map((a) =>
-                a.id === anuncianteId
-                    ? {
-                        ...a,
-                        subscriptions: novosExtras.map((extra) => ({
-                            extraPlan: extra,
-                        })),
-                    }
-                    : a
-            )
-        );
-
-        // ✅ Força reatribuição para o componente ModalEditarPlano reconhecer os novos valores
-        anunciante.subscriptions = novosExtras.map((extra) => ({
-            extraPlan: extra,
-        }));
-
-        setModal({ isOpen: false, content: null });
-
-    } catch (err) {
-        console.error("Erro ao salvar planos extras:", err);
-        toast.error("Erro ao atualizar os planos extras.");
-    }
-};
+    };
 
 
     const handleEditarPlano = (anunciante) => {
@@ -344,7 +344,6 @@ const handleSalvarPlanoExtra = async (
         });
 
     };
-
 
 
     const handleMonitorarPostagens = async (anunciante) => {

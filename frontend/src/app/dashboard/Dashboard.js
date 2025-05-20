@@ -57,7 +57,6 @@ const Dashboard = () => {
 
       if (isMissingCity || isMissingPlan) {
         setShowOnboarding(true);
-        console.log("Exibindo onboarding para o acompanhante.");
       }
     }
   }, [userInfo]);

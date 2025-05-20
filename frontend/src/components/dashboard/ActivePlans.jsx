@@ -27,6 +27,7 @@ export default function ActivePlans() {
 
     const fetchUserPlans = async () => {
         const token = Cookies.get("userToken");
+
         try {
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans`,
@@ -36,29 +37,38 @@ export default function ActivePlans() {
                     },
                 }
             );
-            const { plan, subscriptions } = response.data;
 
-            setActivePlan(plan);
+            const { mainPlan, extraPlans } = response.data;
 
-            const extraPlansData = subscriptions
-                .filter((sub) => sub.isExtra)
-                .map((sub) => sub.extraPlan);
+            // Salva plano principal
+            setActivePlan(mainPlan);
 
-            setExtraPlans(extraPlansData);
-            setNewPlanDetails({
-                name: plan.name,
-                planType: plan.planType,
-            });
+            // Salva planos extras (já mapeados no backend)
+            setExtraPlans(extraPlans || []);
 
-            setAllPlans([plan, ...extraPlansData]);
+            // Define plano atual para possível gerenciamento
+            if (mainPlan) {
+                setNewPlanDetails({
+                    name: mainPlan.name,
+                    planType: mainPlan.planType,
+                });
+            }
+
+            // Junta tudo se quiser exibir no modal
+            setAllPlans([
+                ...(mainPlan ? [{ ...mainPlan, isBasic: true }] : []),
+                ...(extraPlans || []).map(plan => ({ ...plan, isBasic: false }))
+            ]);
 
         } catch (error) {
+            console.error("Erro ao buscar planos:", error);
             setActivePlan(null);
             setExtraPlans([]);
         } finally {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         fetchUserPlans();

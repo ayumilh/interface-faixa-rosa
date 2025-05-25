@@ -21,87 +21,62 @@ const PagamentoRetorno = () => {
     const [error, setError] = useState(null);
     const [isCopied, setIsCopied] = useState(false);
     const router = useRouter();
-    const [redirect, setRedirect] = useState(false);
-
-    let storedQRCode64 = '';
-    let transactionId = '';
 
     useEffect(() => {
-        const userToken = Cookies.get('userToken');
-        transactionId = localStorage.getItem('transactionId');
+        // Limpar localStorage imediatamente
+        const storedQRCode64 = localStorage.getItem('paymentQRCode64');
+        const storedQRCodeText = localStorage.getItem('paymentQRCode');
+        const transactionId = localStorage.getItem('transactionId');
+        localStorage.removeItem('paymentQRCode');
+        localStorage.removeItem('paymentQRCode64');
+        localStorage.removeItem('transactionId');
 
+        const userToken = Cookies.get('userToken');
         if (!userToken || !transactionId) {
             router.push('/planos');
             return;
         }
 
-        // Simular uma requisição para verificar o status do pagamento
-        if (transactionId) {
         axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/checkout/status/${transactionId}`,
             {
                 headers: {
                     Authorization: `Bearer ${userToken}`,
                 },
-                })
-            .then(response => {
-                const paymentData = response.data;
+            }
+        )
+        .then(response => {
+            const paymentData = response.data;
+            setPaymentData(paymentData);
 
-                    setPaymentData(paymentData)
-
-                if (paymentData.paymentStatus === 'approved') {
-                    setPaymentStatus('Pagamento aprovado!');
-                    setPaymentDescription('Seu pagamento foi processado com sucesso! Você pode acessar sua conta agora.');
-
-                    // Remover os itens do localStorage
-                    localStorage.removeItem('paymentQRCode');
-                    localStorage.removeItem('paymentQRCode64');
-                    localStorage.removeItem('transactionId');
-                } else if (paymentData.paymentStatus === 'pending') {
-                    setPaymentStatus('Pagamento pendente!');
-                    setPaymentDescription('Pagamento está em análise. Você receberá uma notificação quando for confirmado.');
-
-                    const localStoredQRCode = localStorage.getItem('paymentQRCode');
-                        storedQRCode64 = localStorage.getItem('paymentQRCode64');
-
-                    if (localStoredQRCode) {
-                        setStoredQRCode(localStoredQRCode);
-                    }
-                    if (storedQRCode64) {
-                        setQrCodeData(storedQRCode64);
-                    }
-                } else if (paymentData.paymentStatus === 'refused') {
-                    setPaymentStatus('Pagamento recusado!');
-                    setPaymentDescription('Pagamento recusado. Verifique suas informações de pagamento e tente novamente.');
-
-                    localStorage.removeItem('paymentQRCode');
-                    localStorage.removeItem('paymentQRCode64');
-                    localStorage.removeItem('transactionId');
-                }
-            })
-            .catch((err) => {
-                setError('Erro ao verificar o pagamento.');
-            })
-            .finally(() => setLoading(false));
-        } else {
-            setError('Transaction ID não encontrado.');
-            setLoading(false);
-        }
+            if (paymentData.paymentStatus === 'approved') {
+                setPaymentStatus('Pagamento aprovado!');
+                setPaymentDescription('Seu pagamento foi processado com sucesso! Você pode acessar sua conta agora.');
+            } else if (paymentData.paymentStatus === 'pending') {
+                setPaymentStatus('Pagamento pendente!');
+                setPaymentDescription('Pagamento está em análise. Você receberá uma notificação quando for confirmado.');
+                if (storedQRCodeText) setStoredQRCode(storedQRCodeText);
+                if (storedQRCode64) setQrCodeData(storedQRCode64);
+            } else if (paymentData.paymentStatus === 'refused') {
+                setPaymentStatus('Pagamento recusado!');
+                setPaymentDescription('Pagamento recusado. Verifique suas informações de pagamento e tente novamente.');
+            }
+        })
+        .catch(() => setError('Erro ao verificar o pagamento.'))
+        .finally(() => setLoading(false));
     }, [router]);
 
-
     const handleCopyClick = () => {
-        navigator.clipboard.writeText(storedQRCode) // Copia o conteúdo do QR Code
+        navigator.clipboard.writeText(storedQRCode)
             .then(() => {
-                setIsCopied(true); // Marca como copiado
-                setTimeout(() => setIsCopied(false), 2000); // Reseta o estado após 2 segundos
-                toast.success('QR Code copiado com sucesso!'); // Exibe mensagem de sucesso
+                setIsCopied(true);
+                setTimeout(() => setIsCopied(false), 2000);
+                toast.success('QR Code copiado com sucesso!');
             })
-            .catch((err) => console.error('Erro ao copiar o texto: ', err));
+            .catch(err => console.error('Erro ao copiar o texto: ', err));
     };
 
     const handleLinkClick = () => {
-        // Limpar o localStorage ao clicar no Link
         localStorage.removeItem('paymentQRCode');
         localStorage.removeItem('paymentQRCode64');
         localStorage.removeItem('transactionId');
@@ -143,7 +118,6 @@ const PagamentoRetorno = () => {
                     </div>
                 ) : (
                     <div className="w-full flex flex-col justify-center items-center max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-
                         {!paymentData ? (
                             <div className="w-full flex justify-start items-start mt-6">
                                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-pink-500"></div>
@@ -164,7 +138,6 @@ const PagamentoRetorno = () => {
                                     <hr className="w-full my-3 border-gray-200" />
                                 </>)}
 
-                                {/* Exibindo os planos extras, caso existam */}
                                 {paymentData?.extraPlans && paymentData.extraPlans.length > 0 && (
                                     <div className="mt-4">
                                         <h5 className="text-gray-700 font-semibold text-xl">Planos Extras:</h5>

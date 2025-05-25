@@ -3,30 +3,60 @@
 import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import {
-  FaHeart,
-  FaComment,
-  FaShare,
-  FaUpload,
   FaTimes,
   FaPlayCircle,
+  FaVideo,
+  FaPlus,
+  FaExpand
 } from "react-icons/fa";
-import Cookies from "js-cookie";
+import { motion, AnimatePresence } from "framer-motion";
+import Reviews from "./reviews";
+import Denuncia from "./denuncia";
 import axios from "axios";
 import { usePlan } from "@/context/PlanContext";
 
-export default function Videos({ userName }) {
-  // Lista inicial de vídeos com thumbnails e fontes
-  const initialVideos = []
+// Componente simplificado para thumbnail de vídeo
+const VideoThumbnail = ({ videoUrl, className, onThumbnailClick }) => {
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
-  const [videos, setVideos] = useState(initialVideos);
-  const [visibleVideos, setVisibleVideos] = useState(4);
+  const handleVideoLoad = (e) => {
+    // Define o tempo para 0.5 segundos para pegar um frame melhor
+    e.target.currentTime = 0.5;
+    setVideoLoaded(true);
+  };
+
+  return (
+    <div className={`${className} relative overflow-hidden`}>
+      <video
+        src={videoUrl}
+        className="w-full h-full object-cover"
+        muted
+        playsInline
+        preload="metadata"
+        onLoadedData={handleVideoLoad}
+        onTimeUpdate={(e) => {
+          // Pausa o vídeo após carregar o frame
+          if (videoLoaded && e.target.currentTime >= 0.5) {
+            e.target.pause();
+          }
+        }}
+      />
+      
+      {/* Overlay clicável */}
+      <div 
+        className="absolute inset-0 cursor-pointer"
+        onClick={onThumbnailClick}
+      />
+    </div>
+  );
+};
+
+export default function Videos({ userName, createdAtFormatted }) {
+  const [videos, setVideos] = useState([]);
+  const [visibleVideos, setVisibleVideos] = useState(12);
   const [showModal, setShowModal] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [newComment, setNewComment] = useState("");
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
-  const [newVideo, setNewVideo] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [companionData, setCompanionData] = useState(null);
   const { companions, fetchCompanions } = usePlan();
 
@@ -38,50 +68,24 @@ export default function Videos({ userName }) {
 
   const fetchFeedVideos = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/feed-posts?userName=${userName}`
       );
 
       const data = response.data;
       setVideos(data);
-
       setCompanionData(companions[0]);
     } catch (error) {
-      console.error("Erro ao carregar as fotos do feed", error);
+      console.error("Erro ao carregar os vídeos do feed", error);
+    } finally {
+      setLoading(false);
     }
   }, [companions, userName]);
 
-  // Chama a API quando o componente for montado
   useEffect(() => {
     fetchFeedVideos();
   }, [fetchFeedVideos]);
-
-  // Função para curtir um vídeo
-  const handleLike = (id) => {
-    setVideos(
-      videos.map((video) =>
-        video.id === id ? { ...video, likes: video.likes + 1 } : video
-      )
-    );
-    if (selectedVideo && selectedVideo.id === id) {
-      setSelectedVideo({
-        ...selectedVideo,
-        likes: selectedVideo.likes + 1,
-      });
-    }
-  };
-
-  // Função para abrir o modal de upload
-  const handleUpload = () => {
-    setShowUploadModal(true);
-  };
-
-  // Função para fechar o modal de upload
-  const handleCloseUploadModal = () => {
-    setShowUploadModal(false);
-    setNewVideo(null);
-    setUploadError("");
-  };
 
   // Função para abrir o modal do vídeo selecionado
   const openModal = (video) => {
@@ -97,267 +101,250 @@ export default function Videos({ userName }) {
 
   // Função para carregar mais vídeos
   const loadMoreVideos = () => {
-    setVisibleVideos((prev) => prev + 4);
+    setVisibleVideos((prev) => prev + 12);
   };
 
-  // Função para lidar com a mudança no campo de comentário
-  const handleCommentChange = (e) => {
-    setNewComment(e.target.value);
-  };
+  const filteredVideos = videos.filter((video) => video.mediaType === "video");
 
-  // Função para adicionar um comentário
-  const addComment = () => {
-    if (newComment.trim() && selectedVideo) {
-      const updatedVideos = videos.map((video) =>
-        video.id === selectedVideo.id
-          ? {
-            ...video,
-            comments: [...video.comments, newComment],
-            commentsCount: video.commentsCount + 1,
-          }
-          : video
-      );
-      setVideos(updatedVideos);
-      setSelectedVideo({
-        ...selectedVideo,
-        comments: [...selectedVideo.comments, newComment],
-        commentsCount: selectedVideo.commentsCount + 1,
-      });
-      setNewComment("");
-    }
-  };
-
-  // Função para compartilhar o vídeo via WhatsApp
-  const handleShare = () => {
-    if (selectedVideo) {
-      const whatsappUrl = `https://api.whatsapp.com/send?text=Confira este vídeo: ${window.location.origin}${selectedVideo.src}`;
-      window.open(whatsappUrl, "_blank");
-    }
-  };
-
-  // Função para lidar com a seleção de arquivo para upload
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setNewVideo(e.target.files[0]);
-    }
-  };
-
-  // Função para enviar o vídeo
-  const handleUploadSubmit = async () => {
-    if (!newVideo) {
-      setUploadError("Por favor, selecione um vídeo para enviar.");
-      return;
-    }
-
-    setUploading(true);
-    setUploadError("");
-
-    try {
-      // Simulação de upload - substitua com sua lógica de upload real
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newVideoData = {
-          id: videos.length + 1,
-          thumbnail: URL.createObjectURL(newVideo), // Simulação de thumbnail
-          src: reader.result, // Em um ambiente real, você usaria a URL retornada do servidor
-          likes: 0,
-          comments: [],
-          commentsCount: 0,
-        };
-        setVideos([newVideoData, ...videos]);
-        handleCloseUploadModal();
-        setUploading(false);
-      };
-      reader.readAsDataURL(newVideo);
-    } catch (error) {
-      setUploadError("Falha ao fazer upload. Tente novamente.");
-      setUploading(false);
-    }
-  };
+  // Loading screen
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+        <motion.div
+          className="text-center px-4"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4"
+          >
+            <Image
+              src="/iconOficial_faixaRosa.png"
+              alt="Loading"
+              width={64}
+              height={64}
+              className="w-full h-full"
+            />
+          </motion.div>
+          <p className="text-gray-600 font-medium text-sm sm:text-base">Carregando vídeos...</p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50">
-      <h2 className="text-2xl font-bold mb-6 text-black">Galeria de Vídeos</h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-8">
+        {/* Header */}
+        <motion.div
+          className="mb-6 sm:mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2 flex items-center justify-center">
+              <FaVideo className="text-pink-500 mr-3" />
+              Galeria de Vídeos
+            </h1>
+            <p className="text-gray-600 text-sm sm:text-base">
+              {filteredVideos.length > 0 
+                ? `🎥 ${filteredVideos.length} vídeo${filteredVideos.length > 1 ? 's' : ''} disponível${filteredVideos.length > 1 ? 'eis' : ''}`
+                : 'Nenhum vídeo disponível'
+              }
+            </p>
+          </div>
+        </motion.div>
 
-      {/* Galeria de vídeos */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {videos
-          .filter((video) => video.mediaType === "video")
-          .slice(0, visibleVideos)
-          .map((video) => (
-            <div
-              key={video.id}
-              className="relative group border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
-              onClick={() => openModal(video)}
+        {/* Galeria de vídeos */}
+        {filteredVideos.length > 0 ? (
+          <motion.div
+            className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg mb-6 sm:mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+              {filteredVideos
+                .slice(0, visibleVideos)
+                .map((video, index) => (
+                <motion.div
+                  key={video.id}
+                  className="relative group border border-gray-100 rounded-lg sm:rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 bg-white"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="relative w-full aspect-[9/16]">
+                    {video.mediaUrl ? (
+                      <VideoThumbnail
+                        videoUrl={video.mediaUrl}
+                        className="w-full h-full"
+                        onThumbnailClick={() => openModal(video)}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center cursor-pointer" onClick={() => openModal(video)}>
+                        <FaVideo className="text-4xl text-gray-400" />
+                      </div>
+                    )}
+
+                    {/* Marca d'água fixa */}
+                    <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 text-xs text-white pointer-events-none">
+                      <Image
+                        src="/iconOficial_faixaRosa.png"
+                        alt="Logo"
+                        width={12}
+                        height={12}
+                        className="object-contain w-3 h-3"
+                      />
+                      <span className="text-xs font-medium">faixarosa.com</span>
+                    </div>
+
+                    {/* Play button overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="bg-black/50 backdrop-blur-sm rounded-full p-3 sm:p-4 group-hover:bg-black/70 transition-all duration-300">
+                        <FaPlayCircle className="text-white text-3xl sm:text-4xl" />
+                      </div>
+                    </div>
+
+                    {/* Overlay hover para desktop */}
+                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 hidden sm:flex items-end justify-end p-3 pointer-events-none">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+                        <FaExpand className="text-gray-800 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Carregar mais vídeos */}
+            {visibleVideos < filteredVideos.length && (
+              <motion.div
+                className="flex justify-center mt-6 sm:mt-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <button
+                  onClick={loadMoreVideos}
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 flex items-center space-x-2 text-sm sm:text-base shadow-lg hover:shadow-xl"
+                >
+                  <FaPlus />
+                  <span>Ver mais vídeos</span>
+                </button>
+              </motion.div>
+            )}
+          </motion.div>
+        ) : (
+          /* Estado vazio */
+          <motion.div
+            className="bg-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-lg mb-6 sm:mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaVideo className="text-2xl sm:text-3xl text-pink-500" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">Nenhum vídeo disponível</h3>
+              <p className="text-gray-600 text-sm sm:text-base">
+                A galeria ainda não possui vídeos para exibir.
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Modal de reprodução do vídeo */}
+        <AnimatePresence>
+          {showModal && selectedVideo && (
+            <motion.div
+              className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              onClick={closeModal}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              {video.mediaUrl ? (
-                <div className="relative w-full h-auto">
-                  <video
-                    src={video.mediaUrl}
-                    className="w-full h-auto"
-                    muted
-                    playsInline
-                    preload="metadata"
-                  />
-                  <div className="absolute bottom-2 right-2 bg-white/30 px-2 py-1 rounded flex items-center space-x-1 text-xs text-gray-800">
-                    <Image
-                      src="/iconOficial_faixaRosa.png"
-                      alt="Logo"
-                      width={16}
-                      height={16}
-                      className="object-contain"
+              <motion.div
+                className="relative w-full max-w-6xl mx-auto"
+                onClick={(e) => e.stopPropagation()}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Botão de fechar */}
+                <motion.button
+                  onClick={closeModal}
+                  className="absolute top-4 right-4 text-white bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-full p-3 z-10 transition-all duration-300"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <FaTimes className="text-xl" />
+                </motion.button>
+
+                {/* Player de vídeo centralizado */}
+                <div className="flex justify-center items-center">
+                  <div className="relative max-w-full max-h-[90vh]">
+                    <video
+                      src={selectedVideo.mediaUrl || selectedVideo.src}
+                      controls
+                      autoPlay
+                      className="max-h-[90vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
+                      playsInline
                     />
-                    <span>www.faixarosa.com</span>
+
+                    {/* Marca d'água fixa no modal */}
+                    <div className="absolute bottom-16 right-4 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center space-x-2 text-white pointer-events-none">
+                      <Image
+                        src="/iconOficial_faixaRosa.png"
+                        alt="Logo"
+                        width={24}
+                        height={24}
+                        className="object-contain"
+                      />
+                      <span className="text-lg font-semibold">www.faixarosa.com</span>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div className="bg-gray-300 w-full h-[300px] flex items-center justify-center text-gray-500">
-                  Sem thumbnail
-                </div>
-              )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              <div className="absolute inset-0 flex justify-center items-center text-white opacity-70">
-                <FaPlayCircle className="text-4xl md:text-6xl" />
-              </div>
-            </div>
-          ))}
-
-      </div>
-
-      {showModal && selectedVideo && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          <div
-            className="relative w-full max-w-5xl mx-auto p-4"
-            onClick={(e) => e.stopPropagation()}
+        {/* Seção de reviews */}
+        {companionData && companionData.subscriptions && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
           >
-            {/* Botão de fechar */}
-            <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-white bg-gray-800 bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none z-50"
-            >
-              <FaTimes className="text-2xl" />
-            </button>
-
-            {/* Player de vídeo centralizado */}
-            <div className="flex justify-center items-center">
-              <div className="relative">
-                <video
-                  src={selectedVideo.mediaUrl || selectedVideo.src}
-                  controls
-                  autoPlay
-                  className="max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-lg"
-                />
-
-                {/* Marca d'água no modal */}
-                <div className="absolute bottom-4 right-4 bg-white/30 px-3 py-1 rounded flex items-center space-x-2 text-sm text-gray-800">
-                  <Image
-                    src="/iconOficial_faixaRosa.png"
-                    alt="Logo"
-                    width={20}
-                    height={20}
-                    className="object-contain"
-                  />
-                  <span className="text-lg">www.faixarosa.com</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-
-      {/* Carregar mais vídeos */}
-      <div className="mt-6 flex justify-center">
-        {visibleVideos < videos.length && (
-          <button
-            onClick={loadMoreVideos}
-            className="px-6 py-2 bg-pink-500 text-white rounded-full shadow hover:bg-pink-600 transition duration-300 focus:outline-none"
-          >
-            Carregar mais vídeos
-          </button>
-        )}
-      </div>
-
-      {/* Modal de Upload de Vídeo */}
-      {showUploadModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
-          onClick={handleCloseUploadModal}
-        >
-          <div
-            className="relative w-11/12 max-w-md bg-white rounded-lg shadow-lg p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Botão de fechar do modal de upload */}
-            <button
-              onClick={handleCloseUploadModal}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl focus:outline-none"
-            >
-              <FaTimes />
-            </button>
-            {/* Título do modal de upload */}
-            <h2 className="text-xl text-black font-bold mb-4">Upload de Vídeo</h2>
-            {/* Input para seleção de arquivo */}
-            <input
-              type="file"
-              accept="video/*"
-              onChange={handleFileChange}
-              className="w-full mb-4"
+            <Reviews
+              nomeAnunciante={userName}
+              companionId={companionData.id}
+              showReviews={
+                companionData.subscriptions.some(
+                  (subscription) => subscription.extraPlan.name === "Reviews Públicos" && subscription.extraPlan.isEnabled
+                )
+              }
             />
-            {/* Mensagem de erro, se houver */}
-            {uploadError && (
-              <p className="text-red-500 mb-4">{uploadError}</p>
-            )}
-            {/* Botão para enviar o vídeo */}
-            <button
-              onClick={handleUploadSubmit}
-              disabled={uploading}
-              className={`w-full p-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition duration-300 ${uploading ? "opacity-50 cursor-not-allowed" : ""
-                } focus:outline-none`}
-            >
-              {uploading ? "Enviando..." : "Enviar Vídeo"}
-            </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
 
-      {/* Seção de validação do anúncio */}
-      <div className="mt-8 p-4 md:p-6 bg-white rounded-lg shadow-md">
-        <h3 className="text-lg md:text-xl font-semibold text-black mb-2">
-          Este anúncio é <span className="text-green-600">confiável</span>
-        </h3>
-        <p className="text-sm md:text-base text-gray-600">
-          Saiba quais validações este anúncio possui
-        </p>
-
-        {/* Barra de progresso de validação */}
-        <div className="mt-4">
-          <div className="relative w-full bg-gray-300 rounded-full h-2">
-            <div
-              className="bg-green-600 h-2 rounded-full"
-              style={{ width: "80%" }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Detalhes das validações */}
-        <div className="mt-4 flex flex-col md:flex-row justify-between text-sm text-black">
-          <div className="flex flex-col items-center mb-2 md:mb-0">
-            <FaHeart className="text-green-600 mb-1" />
-            <span className="text-center">Acompanhante verificado</span>
-          </div>
-          <div className="flex flex-col items-center mb-2 md:mb-0">
-            <FaComment className="text-red-600 mb-1" />
-            <span className="text-center">Alterou o telefone</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <FaShare className="text-green-600 mb-1" />
-            <span className="text-center">Não possui penalidades</span>
-          </div>
-        </div>
+        {/* Seção de denúncia */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <Denuncia dataCriacao={createdAtFormatted} />
+        </motion.div>
       </div>
     </div>
   );

@@ -1,20 +1,39 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback, memo } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { MapPin } from "phosphor-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, Crown, Trophy, Medal, Star } from "phosphor-react";
 import axios from "axios";
 import Image from "next/image";
 
-export default function TopAnunciantes() {
+const TopAnunciantes = memo(() => {
   const router = useRouter();
   const scrollRef = useRef(null);
   const isDragging = useRef(false);
-
   const [companions, setCompanions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchCompanions = async () => {
+  // Ícones de ranking por posição
+  const rankingIcons = {
+    1: <Crown size={20} className="text-yellow-500" weight="fill" />,
+    2: <Trophy size={20} className="text-gray-400" weight="fill" />,
+    3: <Medal size={20} className="text-amber-600" weight="fill" />,
+    4: <Star size={18} className="text-purple-500" weight="fill" />,
+    5: <Star size={18} className="text-blue-500" weight="fill" />
+  };
+
+  // Cores de badge por posição
+  const badgeColors = {
+    1: "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white",
+    2: "bg-gradient-to-r from-gray-400 to-gray-600 text-white", 
+    3: "bg-gradient-to-r from-amber-500 to-amber-700 text-white",
+    4: "bg-gradient-to-r from-purple-500 to-purple-700 text-white",
+    5: "bg-gradient-to-r from-blue-500 to-blue-700 text-white"
+  };
+
+  const fetchCompanions = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/top10/listar`,
       );
@@ -24,31 +43,42 @@ export default function TopAnunciantes() {
       setCompanions(res.data);
     } catch (error) {
       console.error("Erro ao buscar top 5:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCompanions();
-  }, []);
+  }, [fetchCompanions]);
 
-  // Rolagem automática
+  // Rolagem automática otimizada
   useEffect(() => {
+    if (loading || companions.length === 0) return;
+
     const interval = setInterval(() => {
       if (scrollRef.current && !isDragging.current) {
-        scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+        const scrollContainer = scrollRef.current;
+        const cardWidth = 280; // Largura aproximada do card + gap
+        
+        scrollContainer.scrollBy({ left: cardWidth, behavior: "smooth" });
 
+        // Reset ao final
         if (
-          scrollRef.current.scrollLeft + scrollRef.current.clientWidth >=
-          scrollRef.current.scrollWidth
+          scrollContainer.scrollLeft + scrollContainer.clientWidth >=
+          scrollContainer.scrollWidth - 50
         ) {
-          scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+          setTimeout(() => {
+            scrollContainer.scrollTo({ left: 0, behavior: "smooth" });
+          }, 500);
         }
       }
-    }, 3000);
+    }, 4000);
+    
     return () => clearInterval(interval);
-  }, []);
+  }, [loading, companions.length]);
 
-  // Scroll com mouse/touch
+  // Scroll com mouse/touch otimizado
   useEffect(() => {
     const slider = scrollRef.current;
     let startX;
@@ -58,96 +88,210 @@ export default function TopAnunciantes() {
 
     const startDragging = (e) => {
       isDragging.current = true;
-      startX = e.pageX || e.touches[0].pageX;
+      startX = e.pageX || e.touches?.[0]?.pageX;
       scrollLeft = slider.scrollLeft;
+      slider.style.cursor = 'grabbing';
     };
 
     const stopDragging = () => {
       isDragging.current = false;
+      if (slider) {
+        slider.style.cursor = 'grab';
+      }
     };
 
     const onDrag = (e) => {
-      if (!isDragging.current) return;
+      if (!isDragging.current || !startX) return;
       e.preventDefault();
-      const x = e.pageX || e.touches[0].pageX;
-      const walk = (x - startX) * 2;
+      const x = e.pageX || e.touches?.[0]?.pageX;
+      const walk = (x - startX) * 1.5;
       slider.scrollLeft = scrollLeft - walk;
     };
 
+    // Event listeners
     slider.addEventListener("mousedown", startDragging);
-    slider.addEventListener("touchstart", startDragging);
+    slider.addEventListener("touchstart", startDragging, { passive: true });
     slider.addEventListener("mouseup", stopDragging);
     slider.addEventListener("mouseleave", stopDragging);
     slider.addEventListener("touchend", stopDragging);
     slider.addEventListener("mousemove", onDrag);
-    slider.addEventListener("touchmove", onDrag);
+    slider.addEventListener("touchmove", onDrag, { passive: false });
 
     return () => {
-      slider.removeEventListener("mousedown", startDragging);
-      slider.removeEventListener("touchstart", startDragging);
-      slider.removeEventListener("mouseup", stopDragging);
-      slider.removeEventListener("mouseleave", stopDragging);
-      slider.removeEventListener("touchend", stopDragging);
-      slider.removeEventListener("mousemove", onDrag);
-      slider.removeEventListener("touchmove", onDrag);
+      if (slider) {
+        slider.removeEventListener("mousedown", startDragging);
+        slider.removeEventListener("touchstart", startDragging);
+        slider.removeEventListener("mouseup", stopDragging);
+        slider.removeEventListener("mouseleave", stopDragging);
+        slider.removeEventListener("touchend", stopDragging);
+        slider.removeEventListener("mousemove", onDrag);
+        slider.removeEventListener("touchmove", onDrag);
+      }
     };
   }, []);
 
-  return (
-    <div className="bg-[#ebeff1] py-16 px-4">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-5 font-[Poppins]">
-        Top 5 Anunciantes do Brasil
-      </h2>
+  const handleCardClick = useCallback((userName) => {
+    if (!isDragging.current) {
+      router.push(`/perfil/${userName}`);
+    }
+  }, [router]);
 
-      <div className="relative max-w-5xl mx-auto">
+  if (loading) {
+    return (
+      <div className="bg-[#ebeff1] py-12 md:py-16 px-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+          <p className="mt-4 text-gray-600">Carregando top anunciantes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-[#ebeff1] py-12 md:py-16 px-4">
+      {/* Título responsivo */}
+      <motion.div
+        className="text-center mb-8 md:mb-12"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 md:mb-4 font-sans">
+          🏆 Top 5 Anunciantes do Brasil
+        </h2>
+        <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto px-4">
+          Conheça os profissionais mais bem avaliados da nossa plataforma
+        </p>
+      </motion.div>
+
+      {/* Container do carousel */}
+      <div className="relative max-w-7xl mx-auto">
+        {/* Gradiente de fade nas bordas - apenas desktop */}
+        <div className="hidden md:block absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#ebeff1] to-transparent z-10 pointer-events-none" />
+        <div className="hidden md:block absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#ebeff1] to-transparent z-10 pointer-events-none" />
+
+        {/* Scroll container */}
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto gap-6 snap-x snap-mandatory px-4 scrollbar-hide cursor-grab active:cursor-grabbing select-none"
+          className="flex overflow-x-auto gap-4 md:gap-6 snap-x snap-mandatory px-4 md:px-8 scrollbar-hide cursor-grab active:cursor-grabbing select-none pb-4"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}
         >
-          {companions.slice(0, 5).map((anunciante, index) => (
-            <motion.div
-              key={anunciante.userName}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              onClick={() => router.push(`/perfil/${anunciante.userName}`)}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="relative bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:border-pink-500 transition-all duration-300 flex flex-col items-center text-center min-w-[250px] sm:min-w-[280px] snap-start"
-            >
-              <div className="absolute top-2 left-2 bg-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-                #{index + 1}
-              </div>
-
-              {anunciante.profileImage ? (
-                <Image
-                  src={anunciante.profileImage}
-                  alt={anunciante.userName}
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 rounded-full object-cover mb-4"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-pink-500 font-bold text-xl mb-4">
-                  {anunciante.userName?.charAt(0).toUpperCase() || "?"}
+          <AnimatePresence>
+            {companions.slice(0, 5).map((anunciante, index) => (
+              <motion.div
+                key={anunciante.userName}
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                whileHover={{ 
+                  y: -8, 
+                  scale: 1.03,
+                  transition: { duration: 0.3 }
+                }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCardClick(anunciante.userName)}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative bg-white rounded-2xl shadow-lg border border-gray-200 hover:border-pink-300 hover:shadow-2xl transition-all duration-300 flex flex-col items-center text-center min-w-[240px] sm:min-w-[260px] md:min-w-[280px] snap-start cursor-pointer group overflow-hidden"
+              >
+                {/* Background gradient hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                {/* Badge de ranking */}
+                <div className={`absolute top-3 left-3 ${badgeColors[index + 1]} text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg z-10`}>
+                  {rankingIcons[index + 1]}
+                  #{index + 1}
                 </div>
-              )}
 
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
-                {anunciante.userName}
-              </h3>
+                {/* Sparkle effect no primeiro lugar */}
+                {index === 0 && (
+                  <motion.div
+                    className="absolute top-2 right-2 text-yellow-400"
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.2, 1]
+                    }}
+                    transition={{ 
+                      duration: 3, 
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    ✨
+                  </motion.div>
+                )}
 
-              <p className="text-gray-600 flex items-center gap-2 mt-2">
-                <MapPin size={16} className="text-pink-500" />
-                {anunciante.city}
-              </p>
+                <div className="relative z-10 p-6 md:p-8 w-full">
+                  {/* Avatar */}
+                  <div className="relative mb-4 md:mb-6">
+                    {anunciante.profileImage ? (
+                      <div className="relative">
+                        <Image
+                          src={anunciante.profileImage}
+                          alt={anunciante.userName}
+                          width={80}
+                          height={80}
+                          className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover mx-auto shadow-lg border-2 border-white"
+                        />
+                        {/* Anel de destaque para top 3 */}
+                        {index < 3 && (
+                          <div className={`absolute inset-0 rounded-full border-2 ${
+                            index === 0 ? 'border-yellow-400' : 
+                            index === 1 ? 'border-gray-400' : 'border-amber-500'
+                          } animate-pulse`} />
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center text-pink-500 font-bold text-lg md:text-xl mx-auto shadow-lg border-2 border-white">
+                        {anunciante.userName?.charAt(0).toUpperCase() || "?"}
+                      </div>
+                    )}
+                  </div>
 
-              <p className="text-sm text-gray-500 mt-1">
-                {anunciante.plan} — {anunciante.points} pts
+                  {/* Nome */}
+                  <h3 className="text-base md:text-lg lg:text-xl font-semibold text-gray-900 mb-2 md:mb-3 truncate">
+                    {anunciante.userName}
+                  </h3>
 
-              </p>
+                  {/* Localização */}
+                  <div className="flex items-center justify-center gap-2 text-gray-600 mb-2 md:mb-3">
+                    <MapPin size={14} className="text-pink-500 flex-shrink-0" weight="duotone" />
+                    <span className="text-xs md:text-sm truncate">{anunciante.city}</span>
+                  </div>
 
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-200 to-purple-200 opacity-0 hover:opacity-20 transition-all duration-300 rounded-xl"></div>
-            </motion.div>
-          ))}
+                  {/* Info do plano e pontos */}
+                  <div className="bg-gray-50 rounded-lg px-3 py-2 text-xs md:text-sm">
+                    <span className="font-medium text-gray-700">{anunciante.plan}</span>
+                    <span className="text-gray-500 mx-1">•</span>
+                    <span className="font-bold text-pink-600">{anunciante.points} pts</span>
+                  </div>
+
+                  {/* Indicador de posição especial para top 3 */}
+                  {index < 3 && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pink-400 to-transparent"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Indicadores de scroll - apenas mobile */}
+        <div className="flex justify-center mt-6 md:hidden">
+          <div className="flex gap-2">
+            {companions.slice(0, 5).map((_, index) => (
+              <div
+                key={index}
+                className="w-2 h-2 rounded-full bg-pink-300 opacity-50"
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -162,4 +306,8 @@ export default function TopAnunciantes() {
       `}</style>
     </div>
   );
-}
+});
+
+TopAnunciantes.displayName = 'TopAnunciantes';
+
+export default TopAnunciantes;

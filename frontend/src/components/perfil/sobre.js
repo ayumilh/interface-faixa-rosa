@@ -1,12 +1,29 @@
 import { useState } from "react";
-import { FaInfoCircle, FaCamera, FaIdCard, FaAlignLeft } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { 
+  FaInfoCircle, 
+  FaCamera, 
+  FaIdCard, 
+  FaAlignLeft, 
+  FaTimes,
+  FaChevronDown,
+  FaChevronUp,
+  FaPlay,
+  FaUser,
+  FaRuler,
+  FaWeight,
+  FaEye,
+  FaPalette,
+  FaCut,
+  FaShoePrints
+} from "react-icons/fa";
 
 export default function Sobre({ physicalCharacteristics, description, media }) {
   const [mostrarMaisDescricao, setMostrarMaisDescricao] = useState(false);
   const [mostrarMaisCaracteristicas, setMostrarMaisCaracteristicas] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);
-
-  console.log("Media", media);
+  const [videoPlaying, setVideoPlaying] = useState(false);
 
   const toggleMostrarMaisDescricao = () => {
     setMostrarMaisDescricao(!mostrarMaisDescricao);
@@ -24,153 +41,305 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
     setModalAberto(false);
   };
 
+  // Função para formatar dados das características
+  const formatCharacteristic = (value, type = 'text') => {
+    if (value === undefined || value === null) return "Não informado";
+    
+    switch (type) {
+      case 'boolean':
+        return value ? "Sim" : "Não";
+      case 'weight':
+        return `${value} kg`;
+      case 'height':
+        return `${(value / 100).toFixed(2)} m`;
+      case 'gender':
+        return value === "MULHER_CISGENERO" ? "Mulher Cisgênero" : value;
+      case 'genitalia':
+        return value === "NATURAL" ? "Natural" : "Modificada";
+      default:
+        return value;
+    }
+  };
+
+  const characteristics = [
+    { icon: FaUser, label: "Gênero", value: formatCharacteristic(physicalCharacteristics?.gender, 'gender') },
+    { icon: FaUser, label: "Genitália", value: formatCharacteristic(physicalCharacteristics?.genitalia, 'genitalia') },
+    { icon: FaWeight, label: "Peso", value: formatCharacteristic(physicalCharacteristics?.weight, 'weight') },
+    { icon: FaRuler, label: "Altura", value: formatCharacteristic(physicalCharacteristics?.height, 'height') },
+    { icon: FaPalette, label: "Etnia", value: formatCharacteristic(physicalCharacteristics?.ethnicity) },
+    { icon: FaEye, label: "Cor dos olhos", value: formatCharacteristic(physicalCharacteristics?.eyeColor) },
+    { icon: FaCut, label: "Estilo de cabelo", value: formatCharacteristic(physicalCharacteristics?.hairStyle) },
+    { icon: FaCut, label: "Tamanho do cabelo", value: formatCharacteristic(physicalCharacteristics?.hairLength) },
+    { icon: FaShoePrints, label: "Tamanho do pé", value: formatCharacteristic(physicalCharacteristics?.shoeSize) },
+    { icon: FaUser, label: "Silicone", value: formatCharacteristic(physicalCharacteristics?.hasSilicone, 'boolean') },
+    { icon: FaPalette, label: "Tatuagens", value: formatCharacteristic(physicalCharacteristics?.hasTattoos, 'boolean') },
+    { icon: FaPalette, label: "Piercings", value: formatCharacteristic(physicalCharacteristics?.hasPiercings, 'boolean') },
+    { icon: FaUser, label: "Fumante", value: formatCharacteristic(physicalCharacteristics?.smoker, 'boolean') },
+  ];
+
   return (
-    <div className="p-4 md:p-6 bg-white rounded-lg shadow-md transition-all duration-300 hover:shadow-lg">
-      {/* Seção de descrição */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-black flex items-center mb-2">
-          <FaAlignLeft className="mr-2 text-pink-500" /> Descrição
-        </h2>
-        <p className={`text-gray-700 ${!mostrarMaisDescricao ? "line-clamp-3" : ""}`}>
-          {description}
-        </p>
-        <div className="mt-2 block md:hidden">
-          <button onClick={toggleMostrarMaisDescricao} className="text-pink-500 font-bold hover:text-pink-600">
-            {mostrarMaisDescricao ? "Ver menos ▲" : "Ver mais ▼"}
-          </button>
-        </div>
-      </div>
-
-      {/* Seção de mídia de comparação */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-black flex items-center">
-          <FaCamera className="mr-2 text-pink-500" /> Mídia de comparação
-        </h2>
-        <button onClick={abrirModal} className="text-pink-500 hover:text-pink-600 transition-colors duration-200">
-          <FaInfoCircle className="cursor-pointer" />
-        </button>
-      </div>
-
-      {modalAberto && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md">
-            <h3 className="text-lg text-black font-semibold mb-4">Informação sobre a Mídia de Comparação</h3>
-            <p className="text-gray-700 mb-4">
-              Mídias de comparação são analisadas por nossa equipe para garantir credibilidade aos perfis. Caso tenha dúvidas sobre a veracidade de alguma mídia, consulte esta seção.
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-8">
+        {/* Header */}
+        <motion.div
+          className="mb-6 sm:mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2 flex items-center justify-center">
+              <FaInfoCircle className="text-pink-500 mr-3" />
+              Sobre
+            </h1>
+            <p className="text-gray-600 text-sm sm:text-base">
+              Informações detalhadas e mídia de verificação
             </p>
-            <button
-              onClick={fecharModal}
-              className="mt-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition duration-300"
+          </div>
+        </motion.div>
+
+        {/* Seção de descrição */}
+        <motion.div
+          className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg mb-6 sm:mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="flex items-center mb-4">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-500 p-2 rounded-lg mr-3">
+              <FaAlignLeft className="text-white text-lg" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Descrição</h2>
+          </div>
+          
+          <div className="relative">
+            <p 
+              className={`text-gray-700 text-sm sm:text-base leading-relaxed transition-all duration-300 ${
+                !mostrarMaisDescricao ? "line-clamp-4 sm:line-clamp-6" : ""
+              }`}
             >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Layout com vídeo e características físicas */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Seção de vídeo */}
-        {/* Verificação da variável 'media' */}
-        {media && media.length > 0 ? (
-          <div className="lg:w-1/3">
-            <div className="relative">
-              <video
-                className="rounded-lg w-full shadow-lg hover:shadow-xl transition duration-300"
-                autoPlay
-                loop
-                muted
-                playsInline
-                controls={false}
-              >
-                <source src={media[0].url} type="video/mp4" />
-                Seu navegador não suporta a tag de vídeo.
-              </video>
-            </div>
-            <p className="mt-2 text-center text-gray-600">
-              Verificada em <span className="font-semibold">Ago/2024</span>.
+              {description || "Nenhuma descrição disponível."}
             </p>
+            
+            {description && description.length > 200 && (
+              <motion.button
+                onClick={toggleMostrarMaisDescricao}
+                className="mt-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 flex items-center space-x-2 text-sm"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {mostrarMaisDescricao ? (
+                  <>
+                    <FaChevronUp />
+                    <span>Ver menos</span>
+                  </>
+                ) : (
+                  <>
+                    <FaChevronDown />
+                    <span>Ver mais</span>
+                  </>
+                )}
+              </motion.button>
+            )}
           </div>
-        ) : (
-          <div className="lg:w-1/3">
-            <p className="text-gray-500">Sem mídia disponível</p>
+        </motion.div>
+
+        {/* Seção de mídia de comparação */}
+        <motion.div
+          className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg mb-6 sm:mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <div className="bg-gradient-to-r from-pink-500 to-purple-500 p-2 rounded-lg mr-3">
+                <FaCamera className="text-white text-lg" />
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Mídia de Verificação</h2>
+            </div>
+            <motion.button
+              onClick={abrirModal}
+              className="bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition-colors duration-200"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <FaInfoCircle className="text-pink-500 text-lg" />
+            </motion.button>
           </div>
-        )}
 
-        {/* Características físicas */}
-        <div className="lg:w-2/3 pl-4">
-          <h3 className="text-lg text-black font-bold mb-2 flex items-center">
-            <FaIdCard className="mr-2 text-pink-500" /> Características físicas
-          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Vídeo de verificação */}
+            <div className="lg:col-span-1">
+              {media && media.length > 0 ? (
+                <div className="relative group">
+                  <div className="relative overflow-hidden rounded-xl shadow-lg">
+                    <video
+                      className="w-full h-auto rounded-xl transition-transform duration-300 group-hover:scale-105"
+                      autoPlay={videoPlaying}
+                      loop
+                      muted
+                      playsInline
+                      controls={videoPlaying}
+                      onClick={() => setVideoPlaying(!videoPlaying)}
+                    >
+                      <source src={media[0].url} type="video/mp4" />
+                      Seu navegador não suporta a tag de vídeo.
+                    </video>
+                    
+                    {/* Play overlay */}
+                    {!videoPlaying && (
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                          <FaPlay className="text-white text-2xl ml-1" />
+                        </div>
+                      </div>
+                    )}
 
-          <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 text-black ${!mostrarMaisCaracteristicas && "md:max-h-[600px] md:overflow-hidden"}`}>
-            <div>
-              <p className="font-bold">Gênero</p>
-              <p>
-                {physicalCharacteristics && physicalCharacteristics.gender
-                  ? physicalCharacteristics.gender === "MULHER_CISGENERO"
-                    ? "Mulher Cisgênero"
-                    : "Outro"
-                  : "Não informado"}
-              </p>
-            </div>
-            <div>
-              <p className="font-bold">Genitália</p>
-              <p>
-                {physicalCharacteristics && physicalCharacteristics.genitalia
-                  ? physicalCharacteristics.genitalia === "NATURAL"
-                    ? "Natural"
-                    : "Modificada"
-                  : "Não informado"}
-              </p>
-            </div>
-            <div>
-              <p className="font-bold">Peso</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.weight ? `${physicalCharacteristics.weight} kg` : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Altura</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.height ? `${physicalCharacteristics.height / 100} m` : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Etnia</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.ethnicity ? physicalCharacteristics.ethnicity : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Cor dos olhos</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.eyeColor ? physicalCharacteristics.eyeColor : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Estilo de cabelo</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.hairStyle ? physicalCharacteristics.hairStyle : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Tamanho do cabelo</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.hairLength ? physicalCharacteristics.hairLength : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Tamanho do pé</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.shoeSize ? physicalCharacteristics.shoeSize : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Silicone</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.hasSilicone !== undefined ? (physicalCharacteristics.hasSilicone ? "Sim" : "Não") : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Tatuagens</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.hasTattoos !== undefined ? (physicalCharacteristics.hasTattoos ? "Sim" : "Não") : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Piercings</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.hasPiercings !== undefined ? (physicalCharacteristics.hasPiercings ? "Sim" : "Não") : "Não informado"}</p>
-            </div>
-            <div>
-              <p className="font-bold">Fumante</p>
-              <p>{physicalCharacteristics && physicalCharacteristics.smoker !== undefined ? (physicalCharacteristics.smoker ? "Sim" : "Não") : "Não informado"}</p>
+                    {/* Marca d'água */}
+                    <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 text-xs text-white">
+                      <Image
+                        src="/iconOficial_faixaRosa.png"
+                        alt="Logo"
+                        width={12}
+                        height={12}
+                        className="object-contain w-3 h-3"
+                      />
+                      <span className="text-xs font-medium">faixarosa.com</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 text-center">
+                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Verificada em Ago/2024
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-100 rounded-xl p-6 text-center">
+                  <FaCamera className="text-gray-400 text-3xl mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">Sem mídia de verificação disponível</p>
+                </div>
+              )}
             </div>
 
+            {/* Características físicas */}
+            <div className="lg:col-span-3">
+              <div className="flex items-center mb-4">
+                <div className="bg-gradient-to-r from-pink-500 to-purple-500 p-2 rounded-lg mr-3">
+                  <FaIdCard className="text-white text-lg" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">Características Físicas</h3>
+              </div>
+
+              <div 
+                className={`grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 transition-all duration-300 ${
+                  !mostrarMaisCaracteristicas ? "max-h-96 overflow-hidden" : ""
+                }`}
+              >
+                {characteristics.map((char, index) => (
+                  <motion.div
+                    key={char.label}
+                    className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors duration-200 border border-gray-100"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + index * 0.01 }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-gradient-to-r from-pink-500 to-purple-500 p-1.5 rounded-lg flex-shrink-0">
+                        <char.icon className="text-white text-xs" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 text-xs mb-0.5">{char.label}</p>
+                        <p className="text-gray-600 text-sm font-medium">{char.value}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Botão Ver todas para mobile */}
+              <div className="sm:hidden mt-4 text-center">
+                <motion.button
+                  onClick={toggleMostrarMaisCaracteristicas}
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-lg font-semibold text-sm flex items-center space-x-2 mx-auto transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {mostrarMaisCaracteristicas ? (
+                    <>
+                      <FaChevronUp />
+                      <span>Ver menos características</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaChevronDown />
+                      <span>Ver todas características</span>
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            </div>
           </div>
-        </div>
+        </motion.div>
+
+        {/* Modal de informação */}
+        <AnimatePresence>
+          {modalAberto && (
+            <motion.div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              onClick={fecharModal}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4"
+                onClick={(e) => e.stopPropagation()}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className="bg-gradient-to-r from-pink-500 to-purple-500 p-2 rounded-lg mr-3">
+                      <FaInfoCircle className="text-white text-lg" />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-800">Mídia de Verificação</h3>
+                  </div>
+                  <button
+                    onClick={fecharModal}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <FaTimes className="text-xl" />
+                  </button>
+                </div>
+                
+                <p className="text-gray-700 text-sm leading-relaxed mb-6">
+                  Mídias de verificação são analisadas por nossa equipe para garantir a autenticidade dos perfis. 
+                  Este processo ajuda a verificar a identidade e aumentar a confiança na plataforma.
+                </p>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+                  <p className="text-blue-800 text-xs font-medium">
+                    💡 As verificações são realizadas periodicamente para manter a segurança da comunidade.
+                  </p>
+                </div>
+
+                <motion.button
+                  onClick={fecharModal}
+                  className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Entendi
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

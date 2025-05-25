@@ -3,113 +3,149 @@
 import React, { useState, useEffect, useMemo, useCallback, useContext } from "react";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
-import { FaUpload, FaPlusCircle, FaTrash, FaCrown, FaClock, FaUserCircle, FaImage, FaIdCard } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FaUpload, 
+  FaPlusCircle, 
+  FaTrash, 
+  FaCrown, 
+  FaClock, 
+  FaUserCircle, 
+  FaImage, 
+  FaIdCard,
+  FaTrophy,
+  FaGem,
+  FaCalendarAlt,
+  FaChartLine,
+  FaEye,
+  FaHeart,
+  FaComment,
+  FaShare,
+  FaPlay,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaInfoCircle,
+  FaBolt,
+  FaCamera,
+  FaVideo,
+  FaStar,
+  FaLightbulb,
+  FaArrowRight,
+  FaTimes,
+  FaCheck,
+  FaSpinner,
+  FaBars
+} from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import StoryUploader from "./StoryUploader";
 
 const ProfileSettings = ({ onUpdate }) => {
   const { userInfo, fetchUserData } = useContext(AuthContext);
+  
+  // Estados principais
+  const [activeTab, setActiveTab] = useState("overview");
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  
+  // Estados do perfil
+  const [profileImage, setProfileImage] = useState(null);
+  const [bannerImage, setBannerImage] = useState(null);
+  const [documentsValidated, setDocumentsValidated] = useState(false);
+  const [rankingPosition, setRankingPosition] = useState(null);
+  const [timeLeft, setTimeLeft] = useState("");
+  const [timeProgress, setTimeProgress] = useState(100);
+  const [startDate, setStartDate] = useState(null);
+  
+  // Estados de documentos
   const [documentFront, setDocumentFront] = useState(null);
   const [documentBack, setDocumentBack] = useState(null);
   const [documentFileFront, setDocumentFileFront] = useState(null);
   const [documentFileBack, setDocumentFileBack] = useState(null);
-
+  const [isReadyToSend, setIsReadyToSend] = useState(false);
+  
+  // Estados de posts
   const [selectedFile, setSelectedFile] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
-
-  const [uploading, setUploading] = useState(false);
-  const [isReadyToSend, setIsReadyToSend] = useState(false);
-
-  const [rankingPosition, setRankingPosition] = useState(null);
-  const [timeLeft, setTimeLeft] = useState("");
-  const [timeProgress, setTimeProgress] = useState(100);
-
-  const [stories, setStories] = useState([]);
-  const [posts, setPosts] = useState([]);
-
-  // Estados para Modal de Upload
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentFile, setCurrentFile] = useState(null);
-  const [uploadType, setUploadType] = useState("");
-  const [caption, setCaption] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
-  const [loading, setLoading] = useState(true);
-
+  
+  // Estados do carrossel
   const [allowedCarouselImages, setAllowedCarouselImages] = useState(1);
-
-  const [profileImage, setProfileImage] = useState(null);
-  const [bannerImage, setBannerImage] = useState(null);
-  const [documentsValidated, setDocumentsValidated] = useState(false);
-  const [startDate, setStartDate] = useState(null); // Data de início do plano
-
   const [carouselImages, setCarouselImages] = useState([]);
   const [carouselImagesURL, setCarouselImagesURL] = useState([]);
+  
+  // Estados do modal/tutoriais
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [showProfileTips, setShowProfileTips] = useState(false);
 
+  // Configuração das tabs
+  const tabs = [
+    { id: "overview", label: "Início", icon: FaChartLine },
+    { id: "profile", label: "Perfil", icon: FaUserCircle },
+    { id: "content", label: "Posts", icon: FaCamera },
+    { id: "documents", label: "Docs", icon: FaIdCard },
+  ];
 
-  // Chama fetchUserData quando o componente é carregado ou quando userInfo muda
+  // Tutorial steps
+  const tutorialSteps = [
+    {
+      title: "Bem-vinda ao seu Painel!",
+      description: "Vamos te ajudar a configurar seu perfil em poucos passos",
+      icon: FaLightbulb
+    },
+    {
+      title: "Adicione sua Foto de Perfil",
+      description: "Uma boa foto aumenta suas visualizações em até 85%",
+      icon: FaCamera
+    },
+    {
+      title: "Configure seu Banner",
+      description: "O banner é a primeira impressão. Capriche!",
+      icon: FaImage
+    },
+    {
+      title: "Publique Conteúdo",
+      description: "Posts regulares mantêm seu perfil ativo e atrativo",
+      icon: FaBolt
+    }
+  ];
+
+  // Carrega dados iniciais
   useEffect(() => {
     if (!userInfo) {
-      fetchUserData(); // Chama a função para buscar os dados se userInfo estiver vazio
+      fetchUserData();
     } else {
       if (userInfo?.ranking) {
         setRankingPosition(userInfo.ranking);
       } else {
-        setRankingPosition("Não disponível"); // Define como "Não disponível" se não houver ranking
+        setRankingPosition("Não disponível");
       }
     }
   }, [userInfo, fetchUserData]);
 
-
   useEffect(() => {
-    // Simula o carregamento inicial da página
     setTimeout(() => {
-      setLoading(false); // Define como "false" quando a página terminar de carregar
-    }, 200); // Simulando 2 segundos de carregamento
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  // useEffect(() => {
-  //   const totalDuration = planExpirationDate - Date.now();
+  useEffect(() => {
+    if (documentFront && documentBack) {
+      setIsReadyToSend(true);
+    }
+  }, [documentFront, documentBack]);
 
-  //   const updateTimeLeft = () => {
-  //     const now = new Date();
-  //     const diff = planExpirationDate - now;
-  //     if (diff <= 0) {
-  //       clearInterval(interval);
-  //       setTimeLeft("Expirado");
-  //       setTimeProgress(0);
-  //     } else {
-  //       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  //       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  //       const minutes = Math.floor((diff / 1000 / 60) % 60);
-  //       setTimeLeft(`${days}d ${hours}h ${minutes}m`);
-
-  //       const elapsed = totalDuration - diff;
-  //       const progress = Math.max(
-  //         0,
-  //         ((elapsed / totalDuration) * 100).toFixed(2)
-  //       );
-  //       setTimeProgress(progress);
-  //     }
-  //   };
-
-  //   updateTimeLeft();
-  //   const interval = setInterval(updateTimeLeft, 60000); // Atualiza a cada minuto
-
-  //   return () => clearInterval(interval);
-  // }, [planExpirationDate]);
-
+  // Timer do plano
   useEffect(() => {
     if (startDate) {
-      const totalDuration = 30 * 24 * 60 * 60 * 1000; // 30 dias em milissegundos
+      const totalDuration = 30 * 24 * 60 * 60 * 1000;
       const updateTimeLeft = () => {
         const now = new Date();
         const diff = startDate.getTime() + totalDuration - now.getTime();
@@ -129,21 +165,12 @@ const ProfileSettings = ({ onUpdate }) => {
       };
 
       updateTimeLeft();
-      const interval = setInterval(updateTimeLeft, 1000); // Atualiza a cada minuto
-
+      const interval = setInterval(updateTimeLeft, 60000);
       return () => clearInterval(interval);
     }
   }, [startDate]);
 
-
-  useEffect(() => {
-    if (documentFront && documentBack) {
-      setIsReadyToSend(true);
-    }
-  }, [documentFront, documentBack]);
-
-  // Chama a API para obter as imagens
-
+  // Fetch media
   const fetchMedia = useCallback(async () => {
     const userToken = Cookies.get("userToken");
     try {
@@ -157,31 +184,19 @@ const ProfileSettings = ({ onUpdate }) => {
       if (response.status === 200) {
         const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
 
-        let allowedImages = 1; // padrão
-
-        // Verifique se planName é uma string antes de usar .includes()
+        let allowedImages = 1;
         if (typeof planName === "string") {
           if (planName.includes("Plano Rubi")) {
             allowedImages = 5;
           } else if (planName.includes("Plano Safira")) {
             allowedImages = 4;
-          } else if (
-            planName.includes("Plano Vip") ||
-            planName.includes("Plano Pink")
-          ) {
+          } else if (planName.includes("Plano Vip") || planName.includes("Plano Pink")) {
             allowedImages = 1;
-          } else if (
-            planName.includes("Contato") ||
-            planName.includes("Oculto") ||
-            planName.includes("Reviews Públicos") ||
-            planName.includes("Darkmode") ||
-            planName.includes("Plano Nitro")
-          ) {
+          } else if (planName.includes("Contato") || planName.includes("Oculto") || planName.includes("Reviews Públicos") || planName.includes("Darkmode") || planName.includes("Plano Nitro")) {
             allowedImages = 0;
           }
         }
 
-        // Atribuindo as variáveis de estado
         setProfileImage(profileImage);
         setBannerImage(bannerImage);
         setDocumentsValidated(documentsValidated);
@@ -194,14 +209,266 @@ const ProfileSettings = ({ onUpdate }) => {
         setCarouselImages(orderedImageURLs);
       }
     } catch (error) {
-      console.error("Erro ao buscar mídia do acompanhante:", error);
+      console.error("Erro ao buscar mídia:", error);
     }
   }, []);
-
 
   useEffect(() => {
     fetchMedia();
   }, [fetchMedia]);
+
+  // Handlers
+  const handleImageChange = async (e, type) => {
+    const userToken = Cookies.get("userToken");
+    const formData = new FormData();
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    // Validação de arquivo
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Arquivo muito grande. Máximo 10MB.");
+      return;
+    }
+
+    formData.append(type === "profile" ? "profileImage" : "bannerImage", file);
+    setUploading(true);
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/update`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${userToken}`
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (type === "profile") {
+          setProfileImage(response.data.companion.profileImage);
+          toast.success("✨ Foto de perfil atualizada!");
+          fetchUserData();
+        } else {
+          setBannerImage(response.data.companion.bannerImage);
+          toast.success("🎨 Banner atualizado!");
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar:', error);
+      toast.error('Erro ao atualizar imagem.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handlePostUpload = async () => {
+    const token = Cookies.get("userToken");
+
+    if (!selectedFile || !title || !description) {
+      toast.error("Preencha todos os campos!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("media", selectedFile);
+    formData.append("title", title);
+    formData.append("description", description);
+
+    setUploading(true);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("🎉 Post publicado com sucesso!");
+        setSelectedFile(null);
+        setTitle("");
+        setDescription("");
+      } else {
+        toast.error(data.error || "Erro ao publicar.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao publicar post.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleVideoUpload = async () => {
+    const token = Cookies.get("userToken");
+
+    if (!selectedVideo || !videoTitle || !videoDescription) {
+      toast.error("Preencha todos os campos do vídeo!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("media", selectedVideo);
+    formData.append("title", videoTitle);
+    formData.append("description", videoDescription);
+
+    setUploading(true);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("🎬 Vídeo publicado com sucesso!");
+        setSelectedVideo(null);
+        setVideoTitle("");
+        setVideoDescription("");
+      } else {
+        toast.error(data.error || "Erro ao publicar vídeo.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao publicar vídeo.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleCarouselImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const totalSelected = carouselImages.length + carouselImagesURL.length;
+    if (totalSelected >= allowedCarouselImages) {
+      toast.error(`Limite de ${allowedCarouselImages} imagens atingido!`);
+      return;
+    }
+
+    const imageUrl = URL.createObjectURL(file);
+    setCarouselImagesURL([...carouselImagesURL, { file, url: imageUrl }]);
+  };
+
+  const handleUploadCarouselImages = async () => {
+    if (carouselImagesURL.length === 0) {
+      toast.error("Nenhuma imagem selecionada.");
+      return;
+    }
+
+    const formData = new FormData();
+    carouselImagesURL.forEach((imageObj) => {
+      if (imageObj.file) {
+        formData.append("carrouselImages", imageObj.file);
+      }
+    });
+
+    setUploading(true);
+
+    try {
+      const userToken = Cookies.get("userToken");
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/update`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const { message, limitReached } = response.data;
+      if (response.status === 200 || response.status === 201) {
+        if (limitReached) {
+          toast.info(message || "Limite atingido.");
+        } else {
+          toast.success("✨ Imagens adicionadas!");
+        }
+        setCarouselImages([]);
+        setCarouselImagesURL([]);
+        await fetchMedia();
+      }
+    } catch (error) {
+      console.error("Erro:", error);
+      toast.error("Erro ao enviar imagens.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveCarouselImage = async (indexToRemove, isSavedImage = false) => {
+    const userToken = Cookies.get("userToken");
+
+    if (isSavedImage) {
+      const imageToDelete = carouselImages[indexToRemove];
+      try {
+        const response = await axios.delete(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/delete`,
+          {
+            headers: { Authorization: `Bearer ${userToken}` },
+            data: { imageUrl: imageToDelete },
+          }
+        );
+
+        if (response.status === 200) {
+          toast.success("Imagem removida!");
+          await fetchMedia();
+        }
+      } catch (error) {
+        console.error("Erro:", error);
+        toast.error("Erro ao remover.");
+      }
+    } else {
+      setCarouselImagesURL(prevImages =>
+        prevImages.filter((_, index) => index !== indexToRemove)
+      );
+    }
+  };
+
+  const handleSendDocuments = async () => {
+    if (!documentFront || !documentBack) {
+      toast.error("Envie ambos os lados do documento!");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const token = Cookies.get("userToken");
+      const formData = new FormData();
+      formData.append("fileFront", documentFileFront);
+      formData.append("fileBack", documentFileBack);
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/documents/upload`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 201 || response.status === 200) {
+        toast.success("📋 Documentos enviados para análise!");
+        setTimeout(() => window.location.reload(), 2000);
+      }
+    } catch (error) {
+      console.error("Erro:", error);
+      toast.error("Erro ao enviar documentos.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleFileUpload = (e, side) => {
     const file = e.target.files[0];
@@ -217,810 +484,992 @@ const ProfileSettings = ({ onUpdate }) => {
     }
   };
 
-  const handleSendDocuments = async () => {
-    if (!documentFront || !documentBack) return alert("Por favor, insira ambos os documentos.");
-
-    setUploading(true);
-    try {
-      const token = Cookies.get("userToken");
-      const formData = new FormData();
-
-      formData.append("fileFront", documentFileFront);  // Aqui enviamos o arquivo real, não a URL
-      formData.append("fileBack", documentFileBack);    // Aqui enviamos o arquivo real, não a URL
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/documents/upload`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setUploading(false);
-      if (response.status === 201) {
-        toast.success(response.data.message);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else if (response.status === 200) {
-        toast.success(response.data.message);
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        toast.error("Erro ao enviar documentos.");
-      }
-    } catch (error) {
-      setUploading(false);
-      alert("Erro ao conectar ao servidor." + error.message);
-    }
-  };
-
-  const handleImageChange = async (e, type) => {
-    const userToken = Cookies.get("userToken");
-
-    const formData = new FormData();
-    const file = e.target.files[0];
-
-    if (!file) return; // Se não houver arquivo, não faz nada
-
-    formData.append(type === "profile" ? "profileImage" : "bannerImage", file);
-
-    try {
-      // Enviar a imagem para o backend
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/update`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${userToken}`
-          },
-        }
-      );
-
-      // Atualizar a URL da imagem após o sucesso
-      if (response.status === 200) {
-        if (type === "profile") {
-          setProfileImage(response.data.companion.profileImage); // Atualiza o estado com a nova imagem
-          toast.success("Imagem de perfil atualizada com sucesso!");
-          fetchUserData();
-        } else {
-          setBannerImage(response.data.companion.bannerImage); // Atualiza o estado com a nova imagem
-          toast.success("Imagem de capa atualizada com sucesso!");
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar a imagem:', error);
-      toast.error('Erro ao atualizar a imagem.');
-    }
-  }
-
-  const handleStoryUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      openModal(file, "story");
-    }
-  };
-
-  const handlePostUpload = async (e) => {
-    const token = Cookies.get("userToken");
-
-    if (!selectedFile || !title || !description) {
-      alert("Preencha todos os campos antes de postar.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("media", selectedFile);
-    formData.append("title", title);
-    formData.append("description", description);
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Post enviado com sucesso!");
-        setSelectedFile(null);
-        setTitle("");
-        setDescription("");
-      } else {
-        alert(data.error || "Erro ao enviar post.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao enviar post.");
-    }
-  };
-
-  const handleFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-  };
-
-  const handleVideoUpload = async () => {
-    const token = Cookies.get("userToken");
-
-    if (!selectedVideo || !videoTitle || !videoDescription) {
-      alert("Preencha todos os campos antes de postar o vídeo.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("media", selectedVideo);
-    formData.append("title", videoTitle);
-    formData.append("description", videoDescription);
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Vídeo enviado com sucesso!");
-        setSelectedVideo(null);
-        setVideoTitle("");
-        setVideoDescription("");
-      } else {
-        alert(data.error || "Erro ao enviar vídeo.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao enviar vídeo.");
-    }
-  };
-
-  const handleVideoSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedVideo(file);
-    }
-  };
-
-  const openModal = (file, type) => {
-    setCurrentFile(file);
-    setUploadType(type);
-    setCaption("");
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    if (isUploading) return; // Impede fechar durante o upload
-    setIsModalOpen(false);
-    setCurrentFile(null);
-    setUploadType("");
-    setCaption("");
-  };
-
-  const handleUpload = () => {
-    setIsUploading(true);
-    setTimeout(() => {
-      const imageUrl = URL.createObjectURL(currentFile);
-      if (uploadType === "story") {
-        setStories((prev) => [...prev, { url: imageUrl, caption }]);
-      } else if (uploadType === "post") {
-        setPosts((prev) => [...prev, { url: imageUrl, type: "photo", caption }]);
-      }
-      setIsUploading(false);
-      closeModal();
-      onUpdate && onUpdate({ [uploadType]: imageUrl, caption });
-    }, 2000); // Simula 2 segundos de upload
-  };
-
-  const handleCarouselImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Verifica o total real de imagens (já salvas + novas para envio)
-    const totalSelected = carouselImages.length + carouselImagesURL.length;
-
-    if (totalSelected >= allowedCarouselImages) {
-      toast.error(`Limite de ${allowedCarouselImages} imagens atingido para o seu plano.`);
-      return;
-    }
-
-    const imageUrl = URL.createObjectURL(file);
-    setCarouselImagesURL([...carouselImagesURL, { file, url: imageUrl }]);
-  };
-
-  const handleUploadCarouselImages = async () => {
-    if (carouselImagesURL.length === 0) {
-      toast.error("Nenhuma nova imagem selecionada para envio.");
-      return;
-    }
-
-    const formData = new FormData();
-    // Adicionar as imagens ao FormData
-    carouselImagesURL.forEach((imageObj) => {
-      if (imageObj.file) {
-        formData.append("carrouselImages", imageObj.file);
-      }
-    });
-
-    try {
-      const userToken = Cookies.get("userToken");
-
-      // Enviar as imagens para o servidor
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/update`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      const { message, limitReached } = response.data;
-      if (response.status === 200 || response.status === 201) {
-        if (limitReached) {
-          toast.info(message || "Limite de imagens atingido.");
-        } else {
-          toast.success(message || "Imagens enviadas com sucesso!");
-        }
-
-        // Limpa os estados mesmo que tenha dado erro de limite
-        setCarouselImages([]);
-        setCarouselImagesURL([]);
-
-        await fetchMedia();
-      } else {
-        toast.error("Erro ao enviar as imagens.");
-      }
-    } catch (error) {
-      console.error("Erro ao enviar as imagens:", error);
-      toast.error("Erro ao enviar as imagens.");
-    }
-  };
-
-  // Função para remover imagem
-  const handleRemoveCarouselImage = async (indexToRemove, isSavedImage = false) => {
-    const userToken = Cookies.get("userToken");
-
-    if (isSavedImage) {
-      const imageToDelete = carouselImages[indexToRemove];
-
-      try {
-        const response = await axios.delete(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/delete`,
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-            data: { imageUrl: imageToDelete },
-          }
-        );
-
-        if (response.status === 200) {
-          toast.success("Imagem removida com sucesso!");
-          await fetchMedia(); // Atualiza os dados após remoção
-        } else {
-          toast.error("Erro ao remover imagem.");
-        }
-      } catch (error) {
-        console.error("Erro ao remover imagem:", error);
-        toast.error("Erro ao remover imagem.");
-      }
-    } else {
-      // Remoção apenas local (pré-visualização antes do envio)
-      setCarouselImagesURL(prevImages =>
-        prevImages.filter((_, index) => index !== indexToRemove)
-      );
-    }
-  };
-
-
-  return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-50 rounded-lg shadow-lg">
-      {/* Cabeçalho do Dashboard */}
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-5 mb-8 space-y-4 sm:space-y-0">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 text-center">
-          Painel de Controle
-        </h1>
-      </header>
-
-      {/* Carregamento com ícone de fogo */}
-      {loading && (
-        <div className="fixed top-0 left-0 w-full h-full bg-white flex justify-center items-center z-50">
-          <Image
-            src="/iconOficial_faixaRosa.png"
-            alt="Ícone oficial Faixa Rosa"
-            width={50}
-            height={50}
-            className="animate-pulse w-12 h-12"
-          />
-        </div>
-      )}
-
-      {/* Conteúdo Principal */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Bloco 1: Ranking Nacional */}
-        <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
-          <h2 className="text-lg font-semibold text-gray-700 text-center">Ranking Nacional</h2>
-
+  // Renderização de componentes
+  const renderOverviewTab = () => (
+    <div className="space-y-4 sm:space-y-6">
+      {/* Cards de estatísticas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        {/* Ranking Card */}
+        <motion.div
+          className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 sm:p-6 rounded-2xl sm:rounded-3xl text-white relative overflow-hidden"
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full -mr-8 sm:-mr-10 -mt-8 sm:-mt-10"></div>
+          <FaTrophy className="text-2xl sm:text-3xl mb-3 sm:mb-4 text-yellow-300" />
+          <h3 className="text-base sm:text-lg font-semibold mb-2">Ranking Nacional</h3>
           {rankingPosition && rankingPosition !== "Não disponível" ? (
-            <>
-              <p className="text-4xl sm:text-5xl font-bold text-blue-600 mt-4">
-                #{rankingPosition}
-              </p>
-              <span className="text-sm text-gray-500 mt-2 text-center">
-                Sua posição no ranking
-              </span>
-            </>
-          ) : userInfo?.companion?.city && userInfo?.companion?.state && userInfo?.companion?.planId ? (
-            <>
-              <p className="text-lg sm:text-xl font-bold text-yellow-500 mt-4 text-center">
-                Aguardando atualização
-              </p>
-              <span className="text-sm text-gray-500 mt-2 text-center">
-                Seu perfil será ranqueado em breve
-              </span>
-            </>
+            <div className="text-2xl sm:text-3xl font-bold">#{rankingPosition}</div>
           ) : (
-            <>
-              <p className="text-lg sm:text-xl font-bold text-pink-600 mt-4 text-center">
-                Ative seu perfil
-              </p>
-              <span className="text-sm text-gray-500 mt-2 text-center">
-                Para aparecer no ranking
-              </span>
-            </>
+            <div className="text-sm sm:text-lg">Em análise...</div>
           )}
-        </div>
+        </motion.div>
 
+        {/* Plano Card */}
+        <motion.div
+          className="bg-gradient-to-br from-blue-500 to-cyan-500 p-4 sm:p-6 rounded-2xl sm:rounded-3xl text-white relative overflow-hidden"
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full -mr-8 sm:-mr-10 -mt-8 sm:-mt-10"></div>
+          <FaGem className="text-2xl sm:text-3xl mb-3 sm:mb-4 text-cyan-200" />
+          <h3 className="text-base sm:text-lg font-semibold mb-2">Plano Ativo</h3>
+          <div className="text-sm sm:text-lg">Premium</div>
+        </motion.div>
 
-        {/* Bloco 2: Planos Ativos */}
-        <ActivePlans />
-
-        {/* Bloco 3: Expiração do Plano */}
-        <div className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center">
-          <h2 className="text-lg font-semibold text-gray-700 text-center">Expiração do Plano</h2>
-
+        {/* Tempo Card */}
+        <motion.div
+          className="bg-gradient-to-br from-green-500 to-emerald-500 p-4 sm:p-6 rounded-2xl sm:rounded-3xl text-white relative overflow-hidden sm:col-span-2 lg:col-span-1"
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full -mr-8 sm:-mr-10 -mt-8 sm:-mt-10"></div>
+          <FaClock className="text-2xl sm:text-3xl mb-3 sm:mb-4 text-green-200" />
+          <h3 className="text-base sm:text-lg font-semibold mb-2">Tempo Restante</h3>
           {timeLeft && timeLeft !== "Expirado" ? (
-            <>
-              <p className="text-2xl sm:text-3xl font-bold text-red-500 mt-4 text-center">
-                {timeLeft}
-              </p>
-              {timeProgress > 0 && (
-                <div className="mt-6 w-full">
-                  <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-500 rounded-full transition-all"
-                      style={{ width: `${timeProgress}%` }}
-                    ></div>
-                  </div>
-                  <span className="block text-sm text-gray-500 mt-2 text-center">Progresso do Plano</span>
-                </div>
-              )}
-            </>
+            <div className="text-sm sm:text-lg">{timeLeft}</div>
           ) : (
-            <>
-              <p className="text-lg font-semibold text-pink-600 mt-4 text-center">
-                Assine um plano
-              </p>
-              <span className="text-sm text-gray-500 mt-2 text-center">
-                Para começar a receber visitas no seu perfil
-              </span>
-            </>
+            <div className="text-sm sm:text-lg">Sem plano ativo</div>
           )}
-        </div>
-
+        </motion.div>
       </div>
 
-      {/* Cobertura e Imagem de Perfil */}
-      <div className="relative mb-12">
-        {/* Imagem de Capa */}
-        <div className="bg-white mt-8 relative h-40 sm:h-56 w-full rounded-lg overflow-hidden shadow-md">
+      {/* Dicas rápidas */}
+      <motion.div
+        className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl sm:rounded-2xl p-4 sm:p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
+          <div className="bg-yellow-500 p-3 rounded-full w-fit">
+            <FaLightbulb className="text-white text-lg sm:text-xl" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-2">
+              💡 Dicas para aumentar suas visualizações
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-600">
+              <div className="flex items-center space-x-2">
+                <FaCheckCircle className="text-green-500 flex-shrink-0" />
+                <span>Atualize sua foto de perfil regularmente</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <FaCheckCircle className="text-green-500 flex-shrink-0" />
+                <span>Publique conteúdo pelo menos 3x por semana</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <FaCheckCircle className="text-green-500 flex-shrink-0" />
+                <span>Complete 100% do seu perfil</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <FaCheckCircle className="text-green-500 flex-shrink-0" />
+                <span>Responda mensagens rapidamente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Progress do perfil */}
+      <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+        <h3 className="text-base sm:text-lg font-semibold mb-4">Completude do Perfil</h3>
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Foto de perfil</span>
+            {profileImage ? (
+              <FaCheckCircle className="text-green-500" />
+            ) : (
+              <FaExclamationTriangle className="text-yellow-500" />
+            )}
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Banner</span>
+            {bannerImage ? (
+              <FaCheckCircle className="text-green-500" />
+            ) : (
+              <FaExclamationTriangle className="text-yellow-500" />
+            )}
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-600">Documentos validados</span>
+            {documentsValidated ? (
+              <FaCheckCircle className="text-green-500" />
+            ) : (
+              <FaExclamationTriangle className="text-yellow-500" />
+            )}
+          </div>
+        </div>
+        
+        <div className="mt-6">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Progresso</span>
+            <span>
+              {Math.round(
+                ((profileImage ? 1 : 0) + 
+                 (bannerImage ? 1 : 0) + 
+                 (documentsValidated ? 1 : 0)) / 3 * 100
+              )}%
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div
+              className="bg-gradient-to-r from-pink-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.round(
+                  ((profileImage ? 1 : 0) + 
+                   (bannerImage ? 1 : 0) + 
+                   (documentsValidated ? 1 : 0)) / 3 * 100
+                )}%`
+              }}
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderProfileTab = () => (
+    <div className="space-y-4 sm:space-y-6">
+      {/* Banner e foto de perfil */}
+      <div className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg">
+        {/* Banner */}
+        <div className="relative h-32 sm:h-48 md:h-64 bg-gradient-to-r from-pink-400 to-purple-500">
           {bannerImage ? (
             <Image
               src={bannerImage}
-              alt="Capa do Perfil"
-              width={1920}
-              height={640}
-              className="object-cover transform scale-100 hover:scale-110 transition-transform duration-500"
+              alt="Banner"
+              fill
+              className="object-cover"
             />
           ) : (
-            <FaImage className="text-gray-400 text-6xl" />
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-white px-4">
+                <FaImage className="text-2xl sm:text-4xl mx-auto mb-2 opacity-60" />
+                <p className="text-sm sm:text-lg font-medium">Adicione seu banner</p>
+              </div>
+            </div>
           )}
-          <label className="absolute top-2 right-2 bg-white bg-opacity-80 text-pink-500 px-3 py-1 rounded-lg cursor-pointer shadow-md flex items-center text-sm hover:bg-opacity-90 transition">
-            <FaUpload className="mr-1" />
-            Alterar Capa
+          
+          <label className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full cursor-pointer hover:bg-black/70 transition-all duration-300 flex items-center space-x-2 text-xs sm:text-sm">
+            {uploading ? (
+              <FaSpinner className="animate-spin" />
+            ) : (
+              <FaCamera />
+            )}
+            <span className="hidden sm:inline">
+              {uploading ? "Enviando..." : "Alterar"}
+            </span>
             <input
               type="file"
               accept="image/*"
               className="hidden"
               onChange={(e) => handleImageChange(e, "banner")}
-              aria-label="Alterar Capa"
+              disabled={uploading}
             />
           </label>
         </div>
 
-        {/* Imagem de Perfil */}
-        <div className="absolute bottom-[-40px] left-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 rounded-full overflow-hidden w-32 h-32 border-4 border-white shadow-lg">
-          {profileImage ? (
-            <Image
-              src={profileImage}
-              alt="Foto de Perfil"
-              width={128}
-              height={128}
-              objectFit="cover"
-              className="object-cover transform scale-100 hover:scale-105 transition-transform duration-500"
-            />
-          ) : (
-            <FaUserCircle className="text-gray-400 text-6xl" />
-          )}
-          <label className="absolute bottom-2 right-2 bg-white bg-opacity-80 text-pink-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-opacity-90 transition">
-            <FaUpload size={16} />
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleImageChange(e, "profile")}
-              aria-label="Alterar Foto de Perfil"
-            />
-          </label>
+        {/* Perfil */}
+        <div className="relative px-4 sm:px-6 pb-4 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:space-x-6">
+            <div className="relative -mt-8 sm:-mt-16 mb-4 sm:mb-0 mx-auto sm:mx-0">
+              <div className="w-20 h-20 sm:w-32 sm:h-32 rounded-2xl sm:rounded-3xl overflow-hidden border-4 border-white shadow-xl bg-gray-200">
+                {profileImage ? (
+                  <Image
+                    src={profileImage}
+                    alt="Perfil"
+                    width={128}
+                    height={128}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <FaUserCircle className="text-gray-400 text-3xl sm:text-6xl" />
+                  </div>
+                )}
+              </div>
+              
+              <label className="absolute bottom-0 right-0 sm:bottom-2 sm:right-2 bg-pink-500 text-white p-2 sm:p-3 rounded-full cursor-pointer hover:bg-pink-600 transition-all duration-300 shadow-lg">
+                {uploading ? (
+                  <FaSpinner className="animate-spin text-xs sm:text-sm" />
+                ) : (
+                  <FaCamera className="text-xs sm:text-sm" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleImageChange(e, "profile")}
+                  disabled={uploading}
+                />
+              </label>
+            </div>
+            
+            <div className="flex-1 text-center sm:text-left">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
+                {userInfo?.userName || "Seu Nome"}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600">
+                Configure sua foto de perfil e banner para atrair mais visualizações
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* <StoryUploader /> */}
+      {/* Dicas de perfil */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <FaInfoCircle className="text-blue-500 mr-2" />
+          Dicas para uma foto de perfil perfeita
+        </h3>
+        <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0">
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <div className="bg-green-500 text-white p-1 rounded-full mt-1 flex-shrink-0">
+                <FaCheck className="text-xs" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Boa iluminação</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Use luz natural sempre que possível</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="bg-green-500 text-white p-1 rounded-full mt-1 flex-shrink-0">
+                <FaCheck className="text-xs" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Rosto bem visível</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Mostre seu rosto claramente</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <div className="bg-green-500 text-white p-1 rounded-full mt-1 flex-shrink-0">
+                <FaCheck className="text-xs" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Fundo neutro</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Evite fundos muito carregados</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="bg-green-500 text-white p-1 rounded-full mt-1 flex-shrink-0">
+                <FaCheck className="text-xs" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Alta qualidade</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Imagens nítidas e de boa resolução</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Seção de Posts */}
-      <div className="mt-16">
-        <h3 className="text-2xl font-semibold mb-6">Postar no Feed</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Adicionar Foto */}
+      {/* Carrossel de imagens */}
+      <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+        <h3 className="text-base sm:text-lg font-semibold mb-4">Galeria de Fotos</h3>
+        
+        {allowedCarouselImages > 0 ? (
+          <>
+            <p className="text-xs sm:text-sm text-gray-600 mb-4">
+              Você pode adicionar até {allowedCarouselImages} foto{allowedCarouselImages > 1 ? "s" : ""} no seu cartão de anúncio
+            </p>
+
+            {/* Upload de imagens */}
+            {carouselImages.length + carouselImagesURL.length < allowedCarouselImages && (
+              <label className="block border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-center cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-all duration-300 mb-4 sm:mb-6">
+                <FaPlusCircle className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 font-medium text-sm sm:text-base">Clique para adicionar uma foto</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">JPG, PNG até 10MB</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCarouselImageUpload}
+                />
+              </label>
+            )}
+
+            {/* Preview das imagens */}
+            {(carouselImages.length > 0 || carouselImagesURL.length > 0) && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                {/* Imagens salvas */}
+                {carouselImages.map((image, index) => (
+                  <div key={`saved-${index}`} className="relative group">
+                    <div className="aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-gray-200">
+                      <Image
+                        src={image}
+                        alt={`Foto ${index + 1}`}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleRemoveCarouselImage(index, true)}
+                      className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-red-500 text-white p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    >
+                      <FaTrash className="text-xs" />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Imagens para upload */}
+                {carouselImagesURL.map((imageObj, index) => (
+                  <div key={`preview-${index}`} className="relative group">
+                    <div className="aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-gray-200">
+                      <Image
+                        src={imageObj.url}
+                        alt={`Nova foto ${index + 1}`}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleRemoveCarouselImage(index, false)}
+                      className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-red-500 text-white p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    >
+                      <FaTrash className="text-xs" />
+                    </button>
+                    <div className="absolute inset-0 bg-black/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                      <span className="bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Aguardando envio
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Botão de envio */}
+            {carouselImagesURL.length > 0 && (
+              <button
+                onClick={handleUploadCarouselImages}
+                disabled={uploading}
+                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 sm:py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-2 text-sm sm:text-base"
+              >
+                {uploading ? (
+                  <>
+                    <FaSpinner className="animate-spin" />
+                    <span>Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaUpload />
+                    <span>Enviar Fotos</span>
+                  </>
+                )}
+              </button>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <FaGem className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 font-medium text-sm sm:text-base">Upgrade seu plano</p>
+            <p className="text-xs sm:text-sm text-gray-500">Para adicionar fotos na galeria</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderContentTab = () => (
+    <div className="space-y-4 sm:space-y-6">
+      {/* Posts */}
+      <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
+        {/* Upload de foto */}
+        <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center">
+            <FaCamera className="text-pink-500 mr-2" />
+            Publicar Foto
+          </h3>
+          
           <div className="space-y-4">
-            {/* Adicionar Foto */}
-            <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-pink-500 hover:text-pink-500 transition">
-              <FaPlusCircle className="mx-auto mb-2 text-4xl" />
-              {selectedFile ? selectedFile.name : "Adicionar Foto"}
+            <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-all duration-300">
+              {selectedFile ? (
+                <div className="space-y-2">
+                  <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
+                  <p className="text-xs sm:text-sm font-medium text-gray-700 truncate">{selectedFile.name}</p>
+                </div>
+              ) : (
+                <>
+                  <FaPlusCircle className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 text-sm sm:text-base">Selecionar foto</p>
+                </>
+              )}
               <input
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={handleFileSelect}
-                aria-label="Adicionar Foto"
+                onChange={(e) => setSelectedFile(e.target.files[0])}
               />
             </label>
 
-            {/* Mostrar título e descrição só se tiver imagem */}
             {selectedFile && (
               <>
-                {/* Título */}
                 <input
                   type="text"
-                  placeholder="Título da foto"
+                  placeholder="Título da sua foto..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent text-sm sm:text-base"
                 />
-
-                {/* Descrição */}
                 <textarea
-                  placeholder="Descrição da foto"
+                  placeholder="Conte uma história sobre esta foto..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none text-sm sm:text-base"
                 />
+                <button
+                  onClick={handlePostUpload}
+                  disabled={!title || !description || uploading}
+                  className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-lg sm:rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-2 text-sm sm:text-base"
+                >
+                  {uploading ? (
+                    <>
+                      <FaSpinner className="animate-spin" />
+                      <span>Publicando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaCamera />
+                      <span>Publicar Foto</span>
+                    </>
+                  )}
+                </button>
               </>
             )}
-
-            {/* Botão POSTAR visível só se tudo estiver preenchido */}
-            {selectedFile && title && description && (
-              <button
-                onClick={handlePostUpload}
-                className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-md font-semibold transition"
-              >
-                Postar
-              </button>
-            )}
           </div>
+        </div>
 
+        {/* Upload de vídeo */}
+        <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+          <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center">
+            <FaVideo className="text-blue-500 mr-2" />
+            Publicar Vídeo
+          </h3>
+          
           <div className="space-y-4">
-            {/* Adicionar Vídeo */}
-            <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-green-500 hover:text-green-500 transition">
-              <FaPlusCircle className="mx-auto mb-2 text-4xl" />
-              {selectedVideo ? selectedVideo.name : "Adicionar Vídeo"}
+            <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
+              {selectedVideo ? (
+                <div className="space-y-2">
+                  <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
+                  <p className="text-xs sm:text-sm font-medium text-gray-700 truncate">{selectedVideo.name}</p>
+                </div>
+              ) : (
+                <>
+                  <FaPlay className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-600 text-sm sm:text-base">Selecionar vídeo</p>
+                </>
+              )}
               <input
                 type="file"
                 accept="video/*"
                 className="hidden"
-                onChange={handleVideoSelect}
-                aria-label="Adicionar Vídeo"
+                onChange={(e) => setSelectedVideo(e.target.files[0])}
               />
             </label>
 
-            {/* Mostrar campos se o vídeo for selecionado */}
             {selectedVideo && (
               <>
                 <input
                   type="text"
-                  placeholder="Título do vídeo"
+                  placeholder="Título do seu vídeo..."
                   value={videoTitle}
                   onChange={(e) => setVideoTitle(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                 />
-
                 <textarea
-                  placeholder="Descrição do vídeo"
+                  placeholder="Descreva seu vídeo..."
                   value={videoDescription}
                   onChange={(e) => setVideoDescription(e.target.value)}
                   rows={3}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base"
                 />
+                <button
+                  onClick={handleVideoUpload}
+                  disabled={!videoTitle || !videoDescription || uploading}
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 rounded-lg sm:rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-2 text-sm sm:text-base"
+                >
+                  {uploading ? (
+                    <>
+                      <FaSpinner className="animate-spin" />
+                      <span>Publicando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaVideo />
+                      <span>Publicar Vídeo</span>
+                    </>
+                  )}
+                </button>
               </>
-            )}
-
-            {/* Botão POSTAR VÍDEO visível só se tudo estiver preenchido */}
-            {selectedVideo && videoTitle && videoDescription && (
-              <button
-                onClick={handleVideoUpload}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md font-semibold transition"
-              >
-                Postar Vídeo
-              </button>
             )}
           </div>
         </div>
-        {posts.length > 0 && (
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-6">
-            {posts.map((post, index) => (
-              <div
-                key={index}
-                className="w-full h-40 sm:h-48 rounded-lg overflow-hidden shadow-md relative transition-transform transform hover:scale-105"
-              >
-                {post.type === "photo" ? (
-                  <>
-                    <Image
-                      src={post.url}
-                      alt={`Post ${index + 1}`}
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-lg"
-                    />
-                    {post.caption && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1">
-                        {post.caption}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <video
-                      src={post.url}
-                      controls
-                      className="w-full h-full object-cover rounded-lg"
-                      aria-label={`Vídeo do post ${index + 1}`}
-                    />
-                    {post.caption && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1">
-                        {post.caption}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
-      {/* Carrossel do Card de Anúncio */}
-      <div className="mt-16">
-        <h3 className="text-2xl font-semibold mb-6">Carrossel do Card de Anúncio</h3>
+      {/* Dicas de conteúdo */}
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <FaStar className="text-purple-500 mr-2" />
+          Dicas para conteúdo de qualidade
+        </h3>
+        <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0">
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="bg-purple-500 text-white p-2 rounded-full flex-shrink-0">
+                <FaCamera className="text-xs sm:text-sm" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Qualidade da imagem</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Use boa iluminação e resolução alta</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="bg-pink-500 text-white p-2 rounded-full flex-shrink-0">
+                <FaHeart className="text-xs sm:text-sm" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Autenticidade</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Seja natural e genuína em suas fotos</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="bg-blue-500 text-white p-2 rounded-full flex-shrink-0">
+                <FaClock className="text-xs sm:text-sm" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Regularidade</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Publique conteúdo regularmente</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="bg-green-500 text-white p-2 rounded-full flex-shrink-0">
+                <FaComment className="text-xs sm:text-sm" />
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Descrições cativantes</h4>
+                <p className="text-xs sm:text-sm text-gray-600">Escreva textos interessantes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
-        {typeof allowedCarouselImages !== "number" || allowedCarouselImages <= 0 ? (
-          <p className="text-sm text-red-500">
-            Seu plano atual não permite adicionar imagens ao carrossel.
-          </p>
+  const renderDocumentsTab = () => (
+    <div className="space-y-4 sm:space-y-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+        <h3 className="text-base sm:text-lg font-semibold mb-4 flex items-center">
+          <FaIdCard className="text-blue-500 mr-2" />
+          Validação de Documentos
+        </h3>
+
+        {documentsValidated ? (
+          <div className="text-center py-6 sm:py-8">
+            <div className="bg-green-100 p-3 sm:p-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
+              <FaCheckCircle className="text-green-500 text-2xl sm:text-3xl" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
+              Documentos Validados! ✅
+            </h3>
+            <p className="text-sm sm:text-base text-gray-600">
+              Seus documentos foram aprovados e seu perfil está verificado.
+            </p>
+          </div>
         ) : (
           <>
-            <p className="text-sm text-gray-500 mb-4">
-              Você pode adicionar até {allowedCarouselImages} imagem
-              {allowedCarouselImages > 1 ? "ns" : ""} de acordo com seu plano.
-            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl p-4 mb-4 sm:mb-6">
+              <div className="flex items-start space-x-3">
+                <FaExclamationTriangle className="text-yellow-500 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-gray-800 text-sm sm:text-base">Verificação Pendente</h4>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                    Para ter seu perfil verificado, envie fotos nítidas de ambos os lados do seu documento de identidade.
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            {carouselImages.length + carouselImagesURL.length < allowedCarouselImages ? (
-              carouselImages.length === 0 ? (
-                // Primeira imagem: estilo grande com borda tracejada
-                <label className="block bg-gray-50 border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-700 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition whitespace-nowrap">
-                  <FaPlusCircle className="mx-auto mb-2 text-4xl" />
-                  Adicionar Imagem
+            <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0">
+              {/* Frente do documento */}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Frente do Documento</h4>
+                <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
+                  {documentFront ? (
+                    <div className="space-y-2">
+                      <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
+                      <p className="text-xs sm:text-sm font-medium text-gray-700">Documento carregado</p>
+                    </div>
+                  ) : (
+                    <>
+                      <FaIdCard className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600 text-xs sm:text-sm">Frente do RG/CNH</p>
+                    </>
+                  )}
                   <input
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={handleCarouselImageUpload}
-                    aria-label="Adicionar imagem para o carrossel"
+                    onChange={(e) => handleFileUpload(e, "front")}
                   />
                 </label>
-              ) : (
-                // Botão pequeno quando já existe imagem
-                <div className="text-start">
-                  <label className="flex max-w-min items-center px-4 py-2 bg-pink-500 text-white text-sm font-medium rounded-md shadow hover:bg-pink-600 transition cursor-pointer whitespace-nowrap">
-                    <FaPlusCircle className="mr-2 text-lg" />
-                    Adicionar Imagem
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleCarouselImageUpload}
-                      aria-label="Adicionar imagem para o carrossel"
-                    />
-                  </label>
-                </div>
-              )
-            ) : (
-              <p className="text-sm text-gray-500 mt-2">Limite de imagens atingido.</p>
-            )}
+              </div>
 
-            {/* Exibe as imagens carregadas */}
-            <div className="mt-6 flex space-x-4 overflow-x-auto">
-              {/* Imagens já salvas no backend */}
-              {carouselImages.map((image, index) => (
-                <div key={`saved-${index}`} className="relative w-32 h-32 rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105">
-                  <Image src={image} alt={`Imagem salva ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
-                  <button
-                    onClick={() => handleRemoveCarouselImage(index, true)}
-                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
-                    title="Remover imagem salva"
-                  >
-                    <FaTrash size={16} />
-                  </button>
-                </div>
-              ))}
-
-
-              {/* Imagens novas (pré-visualização antes de enviar) */}
-              {carouselImagesURL.map((imageObj, index) => (
-                <div key={`preview-${index}`} className="relative w-32 h-32 ...">
-                  <Image src={imageObj.url} alt={`Imagem nova ${index + 1}`} layout="fill" objectFit="cover" className="rounded-lg" />
-                  <button
-                    onClick={() => handleRemoveCarouselImage(index, false)}
-                    className="absolute top-1 right-1 bg-black bg-opacity-60 text-white p-1 rounded-full hover:bg-red-600 transition"
-                  >
-                    <FaTrash size={16} />
-                  </button>
-                </div>
-              ))}
+              {/* Verso do documento */}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-800 text-sm sm:text-base">Verso do Documento</h4>
+                <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
+                  {documentBack ? (
+                    <div className="space-y-2">
+                      <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
+                      <p className="text-xs sm:text-sm font-medium text-gray-700">Documento carregado</p>
+                    </div>
+                  ) : (
+                    <>
+                      <FaIdCard className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600 text-xs sm:text-sm">Verso do RG/CNH</p>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleFileUpload(e, "back")}
+                  />
+                </label>
+              </div>
             </div>
 
-
-            {/* Botão para enviar as imagens */}
-            {carouselImagesURL.length > 0 && (
-              <div className="mt-6 text-center">
-                <button
-                  onClick={handleUploadCarouselImages}
-                  className="px-6 py-3 bg-pink-600 text-white font-semibold rounded-md hover:bg-pink-700 transition"
-                >
-                  Enviar Imagens
-                </button>
+            {/* Preview dos documentos */}
+            {(documentFront || documentBack) && (
+              <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0 mt-4 sm:mt-6">
+                {documentFront && (
+                  <div className="space-y-2">
+                    <h5 className="text-xs sm:text-sm font-medium text-gray-700">Preview - Frente</h5>
+                    <div className="relative aspect-[3/2] bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden">
+                      <Image
+                        src={documentFront}
+                        alt="Frente do documento"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+                {documentBack && (
+                  <div className="space-y-2">
+                    <h5 className="text-xs sm:text-sm font-medium text-gray-700">Preview - Verso</h5>
+                    <div className="relative aspect-[3/2] bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden">
+                      <Image
+                        src={documentBack}
+                        alt="Verso do documento"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
+
+            {isReadyToSend && (
+              <button
+                onClick={handleSendDocuments}
+                disabled={uploading}
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-2 mt-4 sm:mt-6 text-sm sm:text-base"
+              >
+                {uploading ? (
+                  <>
+                    <FaSpinner className="animate-spin" />
+                    <span>Enviando documentos...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaIdCard />
+                    <span>Enviar para Verificação</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Dicas para documentos */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-4 mt-4 sm:mt-6">
+              <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
+                <FaInfoCircle className="text-blue-500 mr-2" />
+                Dicas para uma verificação rápida
+              </h4>
+              <div className="space-y-2 text-xs sm:text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <FaCheck className="text-green-500 flex-shrink-0" />
+                  <span>Certifique-se de que o documento esteja bem iluminado</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <FaCheck className="text-green-500 flex-shrink-0" />
+                  <span>Todas as informações devem estar legíveis</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <FaCheck className="text-green-500 flex-shrink-0" />
+                  <span>Evite reflexos ou sombras no documento</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <FaCheck className="text-green-500 flex-shrink-0" />
+                  <span>Use formato JPG ou PNG de boa qualidade</span>
+                </div>
+              </div>
+            </div>
           </>
         )}
       </div>
+    </div>
+  );
 
-      {/* Modal de Upload */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={closeModal}
-          aria-modal="true"
-          role="dialog"
+  // Loading screen
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <motion.div
+          className="text-center px-4"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
         >
-          <div
-            className="bg-white rounded-lg p-6 w-11/12 sm:w-96 relative"
-            onClick={(e) => e.stopPropagation()} // Impede fechar o modal ao clicar dentro dele
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4"
           >
+            <Image
+              src="/iconOficial_faixaRosa.png"
+              alt="Loading"
+              width={64}
+              height={64}
+              className="w-full h-full"
+            />
+          </motion.div>
+          <p className="text-gray-600 font-medium text-sm sm:text-base">Carregando seu painel...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-8">
+        {/* Header */}
+        <motion.div
+          className="mb-6 sm:mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 sm:mb-6">
+            <div className="text-center lg:text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                Painel de Controle
+              </h1>
+              <p className="text-gray-600 text-sm sm:text-base">
+                Gerencie seu perfil e conteúdo de forma profissional
+              </p>
+            </div>
+            
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              onClick={closeModal}
-              aria-label="Fechar Modal"
+              onClick={() => setShowTutorial(true)}
+              className="mt-4 lg:mt-0 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base mx-auto lg:mx-0"
             >
-              &times;
+              <FaLightbulb />
+              <span>Tutorial</span>
             </button>
-            <h2 className="text-xl font-semibold mb-4">
-              {uploadType === "story" ? "Adicionar Story" : "Adicionar Post"}
-            </h2>
-            <div className="mb-4">
-              {currentFile && currentFile.type.startsWith("image/") ? (
-                <Image
-                  src={URL.createObjectURL(currentFile)}
-                  alt="Pré-visualização"
-                  width={300}
-                  height={300}
-                  objectFit="cover"
-                  className="rounded-md"
-                />
-              ) : currentFile && currentFile.type.startsWith("video/") ? (
-                <video
-                  src={URL.createObjectURL(currentFile)}
-                  controls
-                  className="w-full h-48 object-cover rounded-md"
-                />
-              ) : null}
-            </div>
-            <div className="mb-4">
-              <label htmlFor="caption" className="block text-sm font-medium text-gray-700">
-                Legenda
-              </label>
-              <input
-                type="text"
-                id="caption"
-                name="caption"
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-pink-500 focus:border-pink-500"
-                placeholder="Adicione uma legenda..."
-              />
-            </div>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
-                disabled={isUploading}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleUpload}
-                className={`px-4 py-2 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition flex items-center ${isUploading ? "cursor-not-allowed" : ""
-                  }`}
-                disabled={isUploading}
-              >
-                {isUploading && (
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8H4z"
-                    ></path>
-                  </svg>
-                )}
-                {isUploading ? "Publicando..." : "Publicar"}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+
+          {/* Tabs Mobile */}
+          <div className="block sm:hidden">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {tabs.find(tab => tab.id === activeTab)?.label}
+              </h2>
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 rounded-lg bg-gray-100"
+              >
+                <FaBars className="text-gray-600" />
+              </button>
+            </div>
+            
+            <AnimatePresence>
+              {showMobileMenu && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden mb-4"
+                >
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setShowMobileMenu(false);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+                          activeTab === tab.id
+                            ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
+                            : "text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        <Icon className="text-lg" />
+                        <span className="font-medium">{tab.label}</span>
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Tabs Desktop */}
+          <div className="hidden sm:flex space-x-1 bg-gray-100 p-1 rounded-2xl overflow-x-auto">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
+                    activeTab === tab.id
+                      ? "bg-white text-pink-600 shadow-lg"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  <Icon className="text-lg" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* Content */}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {activeTab === "overview" && renderOverviewTab()}
+          {activeTab === "profile" && renderProfileTab()}
+          {activeTab === "content" && renderContentTab()}
+          {activeTab === "documents" && renderDocumentsTab()}
+        </motion.div>
+
+        {/* Tutorial Modal */}
+        <AnimatePresence>
+          {showTutorial && (
+            <motion.div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full relative"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {(() => {
+                  const currentTutorial = tutorialSteps[currentStep];
+                  const IconComponent = currentTutorial.icon;
+                  
+                  return (
+                    <div className="text-center">
+                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 ${
+                        currentStep === 0 ? 'bg-gradient-to-br from-purple-500 to-purple-600' :
+                        currentStep === 1 ? 'bg-gradient-to-br from-pink-500 to-pink-600' :
+                        currentStep === 2 ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
+                        'bg-gradient-to-br from-green-500 to-green-600'
+                      }`}>
+                        <IconComponent className="text-white text-lg sm:text-2xl" />
+                      </div>
+                      
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+                        {currentTutorial.title}
+                      </h3>
+                      
+                      <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
+                        {currentTutorial.description}
+                      </p>
+
+                      <div className="flex justify-between items-center">
+                        <div className="flex space-x-2">
+                          {tutorialSteps.map((_, index) => (
+                            <div
+                              key={index}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                index === currentStep ? "bg-pink-500 w-6 sm:w-8" : "bg-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+
+                        <div className="flex space-x-2 sm:space-x-3">
+                          {currentStep > 0 && (
+                            <button
+                              onClick={() => setCurrentStep(currentStep - 1)}
+                              className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors text-sm sm:text-base"
+                            >
+                              Anterior
+                            </button>
+                          )}
+                          
+                          {currentStep < tutorialSteps.length - 1 ? (
+                            <button
+                              onClick={() => setCurrentStep(currentStep + 1)}
+                              className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 text-sm sm:text-base"
+                            >
+                              Próximo
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setShowTutorial(false);
+                                setCurrentStep(0);
+                              }}
+                              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 text-sm sm:text-base"
+                            >
+                              Finalizar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setShowTutorial(false);
+                          setCurrentStep(0);
+                        }}
+                        className="absolute top-3 sm:top-4 right-3 sm:right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                      >
+                        <FaTimes className="text-lg sm:text-xl" />
+                      </button>
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

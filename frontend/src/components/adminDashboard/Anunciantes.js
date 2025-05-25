@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     FaCheck,
     FaTimes,
@@ -14,7 +15,16 @@ import {
     FaMapMarkerAlt,
     FaRuler,
     FaWeight,
-    FaStar
+    FaStar,
+    FaUsers,
+    FaChartBar,
+    FaShieldAlt,
+    FaCog,
+    FaChevronLeft,
+    FaChevronRight,
+    FaSort,
+    FaSortUp,
+    FaSortDown
 } from "react-icons/fa";
 import Modal from "./Modal";
 import Tooltip from "../common/Tooltip";
@@ -25,14 +35,28 @@ import ModalEditarPlano from "./modalAction/ModalEditarPlano";
 import ModalVerificarDocumentos from "./modalAction/ModalVerificarDocumentos";
 import ModalVerificarVideo from "./modalAction/ModalVerificarVideo";
 
-
 const Anunciantes = () => {
     const [modal, setModal] = useState({ isOpen: false, content: null });
     const [anunciantes, setAnunciantes] = useState([]);
+    const [isMobile, setIsMobile] = useState(false);
+    const [filtroStatus, setFiltroStatus] = useState("todos");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10); // Itens por página
+    const [sortOrder, setSortOrder] = useState("desc"); // "asc" ou "desc"
+    const [isLoading, setIsLoading] = useState(false);
     const userToken = Cookies.get("userToken");
+
+    // Detect mobile
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         const fetchAnunciantes = async () => {
+            setIsLoading(true);
             try {
                 const response = await axios.get(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion`,
@@ -43,17 +67,135 @@ const Anunciantes = () => {
                 setAnunciantes(response.data);
             } catch (error) {
                 console.error("Erro ao buscar anunciantes:", error);
+                toast.error("Erro ao carregar anunciantes");
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        fetchAnunciantes();
+        if (userToken) {
+            fetchAnunciantes();
+        }
     }, [userToken]);
 
-    // documentos
+    // Estados e loading para modais
     const [documentStatusModal, setDocumentStatusModal] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [planos, setPlanos] = useState([]);
+    const [planosExtras, setPlanosExtras] = useState([]);
 
-    // MODAL VERIFICAR DOCUMENTOS
+    // Carregar planos
+    useEffect(() => {
+        const fetchPlanos = async () => {
+            try {
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans`,
+                );
+                const planosData = response.data;
+                setPlanos(planosData.filter(plano => plano.isBasic));
+                setPlanosExtras(planosData.filter(plano => !plano.isBasic));
+            } catch (error) {
+                console.error("Erro ao carregar planos:", error);
+            }
+        };
+
+        fetchPlanos();
+    }, []);
+
+    // Função para ordenar anunciantes por data de chegada
+    const sortAnunciantesByDate = (anunciantesArray, order) => {
+        return [...anunciantesArray].sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.user?.createdAt);
+            const dateB = new Date(b.createdAt || b.user?.createdAt);
+            
+            if (order === "desc") {
+                return dateB - dateA; // Mais recentes primeiro
+            } else {
+                return dateA - dateB; // Mais antigos primeiro
+            }
+        });
+    };
+
+    // Filtrar e ordenar anunciantes
+    const anunciantesFiltrados = React.useMemo(() => {
+        let filtered = anunciantes.filter(anunciante => {
+            if (filtroStatus === "todos") return true;
+            return anunciante.profileStatus === filtroStatus;
+        });
+
+        // Ordenar por data de chegada
+        filtered = sortAnunciantesByDate(filtered, sortOrder);
+
+        return filtered;
+    }, [anunciantes, filtroStatus, sortOrder]);
+
+    // Cálculos de paginação
+    const totalPages = Math.ceil(anunciantesFiltrados.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const anunciantesPaginados = anunciantesFiltrados.slice(startIndex, endIndex);
+
+    // Resetar página ao mudar filtro
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filtroStatus]);
+
+    // Função para mudar ordenação
+    const toggleSortOrder = () => {
+        setSortOrder(prevOrder => prevOrder === "desc" ? "asc" : "desc");
+        setCurrentPage(1); // Resetar para primeira página
+    };
+
+    // Funções de navegação da paginação
+    const goToPage = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    const goToPreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    // Gerar números das páginas para navegação
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisible = 5;
+        
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            const start = Math.max(1, currentPage - 2);
+            const end = Math.min(totalPages, currentPage + 2);
+            
+            if (start > 1) {
+                pages.push(1);
+                if (start > 2) pages.push("...");
+            }
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            
+            if (end < totalPages) {
+                if (end < totalPages - 1) pages.push("...");
+                pages.push(totalPages);
+            }
+        }
+        
+        return pages;
+    };
+
+    // Todas as funções originais mantidas...
     const handleVerificarDocumentos = (anunciante) => {
         const documentStatus = anunciante?.documents?.[0]?.documentStatus ?? "PENDING";
 
@@ -85,11 +227,7 @@ const Anunciantes = () => {
         });
     };
 
-
-
-    // Atualizar status do perfil
     const handleAtivarDesativar = (anunciante) => {
-
         const atualizarStatusPerfil = (novoStatus) => {
             setAnunciantes((prev) =>
                 prev.map((item) =>
@@ -162,68 +300,54 @@ const Anunciantes = () => {
         setModal({
             isOpen: true,
             content: (
-                <>
-                    <h2 className="text-xl font-semibold">
+                <div className="p-6">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">
                         {anunciante.profileStatus === "ACTIVE" ? "Desativar" : "Ativar"} Perfil
                     </h2>
-                    <p>
+                    <p className="text-gray-600 mb-6">
                         Deseja {anunciante.profileStatus === "ACTIVE" ? "desativar" : "ativar"} o perfil de <strong>{anunciante.name}</strong>?
                     </p>
-                    <div className="mt-4 flex justify-end space-x-2">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-end">
                         {anunciante.profileStatus === "ACTIVE" && (
                             <>
-                                <button
+                                <motion.button
                                     onClick={rejeitarPerfil}
-                                    className={`px-4 py-2 bg-red-600 text-white rounded ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    disabled={isLoading}
                                 >
                                     Rejeitar
-                                </button>
-                                <button
+                                </motion.button>
+                                <motion.button
                                     onClick={suspenderPerfil}
-                                    className={`px-4 py-2 bg-yellow-600 text-white rounded ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    disabled={isLoading}
                                 >
                                     Suspender
-                                </button>
+                                </motion.button>
                             </>
                         )}
                         {anunciante.profileStatus !== "ACTIVE" && (
-                            <button
+                            <motion.button
                                 onClick={aprovarPerfil}
-                                className={`px-4 py-2 bg-green-600 text-white rounded ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                disabled={isLoading}
                             >
                                 Ativar
-                            </button>
+                            </motion.button>
                         )}
                     </div>
-                </>
+                </div>
             ),
         });
     };
 
-
-
-    const [planos, setPlanos] = useState([]);
-    const [planosExtras, setPlanosExtras] = useState([]);
-
-    // Carregar planos e planos extras
-    useEffect(() => {
-        const fetchPlanos = async () => {
-            try {
-                const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans`,
-                );
-                const planosData = response.data;
-                setPlanos(planosData.filter(plano => plano.isBasic)); // Filtra os planos básicos
-                setPlanosExtras(planosData.filter(plano => !plano.isBasic)); // Filtra os planos extras
-            } catch (error) {
-                console.error("Erro ao carregar planos:", error);
-            }
-        };
-
-        fetchPlanos();
-    }, []);
-
-    // MODAL EDITAR PLANOS
+    // Mantendo todas as outras funções originais...
     const handleSalvarPlanoBasico = async (
         anuncianteId,
         selectedPlano,
@@ -271,14 +395,11 @@ const Anunciantes = () => {
     ) => {
         try {
             const extrasOriginais = anunciante.subscriptions?.map(sub => sub.extraPlan?.id) || [];
-
             const novos = new Set(selectedPlanoExtra);
             const antigos = new Set(extrasOriginais);
-
             const extrasParaAdicionar = [...novos].filter(id => !antigos.has(id));
             const extrasParaRemover = [...antigos].filter(id => !novos.has(id));
 
-            // Atualiza no backend
             for (const extraId of extrasParaAdicionar) {
                 await axios.put(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
@@ -297,7 +418,6 @@ const Anunciantes = () => {
 
             toast.success("Planos extras atualizados com sucesso!");
 
-            // ✅ Atualiza o estado do anunciante com os planos atualizados
             const novosExtras = planosExtras.filter(p => selectedPlanoExtra.includes(p.id));
 
             setAnunciantes((prev) =>
@@ -313,7 +433,6 @@ const Anunciantes = () => {
                 )
             );
 
-            // ✅ Força reatribuição para o componente ModalEditarPlano reconhecer os novos valores
             anunciante.subscriptions = novosExtras.map((extra) => ({
                 extraPlan: extra,
             }));
@@ -325,7 +444,6 @@ const Anunciantes = () => {
             toast.error("Erro ao atualizar os planos extras.");
         }
     };
-
 
     const handleEditarPlano = (anunciante) => {
         setModal({
@@ -342,10 +460,9 @@ const Anunciantes = () => {
                 />
             )
         });
-
     };
 
-
+    // Mantendo todas as outras funções... (handleMonitorarPostagens, handleReportarConteudo, etc.)
     const handleMonitorarPostagens = async (anunciante) => {
         try {
             const response = await axios.get(
@@ -360,72 +477,60 @@ const Anunciantes = () => {
             setModal({
                 isOpen: true,
                 content: (
-                    <>
-                        <h2 className="text-xl font-semibold">Monitorar Postagens</h2>
-                        <p className="mb-2">Postagens de <strong>{anunciante.name}</strong>:</p>
-                        <div className="max-h-60 overflow-y-auto border p-2 rounded">
+                    <div className="p-6">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Monitorar Postagens</h2>
+                        <p className="text-gray-600 mb-4">Postagens de <strong>{anunciante.name}</strong>:</p>
+                        <div className="max-h-60 overflow-y-auto border rounded-lg p-4 bg-gray-50">
                             {posts.length > 0 ? (
                                 posts.map((post) => (
-                                    <div key={post.id} className="p-2 border-b bg-white shadow rounded-lg">
+                                    <div key={post.id} className="p-3 border-b bg-white shadow-sm rounded-lg mb-2">
                                         <p className="font-semibold text-gray-900">{post.title || "Sem título"}</p>
                                         <p className="text-sm text-gray-600">{post.description}</p>
-
-                                        {/* {post.mediaUrl ? (
-                                            <img
-                                                src={post.mediaUrl}
-                                                alt={`Mídia do post de ${anunciante.name}`}
-                                                className="w-full h-auto max-h-40 object-contain mt-2 rounded-lg border"
-                                                onError={(e) => {
-                                                    console.error("Erro ao carregar a imagem:", e.target.src);
-                                                    e.target.style.display = "none";
-                                                }}
-                                            />
-                                        ) : (
-                                            )} */}
-                                        <p className="text-sm text-gray-500">Nenhuma mídia disponível</p>
-
                                         <p className="text-xs text-gray-500 mt-2">
                                             Criado em: {new Date(post.createdAt).toLocaleString()}
                                         </p>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-gray-500">Nenhuma postagem encontrada.</p>
+                                <p className="text-gray-500 text-center py-4">Nenhuma postagem encontrada.</p>
                             )}
                         </div>
                         <div className="mt-4 flex justify-end">
-                            <button
+                            <motion.button
                                 onClick={() => setModal({ isOpen: false, content: null })}
-                                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
                                 Fechar
-                            </button>
+                            </motion.button>
                         </div>
-                    </>
+                    </div>
                 ),
             });
 
         } catch (error) {
             console.error("Erro ao buscar postagens:", error);
-            // Exibe uma mensagem de erro suave caso haja falha ao buscar os dados
             setModal({
                 isOpen: true,
                 content: (
-                    <>
-                        <h2 className="text-xl font-semibold">Monitorar Postagens</h2>
-                        <p className="mb-2">Postagens de <strong>{anunciante.name}</strong>:</p>
-                        <div className="max-h-60 overflow-y-auto border p-2 rounded">
-                            <p className="text-gray-500">Não foi possível carregar as postagens. Tente novamente mais tarde.</p>
+                    <div className="p-6">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Monitorar Postagens</h2>
+                        <p className="text-gray-600 mb-4">Postagens de <strong>{anunciante.name}</strong>:</p>
+                        <div className="max-h-60 overflow-y-auto border rounded-lg p-4 bg-gray-50">
+                            <p className="text-gray-500 text-center py-4">Não foi possível carregar as postagens. Tente novamente mais tarde.</p>
                         </div>
                         <div className="mt-4 flex justify-end">
-                            <button
+                            <motion.button
                                 onClick={() => setModal({ isOpen: false, content: null })}
-                                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
                                 Fechar
-                            </button>
+                            </motion.button>
                         </div>
-                    </>
+                    </div>
                 ),
             });
         }
@@ -435,18 +540,20 @@ const Anunciantes = () => {
         setModal({
             isOpen: true,
             content: (
-                <>
-                    <h2 className="text-xl font-semibold">Reportar Conteúdo Indevido</h2>
-                    <p>Reportando conteúdo indevido de <strong>{anunciante.name}</strong>.</p>
-                    <div className="mt-4 flex justify-end">
-                        <button
+                <div className="p-6">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">Reportar Conteúdo Indevido</h2>
+                    <p className="text-gray-600 mb-6">Reportando conteúdo indevido de <strong>{anunciante.name}</strong>.</p>
+                    <div className="flex justify-end">
+                        <motion.button
                             onClick={() => setModal({ isOpen: false, content: null })}
-                            className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+                            className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
                             Fechar
-                        </button>
+                        </motion.button>
                     </div>
-                </>
+                </div>
             ),
         });
     };
@@ -465,14 +572,14 @@ const Anunciantes = () => {
             setModal({
                 isOpen: true,
                 content: (
-                    <>
-                        <h2 className="text-xl font-semibold">Histórico de Atividades</h2>
-                        <p className="mb-2">Visualizando histórico de <strong>{anunciante.name}</strong>:</p>
+                    <div className="p-6">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Histórico de Atividades</h2>
+                        <p className="text-gray-600 mb-4">Visualizando histórico de <strong>{anunciante.name}</strong>:</p>
 
-                        <div className="max-h-60 overflow-y-auto border p-2 rounded bg-gray-50">
+                        <div className="max-h-60 overflow-y-auto border rounded-lg p-4 bg-gray-50">
                             {history.length > 0 ? (
                                 history.map((event, index) => (
-                                    <div key={index} className="p-2 border-b bg-white shadow rounded-lg">
+                                    <div key={index} className="p-3 border-b bg-white shadow-sm rounded-lg mb-2">
                                         <p className="text-sm text-gray-900 font-semibold">{event.action}</p>
                                         <p className="text-xs text-gray-600">{event.details}</p>
                                         <p className="text-xs text-gray-500 mt-1">
@@ -481,19 +588,21 @@ const Anunciantes = () => {
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-gray-500">Nenhuma atividade encontrada.</p>
+                                <p className="text-gray-500 text-center py-4">Nenhuma atividade encontrada.</p>
                             )}
                         </div>
 
-                        <div className="mt-4 flex justify-end">
-                            <button
+                        <div className="flex justify-end mt-4">
+                            <motion.button
                                 onClick={() => setModal({ isOpen: false, content: null })}
-                                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
                                 Fechar
-                            </button>
+                            </motion.button>
                         </div>
-                    </>
+                    </div>
                 ),
             });
 
@@ -502,23 +611,25 @@ const Anunciantes = () => {
             setModal({
                 isOpen: true,
                 content: (
-                    <>
-                        <h2 className="text-xl font-semibold">Histórico de Atividades</h2>
-                        <p className="mb-2">Visualizando histórico de <strong>{anunciante.name}</strong>:</p>
+                    <div className="p-6">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4">Histórico de Atividades</h2>
+                        <p className="text-gray-600 mb-4">Visualizando histórico de <strong>{anunciante.name}</strong>:</p>
 
-                        <div className="max-h-60 overflow-y-auto border p-2 rounded bg-gray-50">
-                            <p className="text-gray-500">Não foi possível carregar o histórico. Tente novamente mais tarde.</p>
+                        <div className="max-h-60 overflow-y-auto border rounded-lg p-4 bg-gray-50">
+                            <p className="text-gray-500 text-center py-4">Não foi possível carregar o histórico. Tente novamente mais tarde.</p>
                         </div>
 
-                        <div className="mt-4 flex justify-end">
-                            <button
+                        <div className="flex justify-end mt-4">
+                            <motion.button
                                 onClick={() => setModal({ isOpen: false, content: null })}
-                                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
                                 Fechar
-                            </button>
+                            </motion.button>
                         </div>
-                    </>
+                    </div>
                 ),
             });
         }
@@ -542,35 +653,35 @@ const Anunciantes = () => {
         setModal({
             isOpen: true,
             content: (
-                <>
-                    <h2 className="text-xl font-semibold text-red-600">Excluir Anunciante</h2>
-                    <p className="text-gray-700 mt-2">
+                <div className="p-6">
+                    <h2 className="text-xl font-bold text-red-600 mb-4">Excluir Anunciante</h2>
+                    <p className="text-gray-700 mb-6">
                         Tem certeza que deseja <strong>excluir</strong> o perfil de <strong>{anunciante.name}</strong>?<br />
                         Essa ação é <span className="text-red-500 font-bold">irreversível</span>!
                     </p>
-                    <div className="mt-4 flex justify-end space-x-2">
-                        <button
+                    <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                        <motion.button
                             onClick={() => confirmarExclusao(anunciante.id)}
-                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
                             Confirmar Exclusão
-                        </button>
-                        <button
+                        </motion.button>
+                        <motion.button
                             onClick={() => setModal({ isOpen: false, content: null })}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
                             Cancelar
-                        </button>
+                        </motion.button>
                     </div>
-                </>
+                </div>
             ),
         });
     };
 
-
-
-
-    // MODAL VERIFICAR VÍDEO
     const atualizarStatusMedia = (id, newStatus) => {
         setAnunciantes((prev) =>
             prev.map((item) =>
@@ -579,14 +690,13 @@ const Anunciantes = () => {
                         ...item,
                         media: {
                             ...item.media,
-                            status: newStatus, // preserva o url e altera só o status
+                            status: newStatus,
                         },
                     }
                     : item
             )
         );
     };
-
 
     const handleAprovarRejeitarVideo = (anunciante) => {
         setModal({
@@ -602,9 +712,6 @@ const Anunciantes = () => {
         });
     };
 
-
-
-    // Adicione dentro do componente Anunciantes
     const handleVerDetalhesAnunciante = async (anunciante) => {
         try {
             const response = await axios.get(
@@ -615,117 +722,156 @@ const Anunciantes = () => {
                     },
                 }
             );
-            console.log("Dados do anunciante:", response.data);
             const dados = response.data;
 
             setModal({
                 isOpen: true,
                 content: (
-                    <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-xl text-sm overflow-y-auto max-h-[80vh] relative pr-6 ">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                            <FaUser className="text-gray-500" /> Perfil da Acompanhante
+                    <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-xl text-sm overflow-y-auto max-h-[90vh]">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                            <FaUser className="text-pink-500" /> Perfil Detalhado da Acompanhante
                         </h2>
 
-                        {/* Dados da Usuária */}
-                        <section className="mb-6 border-b pb-4">
-                            <h3 className="text-lg font-semibold text-pink-500 mb-2 flex items-center gap-2">
-                                Dados da Usuária
-                            </h3>
-                            <div className="grid grid-cols-2 gap-2 text-gray-700 text-sm">
-                                <div><strong>ID:</strong> {dados.user?.id}</div>
-                                <div><strong>Nome:</strong> {dados.user?.firstName} {dados.user?.lastName}</div>
-                                <div><strong>Email:</strong> {dados.user?.email}</div>
-                                <div><strong>CPF:</strong> {dados.user?.cpf}</div>
-                                <div><strong>Nascimento:</strong> {dados.user?.birthDate && new Date(dados.user.birthDate).toLocaleDateString()}</div>
-                                <div><strong>Tipo:</strong> {dados.user?.userType}</div>
-                                <div><strong>Visível:</strong> {dados.user?.profileVisibility ? "Sim" : "Não"}</div>
-                                <div><strong>Criado:</strong> {new Date(dados.user?.createdAt).toLocaleString()}</div>
-                            </div>
-                        </section>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Dados da Usuária */}
+                            <section className="bg-gray-50 rounded-xl p-4">
+                                <h3 className="text-lg font-semibold text-pink-500 mb-3 flex items-center gap-2">
+                                    <FaUser /> Dados da Usuária
+                                </h3>
+                                <div className="space-y-2 text-gray-700 text-sm">
+                                    <div><strong>ID:</strong> {dados.user?.id}</div>
+                                    <div><strong>Nome:</strong> {dados.user?.firstName} {dados.user?.lastName}</div>
+                                    <div><strong>Email:</strong> {dados.user?.email}</div>
+                                    <div><strong>CPF:</strong> {dados.user?.cpf}</div>
+                                    <div><strong>Nascimento:</strong> {dados.user?.birthDate && new Date(dados.user.birthDate).toLocaleDateString()}</div>
+                                    <div><strong>Tipo:</strong> {dados.user?.userType}</div>
+                                    <div><strong>Visível:</strong> {dados.user?.profileVisibility ? "Sim" : "Não"}</div>
+                                    <div><strong>Criado:</strong> {new Date(dados.user?.createdAt).toLocaleString()}</div>
+                                </div>
+                            </section>
 
-                        {/* Status e Local */}
-                        <section className="mb-6 border-b pb-4">
-                            <h3 className="text-lg font-semibold text-pink-500 mb-2 flex items-center gap-2">
-                                Plano e Status
-                            </h3>
-                            <ul className="text-gray-700 text-sm space-y-1">
-                                <li><strong>Plano:</strong> {dados.plan?.name || "Sem plano"}</li>
-                                <li><strong>Status do Perfil:</strong> {dados.profileStatus}</li>
-                                <li><strong>Status Documento:</strong> {dados.documentStatus}</li>
-                                <li><strong>Status da Mídia:</strong> {dados.media?.[0]?.status || "Sem mídia"}</li>
-                                <li><strong>Localização:</strong> <FaMapMarkerAlt className="inline mr-1 text-gray-400" /> {dados.city} / {dados.state}</li>
-                            </ul>
-                        </section>
+                            {/* Status e Local */}
+                            <section className="bg-gray-50 rounded-xl p-4">
+                                <h3 className="text-lg font-semibold text-pink-500 mb-3 flex items-center gap-2">
+                                    <FaShieldAlt /> Plano e Status
+                                </h3>
+                                <div className="space-y-2 text-gray-700 text-sm">
+                                    <div><strong>Plano:</strong> {dados.plan?.name || "Sem plano"}</div>
+                                    <div><strong>Status do Perfil:</strong> 
+                                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                                            dados.profileStatus === "ACTIVE" ? "bg-green-100 text-green-800" :
+                                            dados.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                            "bg-red-100 text-red-800"
+                                        }`}>
+                                            {dados.profileStatus}
+                                        </span>
+                                    </div>
+                                    <div><strong>Status Documento:</strong> 
+                                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                                            dados.documentStatus === "APPROVED" ? "bg-green-100 text-green-800" :
+                                            dados.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                            "bg-yellow-100 text-yellow-800"
+                                        }`}>
+                                            {dados.documentStatus}
+                                        </span>
+                                    </div>
+                                    <div><strong>Status da Mídia:</strong> 
+                                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                                            dados.media?.[0]?.status === "APPROVED" ? "bg-green-100 text-green-800" :
+                                            dados.media?.[0]?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                            "bg-gray-100 text-gray-800"
+                                        }`}>
+                                            {dados.media?.[0]?.status || "Sem mídia"}
+                                        </span>
+                                    </div>
+                                    <div><strong>Localização:</strong> <FaMapMarkerAlt className="inline mr-1 text-gray-400" /> {dados.city} / {dados.state}</div>
+                                </div>
+                            </section>
 
-                        {/* Descrição */}
-                        <section className="mb-6 border-b pb-4">
-                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Descrição</h3>
-                            <p className="text-gray-700 text-sm whitespace-pre-line">{dados.description || "Não informada"}</p>
-                        </section>
+                            {/* Descrição */}
+                            <section className="bg-gray-50 rounded-xl p-4 lg:col-span-2">
+                                <h3 className="text-lg font-semibold text-pink-500 mb-3">Descrição</h3>
+                                <p className="text-gray-700 text-sm whitespace-pre-line">{dados.description || "Não informada"}</p>
+                            </section>
 
-                        {/* Contato */}
-                        <section className="mb-6 border-b pb-4">
-                            <h3 className="text-lg font-semibold text-pink-500 mb-2 flex items-center gap-2">
-                                Contato
-                            </h3>
-                            {dados.contactMethods?.length > 0 ? (
-                                <ul className="text-sm text-gray-700">
-                                    {dados.contactMethods.map((c, i) => (
-                                        <li key={i}>
-                                            WhatsApp: {c.whatsappNumber || "—"} ({c.whatsappCountryCode || "—"})<br />
-                                            Telegram: {c.telegramUsername || "—"}<br />
-                                            Telefone: {c.phoneNumber || "—"} ({c.phoneCountryCode || "—"})
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-gray-500 text-sm">Nenhum contato cadastrado.</p>
-                            )}
-                        </section>
+                            {/* Contato */}
+                            <section className="bg-gray-50 rounded-xl p-4">
+                                <h3 className="text-lg font-semibold text-pink-500 mb-3">Contato</h3>
+                                {dados.contactMethods?.length > 0 ? (
+                                    <div className="space-y-2 text-sm text-gray-700">
+                                        {dados.contactMethods.map((c, i) => (
+                                            <div key={i} className="space-y-1">
+                                                <div><strong>WhatsApp:</strong> {c.whatsappNumber || "—"} ({c.whatsappCountryCode || "—"})</div>
+                                                <div><strong>Telegram:</strong> {c.telegramUsername || "—"}</div>
+                                                <div><strong>Telefone:</strong> {c.phoneNumber || "—"} ({c.phoneCountryCode || "—"})</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-500 text-sm">Nenhum contato cadastrado.</p>
+                                )}
+                            </section>
 
-                        {/* Serviços */}
-                        <section className="mb-6 border-b pb-4">
-                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Serviços Oferecidos</h3>
-                            {dados.servicesOffered?.length > 0 ? (
-                                <ul className="grid grid-cols-2 gap-x-6 text-sm text-gray-700 list-disc list-inside">
-                                    {dados.servicesOffered.map((s) => (
-                                        <li key={s.id}>{s.service.name} - R$ {s.price?.toFixed(2) || "N/A"}</li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-gray-500 text-sm">Nenhum serviço informado.</p>
-                            )}
-                        </section>
+                            {/* Físico */}
+                            <section className="bg-gray-50 rounded-xl p-4">
+                                <h3 className="text-lg font-semibold text-pink-500 mb-3">Características Físicas</h3>
+                                <div className="space-y-2 text-gray-700 text-sm">
+                                    <div><FaWeight className="inline mr-1 text-gray-400" /> <strong>Peso:</strong> {dados.PhysicalCharacteristics?.weight || "N/A"} kg</div>
+                                    <div><FaRuler className="inline mr-1 text-gray-400" /> <strong>Altura:</strong> {dados.PhysicalCharacteristics?.height || "N/A"} cm</div>
+                                    <div><strong>Etnia:</strong> {dados.PhysicalCharacteristics?.ethnicity || "N/A"}</div>
+                                    <div><strong>Silicone:</strong> {dados.PhysicalCharacteristics?.hasSilicone ? "Sim" : "Não"}</div>
+                                    <div><strong>Tatuagens:</strong> {dados.PhysicalCharacteristics?.hasTattoos ? "Sim" : "Não"}</div>
+                                </div>
+                            </section>
 
-                        {/* Físico */}
-                        <section className="mb-6 border-b pb-4">
-                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Características Físicas</h3>
-                            <div className="text-gray-700 text-sm grid grid-cols-2 gap-2">
-                                <div><FaWeight className="inline mr-1 text-gray-400" /> Peso: {dados.PhysicalCharacteristics?.weight || "N/A"} kg</div>
-                                <div><FaRuler className="inline mr-1 text-gray-400" /> Altura: {dados.PhysicalCharacteristics?.height || "N/A"} cm</div>
-                                <div><strong>Etnia:</strong> {dados.PhysicalCharacteristics?.ethnicity || "N/A"}</div>
-                                <div><strong>Silicone:</strong> {dados.PhysicalCharacteristics?.hasSilicone ? "Sim" : "Não"}</div>
-                                <div><strong>Tatuagens:</strong> {dados.PhysicalCharacteristics?.hasTattoos ? "Sim" : "Não"}</div>
-                            </div>
-                        </section>
+                            {/* Serviços */}
+                            <section className="bg-gray-50 rounded-xl p-4 lg:col-span-2">
+                                <h3 className="text-lg font-semibold text-pink-500 mb-3">Serviços Oferecidos</h3>
+                                {dados.servicesOffered?.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                                        {dados.servicesOffered.map((s) => (
+                                            <div key={s.id} className="bg-white p-2 rounded border">
+                                                <strong>{s.service.name}</strong> - R$ {s.price?.toFixed(2) || "N/A"}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-500 text-sm">Nenhum serviço informado.</p>
+                                )}
+                            </section>
 
-                        {/* Extras */}
-                        <section className="mb-6">
-                            <h3 className="text-lg font-semibold text-pink-500 mb-2">Outros Dados</h3>
-                            <ul className="text-gray-700 text-sm space-y-1">
-                                <li><FaFileAlt className="inline mr-1 text-gray-400" /> Stories Ativos: {dados.Story?.length || 0}</li>
-                                <li><FaFileAlt className="inline mr-1 text-gray-400" /> Documentos Enviados: {dados.documents?.length || 0}</li>
-                                <li><FaStar className="inline mr-1 text-gray-400" /> Total de Reviews: {dados.reviews?.length || 0}</li>
-                            </ul>
-                        </section>
+                            {/* Extras */}
+                            <section className="bg-gray-50 rounded-xl p-4 lg:col-span-2">
+                                <h3 className="text-lg font-semibold text-pink-500 mb-3">Estatísticas</h3>
+                                <div className="grid grid-cols-3 gap-4 text-center">
+                                    <div className="bg-white p-3 rounded">
+                                        <FaFileAlt className="mx-auto text-blue-500 mb-1" />
+                                        <div className="text-lg font-bold text-gray-800">{dados.Story?.length || 0}</div>
+                                        <div className="text-xs text-gray-600">Stories</div>
+                                    </div>
+                                    <div className="bg-white p-3 rounded">
+                                        <FaFileAlt className="mx-auto text-green-500 mb-1" />
+                                        <div className="text-lg font-bold text-gray-800">{dados.documents?.length || 0}</div>
+                                        <div className="text-xs text-gray-600">Documentos</div>
+                                    </div>
+                                    <div className="bg-white p-3 rounded">
+                                        <FaStar className="mx-auto text-yellow-500 mb-1" />
+                                        <div className="text-lg font-bold text-gray-800">{dados.reviews?.length || 0}</div>
+                                        <div className="text-xs text-gray-600">Reviews</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
 
                         <div className="flex justify-end mt-6">
-                            <button
+                            <motion.button
                                 onClick={() => setModal({ isOpen: false, content: null })}
-                                className="px-5 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition"
+                                className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
                                 Fechar
-                            </button>
+                            </motion.button>
                         </div>
                     </div>
                 )
@@ -737,277 +883,576 @@ const Anunciantes = () => {
         }
     };
 
+    // Estatísticas
+    const stats = {
+        total: anunciantes.length,
+        ativos: anunciantes.filter(a => a.profileStatus === "ACTIVE").length,
+        pendentes: anunciantes.filter(a => a.profileStatus === "PENDING").length,
+        suspensos: anunciantes.filter(a => a.profileStatus === "SUSPENDED").length
+    };
 
-    const renderTable = (anunciantes) => {
-        return (
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-white text-sm">
-                    <thead>
-                        <tr>
-                            <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Nome</th>
-                            <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Plano</th>
-                            <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Status</th>
-                            <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Documentos</th>
-                            <th className="py-3 px-4 bg-gray-100 text-left font-semibold text-gray-700">Mídia</th>
-                            <th className="py-3 px-4 bg-gray-100 text-center font-semibold text-gray-700">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {anunciantes.map((anunciante) => (
-                            <tr key={anunciante.id} onClick={() => handleVerDetalhesAnunciante(anunciante)} className="border-b hover:bg-gray-50 cursor-pointer">
-                                <td className="py-4 px-4 text-gray-700">{anunciante.name}</td>
-                                <td className="py-4 px-4 text-gray-700">{anunciante.plan?.name}</td>
-                                <td className="py-4 px-4">
-                                    {["ACTIVE", "PENDING", "IN_ANALYSIS", "SUSPENDED", "REJECTED"].includes(anunciante.profileStatus) && (
-                                        <span
-                                            className={`px-2 py-1 rounded-full text-xs font-semibold 
-            ${anunciante.profileStatus === "ACTIVE"
-                                                    ? "bg-green-100 text-green-800" // Verde para status ativo
-                                                    : anunciante.profileStatus === "PENDING"
-                                                        ? "bg-yellow-100 text-yellow-800" // Amarelo para status pendente
-                                                        : anunciante.profileStatus === "IN_ANALYSIS"
-                                                            ? "bg-orange-100 text-orange-800" // Laranja para status em análise
-                                                            : anunciante.profileStatus === "SUSPENDED"
-                                                                ? "bg-gray-100 text-gray-800" // Cinza para status suspenso
-                                                                : "bg-red-100 text-red-800" // Vermelho para status rejeitado
-                                                }`}
-                                        >
-                                            {anunciante.profileStatus === "ACTIVE"
-                                                ? "Ativo"
-                                                : anunciante.profileStatus === "PENDING"
-                                                    ? "Pendente"
-                                                    : anunciante.profileStatus === "IN_ANALYSIS"
-                                                        ? "Em Análise"
-                                                        : anunciante.profileStatus === "SUSPENDED"
-                                                            ? "Suspenso" // Exibe "Suspenso" para status SUSPENDED
-                                                            : "Rejeitado" // Exibe "Rejeitado" para status REJECTED
-                                            }
-                                        </span>
-                                    )}
-                                </td>
+    // Render do componente de paginação
+    const renderPaginacao = () => (
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 px-4">
+            <div className="text-sm text-gray-600 mb-4 sm:mb-0">
+                Mostrando {startIndex + 1} a {Math.min(endIndex, anunciantesFiltrados.length)} de {anunciantesFiltrados.length} anunciantes
+            </div>
+            
+            {totalPages > 1 && (
+                <div className="flex items-center space-x-2">
+                    <motion.button
+                        onClick={goToPreviousPage}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-lg ${
+                            currentPage === 1 
+                                ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
+                                : "bg-white text-gray-700 hover:bg-gray-100"
+                        } border shadow-sm`}
+                        whileHover={currentPage !== 1 ? { scale: 1.05 } : {}}
+                        whileTap={currentPage !== 1 ? { scale: 0.95 } : {}}
+                    >
+                        <FaChevronLeft size={14} />
+                    </motion.button>
 
-                                <td className="py-4 px-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold 
-                                        ${anunciante.documentStatus === "APPROVED"
-                                            ? "bg-green-100 text-green-800" // Verde para documentos aprovados
-                                            : anunciante.documentStatus === "IN_ANALYSIS"
-                                                ? "bg-orange-100 text-orange-800" // Laranja para documentos em análise
-                                                : anunciante.documentStatus === "REJECTED"
-                                                    ? "bg-red-100 text-red-800" // Vermelho para documentos rejeitados
-                                                    : "bg-yellow-100 text-yellow-800" // Amarelo para documentos pendentes
-                                        }`}>
-                                        {anunciante.documentStatus === "APPROVED"
-                                            ? "Verificado"
-                                            : anunciante.documentStatus === "REJECTED"
-                                                ? "Rejeitado"
-                                                : anunciante.documentStatus === "IN_ANALYSIS"
-                                                    ? "Em Análise" // Texto para "IN_ANALYSIS"
-                                                    : "Pendente"
-                                        }
-                                    </span>
-
-                                </td>
-                                <td className="py-4 px-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold 
-    ${anunciante.media?.status === "APPROVED"
-                                            ? "bg-green-100 text-green-800"
-                                            : anunciante.media?.status === "IN_ANALYSIS"
-                                                ? "bg-orange-100 text-orange-800"
-                                                : anunciante.media?.status === "REJECTED"
-                                                    ? "bg-red-100 text-red-800"
-                                                    : anunciante.media?.status === "SUSPENDED"
-                                                        ? "bg-gray-100 text-gray-800"
-                                                        : "bg-gray-100 text-gray-800"
-                                        }`}>
-                                        {anunciante.media && anunciante.media.status
-                                            ? anunciante.media.status === "APPROVED"
-                                                ? "Vídeo Aprovado"
-                                                : anunciante.media.status === "IN_ANALYSIS"
-                                                    ? "Vídeo em Análise"
-                                                    : anunciante.media.status === "REJECTED"
-                                                        ? "Vídeo Rejeitado"
-                                                        : anunciante.media.status === "SUSPENDED"
-                                                            ? "Vídeo Suspenso"
-                                                            : "Sem Vídeo"
-                                            : "Sem Vídeo"}
-                                    </span>
-                                </td>
-
-
-                                <td className="py-4 px-4 text-center space-x-2 flex justify-center">
-                                    <div
-                                        className="flex space-x-2"
-                                        onClick={(e) => e.stopPropagation()} // <-- impede abrir o modal
+                    <div className="flex space-x-1">
+                        {getPageNumbers().map((page, index) => (
+                            <React.Fragment key={index}>
+                                {page === "..." ? (
+                                    <span className="px-3 py-2 text-gray-500">...</span>
+                                ) : (
+                                    <motion.button
+                                        onClick={() => goToPage(page)}
+                                        className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                                            currentPage === page
+                                                ? "bg-pink-500 text-white"
+                                                : "bg-white text-gray-700 hover:bg-gray-100"
+                                        } border shadow-sm`}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                     >
+                                        {page}
+                                    </motion.button>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+
+                    <motion.button
+                        onClick={goToNextPage}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-lg ${
+                            currentPage === totalPages 
+                                ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
+                                : "bg-white text-gray-700 hover:bg-gray-100"
+                        } border shadow-sm`}
+                        whileHover={currentPage !== totalPages ? { scale: 1.05 } : {}}
+                        whileTap={currentPage !== totalPages ? { scale: 0.95 } : {}}
+                    >
+                        <FaChevronRight size={14} />
+                    </motion.button>
+                </div>
+            )}
+        </div>
+    );
+
+    // Render para desktop (tabela)
+    const renderDesktopTable = () => (
+        <div className="overflow-x-auto bg-white rounded-xl shadow-lg">
+            <table className="min-w-full">
+                <thead className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+                    <tr>
+                        <th className="py-4 px-6 text-left font-semibold">
+                            <div className="flex items-center gap-2">
+                                Nome
+                                <motion.button
+                                    onClick={toggleSortOrder}
+                                    className="text-white hover:text-gray-200"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                >
+                                    {sortOrder === "desc" ? <FaSortDown /> : <FaSortUp />}
+                                </motion.button>
+                            </div>
+                        </th>
+                        <th className="py-4 px-6 text-left font-semibold">Plano</th>
+                        <th className="py-4 px-6 text-left font-semibold">Status</th>
+                        <th className="py-4 px-6 text-left font-semibold">Documentos</th>
+                        <th className="py-4 px-6 text-left font-semibold">Mídia</th>
+                        <th className="py-4 px-6 text-left font-semibold">Data de Chegada</th>
+                        <th className="py-4 px-6 text-center font-semibold">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {isLoading ? (
+                        <tr>
+                            <td colSpan="7" className="py-8 text-center">
+                                <div className="flex justify-center items-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+                                    <span className="ml-2 text-gray-600">Carregando...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    ) : anunciantesPaginados.length === 0 ? (
+                        <tr>
+                            <td colSpan="7" className="py-8 text-center text-gray-500">
+                                Nenhum anunciante encontrado
+                            </td>
+                        </tr>
+                    ) : (
+                        anunciantesPaginados.map((anunciante, index) => (
+                            <motion.tr
+                                key={anunciante.id}
+                                onClick={() => handleVerDetalhesAnunciante(anunciante)}
+                                className="border-b hover:bg-gray-50 cursor-pointer transition-colors"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                whileHover={{ backgroundColor: "#f9fafb" }}
+                            >
+                                <td className="py-4 px-6 font-medium text-gray-900">{anunciante.name}</td>
+                                <td className="py-4 px-6 text-gray-700">{anunciante.plan?.name}</td>
+                                <td className="py-4 px-6">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                        anunciante.profileStatus === "ACTIVE" ? "bg-green-100 text-green-800" :
+                                        anunciante.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                        anunciante.profileStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                        anunciante.profileStatus === "SUSPENDED" ? "bg-gray-100 text-gray-800" :
+                                        "bg-red-100 text-red-800"
+                                    }`}>
+                                        {anunciante.profileStatus === "ACTIVE" ? "Ativo" :
+                                         anunciante.profileStatus === "PENDING" ? "Pendente" :
+                                         anunciante.profileStatus === "IN_ANALYSIS" ? "Em Análise" :
+                                         anunciante.profileStatus === "SUSPENDED" ? "Suspenso" : "Rejeitado"}
+                                    </span>
+                                </td>
+                                <td className="py-4 px-6">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                        anunciante.documentStatus === "APPROVED" ? "bg-green-100 text-green-800" :
+                                        anunciante.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                        anunciante.documentStatus === "REJECTED" ? "bg-red-100 text-red-800" :
+                                        "bg-yellow-100 text-yellow-800"
+                                    }`}>
+                                        {anunciante.documentStatus === "APPROVED" ? "Verificado" :
+                                         anunciante.documentStatus === "REJECTED" ? "Rejeitado" :
+                                         anunciante.documentStatus === "IN_ANALYSIS" ? "Em Análise" : "Pendente"}
+                                    </span>
+                                </td>
+                                <td className="py-4 px-6">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                        anunciante.media?.status === "APPROVED" ? "bg-green-100 text-green-800" :
+                                        anunciante.media?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                        anunciante.media?.status === "REJECTED" ? "bg-red-100 text-red-800" :
+                                        "bg-gray-100 text-gray-800"
+                                    }`}>
+                                        {anunciante.media?.status === "APPROVED" ? "Vídeo Aprovado" :
+                                         anunciante.media?.status === "IN_ANALYSIS" ? "Vídeo em Análise" :
+                                         anunciante.media?.status === "REJECTED" ? "Vídeo Rejeitado" : "Sem Vídeo"}
+                                    </span>
+                                </td>
+                                <td className="py-4 px-6 text-gray-600 text-sm">
+                                    {new Date(anunciante.createdAt || anunciante.user?.createdAt).toLocaleDateString("pt-BR")}
+                                </td>
+                                <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
+                                    <div className="flex justify-center space-x-2">
                                         {anunciante.documentStatus && (
                                             <Tooltip content="Verificar Documentos">
-                                                <button
+                                                <motion.button
                                                     onClick={() => handleVerificarDocumentos(anunciante)}
-                                                    className="text-blue-600 hover:text-blue-800 transition"
-                                                    aria-label="Verificar Documentos"
+                                                    className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.9 }}
                                                 >
                                                     <FaFileAlt size={16} />
-                                                </button>
+                                                </motion.button>
                                             </Tooltip>
                                         )}
 
                                         <Tooltip content={anunciante.profileStatus === "ACTIVE" ? "Suspender Perfil" : "Ativar Perfil"}>
-                                            <button
+                                            <motion.button
                                                 onClick={() => handleAtivarDesativar(anunciante)}
-                                                className={`${anunciante.profileStatus === "ACTIVE"
-                                                    ? "text-yellow-600 hover:text-yellow-800"
-                                                    : "text-green-600 hover:text-green-800"
-                                                    } transition`}
-                                                aria-label="Ativar/Suspender Perfil"
+                                                className={`p-2 rounded-lg transition-colors ${
+                                                    anunciante.profileStatus === "ACTIVE"
+                                                        ? "text-yellow-600 hover:bg-yellow-100"
+                                                        : "text-green-600 hover:bg-green-100"
+                                                }`}
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
                                             >
                                                 {anunciante.profileStatus === "ACTIVE" ? <FaBan size={16} /> : <FaCheck size={16} />}
-                                            </button>
+                                            </motion.button>
                                         </Tooltip>
 
                                         <Tooltip content="Aprovar/Rejeitar Vídeo">
-                                            <button
+                                            <motion.button
                                                 onClick={() => handleAprovarRejeitarVideo(anunciante)}
-                                                className="text-green-600 hover:text-green-800 transition"
-                                                aria-label="Aprovar/Rejeitar Vídeo"
+                                                className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
                                             >
                                                 <FaVideo size={16} />
-                                            </button>
+                                            </motion.button>
                                         </Tooltip>
 
                                         <Tooltip content="Editar Plano">
-                                            <button
+                                            <motion.button
                                                 onClick={() => handleEditarPlano(anunciante)}
-                                                className="text-purple-600 hover:text-purple-800 transition"
-                                                aria-label="Editar Plano"
+                                                className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
                                             >
                                                 <FaEdit size={16} />
-                                            </button>
+                                            </motion.button>
                                         </Tooltip>
 
                                         <Tooltip content="Monitorar Postagens">
-                                            <button
+                                            <motion.button
                                                 onClick={() => handleMonitorarPostagens(anunciante)}
-                                                className="text-gray-600 hover:text-gray-800 transition"
-                                                aria-label="Monitorar Postagens"
+                                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
                                             >
                                                 <FaEye size={16} />
-                                            </button>
+                                            </motion.button>
                                         </Tooltip>
 
                                         <Tooltip content="Reportar Conteúdo Indevido">
-                                            <button
+                                            <motion.button
                                                 onClick={() => handleReportarConteudo(anunciante)}
-                                                className="text-pink-500 hover:text-pink-700 transition"
-                                                aria-label="Reportar Conteúdo Indevido"
+                                                className="p-2 text-pink-500 hover:bg-pink-100 rounded-lg transition-colors"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
                                             >
                                                 <FaFlag size={16} />
-                                            </button>
+                                            </motion.button>
                                         </Tooltip>
 
                                         <Tooltip content="Ver Histórico">
-                                            <button
+                                            <motion.button
                                                 onClick={() => handleVerHistorico(anunciante)}
-                                                className="text-indigo-600 hover:text-indigo-800 transition"
-                                                aria-label="Ver Histórico"
+                                                className="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
                                             >
                                                 <FaHistory size={16} />
-                                            </button>
+                                            </motion.button>
                                         </Tooltip>
 
                                         <Tooltip content="Excluir Anunciante">
-                                            <button
+                                            <motion.button
                                                 onClick={() => handleDeletarAnunciante(anunciante)}
-                                                className="text-red-500 hover:text-red-700 transition"
-                                                aria-label="Excluir Anunciante"
+                                                className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
                                             >
                                                 <FaTrash size={16} />
-                                            </button>
+                                            </motion.button>
                                         </Tooltip>
                                     </div>
                                 </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
+                            </motion.tr>
+                        ))
+                    )}
+                </tbody>
+            </table>
+        </div>
+    );
+
+    // Render para mobile (cards)
+    const renderMobileCards = () => (
+        <div className="space-y-4">
+            {isLoading ? (
+                <div className="text-center py-8">
+                    <div className="flex justify-center items-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+                        <span className="ml-2 text-gray-600">Carregando...</span>
+                    </div>
+                </div>
+            ) : anunciantesPaginados.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                    Nenhum anunciante encontrado
+                </div>
+            ) : (
+                anunciantesPaginados.map((anunciante, index) => (
+                    <motion.div
+                        key={anunciante.id}
+                        className="bg-white rounded-xl shadow-lg p-4 border border-gray-100"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => handleVerDetalhesAnunciante(anunciante)}
+                    >
+                        <div className="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 className="font-bold text-gray-900 text-lg">{anunciante.name}</h3>
+                                <p className="text-gray-600 text-sm">{anunciante.plan?.name}</p>
+                                <p className="text-gray-500 text-xs">
+                                    Chegada: {new Date(anunciante.createdAt || anunciante.user?.createdAt).toLocaleDateString("pt-BR")}
+                                </p>
+                            </div>
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                anunciante.profileStatus === "ACTIVE" ? "bg-green-100 text-green-800" :
+                                anunciante.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                "bg-red-100 text-red-800"
+                            }`}>
+                                {anunciante.profileStatus === "ACTIVE" ? "Ativo" :
+                                 anunciante.profileStatus === "PENDING" ? "Pendente" : "Inativo"}
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                                <p className="text-xs text-gray-500 mb-1">Documentos</p>
+                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                    anunciante.documentStatus === "APPROVED" ? "bg-green-100 text-green-800" :
+                                    anunciante.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                    "bg-yellow-100 text-yellow-800"
+                                }`}>
+                                    {anunciante.documentStatus === "APPROVED" ? "Verificado" :
+                                     anunciante.documentStatus === "IN_ANALYSIS" ? "Em Análise" : "Pendente"}
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500 mb-1">Mídia</p>
+                                <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                    anunciante.media?.status === "APPROVED" ? "bg-green-100 text-green-800" :
+                                    anunciante.media?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                    "bg-gray-100 text-gray-800"
+                                }`}>
+                                    {anunciante.media?.status === "APPROVED" ? "Aprovado" :
+                                     anunciante.media?.status === "IN_ANALYSIS" ? "Análise" : "Sem Vídeo"}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Ações Mobile */}
+                        <div className="grid grid-cols-4 gap-2" onClick={(e) => e.stopPropagation()}>
+                            <motion.button
+                                onClick={() => handleVerificarDocumentos(anunciante)}
+                                className="p-3 bg-blue-100 text-blue-600 rounded-lg text-center"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <FaFileAlt className="mx-auto mb-1" />
+                                <span className="text-xs block">Docs</span>
+                            </motion.button>
+
+                            <motion.button
+                                onClick={() => handleAtivarDesativar(anunciante)}
+                                className={`p-3 rounded-lg text-center ${
+                                    anunciante.profileStatus === "ACTIVE"
+                                        ? "bg-yellow-100 text-yellow-600"
+                                        : "bg-green-100 text-green-600"
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                {anunciante.profileStatus === "ACTIVE" ? <FaBan className="mx-auto mb-1" /> : <FaCheck className="mx-auto mb-1" />}
+                                <span className="text-xs block">{anunciante.profileStatus === "ACTIVE" ? "Suspender" : "Ativar"}</span>
+                            </motion.button>
+
+                            <motion.button
+                                onClick={() => handleEditarPlano(anunciante)}
+                                className="p-3 bg-purple-100 text-purple-600 rounded-lg text-center"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <FaEdit className="mx-auto mb-1" />
+                                <span className="text-xs block">Plano</span>
+                            </motion.button>
+
+                            <motion.button
+                                onClick={() => handleAprovarRejeitarVideo(anunciante)}
+                                className="p-3 bg-green-100 text-green-600 rounded-lg text-center"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <FaVideo className="mx-auto mb-1" />
+                                <span className="text-xs block">Vídeo</span>
+                            </motion.button>
+                        </div>
+                    </motion.div>
+                ))
+            )}
+        </div>
+    );
 
     return (
-        <div className="p-6 bg-white shadow-lg rounded-lg">
-            <h1 className="text-3xl font-bold mb-4 text-gray-800">Gerenciamento de Anunciantes</h1>
-            <p className="mb-6 text-gray-600">
-                Aprove, rejeite cadastros, verifique documentos, ative/desative perfis, edite planos, monitore postagens,
-                controle conteúdo indevido, suspenda perfis, atenda solicitações e visualize o histórico de atividades
-                dos anunciantes de maneira eficiente.
-            </p>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+            <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+                {/* Header */}
+                <motion.div
+                    className="mb-8"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="text-center mb-6">
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                            Gerenciamento de Anunciantes
+                        </h1>
+                        <p className="text-gray-600 text-lg max-w-3xl mx-auto">
+                            Painel completo para administração de perfis, documentos, planos e atividades dos anunciantes
+                        </p>
+                    </div>
 
-            <div className="mb-6 p-5 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold mb-3 text-lg">Legenda dos Ícones:</h3>
-                <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                    <li className="flex items-center space-x-2">
-                        <FaCheck className="text-green-600" />
-                        <span>Aprovar/Ativar</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                        <FaTimes className="text-red-600" />
-                        <span>Rejeitar</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                        <FaFileAlt className="text-blue-600" />
-                        <span>Verificar Documentos</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                        <FaBan className="text-yellow-600" />
-                        <span>Desativar/Suspender</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                        <FaEdit className="text-purple-600" />
-                        <span>Editar Plano/Solicitações</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                        <FaEye className="text-gray-600" />
-                        <span>Monitorar Postagens</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                        <FaFlag className="text-pink-500" />
-                        <span>Reportar Conteúdo Indevido</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                        <FaHistory className="text-indigo-600" />
-                        <span>Histórico de Atividades</span>
-                    </li>
-                </ul>
+                    {/* Estatísticas */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                        <motion.div
+                            className="bg-white rounded-xl p-4 shadow-lg border border-gray-100"
+                            whileHover={{ scale: 1.02 }}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-gray-600 text-sm">Total</p>
+                                    <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+                                </div>
+                                <FaUsers className="text-gray-500 text-2xl" />
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            className="bg-white rounded-xl p-4 shadow-lg border border-gray-100"
+                            whileHover={{ scale: 1.02 }}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-gray-600 text-sm">Ativos</p>
+                                    <p className="text-2xl font-bold text-green-600">{stats.ativos}</p>
+                                </div>
+                                <FaCheck className="text-green-500 text-2xl" />
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            className="bg-white rounded-xl p-4 shadow-lg border border-gray-100"
+                            whileHover={{ scale: 1.02 }}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-gray-600 text-sm">Pendentes</p>
+                                    <p className="text-2xl font-bold text-yellow-600">{stats.pendentes}</p>
+                                </div>
+                                <FaCog className="text-yellow-500 text-2xl" />
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            className="bg-white rounded-xl p-4 shadow-lg border border-gray-100"
+                            whileHover={{ scale: 1.02 }}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-gray-600 text-sm">Suspensos</p>
+                                    <p className="text-2xl font-bold text-red-600">{stats.suspensos}</p>
+                                </div>
+                                <FaBan className="text-red-500 text-2xl" />
+                            </div>
+                        </motion.div>
+                    </div>
+                </motion.div>
+
+                {/* Filtros e Ordenação */}
+                <motion.div
+                    className="bg-white rounded-xl p-4 sm:p-6 shadow-lg mb-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <h3 className="text-lg font-semibold text-gray-800">Filtrar por Status</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {[
+                                    { key: "todos", label: "Todos", color: "gray" },
+                                    { key: "ACTIVE", label: "Ativos", color: "green" },
+                                    { key: "PENDING", label: "Pendentes", color: "yellow" },
+                                    { key: "SUSPENDED", label: "Suspensos", color: "red" }
+                                ].map(filtro => (
+                                    <motion.button
+                                        key={filtro.key}
+                                        onClick={() => setFiltroStatus(filtro.key)}
+                                        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                                            filtroStatus === filtro.key
+                                                ? `bg-${filtro.color}-500 text-white`
+                                                : `bg-${filtro.color}-100 text-${filtro.color}-700 hover:bg-${filtro.color}-200`
+                                        }`}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        {filtro.label}
+                                    </motion.button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-600">Ordenar por chegada:</span>
+                            <motion.button
+                                onClick={toggleSortOrder}
+                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+                                    sortOrder === "desc" 
+                                        ? "bg-blue-500 text-white" 
+                                        : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                {sortOrder === "desc" ? <FaSortDown /> : <FaSortUp />}
+                                {sortOrder === "desc" ? "Mais Recentes" : "Mais Antigos"}
+                            </motion.button>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Legenda de Ações */}
+                <motion.div
+                    className="bg-white rounded-xl p-4 sm:p-6 shadow-lg mb-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                >
+                    <h3 className="font-semibold mb-4 text-lg text-gray-800">🔧 Ações Disponíveis</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 text-sm">
+                        {[
+                            { icon: FaFileAlt, label: "Verificar Documentos", color: "blue" },
+                            { icon: FaCheck, label: "Aprovar/Ativar", color: "green" },
+                            { icon: FaBan, label: "Suspender", color: "yellow" },
+                            { icon: FaVideo, label: "Aprovar Vídeo", color: "green" },
+                            { icon: FaEdit, label: "Editar Plano", color: "purple" },
+                            { icon: FaEye, label: "Monitorar Posts", color: "gray" },
+                            { icon: FaFlag, label: "Reportar", color: "pink" },
+                            { icon: FaTrash, label: "Excluir", color: "red" }
+                        ].map((acao, i) => (
+                            <div key={i} className="flex flex-col items-center text-center">
+                                <acao.icon className={`text-${acao.color}-600 mb-1`} />
+                                <span className="text-xs text-gray-600">{acao.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Lista de Anunciantes */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                >
+                    {isMobile ? renderMobileCards() : renderDesktopTable()}
+                </motion.div>
+
+                {/* Paginação */}
+                {anunciantesFiltrados.length > 0 && renderPaginacao()}
+
+                {/* Modal */}
+                <AnimatePresence>
+                    {modal.isOpen && (
+                        <Modal onClose={() => setModal({ isOpen: false, content: null })}>
+                            {modal.content}
+                        </Modal>
+                    )}
+                </AnimatePresence>
             </div>
-
-            {/* <div className="flex flex-wrap space-x-4 mb-6 border-b">
-        {["mulheres", "homens", "trans"].map((categoria) => (
-          <button
-            key={categoria}
-            className={`px-4 py-2 text-sm font-medium ${
-              activeCategory === categoria
-                ? "border-b-2 border-pink-600 text-pink-600"
-                : "text-gray-600 hover:text-gray-800"
-            } transition`}
-            onClick={() => setActiveCategory(categoria)}
-            aria-current={activeCategory === categoria ? "page" : undefined}
-          >
-            {categoria.charAt(0).toUpperCase() + categoria.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {activeCategory === "mulheres" && renderTable(mulheres)}
-      {activeCategory === "homens" && renderTable(homens)}
-      {activeCategory === "trans" && renderTable(trans)} */}
-
-            {renderTable(anunciantes)}
-
-            {modal.isOpen && (
-                <Modal onClose={() => setModal({ isOpen: false, content: null })}>
-                    {modal.content}
-                </Modal>
-            )}
         </div>
     );
 };

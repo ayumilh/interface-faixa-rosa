@@ -215,6 +215,7 @@ export default function CadastroPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
         const formDataToSend = new FormData();
         formDataToSend.append("firstName", formData.firstName);
         formDataToSend.append("lastName", formData.lastName);
@@ -228,8 +229,22 @@ export default function CadastroPage() {
         if (formData.comparisonMedia) formDataToSend.append("comparisonMedia", formData.comparisonMedia);
         if (formData.documents.fileFront) formDataToSend.append("fileFront", formData.documents.fileFront);
         if (formData.documents.fileBack) formDataToSend.append("fileBack", formData.documents.fileBack);
+
+        console.log("📦 FormData REGISTRO enviado:");
+        for (let [key, value] of formDataToSend.entries()) {
+            if (value instanceof File) {
+                console.log(`🗂️ ${key}: [Arquivo] ${value.name} (${value.type})`);
+            } else {
+                console.log(`✏️ ${key}: ${value}`);
+            }
+        }
+
+
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/register`, formDataToSend, { withCredentials: true });
+
+            console.log("✅ Resposta da API:", response);
+
             if (response.status === 200 || response.status === 201) {
                 localStorage.removeItem("cadastroStepForm");
                 toast.success("Cadastro realizado com sucesso!");
@@ -287,14 +302,14 @@ export default function CadastroPage() {
                     backgroundSize: "cover",
                 }}
             />
-            
+
             {/* Subtle floating elements - reduced opacity */}
             <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-pink-200/10 to-purple-200/10 rounded-full blur-xl animate-pulse"></div>
             <div className="absolute bottom-20 right-10 w-40 h-40 bg-gradient-to-br from-purple-200/10 to-pink-200/10 rounded-full blur-xl animate-pulse delay-1000"></div>
 
             <div className="relative min-h-screen flex items-center justify-center lg:justify-end p-4">
                 <div className="w-full max-w-2xl bg-white/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/20 lg:mr-[200px] z-10 transition-all duration-300">
-                    
+
                     {/* Header */}
                     <div className="text-center mb-8">
                         <div className="relative group">
@@ -316,16 +331,15 @@ export default function CadastroPage() {
                                     const Icon = stepInfo.icon;
                                     const isActive = getCurrentStepIndex() === index;
                                     const isCompleted = getCurrentStepIndex() > index;
-                                    
+
                                     return (
                                         <div key={index} className="flex flex-col items-center group">
-                                            <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center border-2 transition-all duration-300 ${
-                                                isCompleted 
-                                                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-green-500 shadow-lg' 
-                                                    : isActive 
-                                                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 border-pink-500 shadow-lg scale-110' 
-                                                        : 'bg-gray-100 border-gray-300'
-                                            }`}>
+                                            <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center border-2 transition-all duration-300 ${isCompleted
+                                                ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-green-500 shadow-lg'
+                                                : isActive
+                                                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 border-pink-500 shadow-lg scale-110'
+                                                    : 'bg-gray-100 border-gray-300'
+                                                }`}>
                                                 {isCompleted ? (
                                                     <FaCheckCircle className="w-5 h-5 text-white" />
                                                 ) : (
@@ -390,7 +404,7 @@ export default function CadastroPage() {
                                 <div className="text-center mb-8">
                                     <p className="text-gray-600 text-lg mb-8">Selecione o tipo de conta que melhor se adequa ao seu perfil</p>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <button
                                         type="button"
@@ -839,11 +853,10 @@ export default function CadastroPage() {
 
                                     {/* Password Match Status */}
                                     {formData.confirmPassword.length > 0 && (
-                                        <div className={`p-4 rounded-xl border ${
-                                            formData.password === formData.confirmPassword && !passwordMatchError
-                                                ? 'bg-green-50 border-green-200'
-                                                : 'bg-red-50 border-red-200'
-                                        }`}>
+                                        <div className={`p-4 rounded-xl border ${formData.password === formData.confirmPassword && !passwordMatchError
+                                            ? 'bg-green-50 border-green-200'
+                                            : 'bg-red-50 border-red-200'
+                                            }`}>
                                             <div className="flex items-center gap-3">
                                                 {formData.password === formData.confirmPassword && !passwordMatchError ? (
                                                     <>
@@ -875,11 +888,10 @@ export default function CadastroPage() {
                                 <button
                                     type="submit"
                                     disabled={loading || formData.password !== formData.confirmPassword}
-                                    className={`w-full py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 group ${
-                                        loading || formData.password !== formData.confirmPassword 
-                                            ? 'opacity-50 cursor-not-allowed' 
-                                            : 'hover:scale-[1.02] hover:shadow-xl'
-                                    }`}
+                                    className={`w-full py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 group ${loading || formData.password !== formData.confirmPassword
+                                        ? 'opacity-50 cursor-not-allowed'
+                                        : 'hover:scale-[1.02] hover:shadow-xl'
+                                        }`}
                                 >
                                     {loading ? (
                                         <>

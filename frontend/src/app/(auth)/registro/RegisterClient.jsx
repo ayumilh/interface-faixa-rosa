@@ -257,7 +257,16 @@ export default function CadastroPage() {
                 localStorage.removeItem("cadastroStepForm");
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Erro no cadastro");
+            console.error("Erro ao registrar:", error.response?.data || error.message);
+
+            const backendMessage = error.response?.data?.error || error.response?.data?.message;
+
+            if (backendMessage === 'Email ou CPF já estão em uso') {
+                toast.error("Este e-mail ou CPF já está cadastrado. Tente outro.");
+            } else {
+                toast.error(backendMessage || "Erro ao realizar o cadastro. Tente novamente.");
+            }
+
             localStorage.removeItem("cadastroStepForm");
         } finally {
             setLoading(false);

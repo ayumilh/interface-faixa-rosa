@@ -77,7 +77,6 @@ export async function generateMetadata({ params }) {
       },
       metadataBase: new URL("https://www.faixarosa.com"),
       category: "adult",
-      themeColor: "#ff1493",
     };
   } catch (error) {
     return {

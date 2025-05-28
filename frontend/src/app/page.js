@@ -1,5 +1,12 @@
 import ClientHomePage from './ClientHomePage';
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export const metadata = {
   // Title otimizado com palavras-chave estratégicas
   title: "Faixa Rosa - Acompanhantes em todo Brasil!",
@@ -49,14 +56,6 @@ export const metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  
-  // Viewport otimizado para mobile
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
   },
   
   // Informações de idioma e localização
@@ -150,14 +149,7 @@ export const metadata = {
  
   // Base URL
   metadataBase: new URL('https://www.faixarosa.com'),
-  
-  // Configurações de tema
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ff1493' },
-    { media: '(prefers-color-scheme: dark)', color: '#ff1493' },
-  ],
-  colorScheme: 'light dark',
-  
+    
   // Manifest para PWA
   manifest: '/manifest.json',
   

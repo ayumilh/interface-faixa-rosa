@@ -17,27 +17,27 @@ export default function StoryUploader() {
   const { userInfo, fetchUserData } = useContext(AuthContext);
 
   // Verifica se pode postar story com base no plano
-useEffect(() => {
-  if (!userInfo) {
-    fetchUserData();
-    return;
-  }
+  useEffect(() => {
+    if (!userInfo) {
+      fetchUserData();
+      return;
+    }
 
-  const isAcompanhante = userInfo.userType === "ACOMPANHANTE";
+    const isAcompanhante = userInfo.userType === "ACOMPANHANTE";
 
-  const planId = userInfo?.companion?.planId;
-  const subscriptions = userInfo?.companion?.subscriptions || [];
+    const planId = userInfo?.companion?.planId;
+    const subscriptions = userInfo?.companion?.subscriptions || [];
 
-  const isVip = planId === 4;
+    const isVip = planId === 4;
 
-  const hasExtraPlanWithStories = subscriptions.some(
-    sub => sub?.extraPlan?.hasStories === true && sub?.extraPlan?.isEnabled
-  );
+    const hasExtraPlanWithStories = subscriptions.some(
+      sub => sub?.extraPlan?.hasStories === true && sub?.extraPlan?.isEnabled
+    );
 
-  const allowedToPost = isAcompanhante && (!isVip || hasExtraPlanWithStories);
+    const allowedToPost = isAcompanhante && (!isVip || hasExtraPlanWithStories);
 
-  setCanPostStory(allowedToPost);
-}, [userInfo, fetchUserData]);
+    setCanPostStory(allowedToPost);
+  }, [userInfo, fetchUserData]);
 
 
 
@@ -60,7 +60,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (userToken) fetchUserStories();
-  }, [userToken]);
+  }, [userToken, fetchUserStories]);
 
   const handleStoryUpload = async (e) => {
     const file = e.target.files[0];

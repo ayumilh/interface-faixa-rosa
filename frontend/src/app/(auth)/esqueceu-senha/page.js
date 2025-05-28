@@ -1,117 +1,150 @@
-// (auth)/esqueceu-senha/page.js
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { FaSpinner } from "react-icons/fa";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import Image from "next/image";
+import InputField from "@/components/ui/input/InputField";
 
 export default function EsqueceuSenhaPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [emailSent, setEmailSent] = useState(false);
+  const [errorsInput, setErrorsInput] = useState({});
   const router = useRouter();
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // setLoading(true);
+    if (!email || errorsInput.email) return;
 
-    // const endpoint = "/api/user/esqueceu-senha";
-    // const payload = { email };
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/esqueceu-senha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    // try {
-    //   const response = await fetch(endpoint, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(payload),
-    //   });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Erro ao solicitar redefinição de senha");
 
-    //   const data = await response.json();
+      toast.success("E-mail de redefinição enviado com sucesso!");
+      setEmailSent(true);
+      setCooldown(30);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    //   if (!response.ok) {
-    //     throw new Error(data.message || "Erro ao solicitar redefinição de senha");
-    //   }
-
-    //   toast.success("E-mail de redefinição de senha enviado com sucesso!");
-    //   // Após o sucesso, você pode redirecionar o usuário ou limpar o formulário
-    //   setEmail("");
-    //   // Opcionalmente, redirecionar para a página de login após um breve delay
-    //   setTimeout(() => {
-    //     router.push("/auth/login");
-    //   }, 3000);
-    // } catch (error) {
-    //   toast.error(error.message);
-    // } finally {
-    //   setLoading(false);
-    // }
+  const handleEmailChange = (e) => {
+    const value = e.target.value.trimStart();
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setEmail(value);
+    setErrorsInput((prev) => ({
+      ...prev,
+      email: regex.test(value) ? null : "E-mail inválido.",
+    }));
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center p-4"
-      style={{ backgroundImage: "url('/assets/background.svg')" }}
-    >
-      <div className="w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg">
-        <div className="text-center mb-6">
-          <Image
-            src="/assets/logofaixa.png"
-            alt="Faixa Rosa Logo"
-            width={160}
-            height={64}
-            className="mx-auto h-16"
-          />
-          <h2 className="text-2xl font-semibold text-pink-500 mt-4">
-            Esqueceu sua senha?
-          </h2>
-          <p className="mt-2 text-gray-700">
-            Insira seu e-mail e enviaremos instruções para redefinir sua senha.
-          </p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Campo de E-mail */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              E-mail
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800"
+    <div className="min-h-screen w-full relative overflow-hidden">
+      <div
+        className="absolute inset-0 bg-no-repeat bg-cover bg-center lg:bg-left-center"
+        style={{ backgroundImage: "url('/assets/chatGPT_background.png')" }}
+      />
+      <div
+        className="hidden lg:block absolute inset-0 bg-no-repeat bg-cover"
+        style={{ backgroundImage: "url('/assets/chatGPT_backgroundDesktop.png')" }}
+      />
+
+      <div className="relative min-h-screen flex items-center justify-center p-4 lg:justify-end lg:p-6">
+        <div className="w-full max-w-sm mx-auto bg-white/95 backdrop-blur-xl p-6 rounded-2xl shadow-2xl border border-white/20 lg:max-w-md lg:mr-[80px] xl:mr-[120px] z-10 transition-all duration-300">
+          <div className="text-center mb-6">
+            <Image
+              src="/assets/logofaixa.png"
+              alt="Faixa Rosa Logo"
+              width={160}
+              height={0}
+              className="mx-auto h-auto"
+              style={{ maxHeight: "70px", objectFit: "contain" }}
             />
+            <h2 className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mt-4">
+              Esqueceu sua senha?
+            </h2>
+            <p className="text-gray-600 text-sm">
+              Insira seu e-mail e enviaremos instruções para redefinir sua senha.
+            </p>
           </div>
 
-          {/* Botão de Enviar */}
-          <div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-1">
+              <InputField
+                label="E-mail"
+                name="email"
+                type="email"
+                value={email}
+                onChange={handleEmailChange}
+                required
+                error={errorsInput.email}
+                className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 text-gray-800"
+              />
+            </div>
+
+            {emailSent ? (
+              <div className="text-sm text-green-600 text-center">
+                E-mail enviado! Verifique sua caixa de entrada.
+                {cooldown > 0 ? (
+                  <p className="mt-2 text-gray-500">Você poderá reenviar em {cooldown}s...</p>
+                ) : (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="mt-3 w-full py-3 px-4 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-bold text-sm rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+                  >
+                    Reenviar e-mail
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                type="submit"
+                disabled={loading || errorsInput.email}
+                className={`w-full py-3 px-4 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg relative overflow-hidden ${
+                  loading || errorsInput.email ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-2xl'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <FaSpinner className="animate-spin h-4 w-4" />
+                    <span>Enviando...</span>
+                  </>
+                ) : (
+                  <span>Enviar Instruções</span>
+                )}
+              </button>
+            )}
+          </form>
+
+          <div className="text-center mt-4 text-sm">
+            Lembrou sua senha?{" "}
             <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-pink-500 hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition"
+              onClick={() => router.push("/auth/login")}
+              className="font-medium text-pink-500 hover:text-pink-600"
             >
-              {loading ? (
-                <FaSpinner className="animate-spin h-5 w-5" />
-              ) : (
-                "Enviar Instruções"
-              )}
+              Entrar
             </button>
           </div>
-        </form>
-
-        <div className="text-center mt-4 text-sm">
-          Lembrou sua senha?{" "}
-          <button
-            onClick={() => router.push("/auth/login")}
-            className="font-medium text-pink-500 hover:text-pink-600"
-          >
-            Entrar
-          </button>
         </div>
       </div>
     </div>

@@ -92,18 +92,18 @@ const ModalBusca = memo(({ isOpen, onClose }) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     timeoutRef.current = setTimeout(async () => {
       if (query.length >= 2) {
         setLoading(true);
         try {
           const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios`);
           const data = await response.json();
-          
+
           const filtered = data
             .filter(cidade => cidade.nome.toLowerCase().includes(query.toLowerCase()))
             .slice(0, 8);
-          
+
           setSuggestions(filtered);
         } catch (error) {
           console.error("Erro ao buscar cidades", error);
@@ -136,7 +136,7 @@ const ModalBusca = memo(({ isOpen, onClose }) => {
     } else {
       document.body.style.overflow = "";
     }
-    
+
     return () => {
       document.body.style.overflow = "";
       if (timeoutRef.current) {
@@ -239,7 +239,7 @@ const ImageModal = memo(({ isOpen, onClose, imageSrc, altText }) => {
         >
           <FaTimes className="text-xl" />
         </button>
-        
+
         <div className="flex justify-center items-center">
           <div className="relative">
             <Image
@@ -285,7 +285,7 @@ const ActionButtons = memo(({ companionData }) => {
     const mensagemBase = `Olá, ${apelido}! Encontrei seu anúncio no Faixa Rosa - https://faixarosa.com/perfil/${username}`;
     const mensagemFinal = `${mensagemBase}\n\n${mensagemExtra}`;
     const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensagemFinal)}`;
-    
+
     window.open(link, "_blank");
   }, [companionData]);
 
@@ -368,19 +368,17 @@ export default function Perfil() {
     setIsLoadingMoreCompanions(true);
     try {
       console.log('Buscando mais acompanhantes para:', city, state);
-      
+
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?cidade=${encodeURIComponent(city)}&estado=${state}&limit=10`
       );
-
-      console.log('Resposta da API:', response.data);
 
       if (response.data && Array.isArray(response.data)) {
         // Filtrar o usuário atual e pegar apenas 6 acompanhantes
         const filteredCompanions = response.data
           .filter(comp => comp.userName !== currentUserName)
           .slice(0, 6);
-        
+
         console.log('Acompanhantes filtrados:', filteredCompanions);
         setMaisAcompanhantes(filteredCompanions);
       } else {
@@ -401,43 +399,26 @@ export default function Perfil() {
 
     try {
       setIsLoading(true);
-      
-      const cacheKey = `profile_${userName}`;
-      const cached = sessionStorage.getItem(cacheKey);
-      
-      let profileData = null;
 
-      if (cached) {
-        console.log('Usando dados do cache para o perfil');
-        profileData = JSON.parse(cached);
-        setCompanionData(profileData);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
+      );
+
+      const data = response.data;
+
+      if (!data || data.error) {
+        toast.error("Acompanhante não encontrada.");
         setIsLoading(false);
-      } else {
-        console.log('Buscando perfil da API...');
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/profile?userName=${userName}`
-        );
-
-        if (!response.data || response.data.error) {
-          toast.error("Acompanhante não encontrada.");
-          setIsLoading(false);
-          return;
-        }
-
-        profileData = response.data;
-        setCompanionData(profileData);
-        sessionStorage.setItem(cacheKey, JSON.stringify(profileData));
-        setIsLoading(false);
+        return;
       }
+
+      setCompanionData(data);
+      setIsLoading(false);
 
       // SEMPRE buscar mais acompanhantes, independente do cache
-      if (profileData?.city && profileData?.state) {
-        console.log('Iniciando busca por mais acompanhantes...');
-        await fetchMoreCompanions(profileData.city, profileData.state, userName);
-      } else {
-        console.log('Cidade ou estado não disponível:', profileData?.city, profileData?.state);
-      }
-
+      if (data?.city && data?.state) {
+        await fetchMoreCompanions(data.city, data.state, userName);
+      } 
     } catch (error) {
       console.error('Erro ao buscar perfil:', error);
       toast.error("Erro ao carregar perfil.");
@@ -452,6 +433,38 @@ export default function Perfil() {
   const handleTabClick = useCallback((tab) => {
     setActiveTab(tab);
   }, []);
+
+
+  const handleAgeVisibilityChange = async () => {
+    const updatedValue = !companionData.isAgeHidden;
+
+    try {
+      const userToken = Cookies.get("userToken");
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
+        { isAgeHidden: updatedValue },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      if (response.data) {
+        toast.success(`Idade ${updatedValue ? "ocultada" : "exibida"} com sucesso!`);
+        setCompanionData((prev) => ({
+          ...prev,
+          isAgeHidden: updatedValue,
+        }));
+      }
+    } catch (error) {
+      toast.error("Erro ao atualizar visibilidade da idade.");
+      console.error(error);
+    }
+  };
+
 
   const handleProfileImageClick = useCallback(() => {
     if (companionData?.profileImage) {
@@ -632,12 +645,15 @@ export default function Perfil() {
                         <span className="font-medium">Local: {companionData?.city} - {companionData?.state}</span>
                       </div>
 
-                      {companionData && !companionData.isAgeHidden && (
-                        <div className="flex items-center justify-center sm:justify-start space-x-2">
-                          <FaRegUser className="text-pink-500" />
-                          <span className="font-medium">Idade: {companionData.age} anos</span>
-                        </div>
-                      )}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 justify-center sm:justify-start text-center sm:text-left">
+                        {companionData?.isAgeHidden && (
+                          <div className="flex items-center justify-center sm:justify-start space-x-2">
+                            <FaRegUser className="text-pink-500" />
+                            <span className="font-medium">Idade: {companionData.age} anos</span>
+                          </div>
+                        )}
+                      </div>
+
 
                       <div className="flex items-center justify-center sm:justify-start space-x-2">
                         <FaMale className="text-pink-500" />
@@ -667,11 +683,10 @@ export default function Perfil() {
                       <motion.button
                         key={tab}
                         onClick={() => handleTabClick(tab)}
-                        className={`px-3 py-2 font-semibold text-sm sm:text-base capitalize whitespace-nowrap transition-all duration-200 ${
-                          activeTab === tab
-                            ? "text-pink-500 border-b-2 border-pink-500"
-                            : "text-gray-600 hover:text-pink-500"
-                        }`}
+                        className={`px-3 py-2 font-semibold text-sm sm:text-base capitalize whitespace-nowrap transition-all duration-200 ${activeTab === tab
+                          ? "text-pink-500 border-b-2 border-pink-500"
+                          : "text-gray-600 hover:text-pink-500"
+                          }`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -761,22 +776,22 @@ export default function Perfil() {
         {showModalBusca && (
           <ModalBusca isOpen={showModalBusca} onClose={() => setShowModalBusca(false)} />
         )}
-        
+
         {showProfileImageModal && (
-          <ImageModal 
-            isOpen={showProfileImageModal} 
-            onClose={() => setShowProfileImageModal(false)} 
-            imageSrc={selectedImage} 
-            altText="Foto de perfil" 
+          <ImageModal
+            isOpen={showProfileImageModal}
+            onClose={() => setShowProfileImageModal(false)}
+            imageSrc={selectedImage}
+            altText="Foto de perfil"
           />
         )}
-        
+
         {showBannerModal && (
-          <ImageModal 
-            isOpen={showBannerModal} 
-            onClose={() => setShowBannerModal(false)} 
-            imageSrc={selectedImage} 
-            altText="Banner" 
+          <ImageModal
+            isOpen={showBannerModal}
+            onClose={() => setShowBannerModal(false)}
+            imageSrc={selectedImage}
+            altText="Banner"
           />
         )}
       </AnimatePresence>

@@ -9,7 +9,6 @@ export async function generateMetadata({ params }) {
       title: "Faixa Rosa - A melhor plataforma de acompanhantes do Brasil",
       description: "Descubra acompanhantes verificadas na sua cidade com segurança, descrição e perfis completos. Cadastre-se gratuitamente.",
       metadataBase: new URL("https://www.faixarosa.com"),
-      themeColor: "#ff1493",
     };
   }
 
@@ -51,7 +50,6 @@ export async function generateMetadata({ params }) {
       canonical: url,
     },
     metadataBase: new URL("https://www.faixarosa.com"),
-    themeColor: "#ff1493",
   };
 }
 

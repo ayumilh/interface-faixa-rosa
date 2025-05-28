@@ -52,8 +52,8 @@ export default function Navbar({ bgColor = "pink" }) {
   };
 
   const logoSrc = bgColor === "white" ? "/assets/logofaixa.png" : "/assets/FaixaRosaSombra.png";
-  const backgroundClass = bgColor === "white" 
-    ? "bg-white/95 backdrop-blur-md border-b border-gray-200/50" 
+  const backgroundClass = bgColor === "white"
+    ? "bg-white/95 backdrop-blur-md border-b border-gray-200/50"
     : "bg-gradient-to-r from-pink-600/95 via-pink-500/95 to-purple-600/95 backdrop-blur-md border-b border-white/10";
 
   if (loadingUserInfo) {
@@ -107,11 +107,10 @@ export default function Navbar({ bgColor = "pink" }) {
           {!loadingUserInfo && isAuthenticated && (
             <div className="relative" ref={notificationsRef}>
               <button
-                className={`relative p-3 rounded-full transition-all duration-300 hover:scale-110 hover:rotate-12 focus:outline-none group ${
-                  bgColor === "pink" 
-                    ? "text-white hover:bg-white/10 hover:shadow-lg" 
+                className={`relative p-3 rounded-full transition-all duration-300 hover:scale-110 hover:rotate-12 focus:outline-none group ${bgColor === "pink"
+                    ? "text-white hover:bg-white/10 hover:shadow-lg"
                     : "text-pink-500 hover:bg-pink-50 hover:shadow-md"
-                }`}
+                  }`}
                 onClick={toggleNotifications}
               >
                 <FaBell className="w-5 h-5" />
@@ -207,7 +206,7 @@ export default function Navbar({ bgColor = "pink" }) {
                       <p className="text-white/80">Usuário não encontrado.</p>
                     )}
                   </div>
-                  
+
                   {!loadingUserInfo && userInfo && (
                     <div className="py-2">
                       {userInfo.userType === 'ACOMPANHANTE' && (
@@ -252,11 +251,18 @@ export default function Navbar({ bgColor = "pink" }) {
 
                       <Link
                         href="/search"
-                        className="flex items-center px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
+                        className="relative flex items-center px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
+                        title="Explore perfis com stories disponíveis"
                       >
-                        <FaSearch className="w-4 h-4 mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
-                        <span className="font-medium">Search</span>
+                        <div className="relative">
+                          <FaSearch className="w-4 h-4 mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
+                        </div>
+                        <span className="font-medium">
+                          Search
+                          <span className="ml-2 inline-block text-xs text-pink-600 font-semibold bg-pink-100 px-2 py-0.5 rounded-full">Poste Stories</span>
+                        </span>
                       </Link>
+
 
                       <div className="border-t border-gray-200/50 mt-2">
                         <button
@@ -282,7 +288,7 @@ export default function Navbar({ bgColor = "pink" }) {
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div className="absolute -top-1 -left-1 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               </button>
-              
+
               <button
                 onClick={() => router.push('/login')}
                 className="relative px-8 py-3 bg-white/90 backdrop-blur-sm text-gray-800 font-bold text-sm rounded-full border-2 border-gray-200/50 overflow-hidden group transition-all duration-300 hover:shadow-xl hover:scale-105 hover:border-pink-300"

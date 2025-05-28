@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { checkSession } from "@/utils/checkSession";
 import Dashboard from "./Dashboard";
 import { redirect } from "next/navigation";

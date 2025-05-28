@@ -37,7 +37,6 @@ export const metadata = {
     canonical: "https://www.faixarosa.com",
   },
   referrer: "origin-when-cross-origin",
-  themeColor: "#ff1493",
 };
 
 export default function RootLayout({ children }) {

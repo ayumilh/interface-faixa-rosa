@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { 
-  FaInfoCircle, 
-  FaCamera, 
-  FaIdCard, 
-  FaAlignLeft, 
+import {
+  FaInfoCircle,
+  FaCamera,
+  FaIdCard,
+  FaAlignLeft,
   FaTimes,
   FaChevronDown,
   FaChevronUp,
@@ -44,7 +44,7 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
   // Função para formatar dados das características
   const formatCharacteristic = (value, type = 'text') => {
     if (value === undefined || value === null) return "Não informado";
-    
+
     switch (type) {
       case 'boolean':
         return value ? "Sim" : "Não";
@@ -111,16 +111,15 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Descrição</h2>
           </div>
-          
+
           <div className="relative">
-            <p 
-              className={`text-gray-700 text-sm sm:text-base leading-relaxed transition-all duration-300 ${
-                !mostrarMaisDescricao ? "line-clamp-4 sm:line-clamp-6" : ""
-              }`}
+            <p
+              className={`text-gray-700 text-sm sm:text-base leading-relaxed transition-all duration-300 ${!mostrarMaisDescricao ? "line-clamp-4 sm:line-clamp-6" : ""
+                }`}
             >
               {description || "Nenhuma descrição disponível."}
             </p>
-            
+
             {description && description.length > 200 && (
               <motion.button
                 onClick={toggleMostrarMaisDescricao}
@@ -175,26 +174,29 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
                 <div className="relative group">
                   <div className="relative overflow-hidden rounded-xl shadow-lg">
                     <video
-                      className="w-full h-auto rounded-xl transition-transform duration-300 group-hover:scale-105"
-                      autoPlay={videoPlaying}
+                      className="w-full h-auto rounded-xl transition-transform duration-300 group-hover:scale-105 cursor-pointer"
                       loop
                       muted
                       playsInline
                       controls={videoPlaying}
-                      onClick={() => setVideoPlaying(!videoPlaying)}
+                      onClick={() => setVideoPlaying(true)}
                     >
                       <source src={media[0].url} type="video/mp4" />
                       Seu navegador não suporta a tag de vídeo.
                     </video>
-                    
-                    {/* Play overlay */}
+
+                    {/* Overlay de play visível apenas se o vídeo ainda não estiver tocando */}
                     {!videoPlaying && (
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer">
+                      <div
+                        className="absolute inset-0 bg-black/30 flex items-center justify-center cursor-pointer z-10"
+                        onClick={() => setVideoPlaying(true)}
+                      >
                         <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
                           <FaPlay className="text-white text-2xl ml-1" />
                         </div>
                       </div>
                     )}
+
 
                     {/* Marca d'água */}
                     <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 text-xs text-white">
@@ -226,10 +228,9 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
                 <h3 className="text-lg sm:text-xl font-bold text-gray-800">Características Físicas</h3>
               </div>
 
-              <div 
-                className={`grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 transition-all duration-300 ${
-                  !mostrarMaisCaracteristicas ? "max-h-96 overflow-hidden" : ""
-                }`}
+              <div
+                className={`grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 transition-all duration-300 ${!mostrarMaisCaracteristicas ? "max-h-96 overflow-hidden" : ""
+                  }`}
               >
                 {characteristics.map((char, index) => (
                   <motion.div
@@ -309,12 +310,12 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
                     <FaTimes className="text-xl" />
                   </button>
                 </div>
-                
+
                 <p className="text-gray-700 text-sm leading-relaxed mb-6">
-                  Mídias de verificação são analisadas por nossa equipe para garantir a autenticidade dos perfis. 
+                  Mídias de verificação são analisadas por nossa equipe para garantir a autenticidade dos perfis.
                   Este processo ajuda a verificar a identidade e aumentar a confiança na plataforma.
                 </p>
-                
+
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
                   <p className="text-blue-800 text-xs font-medium">
                     💡 As verificações são realizadas periodicamente para manter a segurança da comunidade.

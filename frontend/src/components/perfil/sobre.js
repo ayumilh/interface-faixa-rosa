@@ -20,7 +20,6 @@ import {
 } from "react-icons/fa";
 
 export default function Sobre({ physicalCharacteristics, description, media }) {
-  console.log("Media:", media);
   const [mostrarMaisDescricao, setMostrarMaisDescricao] = useState(false);
   const [mostrarMaisCaracteristicas, setMostrarMaisCaracteristicas] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);

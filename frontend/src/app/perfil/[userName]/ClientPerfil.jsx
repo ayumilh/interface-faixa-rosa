@@ -377,10 +377,8 @@ export default function Perfil() {
           .filter(comp => comp.userName !== currentUserName)
           .slice(0, 6);
 
-        console.log('Acompanhantes filtrados:', filteredCompanions);
         setMaisAcompanhantes(filteredCompanions);
       } else {
-        console.log('Resposta inválida ou vazia da API');
         setMaisAcompanhantes([]);
       }
     } catch (error) {

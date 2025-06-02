@@ -54,7 +54,6 @@ export default function EmailField({
 
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-email`, { email });
-    console.log(res.data);
       if (res.data.valid) {
         setValid(true);
         setError('');

@@ -230,20 +230,8 @@ export default function CadastroPage() {
         if (formData.documents.fileFront) formDataToSend.append("fileFront", formData.documents.fileFront);
         if (formData.documents.fileBack) formDataToSend.append("fileBack", formData.documents.fileBack);
 
-        console.log("📦 FormData REGISTRO enviado:");
-        for (let [key, value] of formDataToSend.entries()) {
-            if (value instanceof File) {
-                console.log(`🗂️ ${key}: [Arquivo] ${value.name} (${value.type})`);
-            } else {
-                console.log(`✏️ ${key}: ${value}`);
-            }
-        }
-
-
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/register`, formDataToSend, { withCredentials: true });
-
-            console.log("✅ Resposta da API:", response);
 
             if (response.status === 200 || response.status === 201) {
                 localStorage.removeItem("cadastroStepForm");

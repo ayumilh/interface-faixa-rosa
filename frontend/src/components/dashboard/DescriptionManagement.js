@@ -42,7 +42,6 @@ import {
   FaClipboardList,
   FaCog,
   FaGraduationCap,
-  FaBookOpen,
   FaPlay
 } from "react-icons/fa";
 import Cookies from "js-cookie";
@@ -53,34 +52,34 @@ import { usePlan } from "@/context/PlanContext";
 import { AuthContext } from "@/context/AuthContext";
 
 const atendimentoOptions = [
-  { 
-    value: "HOMENS", 
-    label: "Homens", 
-    icon: "👨", 
+  {
+    value: "HOMENS",
+    label: "Homens",
+    icon: "👨",
     bgColor: "bg-blue-100",
     borderColor: "border-blue-500",
     textColor: "text-blue-800"
   },
-  { 
-    value: "MULHERES", 
-    label: "Mulheres", 
-    icon: "👩", 
+  {
+    value: "MULHERES",
+    label: "Mulheres",
+    icon: "👩",
     bgColor: "bg-pink-100",
     borderColor: "border-pink-500",
     textColor: "text-pink-800"
   },
-  { 
-    value: "CASAIS", 
-    label: "Casais", 
-    icon: "💑", 
+  {
+    value: "CASAIS",
+    label: "Casais",
+    icon: "💑",
     bgColor: "bg-purple-100",
     borderColor: "border-purple-500",
     textColor: "text-purple-800"
   },
-  { 
-    value: "DEFICIENTES_FISICOS", 
-    label: "Deficientes Físicos", 
-    icon: "♿", 
+  {
+    value: "DEFICIENTES_FISICOS",
+    label: "Deficientes Físicos",
+    icon: "♿",
     bgColor: "bg-green-100",
     borderColor: "border-green-500",
     textColor: "text-green-800"
@@ -95,25 +94,26 @@ const genitaliaOptions = [
 const DescriptionManagement = () => {
   const { companions, fetchCompanions } = usePlan();
   const { userInfo } = useContext(AuthContext);
-  
+
   // Estados principais
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState("profile");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   // Estados de dados
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [videoUploaded, setVideoUploaded] = useState(false);
   const [videoPending, setVideoPending] = useState(false);
   const [isVideoApproved, setIsVideoApproved] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
+  const [videoStatus, setVideoStatus] = useState("PENDING"); // PENDING, APPROVED, REJECTED, IN_ANALYSIS
   const [videoUrl, setVideoUrl] = useState(null);
   const [atendimentos, setAtendimentos] = useState([]);
   const [userName, setUserName] = useState("");
   const [newUserName, setNewUserName] = useState("");
   const [isAgeVisible, setIsAgeVisible] = useState(false);
-  
+
   // Estados de modais
   const [showAtendimentosModal, setShowAtendimentosModal] = useState(false);
   const [showUserNameModal, setShowUserNameModal] = useState(false);
@@ -190,6 +190,7 @@ const DescriptionManagement = () => {
 
   const sections = [
     { id: "profile", label: "Perfil", icon: FaUser, shortLabel: "Perfil" },
+    { id: "comparisonVideo", label: "Vídeo", icon: FaVideo, shortLabel: "Vídeo" },
     { id: "characteristics", label: "Características", icon: FaIdCard, shortLabel: "Física" },
     { id: "services", label: "Atendimentos", icon: FaHandsHelping, shortLabel: "Serviços" },
     { id: "privacy", label: "Privacidade", icon: FaShieldAlt, shortLabel: "Privacidade" },
@@ -243,6 +244,7 @@ const DescriptionManagement = () => {
           if (data.video && data.video.url) {
             setIsVideoApproved(true);
             setVideoUrl(data.video.url);
+            setVideoStatus(data.video.status);
           }
         }
       } catch (error) {
@@ -513,13 +515,12 @@ const DescriptionManagement = () => {
             {...register("description", { required: "Descrição é obrigatória" })}
             rows="4"
             placeholder="Escreva uma descrição envolvente sobre você..."
-            className={`w-full p-3 md:p-4 border-2 rounded-xl md:rounded-2xl resize-none transition-all duration-300 focus:outline-none text-sm md:text-base ${
-              errors.description 
-                ? "border-red-500 focus:border-red-600 bg-red-50" 
-                : "border-gray-200 focus:border-pink-500 focus:bg-pink-50"
-            }`}
+            className={`w-full p-3 md:p-4 border-2 rounded-xl md:rounded-2xl resize-none transition-all duration-300 focus:outline-none text-sm md:text-base ${errors.description
+              ? "border-red-500 focus:border-red-600 bg-red-50"
+              : "border-gray-200 focus:border-pink-500 focus:bg-pink-50"
+              }`}
           />
-          
+
           {errors.description && (
             <motion.div
               className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-xl text-sm"
@@ -595,6 +596,86 @@ const DescriptionManagement = () => {
     </div>
   );
 
+  const renderComparisonVideoSection = () => (
+    <motion.div
+      className="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-lg border border-gray-100"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <div className="flex items-center mb-4 md:mb-6">
+        <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl md:rounded-2xl flex items-center justify-center mr-3 md:mr-4">
+          <FaVideo className="text-white text-lg md:text-xl" />
+        </div>
+        <div>
+          <h3 className="text-lg md:text-xl font-bold text-gray-800">Vídeo de Comparação</h3>
+          <p className="text-gray-600 text-xs md:text-sm">
+            Envie um vídeo seu para aumentar a confiança no seu perfil
+          </p>
+        </div>
+      </div>
+
+      {videoUrl && videoStatus === "APPROVED" ? (
+        <div className="space-y-4">
+          <div className="bg-green-50 border border-green-200 p-4 rounded-xl text-green-800 text-sm flex items-center space-x-2">
+            <FaCheckCircle />
+            <span>Seu vídeo foi aprovado! Ele está visível na sua página de perfil público.</span>
+          </div>
+          <Link
+            href={`/perfil/${userName}`}
+            className="inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300"
+          >
+            <FaArrowRight />
+            <span>Ver meu Perfil</span>
+          </Link>
+        </div>
+      ) : videoStatus === "IN_ANALYSIS" ? (
+        <div className="space-y-4">
+          <video
+            src={videoUrl}
+            controls
+            className="w-full rounded-xl border border-gray-200 shadow"
+          />
+          <div className="flex items-center space-x-2 text-yellow-600 bg-yellow-50 p-3 rounded-xl text-sm">
+            <FaClock />
+            <span>Seu vídeo está em análise pela equipe</span>
+          </div>
+        </div>
+      ) : videoStatus === "SUSPENDED" ? (
+        <div className="bg-red-50 border border-red-200 p-4 rounded-xl text-red-800 text-sm flex items-center space-x-2">
+          <FaLock />
+          <span>Seu vídeo foi suspenso. Entre em contato com o suporte para mais informações.</span>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {videoStatus === "REJECTED" && (
+            <div className="bg-red-50 border border-red-200 p-4 rounded-xl text-red-800 text-sm flex items-center space-x-2">
+              <FaTimes />
+              <span>Seu vídeo foi rejeitado. Por favor, envie novamente seguindo as orientações abaixo.</span>
+            </div>
+          )}
+
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
+            <p>
+              <FaInfoCircle className="inline mr-1" />
+              Envie um vídeo apresentando seu rosto e corpo em pé, com boa iluminação e nitidez.
+            </p>
+          </div>
+
+          <label className="block border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300">
+            <FaVideo className="text-indigo-500 text-3xl mx-auto mb-2" />
+            <p className="text-sm text-gray-600 mb-2">Clique para enviar vídeo de até 100MB</p>
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoUpload}
+            />
+          </label>
+        </div>
+      )}
+    </motion.div>
+  );
+
   const renderCharacteristicsSection = () => (
     <div className={`space-y-4 md:space-y-6 ${getHighlightClass('characteristics-section')}`}>
       <motion.div
@@ -612,7 +693,7 @@ const DescriptionManagement = () => {
               <p className="text-gray-600 text-xs md:text-sm">Informações sobre sua aparência</p>
             </div>
           </div>
-          
+
           <button
             type="button"
             onClick={() => setIsFeaturesOpen(!isFeaturesOpen)}
@@ -639,9 +720,8 @@ const DescriptionManagement = () => {
                 </label>
                 <select
                   {...register("gender", { required: "Selecione seu gênero" })}
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.gender ? "border-red-500" : "border-gray-200 focus:border-pink-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.gender ? "border-red-500" : "border-gray-200 focus:border-pink-500"
+                    }`}
                 >
                   <option value="">Selecione...</option>
                   <option value="MULHER_CISGENERO">Mulher Cisgênero</option>
@@ -665,9 +745,8 @@ const DescriptionManagement = () => {
                 </label>
                 <select
                   {...register("genitalia", { required: "Selecione uma opção" })}
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.genitalia ? "border-red-500" : "border-gray-200 focus:border-purple-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.genitalia ? "border-red-500" : "border-gray-200 focus:border-purple-500"
+                    }`}
                 >
                   <option value="">Selecione...</option>
                   {genitaliaOptions.map((option) => (
@@ -700,9 +779,8 @@ const DescriptionManagement = () => {
                   })}
                   type="text"
                   placeholder="Ex: 60"
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.weight ? "border-red-500" : "border-gray-200 focus:border-blue-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.weight ? "border-red-500" : "border-gray-200 focus:border-blue-500"
+                    }`}
                 />
                 {errors.weight && (
                   <p className="text-red-500 text-xs md:text-sm flex items-center space-x-1">
@@ -728,9 +806,8 @@ const DescriptionManagement = () => {
                   })}
                   type="text"
                   placeholder="Ex: 165"
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.height ? "border-red-500" : "border-gray-200 focus:border-green-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.height ? "border-red-500" : "border-gray-200 focus:border-green-500"
+                    }`}
                 />
                 {errors.height && (
                   <p className="text-red-500 text-xs md:text-sm flex items-center space-x-1">
@@ -748,9 +825,8 @@ const DescriptionManagement = () => {
                 </label>
                 <select
                   {...register("ethnicity", { required: "Selecione sua etnia" })}
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.ethnicity ? "border-red-500" : "border-gray-200 focus:border-purple-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.ethnicity ? "border-red-500" : "border-gray-200 focus:border-purple-500"
+                    }`}
                 >
                   <option value="">Selecione...</option>
                   <option value="BRANCA">Branca</option>
@@ -776,9 +852,8 @@ const DescriptionManagement = () => {
                 </label>
                 <select
                   {...register("eyeColor", { required: "Selecione a cor dos olhos" })}
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.eyeColor ? "border-red-500" : "border-gray-200 focus:border-blue-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.eyeColor ? "border-red-500" : "border-gray-200 focus:border-blue-500"
+                    }`}
                 >
                   <option value="">Selecione...</option>
                   <option value="CASTANHOS">Castanhos</option>
@@ -804,9 +879,8 @@ const DescriptionManagement = () => {
                 </label>
                 <select
                   {...register("hairStyle", { required: "Selecione o estilo do cabelo" })}
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.hairStyle ? "border-red-500" : "border-gray-200 focus:border-orange-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.hairStyle ? "border-red-500" : "border-gray-200 focus:border-orange-500"
+                    }`}
                 >
                   <option value="">Selecione...</option>
                   <option value="ONDULADO">Ondulado</option>
@@ -831,9 +905,8 @@ const DescriptionManagement = () => {
                 </label>
                 <select
                   {...register("hairLength", { required: "Selecione o tamanho do cabelo" })}
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.hairLength ? "border-red-500" : "border-gray-200 focus:border-teal-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.hairLength ? "border-red-500" : "border-gray-200 focus:border-teal-500"
+                    }`}
                 >
                   <option value="">Selecione...</option>
                   <option value="CURTO">Curto</option>
@@ -856,9 +929,8 @@ const DescriptionManagement = () => {
                 </label>
                 <select
                   {...register("shoeSize", { required: "Selecione o tamanho do pé" })}
-                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                    errors.shoeSize ? "border-red-500" : "border-gray-200 focus:border-indigo-500"
-                  }`}
+                  className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors.shoeSize ? "border-red-500" : "border-gray-200 focus:border-indigo-500"
+                    }`}
                 >
                   <option value="">Selecione...</option>
                   {Array.from({ length: 14 }, (_, i) => (i + 35).toString()).map((size) => (
@@ -890,9 +962,8 @@ const DescriptionManagement = () => {
                   </label>
                   <select
                     {...register(item.key, { required: "Selecione uma opção" })}
-                    className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${
-                      errors[item.key] ? "border-red-500" : "border-gray-200 focus:border-pink-500"
-                    }`}
+                    className={`w-full p-2 md:p-3 border-2 rounded-xl md:rounded-2xl transition-all duration-300 text-sm md:text-base ${errors[item.key] ? "border-red-500" : "border-gray-200 focus:border-pink-500"
+                      }`}
                   >
                     <option value="">Selecione...</option>
                     <option value="true">Sim</option>
@@ -976,7 +1047,7 @@ const DescriptionManagement = () => {
   );
 
   const renderPrivacySection = () => {
-    const hasAgeHidePlan = Array.isArray(companions.subscriptions) && 
+    const hasAgeHidePlan = Array.isArray(companions.subscriptions) &&
       companions.subscriptions.some((plan) => plan.extraPlan?.id === 8);
 
     return (
@@ -1006,7 +1077,7 @@ const DescriptionManagement = () => {
                     <p className="text-green-600 text-xs md:text-sm">Controle a visibilidade da sua idade</p>
                   </div>
                 </div>
-                
+
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -1045,14 +1116,14 @@ const DescriptionManagement = () => {
               <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
                 <FaLock className="text-gray-400 text-lg md:text-xl" />
               </div>
-              
+
               <div>
                 <h4 className="font-bold text-gray-800 mb-2 text-sm md:text-base">Plano Premium Necessário</h4>
                 <p className="text-gray-600 text-xs md:text-sm mb-4">
                   Para ocultar sua idade, você precisa do <strong>Plano Oculto</strong>
                 </p>
-                
-                <Link 
+
+                <Link
                   href="/planos"
                   className="inline-flex items-center space-x-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 text-sm md:text-base"
                 >
@@ -1120,7 +1191,7 @@ const DescriptionManagement = () => {
             <p className="text-gray-600 text-sm md:text-lg mb-4">
               Complete e atualize as informações do seu perfil
             </p>
-            
+
             {/* Tutorial Button */}
             <motion.button
               onClick={() => setShowTutorial(true)}
@@ -1151,7 +1222,7 @@ const DescriptionManagement = () => {
               </div>
               {isMobileMenuOpen ? <FaChevronUp /> : <FaChevronDown />}
             </button>
-            
+
             <AnimatePresence>
               {isMobileMenuOpen && (
                 <motion.div
@@ -1170,11 +1241,10 @@ const DescriptionManagement = () => {
                           setActiveSection(section.id);
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`w-full flex items-center space-x-3 p-4 text-left transition-colors ${
-                          activeSection === section.id
-                            ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
-                            : "text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className={`w-full flex items-center space-x-3 p-4 text-left transition-colors ${activeSection === section.id
+                          ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
+                          : "text-gray-600 hover:bg-gray-50"
+                          }`}
                       >
                         <Icon className="text-lg" />
                         <span className="font-medium">{section.label}</span>
@@ -1194,11 +1264,10 @@ const DescriptionManagement = () => {
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center space-x-2 px-4 py-3 rounded-2xl font-semibold transition-all duration-300 ${
-                    activeSection === section.id
-                      ? "bg-white text-pink-600 shadow-lg"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-2xl font-semibold transition-all duration-300 ${activeSection === section.id
+                    ? "bg-white text-pink-600 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   <Icon className="text-lg" />
                   <span>{section.label}</span>
@@ -1218,6 +1287,7 @@ const DescriptionManagement = () => {
             transition={{ duration: 0.3 }}
           >
             {activeSection === "profile" && renderProfileBasicSection()}
+            {activeSection === "comparisonVideo" && renderComparisonVideoSection()}
             {activeSection === "characteristics" && renderCharacteristicsSection()}
             {activeSection === "services" && renderServicesSection()}
             {activeSection === "privacy" && renderPrivacySection()}
@@ -1287,17 +1357,17 @@ const DescriptionManagement = () => {
                 {(() => {
                   const currentTutorial = tutorialSteps[currentStep];
                   const IconComponent = currentTutorial.icon;
-                  
+
                   return (
                     <div className="text-center">
                       <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br ${currentTutorial.color}`}>
                         <IconComponent className="text-white text-2xl md:text-3xl" />
                       </div>
-                      
+
                       <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">
                         {currentTutorial.title}
                       </h3>
-                      
+
                       <p className="text-sm md:text-base text-gray-600 mb-6 leading-relaxed">
                         {currentTutorial.description}
                       </p>
@@ -1316,13 +1386,12 @@ const DescriptionManagement = () => {
                         {tutorialSteps.map((_, index) => (
                           <div
                             key={index}
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              index === currentStep 
-                                ? "bg-pink-500 w-8 md:w-10" 
-                                : index < currentStep 
-                                  ? "bg-green-500 w-2" 
-                                  : "bg-gray-300 w-2"
-                            }`}
+                            className={`h-2 rounded-full transition-all duration-300 ${index === currentStep
+                              ? "bg-pink-500 w-8 md:w-10"
+                              : index < currentStep
+                                ? "bg-green-500 w-2"
+                                : "bg-gray-300 w-2"
+                              }`}
                           />
                         ))}
                       </div>
@@ -1342,7 +1411,7 @@ const DescriptionManagement = () => {
                               Anterior
                             </button>
                           )}
-                          
+
                           <button
                             onClick={handleNextStep}
                             className={`px-6 py-2 rounded-xl font-semibold transition-all duration-300 text-sm md:text-base bg-gradient-to-r ${currentTutorial.color} text-white hover:shadow-lg`}
@@ -1456,11 +1525,10 @@ const DescriptionManagement = () => {
                   {atendimentoOptions.map((option) => (
                     <label
                       key={option.value}
-                      className={`flex items-center space-x-3 md:space-x-4 p-3 md:p-4 border-2 rounded-xl md:rounded-2xl cursor-pointer transition-all duration-300 ${
-                        atendimentos.includes(option.value)
-                          ? `${option.borderColor} ${option.bgColor}`
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
+                      className={`flex items-center space-x-3 md:space-x-4 p-3 md:p-4 border-2 rounded-xl md:rounded-2xl cursor-pointer transition-all duration-300 ${atendimentos.includes(option.value)
+                        ? `${option.borderColor} ${option.bgColor}`
+                        : "border-gray-200 hover:border-gray-300"
+                        }`}
                     >
                       <input
                         type="checkbox"

@@ -367,8 +367,6 @@ export default function Perfil() {
 
     setIsLoadingMoreCompanions(true);
     try {
-      console.log('Buscando mais acompanhantes para:', city, state);
-
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/companion?cidade=${encodeURIComponent(city)}&estado=${state}&limit=10`
       );

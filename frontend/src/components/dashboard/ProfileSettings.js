@@ -4,14 +4,14 @@ import React, { useState, useEffect, useMemo, useCallback, useContext } from "re
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  FaUpload, 
-  FaPlusCircle, 
-  FaTrash, 
-  FaCrown, 
-  FaClock, 
-  FaUserCircle, 
-  FaImage, 
+import {
+  FaUpload,
+  FaPlusCircle,
+  FaTrash,
+  FaCrown,
+  FaClock,
+  FaUserCircle,
+  FaImage,
   FaIdCard,
   FaTrophy,
   FaGem,
@@ -44,13 +44,13 @@ import "react-toastify/dist/ReactToastify.css";
 
 const ProfileSettings = ({ onUpdate }) => {
   const { userInfo, fetchUserData } = useContext(AuthContext);
-  
+
   // Estados principais
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
+
   // Estados do perfil
   const [profileImage, setProfileImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
@@ -59,14 +59,14 @@ const ProfileSettings = ({ onUpdate }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const [timeProgress, setTimeProgress] = useState(100);
   const [startDate, setStartDate] = useState(null);
-  
+
   // Estados de documentos
   const [documentFront, setDocumentFront] = useState(null);
   const [documentBack, setDocumentBack] = useState(null);
   const [documentFileFront, setDocumentFileFront] = useState(null);
   const [documentFileBack, setDocumentFileBack] = useState(null);
   const [isReadyToSend, setIsReadyToSend] = useState(false);
-  
+
   // Estados de posts
   const [selectedFile, setSelectedFile] = useState(null);
   const [title, setTitle] = useState("");
@@ -74,12 +74,12 @@ const ProfileSettings = ({ onUpdate }) => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
-  
+
   // Estados do carrossel
   const [allowedCarouselImages, setAllowedCarouselImages] = useState(1);
   const [carouselImages, setCarouselImages] = useState([]);
   const [carouselImagesURL, setCarouselImagesURL] = useState([]);
-  
+
   // Estados do modal/tutoriais
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -600,15 +600,15 @@ const ProfileSettings = ({ onUpdate }) => {
             )}
           </div>
         </div>
-        
+
         <div className="mt-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Progresso</span>
             <span>
               {Math.round(
-                ((profileImage ? 1 : 0) + 
-                 (bannerImage ? 1 : 0) + 
-                 (documentsValidated ? 1 : 0)) / 3 * 100
+                ((profileImage ? 1 : 0) +
+                  (bannerImage ? 1 : 0) +
+                  (documentsValidated ? 1 : 0)) / 3 * 100
               )}%
             </span>
           </div>
@@ -617,9 +617,9 @@ const ProfileSettings = ({ onUpdate }) => {
               className="bg-gradient-to-r from-pink-500 to-purple-500 h-3 rounded-full transition-all duration-500"
               style={{
                 width: `${Math.round(
-                  ((profileImage ? 1 : 0) + 
-                   (bannerImage ? 1 : 0) + 
-                   (documentsValidated ? 1 : 0)) / 3 * 100
+                  ((profileImage ? 1 : 0) +
+                    (bannerImage ? 1 : 0) +
+                    (documentsValidated ? 1 : 0)) / 3 * 100
                 )}%`
               }}
             ></div>
@@ -650,7 +650,7 @@ const ProfileSettings = ({ onUpdate }) => {
               </div>
             </div>
           )}
-          
+
           <label className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full cursor-pointer hover:bg-black/70 transition-all duration-300 flex items-center space-x-2 text-xs sm:text-sm">
             {uploading ? (
               <FaSpinner className="animate-spin" />
@@ -689,7 +689,7 @@ const ProfileSettings = ({ onUpdate }) => {
                   </div>
                 )}
               </div>
-              
+
               <label className="absolute bottom-0 right-0 sm:bottom-2 sm:right-2 bg-pink-500 text-white p-2 sm:p-3 rounded-full cursor-pointer hover:bg-pink-600 transition-all duration-300 shadow-lg">
                 {uploading ? (
                   <FaSpinner className="animate-spin text-xs sm:text-sm" />
@@ -705,7 +705,7 @@ const ProfileSettings = ({ onUpdate }) => {
                 />
               </label>
             </div>
-            
+
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
                 {userInfo?.userName || "Seu Nome"}
@@ -771,7 +771,7 @@ const ProfileSettings = ({ onUpdate }) => {
       {/* Carrossel de imagens */}
       <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
         <h3 className="text-base sm:text-lg font-semibold mb-4">Galeria de Fotos</h3>
-        
+
         {allowedCarouselImages > 0 ? (
           <>
             <p className="text-xs sm:text-sm text-gray-600 mb-4">
@@ -885,7 +885,7 @@ const ProfileSettings = ({ onUpdate }) => {
             <FaCamera className="text-pink-500 mr-2" />
             Publicar Foto
           </h3>
-          
+
           <div className="space-y-4">
             <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-all duration-300">
               {selectedFile ? (
@@ -951,7 +951,7 @@ const ProfileSettings = ({ onUpdate }) => {
             <FaVideo className="text-blue-500 mr-2" />
             Publicar Vídeo
           </h3>
-          
+
           <div className="space-y-4">
             <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
               {selectedVideo ? (
@@ -1228,9 +1228,178 @@ const ProfileSettings = ({ onUpdate }) => {
           </>
         )}
       </div>
+
     </div>
   );
+  
+  // {documentsValidated === "APPROVED" ? (
+  //   <div className="text-center py-6 sm:py-8">
+  //     <div className="bg-green-100 p-3 sm:p-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
+  //       <FaCheckCircle className="text-green-500 text-2xl sm:text-3xl" />
+  //     </div>
+  //     <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
+  //       Documentos Validados! ✅
+  //     </h3>
+  //     <p className="text-sm sm:text-base text-gray-600">
+  //       Seus documentos foram aprovados e seu perfil está verificado.
+  //     </p>
+  //   </div>
+  // ) : documentsValidated === "IN_ANALYSIS" ? (
+  //   <div className="text-center py-6 sm:py-8">
+  //     <div className="bg-yellow-100 p-3 sm:p-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
+  //       <FaClock className="text-yellow-500 text-2xl sm:text-3xl" />
+  //     </div>
+  //     <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
+  //       Documentos em Análise 🔍
+  //     </h3>
+  //     <p className="text-sm sm:text-base text-gray-600">
+  //       Seus documentos foram enviados e estão sendo avaliados. Você será notificado assim que houver uma atualização.
+  //     </p>
+  //   </div>
+  // ) : (
+  //   <>
+  //     <div className="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl p-4 mb-4 sm:mb-6">
+  //       <div className="flex items-start space-x-3">
+  //         <FaExclamationTriangle className="text-yellow-500 mt-1 flex-shrink-0" />
+  //         <div>
+  //           <h4 className="font-semibold text-gray-800 text-sm sm:text-base">Verificação Pendente</h4>
+  //           <p className="text-xs sm:text-sm text-gray-600 mt-1">
+  //             Para ter seu perfil verificado, envie fotos nítidas de ambos os lados do seu documento de identidade.
+  //           </p>
+  //         </div>
+  //       </div>
+  //     </div>
 
+  //     <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0">
+  //       {/* Frente do documento */}
+  //       <div className="space-y-4">
+  //         <h4 className="font-medium text-gray-800 text-sm sm:text-base">Frente do Documento</h4>
+  //         <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
+  //           {documentFront ? (
+  //             <div className="space-y-2">
+  //               <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
+  //               <p className="text-xs sm:text-sm font-medium text-gray-700">Documento carregado</p>
+  //             </div>
+  //           ) : (
+  //             <>
+  //               <FaIdCard className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
+  //               <p className="text-gray-600 text-xs sm:text-sm">Frente do RG/CNH</p>
+  //             </>
+  //           )}
+  //           <input
+  //             type="file"
+  //             accept="image/*"
+  //             className="hidden"
+  //             onChange={(e) => handleFileUpload(e, "front")}
+  //           />
+  //         </label>
+  //       </div>
+
+  //       {/* Verso do documento */}
+  //       <div className="space-y-4">
+  //         <h4 className="font-medium text-gray-800 text-sm sm:text-base">Verso do Documento</h4>
+  //         <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
+  //           {documentBack ? (
+  //             <div className="space-y-2">
+  //               <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
+  //               <p className="text-xs sm:text-sm font-medium text-gray-700">Documento carregado</p>
+  //             </div>
+  //           ) : (
+  //             <>
+  //               <FaIdCard className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
+  //               <p className="text-gray-600 text-xs sm:text-sm">Verso do RG/CNH</p>
+  //             </>
+  //           )}
+  //           <input
+  //             type="file"
+  //             accept="image/*"
+  //             className="hidden"
+  //             onChange={(e) => handleFileUpload(e, "back")}
+  //           />
+  //         </label>
+  //       </div>
+  //     </div>
+
+  //     {/* Preview dos documentos */}
+  //     {(documentFront || documentBack) && (
+  //       <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0 mt-4 sm:mt-6">
+  //         {documentFront && (
+  //           <div className="space-y-2">
+  //             <h5 className="text-xs sm:text-sm font-medium text-gray-700">Preview - Frente</h5>
+  //             <div className="relative aspect-[3/2] bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden">
+  //               <Image
+  //                 src={documentFront}
+  //                 alt="Frente do documento"
+  //                 fill
+  //                 className="object-cover"
+  //               />
+  //             </div>
+  //           </div>
+  //         )}
+  //         {documentBack && (
+  //           <div className="space-y-2">
+  //             <h5 className="text-xs sm:text-sm font-medium text-gray-700">Preview - Verso</h5>
+  //             <div className="relative aspect-[3/2] bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden">
+  //               <Image
+  //                 src={documentBack}
+  //                 alt="Verso do documento"
+  //                 fill
+  //                 className="object-cover"
+  //               />
+  //             </div>
+  //           </div>
+  //         )}
+  //       </div>
+  //     )}
+
+  //     {isReadyToSend && (
+  //       <button
+  //         onClick={handleSendDocuments}
+  //         disabled={uploading}
+  //         className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-2 mt-4 sm:mt-6 text-sm sm:text-base"
+  //       >
+  //         {uploading ? (
+  //           <>
+  //             <FaSpinner className="animate-spin" />
+  //             <span>Enviando documentos...</span>
+  //           </>
+  //         ) : (
+  //           <>
+  //             <FaIdCard />
+  //             <span>Enviar para Verificação</span>
+  //           </>
+  //         )}
+  //       </button>
+  //     )}
+
+  //     {/* Dicas para documentos */}
+  //     <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-4 mt-4 sm:mt-6">
+  //       <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
+  //         <FaInfoCircle className="text-blue-500 mr-2" />
+  //         Dicas para uma verificação rápida
+  //       </h4>
+  //       <div className="space-y-2 text-xs sm:text-sm text-gray-600">
+  //         <div className="flex items-center space-x-2">
+  //           <FaCheck className="text-green-500 flex-shrink-0" />
+  //           <span>Certifique-se de que o documento esteja bem iluminado</span>
+  //         </div>
+  //         <div className="flex items-center space-x-2">
+  //           <FaCheck className="text-green-500 flex-shrink-0" />
+  //           <span>Todas as informações devem estar legíveis</span>
+  //         </div>
+  //         <div className="flex items-center space-x-2">
+  //           <FaCheck className="text-green-500 flex-shrink-0" />
+  //           <span>Evite reflexos ou sombras no documento</span>
+  //         </div>
+  //         <div className="flex items-center space-x-2">
+  //           <FaCheck className="text-green-500 flex-shrink-0" />
+  //           <span>Use formato JPG ou PNG de boa qualidade</span>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </>
+  // )}
+  
   // Loading screen
   if (loading) {
     return (
@@ -1279,7 +1448,7 @@ const ProfileSettings = ({ onUpdate }) => {
                 Gerencie seu perfil e conteúdo de forma profissional
               </p>
             </div>
-            
+
             <button
               onClick={() => setShowTutorial(true)}
               className="mt-4 lg:mt-0 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base mx-auto lg:mx-0"
@@ -1302,7 +1471,7 @@ const ProfileSettings = ({ onUpdate }) => {
                 <FaBars className="text-gray-600" />
               </button>
             </div>
-            
+
             <AnimatePresence>
               {showMobileMenu && (
                 <motion.div
@@ -1320,11 +1489,10 @@ const ProfileSettings = ({ onUpdate }) => {
                           setActiveTab(tab.id);
                           setShowMobileMenu(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-                          activeTab === tab.id
+                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${activeTab === tab.id
                             ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
                             : "text-gray-600 hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         <Icon className="text-lg" />
                         <span className="font-medium">{tab.label}</span>
@@ -1344,11 +1512,10 @@ const ProfileSettings = ({ onUpdate }) => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
-                    activeTab === tab.id
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${activeTab === tab.id
                       ? "bg-white text-pink-600 shadow-lg"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   <Icon className="text-lg" />
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -1390,22 +1557,21 @@ const ProfileSettings = ({ onUpdate }) => {
                 {(() => {
                   const currentTutorial = tutorialSteps[currentStep];
                   const IconComponent = currentTutorial.icon;
-                  
+
                   return (
                     <div className="text-center">
-                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 ${
-                        currentStep === 0 ? 'bg-gradient-to-br from-purple-500 to-purple-600' :
-                        currentStep === 1 ? 'bg-gradient-to-br from-pink-500 to-pink-600' :
-                        currentStep === 2 ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
-                        'bg-gradient-to-br from-green-500 to-green-600'
-                      }`}>
+                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 ${currentStep === 0 ? 'bg-gradient-to-br from-purple-500 to-purple-600' :
+                          currentStep === 1 ? 'bg-gradient-to-br from-pink-500 to-pink-600' :
+                            currentStep === 2 ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
+                              'bg-gradient-to-br from-green-500 to-green-600'
+                        }`}>
                         <IconComponent className="text-white text-lg sm:text-2xl" />
                       </div>
-                      
+
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
                         {currentTutorial.title}
                       </h3>
-                      
+
                       <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
                         {currentTutorial.description}
                       </p>
@@ -1415,9 +1581,8 @@ const ProfileSettings = ({ onUpdate }) => {
                           {tutorialSteps.map((_, index) => (
                             <div
                               key={index}
-                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                index === currentStep ? "bg-pink-500 w-6 sm:w-8" : "bg-gray-300"
-                              }`}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentStep ? "bg-pink-500 w-6 sm:w-8" : "bg-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
@@ -1431,7 +1596,7 @@ const ProfileSettings = ({ onUpdate }) => {
                               Anterior
                             </button>
                           )}
-                          
+
                           {currentStep < tutorialSteps.length - 1 ? (
                             <button
                               onClick={() => setCurrentStep(currentStep + 1)}

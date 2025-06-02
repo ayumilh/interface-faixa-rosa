@@ -20,6 +20,7 @@ import {
 } from "react-icons/fa";
 
 export default function Sobre({ physicalCharacteristics, description, media }) {
+  console.log("Media:", media);
   const [mostrarMaisDescricao, setMostrarMaisDescricao] = useState(false);
   const [mostrarMaisCaracteristicas, setMostrarMaisCaracteristicas] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);
@@ -171,7 +172,7 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Vídeo de verificação */}
             <div className="lg:col-span-1">
-              {media && media.length > 0 ? (
+              {media && media.length > 0 && media[0].status === "APPROVED" ? (
                 <div className="relative group">
                   <div className="relative overflow-hidden rounded-xl shadow-lg">
                     <video
@@ -206,13 +207,6 @@ export default function Sobre({ physicalCharacteristics, description, media }) {
                         className="object-contain w-3 h-3"
                       />
                       <span className="text-xs font-medium">faixarosa.com</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-3 text-center">
-                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                      Verificada em Ago/2024
                     </div>
                   </div>
                 </div>

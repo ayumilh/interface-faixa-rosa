@@ -8,11 +8,11 @@ import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  FaPlus, 
-  FaTimes, 
-  FaTrash, 
-  FaPlay, 
+import {
+  FaPlus,
+  FaTimes,
+  FaTrash,
+  FaPlay,
   FaPause,
   FaChevronLeft,
   FaChevronRight,
@@ -38,9 +38,9 @@ export default function Stories() {
   const imageRef = useRef(null);
 
   const isAcompanhante = userInfo?.userType === "ACOMPANHANTE";
-  
+
   // Correção: Verificar se companions é um array antes de usar find
-  const companionData = Array.isArray(companions) 
+  const companionData = Array.isArray(companions)
     ? companions.find(c => c.userName === userInfo?.userName)
     : null;
 
@@ -48,7 +48,7 @@ export default function Stories() {
   const mainPlanAllowsStories = companionData?.plan?.description?.toLowerCase().includes("acesso aos stories");
 
   // Verifica se há algum plano extra com stories habilitado
-  const extraPlanAllowsStories = Array.isArray(companionData?.subscriptions) && 
+  const extraPlanAllowsStories = Array.isArray(companionData?.subscriptions) &&
     companionData.subscriptions.some(
       sub => sub?.extraPlan?.hasStories === true && sub?.extraPlan?.isEnabled
     );
@@ -62,12 +62,12 @@ export default function Stories() {
 
   const groupStoriesByUser = (stories) => {
     if (!Array.isArray(stories)) return [];
-    
+
     const grouped = {};
     stories.forEach((story) => {
       const userName = story.companion?.userName;
       if (!userName) return;
-      
+
       if (!grouped[userName]) {
         grouped[userName] = {
           companion: story.companion,
@@ -77,7 +77,7 @@ export default function Stories() {
         grouped[userName].stories.push(story);
       }
     });
-    
+
     const all = Object.values(grouped);
     if (userInfo?.userName) {
       const ownIndex = all.findIndex((g) => g.companion.userName === userInfo.userName);
@@ -94,7 +94,7 @@ export default function Stories() {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/story/`);
       const grouped = groupStoriesByUser(res.data || []);
       setStories(grouped);
-      
+
       if (selectedStory) {
         const updatedGroup = grouped.find(g => g.companion.userName === selectedStory.companion.userName);
         if (updatedGroup) {
@@ -109,14 +109,14 @@ export default function Stories() {
     }
   }
 
-  useEffect(() => { 
-    fetchStories(); 
+  useEffect(() => {
+    fetchStories();
   }, []);
 
   const handleStoryUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !userToken) return;
-    
+
     // Validação de arquivo
     const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
@@ -134,7 +134,7 @@ export default function Stories() {
     const formData = new FormData();
     formData.append("media", file);
     formData.append("mediaType", file.type.startsWith("video") ? "video" : "image");
-    
+
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/create`,
@@ -146,7 +146,7 @@ export default function Stories() {
           },
         }
       );
-      
+
       if (res.data) {
         toast.success("Story enviado com sucesso! 🎉");
         fetchStories();
@@ -165,9 +165,9 @@ export default function Stories() {
   const handleDeleteStory = async (id) => {
     const storyId = selectedStory.stories[currentIndex]?.id;
     if (!storyId || !userToken) return;
-    
+
     if (!window.confirm("Tem certeza que deseja deletar este story?")) return;
-    
+
     try {
       await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/${id}/delete`, {
         headers: { Authorization: `Bearer ${userToken}` },
@@ -268,7 +268,7 @@ export default function Stories() {
         closeModal();
       }
     };
-    
+
     const handleKeyPress = (event) => {
       if (selectedStory) {
         if (event.key === 'ArrowRight') nextStory();
@@ -300,47 +300,67 @@ export default function Stories() {
     if (selectedStory) {
       const story = selectedStory.stories[currentIndex];
       if (!story) return <div className="text-white">Story não encontrado</div>;
-      
+
       const { url, mediaType } = story;
-      
+
+      const watermark = (
+        <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 text-xs text-white">
+          <Image
+            src="/iconOficial_faixaRosa.png"
+            alt="Logo"
+            width={12}
+            height={12}
+            className="object-contain w-3 h-3"
+          />
+          <span className="text-xs font-medium">faixarosa.com</span>
+        </div>
+      );
+
       if (mediaType === "video") {
         return (
-          <video
-            src={url}
-            autoPlay
-            muted
-            playsInline
-            className="max-h-[85vh] w-auto object-contain rounded-2xl"
-            onLoadStart={() => setIsPaused(true)}
-            onCanPlay={() => setIsPaused(false)}
-          />
+          <div className="relative">
+            <video
+              src={url}
+              autoPlay
+              muted
+              playsInline
+              className="max-h-[85vh] w-auto object-contain rounded-2xl"
+              onLoadStart={() => setIsPaused(true)}
+              onCanPlay={() => setIsPaused(false)}
+            />
+            {watermark}
+          </div>
         );
       } else if (mediaType === "image") {
         return (
-          <Image 
-            src={url} 
-            alt="Story" 
-            width={500} 
-            height={800} 
-            className="max-h-[85vh] w-auto object-contain rounded-2xl"
-            priority
-          />
+          <div className="relative">
+            <Image
+              src={url}
+              alt="Story"
+              width={500}
+              height={800}
+              className="max-h-[85vh] w-auto object-contain rounded-2xl"
+              priority
+            />
+            {watermark}
+          </div>
         );
       }
     }
     return <div className="text-white">Carregando...</div>;
   };
 
+
   const renderProgressBars = () => {
     if (!selectedStory?.stories) return null;
-    
+
     return selectedStory.stories.map((_, index) => (
       <div key={index} className="flex-1 h-1 bg-white/30 rounded-full mx-0.5">
         <div
           className="h-full bg-white rounded-full transition-all duration-100"
           style={{
-            width: index < currentIndex ? '100%' : 
-                   index === currentIndex ? `${progress}%` : '0%'
+            width: index < currentIndex ? '100%' :
+              index === currentIndex ? `${progress}%` : '0%'
           }}
         />
       </div>
@@ -352,7 +372,7 @@ export default function Stories() {
       <div className="flex overflow-x-auto space-x-6 items-center pb-2 scrollbar-hide">
         {/* Botão de adicionar story */}
         {canPostStory && (
-          <motion.div 
+          <motion.div
             className="flex-shrink-0 text-center group"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -373,11 +393,11 @@ export default function Stories() {
                   )}
                 </div>
               </div>
-              <input 
-                type="file" 
-                accept="image/*,video/*" 
-                className="hidden" 
-                ref={inputRef} 
+              <input
+                type="file"
+                accept="image/*,video/*"
+                className="hidden"
+                ref={inputRef}
                 onChange={handleStoryUpload}
                 disabled={isUploading}
               />
@@ -390,8 +410,8 @@ export default function Stories() {
 
         {/* Stories existentes */}
         {stories.map((storyGroup, index) => (
-          <motion.div 
-            key={index} 
+          <motion.div
+            key={index}
             className="flex-shrink-0 text-center group cursor-pointer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -401,11 +421,11 @@ export default function Stories() {
               <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-500 via-purple-500 to-pink-500 p-1 shadow-lg group-hover:shadow-2xl transition-all duration-300">
                 <div className="w-full h-full rounded-3xl overflow-hidden bg-gray-200 relative">
                   {storyGroup.companion?.profileImage ? (
-                    <Image 
-                      src={storyGroup.companion.profileImage} 
-                      alt={storyGroup.companion.userName || "Usuário"} 
-                      width={80} 
-                      height={80} 
+                    <Image
+                      src={storyGroup.companion.profileImage}
+                      alt={storyGroup.companion.userName || "Usuário"}
+                      width={80}
+                      height={80}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -413,18 +433,18 @@ export default function Stories() {
                       {storyGroup.companion?.userName?.charAt(0)?.toUpperCase() || "?"}
                     </div>
                   )}
-                  
+
                   {/* Indicador de stories */}
                   <div className="absolute bottom-1 right-1 w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
                     {storyGroup.stories.length}
                   </div>
                 </div>
               </div>
-              
+
               {/* Status online */}
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-3 border-white"></div>
             </div>
-            
+
             <span className="block mt-3 text-sm text-gray-700 font-semibold max-w-[5rem] truncate mx-auto">
               {storyGroup.companion?.userName || "Usuário"}
             </span>
@@ -435,14 +455,14 @@ export default function Stories() {
       {/* Modal do Story */}
       <AnimatePresence>
         {selectedStory && (
-          <motion.div 
+          <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <motion.div 
+            <motion.div
               className="bg-black w-full max-w-md mx-4 rounded-3xl shadow-2xl relative overflow-hidden max-h-[95vh]"
               ref={modalRef}
               initial={{ scale: 0.9, y: 20 }}
@@ -457,7 +477,7 @@ export default function Stories() {
 
               {/* Header */}
               <div className="absolute top-16 left-4 right-4 z-20 flex items-center justify-between">
-                <motion.div 
+                <motion.div
                   className="flex items-center space-x-3 cursor-pointer bg-black/50 backdrop-blur-sm rounded-2xl p-3"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -467,11 +487,11 @@ export default function Stories() {
                   whileHover={{ scale: 1.05 }}
                 >
                   {selectedStory.companion?.profileImage ? (
-                    <Image 
-                      src={selectedStory.companion.profileImage} 
-                      alt={selectedStory.companion?.userName || "Usuário"} 
-                      width={40} 
-                      height={40} 
+                    <Image
+                      src={selectedStory.companion.profileImage}
+                      alt={selectedStory.companion?.userName || "Usuário"}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 object-cover rounded-full"
                     />
                   ) : (
@@ -498,8 +518,8 @@ export default function Stories() {
 
                   {/* Delete button para próprios stories */}
                   {selectedStory?.companion?.userName === userInfo?.userName && (
-                    <button 
-                      onClick={() => handleDeleteStory(selectedStory.stories[currentIndex]?.id)} 
+                    <button
+                      onClick={() => handleDeleteStory(selectedStory.stories[currentIndex]?.id)}
                       className="p-3 bg-red-500/80 backdrop-blur-sm rounded-full text-white hover:bg-red-600 transition-all"
                     >
                       <FaTrash className="text-sm" />
@@ -507,8 +527,8 @@ export default function Stories() {
                   )}
 
                   {/* Close button */}
-                  <button 
-                    onClick={closeModal} 
+                  <button
+                    onClick={closeModal}
                     className="p-3 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-black/70 transition-all"
                   >
                     <FaTimes className="text-sm" />
@@ -521,7 +541,7 @@ export default function Stories() {
               <div className="absolute right-0 top-0 h-full w-1/3 cursor-pointer z-10" onClick={nextStory}></div>
 
               {/* Story content */}
-              <div 
+              <div
                 className="relative w-full aspect-[9/16] flex items-center justify-center bg-gradient-to-br from-gray-900 to-black rounded-3xl overflow-hidden cursor-pointer"
                 onClick={handleImageClick}
               >
@@ -542,7 +562,7 @@ export default function Stories() {
                       <FaShare className="text-white text-lg" />
                     </button>
                   </div>
-                  
+
                   <div className="text-white text-sm">
                     {currentIndex + 1}/{selectedStory.stories.length}
                   </div>
@@ -551,16 +571,16 @@ export default function Stories() {
 
               {/* Navigation arrows */}
               {currentIndex > 0 && (
-                <button 
+                <button
                   onClick={prevStory}
                   className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 p-3 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-black/70 transition-all"
                 >
                   <FaChevronLeft />
                 </button>
               )}
-              
+
               {currentIndex < (selectedStory.stories?.length - 1) && (
-                <button 
+                <button
                   onClick={nextStory}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 p-3 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-black/70 transition-all"
                 >

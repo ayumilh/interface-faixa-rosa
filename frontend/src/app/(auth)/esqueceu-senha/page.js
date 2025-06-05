@@ -139,7 +139,7 @@ export default function EsqueceuSenhaPage() {
           <div className="text-center mt-4 text-sm">
             Lembrou sua senha?{" "}
             <button
-              onClick={() => router.push("/auth/login")}
+              onClick={() => router.push("/login")}
               className="font-medium text-pink-500 hover:text-pink-600"
             >
               Entrar

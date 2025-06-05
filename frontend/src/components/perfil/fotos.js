@@ -7,8 +7,10 @@ import {
   FaExpand,
   FaImages,
   FaCamera,
-  FaPlus
+  FaPlus,
+  FaPlay
 } from "react-icons/fa";
+import { HiPhotograph, HiCollection } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 import Reviews from "./reviews";
 import Denuncia from "./denuncia";
@@ -73,7 +75,7 @@ export default function Fotos({ userName, createdAtFormatted }) {
   // Loading screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-pink-50 flex items-center justify-center">
         <motion.div
           className="text-center px-4"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -93,14 +95,17 @@ export default function Fotos({ userName, createdAtFormatted }) {
               className="w-full h-full"
             />
           </motion.div>
-          <p className="text-gray-600 font-medium text-sm sm:text-base">Carregando galeria...</p>
+          <div className="flex items-center justify-center space-x-2 text-gray-600 font-medium text-sm sm:text-base">
+            <HiPhotograph className="text-pink-500 animate-pulse" />
+            <span>Carregando galeria...</span>
+          </div>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-pink-50">
       <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-8">
         {/* Header */}
         <motion.div
@@ -110,52 +115,66 @@ export default function Fotos({ userName, createdAtFormatted }) {
           transition={{ duration: 0.5 }}
         >
           <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2 flex items-center justify-center">
-              <FaImages className="text-pink-500 mr-3" />
-              Galeria de Fotos
-            </h1>
-            <p className="text-gray-600 text-sm sm:text-base">
-              {filteredPhotos.length > 0 
-                ? `📸 ${filteredPhotos.length} foto${filteredPhotos.length > 1 ? 's' : ''} disponível${filteredPhotos.length > 1 ? 'eis' : ''}`
-                : 'Nenhuma foto disponível'
-              }
-            </p>
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-full p-3 mr-4">
+                <HiCollection className="text-white text-2xl sm:text-3xl" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                Galeria de Fotos
+              </h1>
+            </div>
+            <div className="flex items-center justify-center space-x-2 text-gray-600 text-sm sm:text-base">
+              <HiPhotograph className="text-pink-500" />
+              <span>
+                {filteredPhotos.length > 0 
+                  ? `${filteredPhotos.length} foto${filteredPhotos.length > 1 ? 's' : ''} disponível${filteredPhotos.length > 1 ? 'eis' : ''}`
+                  : 'Nenhuma foto disponível'
+                }
+              </span>
+            </div>
           </div>
         </motion.div>
 
-        {/* Galeria de fotos */}
+        {/* Galeria de fotos - Formato Reels */}
         {filteredPhotos.length > 0 ? (
           <motion.div
-            className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg mb-6 sm:mb-8"
+            className="bg-white/70 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-white/20 mb-6 sm:mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
               {filteredPhotos
                 .slice(0, visiblePhotos)
                 .map((photo, index) => (
                 <motion.div
                   key={photo.id}
-                  className="relative group border border-gray-100 rounded-lg sm:rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer bg-white"
+                  className="relative group border border-gray-200/50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white/80 backdrop-blur-sm"
                   onClick={() => openModal(photo)}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ y: -2, scale: 1.02 }}
+                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
+                  whileHover={{ y: -4, scale: 1.02, rotateY: 2 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="relative w-full aspect-square">
+                  {/* Container em formato reels 9:16 */}
+                  <div className="relative w-full aspect-[9/16]">
                     <Image
                       src={photo.mediaUrl}
                       alt={`Foto ${photo.id}`}
                       fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, (max-width: 1536px) 20vw, 16vw"
                     />
 
+                    {/* Gradiente sutil no topo */}
+                    <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/20 to-transparent" />
+
+                    {/* Gradiente sutil na base */}
+                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/40 to-transparent" />
+
                     {/* Marca d'água fixa */}
-                    <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm px-2 py-1 rounded flex items-center space-x-1 text-xs text-white">
+                    <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg flex items-center space-x-1 text-xs text-white transition-all duration-300 group-hover:bg-black/80">
                       <Image
                         src="/iconOficial_faixaRosa.png"
                         alt="Logo"
@@ -167,10 +186,21 @@ export default function Fotos({ userName, createdAtFormatted }) {
                     </div>
 
                     {/* Overlay hover para desktop */}
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 hidden sm:flex items-center justify-center">
-                      <button className="bg-white/90 backdrop-blur-sm rounded-full p-3 hover:bg-white transition-colors shadow-lg">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-black/30 opacity-0 group-hover:opacity-100 transition-all duration-500 hidden sm:flex items-center justify-center">
+                      <motion.button 
+                        className="bg-white/95 backdrop-blur-sm rounded-full p-4 hover:bg-white transition-all duration-300 shadow-2xl"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
                         <FaExpand className="text-gray-800 text-lg" />
-                      </button>
+                      </motion.button>
+                    </div>
+
+                    {/* Indicador de foto para mobile */}
+                    <div className="absolute top-3 left-3 sm:hidden">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+                        <HiPhotograph className="text-pink-500 text-sm" />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -180,35 +210,41 @@ export default function Fotos({ userName, createdAtFormatted }) {
             {/* Carregar mais fotos */}
             {visiblePhotos < filteredPhotos.length && (
               <motion.div
-                className="flex justify-center mt-6 sm:mt-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                className="flex justify-center mt-8 sm:mt-10"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <button
+                <motion.button
                   onClick={loadMorePhotos}
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 flex items-center space-x-2 text-sm sm:text-base shadow-lg hover:shadow-xl"
+                  className="bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-2xl font-semibold hover:from-pink-600 hover:to-purple-700 transition-all duration-300 flex items-center space-x-3 text-sm sm:text-base shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <FaPlus />
+                  <FaPlus className="text-lg" />
                   <span>Ver mais fotos</span>
-                </button>
+                </motion.button>
               </motion.div>
             )}
           </motion.div>
         ) : (
           /* Estado vazio */
           <motion.div
-            className="bg-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-lg mb-6 sm:mb-8"
+            className="bg-white/70 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-xl border border-white/20 mb-6 sm:mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
             <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaCamera className="text-2xl sm:text-3xl text-pink-500" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">Nenhuma foto disponível</h3>
-              <p className="text-gray-600 text-sm sm:text-base">
+              <motion.div 
+                className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-pink-100 via-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <FaCamera className="text-3xl sm:text-4xl text-pink-500" />
+              </motion.div>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Nenhuma foto disponível</h3>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
                 A galeria ainda não possui fotos para exibir.
               </p>
             </div>
@@ -219,51 +255,53 @@ export default function Fotos({ userName, createdAtFormatted }) {
         <AnimatePresence>
           {showModal && selectedPhoto && (
             <motion.div
-              className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 bg-black/98 backdrop-blur-md flex items-center justify-center z-50 p-4"
               onClick={closeModal}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="relative max-w-6xl w-full mx-auto"
+                className="relative max-w-2xl w-full mx-auto"
                 onClick={(e) => e.stopPropagation()}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
               >
                 {/* Botão de fechar */}
                 <motion.button
                   onClick={closeModal}
-                  className="absolute top-4 right-4 text-white bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-full p-3 z-10 transition-all duration-300"
-                  whileHover={{ scale: 1.1 }}
+                  className="absolute -top-12 right-0 text-white bg-black/60 backdrop-blur-md hover:bg-black/80 rounded-full p-3 z-10 transition-all duration-300"
+                  whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   <FaTimes className="text-xl" />
                 </motion.button>
 
-                {/* Imagem centralizada */}
+                {/* Imagem centralizada - Formato reels no modal */}
                 <div className="flex justify-center items-center">
-                  <div className="relative max-w-full max-h-[90vh]">
-                    <Image
-                      src={selectedPhoto.mediaUrl || selectedPhoto.src}
-                      alt={`Foto ${selectedPhoto.id}`}
-                      width={1200}
-                      height={1200}
-                      className="max-h-[90vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
-                    />
-
-                    {/* Marca d'água fixa no modal */}
-                    <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center space-x-2 text-white">
+                  <div className="relative w-full max-w-sm sm:max-w-md">
+                    <div className="relative aspect-[9/16] rounded-3xl overflow-hidden shadow-2xl">
                       <Image
-                        src="/iconOficial_faixaRosa.png"
-                        alt="Logo"
-                        width={24}
-                        height={24}
-                        className="object-contain"
+                        src={selectedPhoto.mediaUrl || selectedPhoto.src}
+                        alt={`Foto ${selectedPhoto.id}`}
+                        fill
+                        className="object-cover"
+                        priority
                       />
-                      <span className="text-lg font-semibold">www.faixarosa.com</span>
+
+                      {/* Marca d'água fixa no modal */}
+                      <div className="absolute bottom-4 right-4 bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl flex items-center space-x-2 text-white shadow-2xl">
+                        <Image
+                          src="/iconOficial_faixaRosa.png"
+                          alt="Logo"
+                          width={20}
+                          height={20}
+                          className="object-contain"
+                        />
+                        <span className="text-sm font-semibold">faixarosa.com</span>
+                      </div>
                     </div>
                   </div>
                 </div>

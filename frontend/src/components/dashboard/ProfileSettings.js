@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useContext } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useContext, useRef } from "react";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,13 +34,430 @@ import {
   FaTimes,
   FaCheck,
   FaSpinner,
-  FaBars
+  FaBars,
+  FaCrop,
+  FaSearchPlus,
+  FaSearchMinus,
+  FaUndo
 } from "react-icons/fa";
 import ActivePlans from "./ActivePlans";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+// Componente de Crop Modal
+const ImageCropModal = ({ isOpen, onClose, imageFile, onCrop, aspectRatio = 1, cropTitle = "Ajustar Imagem" }) => {
+  const canvasRef = useRef(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0, width: 200, height: 200 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const imageRef = useRef(null);
+
+  useEffect(() => {
+    if (imageFile && isOpen) {
+      const url = URL.createObjectURL(imageFile);
+      setImageUrl(url);
+      
+      const img = document.createElement('img');
+      img.onload = () => {
+        const container = containerRef.current;
+        if (container) {
+          const containerRect = container.getBoundingClientRect();
+          const containerWidth = Math.min(containerRect.width - 40, 400);
+          const containerHeight = Math.min(containerRect.height - 120, 400);
+          
+          setContainerSize({ width: containerWidth, height: containerHeight });
+          
+          const scale = Math.min(containerWidth / img.width, containerHeight / img.height);
+          const scaledWidth = img.width * scale;
+          const scaledHeight = img.height * scale;
+          
+          setImageSize({ 
+            width: scaledWidth, 
+            height: scaledHeight,
+            originalWidth: img.width,
+            originalHeight: img.height,
+            scale: scale
+          });
+          
+          setImageOffset({
+            x: (containerWidth - scaledWidth) / 2,
+            y: (containerHeight - scaledHeight) / 2
+          });
+          
+          const cropSize = Math.min(scaledWidth, scaledHeight) * 0.7;
+          setCrop({
+            x: (scaledWidth - cropSize) / 2,
+            y: (scaledHeight - cropSize) / 2,
+            width: cropSize,
+            height: aspectRatio === 1 ? cropSize : cropSize / aspectRatio
+          });
+        }
+      };
+      img.src = url;
+      
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [imageFile, isOpen, aspectRatio]);
+
+  const handleMouseDown = useCallback((e, type) => {
+    e.preventDefault();
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = e.clientX - rect.left - imageOffset.x;
+    const y = e.clientY - rect.top - imageOffset.y;
+    
+    if (type === 'crop') {
+      setIsDragging(true);
+      setDragStart({ x: x - crop.x, y: y - crop.y });
+    } else if (type === 'resize') {
+      setIsResizing(true);
+      setDragStart({ x, y });
+    }
+  }, [crop, imageOffset]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isDragging && !isResizing) return;
+    
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = e.clientX - rect.left - imageOffset.x;
+    const y = e.clientY - rect.top - imageOffset.y;
+    
+    if (isDragging) {
+      const newX = Math.max(0, Math.min(x - dragStart.x, imageSize.width - crop.width));
+      const newY = Math.max(0, Math.min(y - dragStart.y, imageSize.height - crop.height));
+      setCrop(prev => ({ ...prev, x: newX, y: newY }));
+    } else if (isResizing) {
+      const deltaX = x - dragStart.x;
+      const deltaY = y - dragStart.y;
+      const delta = Math.max(deltaX, deltaY);
+      
+      // Calcula o novo tamanho com limites mais flexíveis
+      const maxWidth = imageSize.width - crop.x;
+      const maxHeight = imageSize.height - crop.y;
+      const maxSize = Math.min(maxWidth, maxHeight);
+      
+      let newSize = Math.max(30, crop.width + delta); // Tamanho mínimo de 30px
+      newSize = Math.min(newSize, maxSize); // Não pode ultrapassar a imagem
+      
+      setCrop(prev => ({
+        ...prev,
+        width: newSize,
+        height: aspectRatio === 1 ? newSize : newSize / aspectRatio
+      }));
+      
+      setDragStart({ x, y });
+    }
+  }, [isDragging, isResizing, dragStart, crop, imageSize, imageOffset, aspectRatio]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    setIsResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isDragging || isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
+
+  const handleTouchStart = useCallback((e, type) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = touch.clientX - rect.left - imageOffset.x;
+    const y = touch.clientY - rect.top - imageOffset.y;
+    
+    if (type === 'crop') {
+      setIsDragging(true);
+      setDragStart({ x: x - crop.x, y: y - crop.y });
+    } else if (type === 'resize') {
+      setIsResizing(true);
+      setDragStart({ x, y });
+    }
+  }, [crop, imageOffset]);
+
+  const handleTouchMove = useCallback((e) => {
+    if (!isDragging && !isResizing) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    const x = touch.clientX - rect.left - imageOffset.x;
+    const y = touch.clientY - rect.top - imageOffset.y;
+    
+    if (isDragging) {
+      const newX = Math.max(0, Math.min(x - dragStart.x, imageSize.width - crop.width));
+      const newY = Math.max(0, Math.min(y - dragStart.y, imageSize.height - crop.height));
+      setCrop(prev => ({ ...prev, x: newX, y: newY }));
+    } else if (isResizing) {
+      const deltaX = x - dragStart.x;
+      const deltaY = y - dragStart.y;
+      const delta = Math.max(deltaX, deltaY);
+      
+      // Mesma lógica melhorada para touch
+      const maxWidth = imageSize.width - crop.x;
+      const maxHeight = imageSize.height - crop.y;
+      const maxSize = Math.min(maxWidth, maxHeight);
+      
+      let newSize = Math.max(30, crop.width + delta);
+      newSize = Math.min(newSize, maxSize);
+      
+      setCrop(prev => ({
+        ...prev,
+        width: newSize,
+        height: aspectRatio === 1 ? newSize : newSize / aspectRatio
+      }));
+      
+      setDragStart({ x, y });
+    }
+  }, [isDragging, isResizing, dragStart, crop, imageSize, imageOffset, aspectRatio]);
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false);
+    setIsResizing(false);
+  }, []);
+
+  const cropImage = useCallback(async () => {
+    if (!imageFile || !imageSize.originalWidth) return;
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    const img = document.createElement('img');
+    img.onload = () => {
+      const scaleX = imageSize.originalWidth / imageSize.width;
+      const scaleY = imageSize.originalHeight / imageSize.height;
+      
+      const sourceX = crop.x * scaleX;
+      const sourceY = crop.y * scaleY;
+      const sourceWidth = crop.width * scaleX;
+      const sourceHeight = crop.height * scaleY;
+      
+      canvas.width = crop.width;
+      canvas.height = crop.height;
+      
+      ctx.drawImage(
+        img,
+        sourceX, sourceY, sourceWidth, sourceHeight,
+        0, 0, crop.width, crop.height
+      );
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const croppedFile = new File([blob], imageFile.name, {
+            type: imageFile.type,
+            lastModified: Date.now()
+          });
+          onCrop(croppedFile);
+        }
+      }, imageFile.type, 0.9);
+    };
+    img.src = imageUrl;
+  }, [imageFile, imageUrl, crop, imageSize, onCrop]);
+
+  const resetCrop = () => {
+    if (imageSize.width && imageSize.height) {
+      const cropSize = Math.min(imageSize.width, imageSize.height) * 0.7;
+      setCrop({
+        x: (imageSize.width - cropSize) / 2,
+        y: (imageSize.height - cropSize) / 2,
+        width: cropSize,
+        height: aspectRatio === 1 ? cropSize : cropSize / aspectRatio
+      });
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white rounded-2xl sm:rounded-3xl max-w-md sm:max-w-lg w-full max-h-[90vh] overflow-hidden"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {/* Header */}
+        <div className="p-4 sm:p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+              <FaCrop className="text-pink-500 mr-2" />
+              {cropTitle}
+            </h3>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <FaTimes className="text-gray-600" />
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            Arraste para mover • Canto inferior direito para redimensionar
+          </p>
+        </div>
+
+        {/* Crop Area */}
+                  <div className="p-4 sm:p-6">
+          <div
+            ref={containerRef}
+            className="relative bg-gray-100 rounded-xl overflow-hidden mx-auto"
+            style={{ 
+              width: containerSize.width || 300, 
+              height: containerSize.height || 300,
+              touchAction: 'none'
+            }}
+          >
+            {imageUrl && (
+              <>
+                <img
+                  ref={imageRef}
+                  src={imageUrl}
+                  alt="Crop preview"
+                  className="absolute pointer-events-none select-none"
+                  style={{
+                    width: imageSize.width,
+                    height: imageSize.height,
+                    left: imageOffset.x,
+                    top: imageOffset.y,
+                    transform: `scale(${zoom})`
+                  }}
+                  draggable={false}
+                />
+                
+                {/* Overlay */}
+                <div 
+                  className="absolute inset-0 bg-black/50"
+                  style={{
+                    left: imageOffset.x,
+                    top: imageOffset.y,
+                    width: imageSize.width,
+                    height: imageSize.height
+                  }}
+                />
+                
+                {/* Crop Box */}
+                <div
+                  className="absolute border-2 border-white cursor-move"
+                  style={{
+                    left: imageOffset.x + crop.x,
+                    top: imageOffset.y + crop.y,
+                    width: crop.width,
+                    height: crop.height,
+                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
+                  }}
+                  onMouseDown={(e) => handleMouseDown(e, 'crop')}
+                  onTouchStart={(e) => handleTouchStart(e, 'crop')}
+                >
+                  {/* Grid Lines */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-1/3 left-0 right-0 h-px bg-white/50" />
+                    <div className="absolute top-2/3 left-0 right-0 h-px bg-white/50" />
+                    <div className="absolute left-1/3 top-0 bottom-0 w-px bg-white/50" />
+                    <div className="absolute left-2/3 top-0 bottom-0 w-px bg-white/50" />
+                  </div>
+                  
+                  {/* Resize Handle - Melhorado */}
+                  <div
+                    className="absolute -bottom-3 -right-3 w-8 h-8 bg-white border-2 border-pink-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg hover:bg-pink-50 transition-colors"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      handleMouseDown(e, 'resize');
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      handleTouchStart(e, 'resize');
+                    }}
+                  >
+                    <div className="w-2 h-2 bg-pink-500 rounded-full" />
+                  </div>
+                  
+                  {/* Handles de canto adicionais */}
+                  <div
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-white border border-pink-500 rounded-full cursor-nw-resize opacity-75 hover:opacity-100"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      handleMouseDown(e, 'resize');
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      handleTouchStart(e, 'resize');
+                    }}
+                  />
+                  <div
+                    className="absolute -bottom-1 -left-1 w-4 h-4 bg-white border border-pink-500 rounded-full cursor-ne-resize opacity-75 hover:opacity-100"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      handleMouseDown(e, 'resize');
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      handleTouchStart(e, 'resize');
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center justify-between mt-4 sm:mt-6">
+            <button
+              onClick={resetCrop}
+              className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors text-sm sm:text-base"
+            >
+              <FaUndo className="text-sm" />
+              <span className="hidden sm:inline">Resetar</span>
+            </button>
+            
+            <div className="flex space-x-2 sm:space-x-3">
+              <button
+                onClick={onClose}
+                className="px-4 sm:px-6 py-2 sm:py-3 text-gray-600 hover:text-gray-800 transition-colors text-sm sm:text-base"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={cropImage}
+                className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 text-sm sm:text-base"
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <canvas ref={canvasRef} className="hidden" />
+      </motion.div>
+    </motion.div>
+  );
+};
 
 const ProfileSettings = ({ onUpdate }) => {
   const { userInfo, fetchUserData } = useContext(AuthContext);
@@ -84,6 +501,12 @@ const ProfileSettings = ({ onUpdate }) => {
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [showProfileTips, setShowProfileTips] = useState(false);
+
+  // Estados do crop modal
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropImageFile, setCropImageFile] = useState(null);
+  const [cropType, setCropType] = useState(null); // 'profile', 'banner', 'carousel'
+  const [cropAspectRatio, setCropAspectRatio] = useState(1);
 
   // Configuração das tabs
   const tabs = [
@@ -217,12 +640,9 @@ const ProfileSettings = ({ onUpdate }) => {
     fetchMedia();
   }, [fetchMedia]);
 
-  // Handlers
-  const handleImageChange = async (e, type) => {
-    const userToken = Cookies.get("userToken");
-    const formData = new FormData();
+  // Handlers para crop
+  const handleImageSelect = (e, type) => {
     const file = e.target.files[0];
-
     if (!file) return;
 
     // Validação de arquivo
@@ -231,37 +651,78 @@ const ProfileSettings = ({ onUpdate }) => {
       return;
     }
 
-    formData.append(type === "profile" ? "profileImage" : "bannerImage", file);
+    setCropImageFile(file);
+    setCropType(type);
+    
+    // Define aspect ratio baseado no tipo
+    if (type === 'profile') {
+      setCropAspectRatio(1); // Quadrado
+    } else if (type === 'banner') {
+      setCropAspectRatio(3); // Banner 3:1
+    } else {
+      setCropAspectRatio(1); // Carousel quadrado
+    }
+    
+    setShowCropModal(true);
+  };
+
+  const handleCropComplete = async (croppedFile) => {
+    setShowCropModal(false);
     setUploading(true);
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/update`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${userToken}`
-          },
-        }
-      );
+      const userToken = Cookies.get("userToken");
+      const formData = new FormData();
 
-      if (response.status === 200) {
-        if (type === "profile") {
-          setProfileImage(response.data.companion.profileImage);
-          toast.success("✨ Foto de perfil atualizada!");
-          fetchUserData();
-        } else {
-          setBannerImage(response.data.companion.bannerImage);
-          toast.success("🎨 Banner atualizado!");
+      if (cropType === 'profile' || cropType === 'banner') {
+        formData.append(cropType === "profile" ? "profileImage" : "bannerImage", croppedFile);
+        
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/update`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${userToken}`
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (cropType === "profile") {
+            setProfileImage(response.data.companion.profileImage);
+            toast.success("✨ Foto de perfil atualizada!");
+            fetchUserData();
+          } else {
+            setBannerImage(response.data.companion.bannerImage);
+            toast.success("🎨 Banner atualizado!");
+          }
         }
+      } else if (cropType === 'carousel') {
+        // Adiciona à lista de imagens para upload
+        const totalSelected = carouselImages.length + carouselImagesURL.length;
+        if (totalSelected >= allowedCarouselImages) {
+          toast.error(`Limite de ${allowedCarouselImages} imagens atingido!`);
+          return;
+        }
+
+        const imageUrl = URL.createObjectURL(croppedFile);
+        setCarouselImagesURL([...carouselImagesURL, { file: croppedFile, url: imageUrl }]);
+        toast.success("📸 Imagem adicionada! Clique em 'Enviar Fotos' para finalizar.");
       }
     } catch (error) {
       console.error('Erro ao atualizar:', error);
       toast.error('Erro ao atualizar imagem.');
     } finally {
       setUploading(false);
+      setCropImageFile(null);
+      setCropType(null);
     }
+  };
+
+  // Handlers originais (atualizados para usar crop)
+  const handleImageChange = (e, type) => {
+    handleImageSelect(e, type);
   };
 
   const handlePostUpload = async () => {
@@ -345,17 +806,7 @@ const ProfileSettings = ({ onUpdate }) => {
   };
 
   const handleCarouselImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const totalSelected = carouselImages.length + carouselImagesURL.length;
-    if (totalSelected >= allowedCarouselImages) {
-      toast.error(`Limite de ${allowedCarouselImages} imagens atingido!`);
-      return;
-    }
-
-    const imageUrl = URL.createObjectURL(file);
-    setCarouselImagesURL([...carouselImagesURL, { file, url: imageUrl }]);
+    handleImageSelect(e, 'carousel');
   };
 
   const handleUploadCarouselImages = async () => {
@@ -655,7 +1106,7 @@ const ProfileSettings = ({ onUpdate }) => {
             {uploading ? (
               <FaSpinner className="animate-spin" />
             ) : (
-              <FaCamera />
+              <FaCrop />
             )}
             <span className="hidden sm:inline">
               {uploading ? "Enviando..." : "Alterar"}
@@ -783,7 +1234,7 @@ const ProfileSettings = ({ onUpdate }) => {
               <label className="block border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-6 sm:p-8 text-center cursor-pointer hover:border-pink-500 hover:bg-pink-50 transition-all duration-300 mb-4 sm:mb-6">
                 <FaPlusCircle className="text-3xl sm:text-4xl text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600 font-medium text-sm sm:text-base">Clique para adicionar uma foto</p>
-                <p className="text-xs sm:text-sm text-gray-500 mt-2">JPG, PNG até 10MB</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">JPG, PNG até 10MB • Ajuste automático</p>
                 <input
                   type="file"
                   accept="image/*"
@@ -1228,177 +1679,8 @@ const ProfileSettings = ({ onUpdate }) => {
           </>
         )}
       </div>
-
     </div>
   );
-  
-  // {documentsValidated === "APPROVED" ? (
-  //   <div className="text-center py-6 sm:py-8">
-  //     <div className="bg-green-100 p-3 sm:p-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
-  //       <FaCheckCircle className="text-green-500 text-2xl sm:text-3xl" />
-  //     </div>
-  //     <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
-  //       Documentos Validados! ✅
-  //     </h3>
-  //     <p className="text-sm sm:text-base text-gray-600">
-  //       Seus documentos foram aprovados e seu perfil está verificado.
-  //     </p>
-  //   </div>
-  // ) : documentsValidated === "IN_ANALYSIS" ? (
-  //   <div className="text-center py-6 sm:py-8">
-  //     <div className="bg-yellow-100 p-3 sm:p-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
-  //       <FaClock className="text-yellow-500 text-2xl sm:text-3xl" />
-  //     </div>
-  //     <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
-  //       Documentos em Análise 🔍
-  //     </h3>
-  //     <p className="text-sm sm:text-base text-gray-600">
-  //       Seus documentos foram enviados e estão sendo avaliados. Você será notificado assim que houver uma atualização.
-  //     </p>
-  //   </div>
-  // ) : (
-  //   <>
-  //     <div className="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl p-4 mb-4 sm:mb-6">
-  //       <div className="flex items-start space-x-3">
-  //         <FaExclamationTriangle className="text-yellow-500 mt-1 flex-shrink-0" />
-  //         <div>
-  //           <h4 className="font-semibold text-gray-800 text-sm sm:text-base">Verificação Pendente</h4>
-  //           <p className="text-xs sm:text-sm text-gray-600 mt-1">
-  //             Para ter seu perfil verificado, envie fotos nítidas de ambos os lados do seu documento de identidade.
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </div>
-
-  //     <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0">
-  //       {/* Frente do documento */}
-  //       <div className="space-y-4">
-  //         <h4 className="font-medium text-gray-800 text-sm sm:text-base">Frente do Documento</h4>
-  //         <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
-  //           {documentFront ? (
-  //             <div className="space-y-2">
-  //               <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
-  //               <p className="text-xs sm:text-sm font-medium text-gray-700">Documento carregado</p>
-  //             </div>
-  //           ) : (
-  //             <>
-  //               <FaIdCard className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
-  //               <p className="text-gray-600 text-xs sm:text-sm">Frente do RG/CNH</p>
-  //             </>
-  //           )}
-  //           <input
-  //             type="file"
-  //             accept="image/*"
-  //             className="hidden"
-  //             onChange={(e) => handleFileUpload(e, "front")}
-  //           />
-  //         </label>
-  //       </div>
-
-  //       {/* Verso do documento */}
-  //       <div className="space-y-4">
-  //         <h4 className="font-medium text-gray-800 text-sm sm:text-base">Verso do Documento</h4>
-  //         <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
-  //           {documentBack ? (
-  //             <div className="space-y-2">
-  //               <FaCheckCircle className="text-green-500 text-xl sm:text-2xl mx-auto" />
-  //               <p className="text-xs sm:text-sm font-medium text-gray-700">Documento carregado</p>
-  //             </div>
-  //           ) : (
-  //             <>
-  //               <FaIdCard className="text-2xl sm:text-3xl text-gray-400 mx-auto mb-2" />
-  //               <p className="text-gray-600 text-xs sm:text-sm">Verso do RG/CNH</p>
-  //             </>
-  //           )}
-  //           <input
-  //             type="file"
-  //             accept="image/*"
-  //             className="hidden"
-  //             onChange={(e) => handleFileUpload(e, "back")}
-  //           />
-  //         </label>
-  //       </div>
-  //     </div>
-
-  //     {/* Preview dos documentos */}
-  //     {(documentFront || documentBack) && (
-  //       <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0 mt-4 sm:mt-6">
-  //         {documentFront && (
-  //           <div className="space-y-2">
-  //             <h5 className="text-xs sm:text-sm font-medium text-gray-700">Preview - Frente</h5>
-  //             <div className="relative aspect-[3/2] bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden">
-  //               <Image
-  //                 src={documentFront}
-  //                 alt="Frente do documento"
-  //                 fill
-  //                 className="object-cover"
-  //               />
-  //             </div>
-  //           </div>
-  //         )}
-  //         {documentBack && (
-  //           <div className="space-y-2">
-  //             <h5 className="text-xs sm:text-sm font-medium text-gray-700">Preview - Verso</h5>
-  //             <div className="relative aspect-[3/2] bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden">
-  //               <Image
-  //                 src={documentBack}
-  //                 alt="Verso do documento"
-  //                 fill
-  //                 className="object-cover"
-  //               />
-  //             </div>
-  //           </div>
-  //         )}
-  //       </div>
-  //     )}
-
-  //     {isReadyToSend && (
-  //       <button
-  //         onClick={handleSendDocuments}
-  //         disabled={uploading}
-  //         className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center space-x-2 mt-4 sm:mt-6 text-sm sm:text-base"
-  //       >
-  //         {uploading ? (
-  //           <>
-  //             <FaSpinner className="animate-spin" />
-  //             <span>Enviando documentos...</span>
-  //           </>
-  //         ) : (
-  //           <>
-  //             <FaIdCard />
-  //             <span>Enviar para Verificação</span>
-  //           </>
-  //         )}
-  //       </button>
-  //     )}
-
-  //     {/* Dicas para documentos */}
-  //     <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-4 mt-4 sm:mt-6">
-  //       <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
-  //         <FaInfoCircle className="text-blue-500 mr-2" />
-  //         Dicas para uma verificação rápida
-  //       </h4>
-  //       <div className="space-y-2 text-xs sm:text-sm text-gray-600">
-  //         <div className="flex items-center space-x-2">
-  //           <FaCheck className="text-green-500 flex-shrink-0" />
-  //           <span>Certifique-se de que o documento esteja bem iluminado</span>
-  //         </div>
-  //         <div className="flex items-center space-x-2">
-  //           <FaCheck className="text-green-500 flex-shrink-0" />
-  //           <span>Todas as informações devem estar legíveis</span>
-  //         </div>
-  //         <div className="flex items-center space-x-2">
-  //           <FaCheck className="text-green-500 flex-shrink-0" />
-  //           <span>Evite reflexos ou sombras no documento</span>
-  //         </div>
-  //         <div className="flex items-center space-x-2">
-  //           <FaCheck className="text-green-500 flex-shrink-0" />
-  //           <span>Use formato JPG ou PNG de boa qualidade</span>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </>
-  // )}
   
   // Loading screen
   if (loading) {
@@ -1632,6 +1914,28 @@ const ProfileSettings = ({ onUpdate }) => {
                 })()}
               </motion.div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Crop Modal */}
+        <AnimatePresence>
+          {showCropModal && (
+            <ImageCropModal
+              isOpen={showCropModal}
+              onClose={() => {
+                setShowCropModal(false);
+                setCropImageFile(null);
+                setCropType(null);
+              }}
+              imageFile={cropImageFile}
+              onCrop={handleCropComplete}
+              aspectRatio={cropAspectRatio}
+              cropTitle={
+                cropType === 'profile' ? 'Ajustar Foto de Perfil' :
+                cropType === 'banner' ? 'Ajustar Banner' :
+                'Ajustar Foto da Galeria'
+              }
+            />
           )}
         </AnimatePresence>
       </div>

@@ -118,6 +118,7 @@ const DescriptionManagement = () => {
   const [showAtendimentosModal, setShowAtendimentosModal] = useState(false);
   const [showUserNameModal, setShowUserNameModal] = useState(false);
   const [isFeaturesOpen, setIsFeaturesOpen] = useState(true);
+  const [canHideAge, setCanHideAge] = useState(false);
 
   // Estados do tutorial
   const [showTutorial, setShowTutorial] = useState(false);
@@ -265,11 +266,13 @@ const DescriptionManagement = () => {
   }, [userName, fetchCompanions]);
 
   useEffect(() => {
-    if (userInfo && userInfo.companion) {
-      const isAgeHiddenValue = userInfo.companion.isAgeHidden;
-      setIsAgeVisible(isAgeHiddenValue);
+    if (companions) {
+      const canHideAge = hasActiveHideAgePlan(companions);
+      setCanHideAge(canHideAge);
+      setIsAgeVisible(companions.isAgeHidden);
     }
-  }, [userInfo]);
+  }, [companions]);
+
 
   // Handlers
   const handleAgeVisibilityChange = async () => {
@@ -279,6 +282,7 @@ const DescriptionManagement = () => {
       canHideAge: !isAgeVisible,
     };
 
+    console.log("Atualizando visibilidade da idade:", updatedData);
     try {
       const userToken = Cookies.get("userToken");
       const response = await axios.post(
@@ -1046,10 +1050,17 @@ const DescriptionManagement = () => {
     </motion.div>
   );
 
-  const renderPrivacySection = () => {
-    const hasAgeHidePlan = Array.isArray(companions.subscriptions) &&
-      companions.subscriptions.some((plan) => plan.extraPlan?.id === 8);
+  function hasActiveHideAgePlan(companion) {
+    return Array.isArray(companion?.subscriptions) &&
+      companion.subscriptions.some(
+        (sub) =>
+          sub?.extraPlan?.isEnabled &&
+          sub?.extraPlan?.canHideAge === true &&
+          (!sub.endDate || new Date(sub.endDate) > new Date())
+      );
+  }
 
+  const renderPrivacySection = () => {
     return (
       <motion.div
         className={`bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-lg border border-gray-100 ${getHighlightClass('privacy-section')}`}
@@ -1066,7 +1077,7 @@ const DescriptionManagement = () => {
           </div>
         </div>
 
-        {hasAgeHidePlan ? (
+        {canHideAge ? (
           <div className="space-y-4 md:space-y-6">
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl md:rounded-2xl p-4 md:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-4">

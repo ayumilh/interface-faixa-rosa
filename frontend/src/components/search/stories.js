@@ -367,8 +367,28 @@ export default function Stories() {
     ));
   };
 
-  return (
-    <div className="w-full py-6 px-4 bg-gradient-to-r from-gray-50 to-white">
+  return (<>
+    {!canPostStory && isAcompanhante && (
+      <div className="w-full mt-6 flex justify-center">
+        <div className="bg-white/70 backdrop-blur-md border border-pink-200 text-pink-800 rounded-xl px-6 py-4 text-center shadow-lg max-w-md">
+          <p className="text-sm sm:text-base font-medium">
+            Você ainda <span className="text-pink-600 font-semibold">não tem acesso aos Stories</span>.
+          </p>
+          <p className="mt-1 text-xs text-gray-600">
+            Faça upgrade de plano e ative essa função exclusiva.
+          </p>
+          <button
+            onClick={() => router.push('/planos')}
+            className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm px-5 py-2 rounded-full font-semibold hover:scale-105 transition"
+          >
+            Ver planos disponíveis
+          </button>
+        </div>
+      </div>
+    )}
+
+    <div className={`w-full px-4${canPostStory ? 'bg-gradient-to-r from-gray-50 to-white py-6' : ''
+      }`}>
       <div className="flex overflow-x-auto space-x-6 items-center pb-2 scrollbar-hide">
         {/* Botão de adicionar story */}
         {canPostStory && (
@@ -602,5 +622,7 @@ export default function Stories() {
         }
       `}</style>
     </div>
+  </>
+
   );
 }

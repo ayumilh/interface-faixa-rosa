@@ -20,6 +20,7 @@ import {
   FaSpinner
 } from 'react-icons/fa';
 import { IoIosArrowBack } from "react-icons/io";
+import { usePlan } from "@/context/PlanContext";
 import { X, ArrowRight, MapPin } from "phosphor-react";
 
 // Lazy loading de componentes pesados
@@ -351,6 +352,7 @@ ActionButtons.displayName = 'ActionButtons';
 // Componente principal
 export default function Perfil() {
   const { userName } = useParams();
+  const { companions, fetchCompanions } = usePlan();
   const [companionData, setCompanionData] = useState(null);
   const [maisAcompanhantes, setMaisAcompanhantes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -360,6 +362,14 @@ export default function Perfil() {
   const [showProfileImageModal, setShowProfileImageModal] = useState(false);
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    if (userName) {
+      fetchCompanions({ planos: true, userName: userName });
+    }
+  }, [userName, fetchCompanions]);
+
+  console.log("Companions from context:", companions);
 
   // Função separada para buscar mais acompanhantes
   const fetchMoreCompanions = useCallback(async (city, state, currentUserName) => {
@@ -414,7 +424,7 @@ export default function Perfil() {
       // SEMPRE buscar mais acompanhantes, independente do cache
       if (data?.city && data?.state) {
         await fetchMoreCompanions(data.city, data.state, userName);
-      } 
+      }
     } catch (error) {
       console.error('Erro ao buscar perfil:', error);
       toast.error("Erro ao carregar perfil.");
@@ -426,40 +436,19 @@ export default function Perfil() {
     fetchProfile();
   }, [fetchProfile]);
 
+  console.log("Companion data:", companionData);
+
+  const hasActiveCanHideAge = companions?.subscriptions?.some((sub) => {
+    const canHideAge = sub.extraPlan?.canHideAge === true;
+    return canHideAge;
+  });
+
+
+  console.log("hasActiveCanHideAge data:", hasActiveCanHideAge)
+
   const handleTabClick = useCallback((tab) => {
     setActiveTab(tab);
   }, []);
-
-
-  const handleAgeVisibilityChange = async () => {
-    const updatedValue = !companionData.isAgeHidden;
-
-    try {
-      const userToken = Cookies.get("userToken");
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
-        { isAgeHidden: updatedValue },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      );
-
-      if (response.data) {
-        toast.success(`Idade ${updatedValue ? "ocultada" : "exibida"} com sucesso!`);
-        setCompanionData((prev) => ({
-          ...prev,
-          isAgeHidden: updatedValue,
-        }));
-      }
-    } catch (error) {
-      toast.error("Erro ao atualizar visibilidade da idade.");
-      console.error(error);
-    }
-  };
 
 
   const handleProfileImageClick = useCallback(() => {
@@ -642,12 +631,19 @@ export default function Perfil() {
                       </div>
 
                       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 justify-center sm:justify-start text-center sm:text-left">
-                        {companionData?.isAgeHidden && (
-                          <div className="flex items-center justify-center sm:justify-start space-x-2">
-                            <FaRegUser className="text-pink-500" />
-                            <span className="font-medium">Idade: {companionData.age} anos</span>
-                          </div>
-                        )}
+                        {hasActiveCanHideAge
+                          ? companionData?.isAgeHidden && (
+                            <div className="flex items-center justify-center sm:justify-start space-x-2">
+                              <FaRegUser className="text-pink-500" />
+                              <span className="font-medium">Idade: {companionData.age} anos</span>
+                            </div>
+                          )
+                          : (
+                            <div className="flex items-center justify-center sm:justify-start space-x-2">
+                              <FaRegUser className="text-pink-500" />
+                              <span className="font-medium">Idade: {companionData.age} anos</span>
+                            </div>
+                          )}
                       </div>
 
 

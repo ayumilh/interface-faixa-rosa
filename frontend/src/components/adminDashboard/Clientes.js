@@ -22,7 +22,7 @@ const Clientes = () => {
       try {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/users`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/contratantes`,
           {
             headers: {
               Authorization: `Bearer ${userToken}`,
@@ -47,7 +47,7 @@ const Clientes = () => {
     );
   };
 
-  const monitorarInteracoes = (clienteId) => {
+  const monitorarInteracoes = async (clienteId) => {
     setModal({
       isOpen: true,
       content: (
@@ -56,6 +56,7 @@ const Clientes = () => {
           <p>
             Você está monitorando as interações do cliente ID: <strong>{clienteId}</strong>.
           </p>
+          {/* Futuramente você pode carregar dados reais aqui */}
           <div className="mt-4 flex justify-end">
             <button
               onClick={() => setModal({ isOpen: false, content: null })}
@@ -68,6 +69,7 @@ const Clientes = () => {
       ),
     });
   };
+
 
   const excluirConta = (clienteId) => {
     setModal({
@@ -86,27 +88,41 @@ const Clientes = () => {
               Cancelar
             </button>
             <button
-              onClick={() => {
-                setClientes(clientes.filter((c) => c.id !== clienteId));
-                setModal({
-                  isOpen: true,
-                  content: (
-                    <>
-                      <h2 className="text-xl font-semibold">Sucesso</h2>
-                      <p>Conta excluída com sucesso!</p>
-                      <div className="mt-4 flex justify-end">
-                        <button
-                          onClick={() =>
-                            setModal({ isOpen: false, content: null })
-                          }
-                          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                        >
-                          Fechar
-                        </button>
-                      </div>
-                    </>
-                  ),
-                });
+              onClick={async () => {
+                try {
+                  const userToken = Cookies.get("userToken");
+                  await axios.delete(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/contratantes/${clienteId}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${userToken}`,
+                      },
+                    }
+                  );
+                  setClientes(clientes.filter((c) => c.id !== clienteId));
+                  setModal({
+                    isOpen: true,
+                    content: (
+                      <>
+                        <h2 className="text-xl font-semibold">Sucesso</h2>
+                        <p>Conta excluída com sucesso!</p>
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={() =>
+                              setModal({ isOpen: false, content: null })
+                            }
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                          >
+                            Fechar
+                          </button>
+                        </div>
+                      </>
+                    ),
+                  });
+                } catch (error) {
+                  console.error("Erro ao excluir contratante:", error);
+                  alert("Erro ao excluir a conta.");
+                }
               }}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
@@ -117,6 +133,7 @@ const Clientes = () => {
       ),
     });
   };
+
 
   const bloquearUsuario = (clienteId) => {
     const cliente = clientes.find((c) => c.id === clienteId);
@@ -365,8 +382,8 @@ const Clientes = () => {
                         <button
                           onClick={() => bloquearUsuario(cliente.id)}
                           className={`${cliente.status === "Banido"
-                              ? "text-green-600 hover:text-green-800"
-                              : "text-yellow-600 hover:text-yellow-800"
+                            ? "text-green-600 hover:text-green-800"
+                            : "text-yellow-600 hover:text-yellow-800"
                             } transition`}
                           aria-label={
                             cliente.status === "Banido"

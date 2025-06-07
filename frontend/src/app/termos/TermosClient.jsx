@@ -111,10 +111,10 @@ export default function Termos() {
         </li>
       </ul>
       <p>
-        4.3 Os dados coletados são armazenados na infraestrutura da Amazon S3,
+        4.3 Os dados coletados são armazenados na infraestrutura do Wasabi Hot Cloud Storage,
         a qual aplica rigorosas medidas de segurança para proteger as
         informações. A responsabilidade pelo armazenamento e segurança técnica
-        dos dados também é da Amazon S3.
+        dos dados também é do Wasabi Hot Cloud Storage.
       </p>
 
       <div className="clausula-dados">
@@ -122,15 +122,15 @@ export default function Termos() {
         <p>
           Embora o <strong>Faixa Rosa</strong> adote rigorosas medidas de
           segurança para proteger os dados dos VISITANTES ASSINANTES, todos os
-          dados são hospedados na infraestrutura da Amazon S3, que também
+          dados são hospedados na infraestrutura do Wasabi Hot Cloud Storage, que também
           possui seus próprios protocolos de segurança. O <strong>Faixa Rosa</strong>{" "}
           não se responsabiliza por quaisquer vazamentos de dados que possam
-          ocorrer devido a falhas na infraestrutura da Amazon S3 ou a ataques
+          ocorrer devido a falhas na infraestrutura do Wasabi Hot Cloud Storage ou a ataques
           de terceiros fora do controle direto do <strong>Faixa Rosa</strong>.
         </p>
         <p>
           Os VISITANTES ASSINANTES reconhecem e concordam que a segurança dos seus
-          dados está sujeita às práticas e políticas de segurança da Amazon S3,
+          dados está sujeita às práticas e políticas de segurança do Wasabi Hot Cloud Storage,
           e que o <strong>Faixa Rosa</strong> envidará esforços razoáveis para
           garantir a proteção dos dados, mas não pode garantir a total prevenção
           de acessos não autorizados.
@@ -143,9 +143,7 @@ export default function Termos() {
         processamento de pagamentos exclusivamente pelo gateway Mercado Pago.
       </p>
       <p>
-        5.2 As formas de pagamento aceitas na plataforma incluem PIX e Cartão
-        de Crédito (Visa, Mastercard, American Express, entre outras bandeiras
-        disponíveis no Mercado Pago).
+        5.2 As formas de pagamento aceitas na plataforma incluem PIX diretamente pelo Mercado Pago.
       </p>
       <p>
         5.3 <strong>O Faixa Rosa</strong> e o Mercado Pago adotam rigorosas
@@ -197,8 +195,8 @@ export default function Termos() {
       </ul>
       <p>
         8.2 As solicitações podem ser feitas pelo e-mail:{" "}
-        <a href="mailto:contato@faixarosa.com.br">
-          contato@faixarosa.com.br
+        <a href="mailto:contato@faixarosa.com">
+          contato@faixarosa.com
         </a>
         . O prazo para resposta é de até 15 dias úteis.
       </p>
@@ -207,8 +205,8 @@ export default function Termos() {
       <p>
         9.1 <strong>O Faixa Rosa</strong> disponibiliza serviço de atendimento
         ao VISITANTE ASSINANTE através do e-mail{" "}
-        <a href="mailto:contato@faixarosa.com.br">
-          contato@faixarosa.com.br
+        <a href="mailto:contato@faixarosa.com">
+          contato@faixarosa.com
         </a>
         .
       </p>
@@ -270,7 +268,7 @@ export default function Termos() {
         com suas credenciais.
       </p>
       <p>
-        15.3 Em caso de vazamento de dados na infraestrutura da Amazon S3, a
+        15.3 Em caso de vazamento de dados na infraestrutura do Wasabi Hot Cloud Storage, a
         responsabilidade primária pela segurança do armazenamento será da
         Amazon.
       </p>
@@ -314,15 +312,15 @@ export default function Termos() {
         <p>
           Embora o <strong>Faixa Rosa</strong> adote rigorosas medidas de segurança
           para proteger os dados dos USUÁRIOS e ANUNCIANTES, todos os dados são
-          hospedados na infraestrutura da Amazon S3, que também possui seus
+          hospedados na infraestrutura do Wasabi Hot Cloud Storage, que também possui seus
           próprios protocolos de segurança. O <strong>Faixa Rosa</strong> não se
           responsabiliza por quaisquer vazamentos de dados que possam ocorrer
-          devido a falhas na infraestrutura da Amazon S3 ou a ataques de
+          devido a falhas na infraestrutura do Wasabi Hot Cloud Storage ou a ataques de
           terceiros fora do controle direto do <strong>Faixa Rosa</strong>.
         </p>
         <p>
           Os VISITANTES ASSINANTES reconhecem e concordam que a segurança dos seus
-          dados está sujeita às práticas e políticas de segurança da Amazon S3,
+          dados está sujeita às práticas e políticas de segurança do Wasabi Hot Cloud Storage,
           e que o <strong>Faixa Rosa</strong> envidará esforços razoáveis para
           garantir a proteção dos dados, mas não pode garantir a total prevenção
           de acessos não autorizados.
@@ -359,8 +357,8 @@ export default function Termos() {
         Abaixo esclarecemos alguns pontos que julgamos importantes. Caso persista
         alguma dúvida acerca de quaisquer pontos discutidos ou não neste documento,
         por favor, não hesite em contatar-nos pelo e-mail{" "}
-        <a href="mailto:contato@faixarosa.com.br">
-          contato@faixarosa.com.br
+        <a href="mailto:contato@faixarosa.com">
+          contato@faixarosa.com
         </a>
         .
       </p>
@@ -1042,15 +1040,15 @@ export default function Termos() {
         <p>
           Embora o <strong>Faixa Rosa</strong> adote rigorosas medidas de segurança
           para proteger os dados dos USUÁRIOS e ANUNCIANTES, todos os dados são
-          hospedados na infraestrutura da Amazon S3, que também possui seus
+          hospedados na infraestrutura do Wasabi Hot Cloud Storage, que também possui seus
           próprios protocolos de segurança. O <strong>Faixa Rosa</strong> não se
           responsabiliza por quaisquer vazamentos de dados que possam ocorrer
-          devido a falhas na infraestrutura da Amazon S3 ou a ataques de
+          devido a falhas na infraestrutura do Wasabi Hot Cloud Storage ou a ataques de
           terceiros fora do controle direto do <strong>Faixa Rosa</strong>.
         </p>
         <p>
           Os USUÁRIOS reconhecem e concordam que a segurança dos seus dados está
-          sujeita às práticas e políticas de segurança da Amazon S3, e que o FAIXA ROSA
+          sujeita às práticas e políticas de segurança do Wasabi Hot Cloud Storage, e que o FAIXA ROSA
           envidará esforços razoáveis para garantir a proteção dos dados, mas não pode
           garantir a total prevenção de acessos não autorizados.
         </p>
@@ -1150,8 +1148,8 @@ export default function Termos() {
       <p>
         6.1 O FAIXA ROSA disponibiliza ao ASSINANTE Serviço de Atendimento através do
         e-mail{" "}
-        <a href="mailto:contato@faixarosa.com.br">
-          contato@faixarosa.com.br
+        <a href="mailto:contato@faixarosa.com">
+          contato@faixarosa.com
         </a>
         .
       </p>
@@ -1176,8 +1174,8 @@ export default function Termos() {
         8.2 Se acaso não for do interesse do ASSINANTE a renovação de sua assinatura,
         basta que o mesmo responda ou entre em contato com o Serviço de Atendimento ao
         Cliente do FAIXA ROSA através do e-mail{" "}
-        <a href="mailto:contato@faixarosa.com.br">
-          contato@faixarosa.com.br
+        <a href="mailto:contato@faixarosa.com">
+          contato@faixarosa.com
         </a>
         .
       </p>
@@ -1239,7 +1237,7 @@ export default function Termos() {
         </p>
         <p>
           Os ANUNCIANTES reconhecem e concordam que a segurança dos seus dados está
-          sujeita às práticas e políticas de segurança da Amazon S3, e que o FAIXA ROSA
+          sujeita às práticas e políticas de segurança do Wasabi Hot Cloud Storage, e que o FAIXA ROSA
           envidará esforços razoáveis para garantir a proteção dos dados, mas não pode
           garantir a total prevenção de acessos não autorizados.
         </p>

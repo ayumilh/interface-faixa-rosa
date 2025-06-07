@@ -47,79 +47,88 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Componente de Crop Modal
-const ImageCropModal = ({ isOpen, onClose, imageFile, onCrop, aspectRatio = 1, cropTitle = "Ajustar Imagem" }) => {
+const ImageCropModal = ({
+  isOpen,
+  onClose,
+  imageFile,
+  onCrop,
+  aspectRatio = 1,
+  cropTitle = "Ajustar Imagem"
+}) => {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
+
   const [imageUrl, setImageUrl] = useState(null);
+  const [imageSize, setImageSize] = useState({
+    width: 0,
+    height: 0,
+    originalWidth: 0,
+    originalHeight: 0,
+    scale: 1
+  });
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 });
+
   const [crop, setCrop] = useState({ x: 0, y: 0, width: 200, height: 200 });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 });
-  const containerRef = useRef(null);
-  const imageRef = useRef(null);
 
+  // Inicializa imagem e dimensões
   useEffect(() => {
-    if (imageFile && isOpen) {
-      const url = URL.createObjectURL(imageFile);
-      setImageUrl(url);
-      
-      const img = document.createElement('img');
-      img.onload = () => {
-        const container = containerRef.current;
-        if (container) {
-          const containerRect = container.getBoundingClientRect();
-          const containerWidth = Math.min(containerRect.width - 40, 400);
-          const containerHeight = Math.min(containerRect.height - 120, 400);
-          
-          setContainerSize({ width: containerWidth, height: containerHeight });
-          
-          const scale = Math.min(containerWidth / img.width, containerHeight / img.height);
-          const scaledWidth = img.width * scale;
-          const scaledHeight = img.height * scale;
-          
-          setImageSize({ 
-            width: scaledWidth, 
-            height: scaledHeight,
-            originalWidth: img.width,
-            originalHeight: img.height,
-            scale: scale
-          });
-          
-          setImageOffset({
-            x: (containerWidth - scaledWidth) / 2,
-            y: (containerHeight - scaledHeight) / 2
-          });
-          
-          const cropSize = Math.min(scaledWidth, scaledHeight) * 0.7;
-          setCrop({
-            x: (scaledWidth - cropSize) / 2,
-            y: (scaledHeight - cropSize) / 2,
-            width: cropSize,
-            height: aspectRatio === 1 ? cropSize : cropSize / aspectRatio
-          });
-        }
-      };
-      img.src = url;
-      
-      return () => URL.revokeObjectURL(url);
-    }
-  }, [imageFile, isOpen, aspectRatio]);
+    if (!isOpen || !imageFile) return;
+    const url = URL.createObjectURL(imageFile);
+    setImageUrl(url);
 
+    const img = document.createElement('img');
+    img.onload = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      const cw = Math.min(rect.width - 40, 400);
+      const ch = Math.min(rect.height - 120, 400);
+      setContainerSize({ width: cw, height: ch });
+
+      const scale = Math.min(cw / img.width, ch / img.height);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      setImageSize({
+        width: w,
+        height: h,
+        originalWidth: img.width,
+        originalHeight: img.height,
+        scale
+      });
+
+      setImageOffset({ x: (cw - w) / 2, y: (ch - h) / 2 });
+
+      const cs = Math.min(w, h) * 0.7;
+      setCrop({
+        x: (w - cs) / 2,
+        y: (h - cs) / 2,
+        width: cs,
+        height: aspectRatio === 1 ? cs : cs / aspectRatio
+      });
+    };
+    img.src = url;
+
+    return () => URL.revokeObjectURL(url);
+  }, [isOpen, imageFile, aspectRatio]);
+
+  // Handlers de mouse
   const handleMouseDown = useCallback((e, type) => {
     e.preventDefault();
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
+
     const x = e.clientX - rect.left - imageOffset.x;
     const y = e.clientY - rect.top - imageOffset.y;
-    
-    if (type === 'crop') {
+
+    if (type === "crop") {
       setIsDragging(true);
       setDragStart({ x: x - crop.x, y: y - crop.y });
-    } else if (type === 'resize') {
+    } else {
       setIsResizing(true);
       setDragStart({ x, y });
     }
@@ -127,36 +136,28 @@ const ImageCropModal = ({ isOpen, onClose, imageFile, onCrop, aspectRatio = 1, c
 
   const handleMouseMove = useCallback((e) => {
     if (!isDragging && !isResizing) return;
-    
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
+
     const x = e.clientX - rect.left - imageOffset.x;
     const y = e.clientY - rect.top - imageOffset.y;
-    
+
     if (isDragging) {
-      const newX = Math.max(0, Math.min(x - dragStart.x, imageSize.width - crop.width));
-      const newY = Math.max(0, Math.min(y - dragStart.y, imageSize.height - crop.height));
-      setCrop(prev => ({ ...prev, x: newX, y: newY }));
-    } else if (isResizing) {
-      const deltaX = x - dragStart.x;
-      const deltaY = y - dragStart.y;
-      const delta = Math.max(deltaX, deltaY);
-      
-      // Calcula o novo tamanho com limites mais flexíveis
-      const maxWidth = imageSize.width - crop.x;
-      const maxHeight = imageSize.height - crop.y;
-      const maxSize = Math.min(maxWidth, maxHeight);
-      
-      let newSize = Math.max(30, crop.width + delta); // Tamanho mínimo de 30px
-      newSize = Math.min(newSize, maxSize); // Não pode ultrapassar a imagem
-      
-      setCrop(prev => ({
-        ...prev,
-        width: newSize,
-        height: aspectRatio === 1 ? newSize : newSize / aspectRatio
+      const nx = Math.max(0, Math.min(x - dragStart.x, imageSize.width - crop.width));
+      const ny = Math.max(0, Math.min(y - dragStart.y, imageSize.height - crop.height));
+      setCrop(c => ({ ...c, x: nx, y: ny }));
+    } else {
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+      const d = Math.max(dx, dy);
+      const maxSz = Math.min(imageSize.width - crop.x, imageSize.height - crop.y);
+      let ns = Math.max(30, crop.width + d);
+      ns = Math.min(ns, maxSz);
+      setCrop(c => ({
+        ...c,
+        width: ns,
+        height: aspectRatio === 1 ? ns : ns / aspectRatio
       }));
-      
       setDragStart({ x, y });
     }
   }, [isDragging, isResizing, dragStart, crop, imageSize, imageOffset, aspectRatio]);
@@ -168,28 +169,29 @@ const ImageCropModal = ({ isOpen, onClose, imageFile, onCrop, aspectRatio = 1, c
 
   useEffect(() => {
     if (isDragging || isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [isDragging, isResizing, handleMouseMove, handleMouseUp]);
 
+  // Handlers de touch
   const handleTouchStart = useCallback((e, type) => {
     e.preventDefault();
-    const touch = e.touches[0];
+    const t = e.touches[0];
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
-    const x = touch.clientX - rect.left - imageOffset.x;
-    const y = touch.clientY - rect.top - imageOffset.y;
-    
-    if (type === 'crop') {
+
+    const x = t.clientX - rect.left - imageOffset.x;
+    const y = t.clientY - rect.top - imageOffset.y;
+
+    if (type === "crop") {
       setIsDragging(true);
       setDragStart({ x: x - crop.x, y: y - crop.y });
-    } else if (type === 'resize') {
+    } else {
       setIsResizing(true);
       setDragStart({ x, y });
     }
@@ -198,37 +200,29 @@ const ImageCropModal = ({ isOpen, onClose, imageFile, onCrop, aspectRatio = 1, c
   const handleTouchMove = useCallback((e) => {
     if (!isDragging && !isResizing) return;
     e.preventDefault();
-    
-    const touch = e.touches[0];
+    const t = e.touches[0];
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    
-    const x = touch.clientX - rect.left - imageOffset.x;
-    const y = touch.clientY - rect.top - imageOffset.y;
-    
+
+    const x = t.clientX - rect.left - imageOffset.x;
+    const y = t.clientY - rect.top - imageOffset.y;
+
     if (isDragging) {
-      const newX = Math.max(0, Math.min(x - dragStart.x, imageSize.width - crop.width));
-      const newY = Math.max(0, Math.min(y - dragStart.y, imageSize.height - crop.height));
-      setCrop(prev => ({ ...prev, x: newX, y: newY }));
-    } else if (isResizing) {
-      const deltaX = x - dragStart.x;
-      const deltaY = y - dragStart.y;
-      const delta = Math.max(deltaX, deltaY);
-      
-      // Mesma lógica melhorada para touch
-      const maxWidth = imageSize.width - crop.x;
-      const maxHeight = imageSize.height - crop.y;
-      const maxSize = Math.min(maxWidth, maxHeight);
-      
-      let newSize = Math.max(30, crop.width + delta);
-      newSize = Math.min(newSize, maxSize);
-      
-      setCrop(prev => ({
-        ...prev,
-        width: newSize,
-        height: aspectRatio === 1 ? newSize : newSize / aspectRatio
+      const nx = Math.max(0, Math.min(x - dragStart.x, imageSize.width - crop.width));
+      const ny = Math.max(0, Math.min(y - dragStart.y, imageSize.height - crop.height));
+      setCrop(c => ({ ...c, x: nx, y: ny }));
+    } else {
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+      const d = Math.max(dx, dy);
+      const maxSz = Math.min(imageSize.width - crop.x, imageSize.height - crop.y);
+      let ns = Math.max(30, crop.width + d);
+      ns = Math.min(ns, maxSz);
+      setCrop(c => ({
+        ...c,
+        width: ns,
+        height: aspectRatio === 1 ? ns : ns / aspectRatio
       }));
-      
       setDragStart({ x, y });
     }
   }, [isDragging, isResizing, dragStart, crop, imageSize, imageOffset, aspectRatio]);
@@ -238,58 +232,58 @@ const ImageCropModal = ({ isOpen, onClose, imageFile, onCrop, aspectRatio = 1, c
     setIsResizing(false);
   }, []);
 
-  const cropImage = useCallback(async () => {
-    if (!imageFile || !imageSize.originalWidth) return;
-    
+  // registra eventos touch no document
+  useEffect(() => {
+    if (isDragging || isResizing) {
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleTouchEnd);
+      return () => {
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+      };
+    }
+  }, [isDragging, isResizing, handleTouchMove, handleTouchEnd]);
+
+  // Função de crop
+  const cropImage = useCallback(() => {
+    if (!imageUrl || !imageSize.originalWidth) return;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    
+    const ctx = canvas.getContext("2d");
     const img = document.createElement('img');
     img.onload = () => {
-      const scaleX = imageSize.originalWidth / imageSize.width;
-      const scaleY = imageSize.originalHeight / imageSize.height;
-      
-      const sourceX = crop.x * scaleX;
-      const sourceY = crop.y * scaleY;
-      const sourceWidth = crop.width * scaleX;
-      const sourceHeight = crop.height * scaleY;
-      
+      const sx = crop.x * (imageSize.originalWidth / imageSize.width);
+      const sy = crop.y * (imageSize.originalHeight / imageSize.height);
+      const sw = crop.width * (imageSize.originalWidth / imageSize.width);
+      const sh = crop.height * (imageSize.originalHeight / imageSize.height);
+
       canvas.width = crop.width;
       canvas.height = crop.height;
-      
-      ctx.drawImage(
-        img,
-        sourceX, sourceY, sourceWidth, sourceHeight,
-        0, 0, crop.width, crop.height
-      );
-      
-      canvas.toBlob((blob) => {
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, crop.width, crop.height);
+
+      canvas.toBlob(blob => {
         if (blob) {
-          const croppedFile = new File([blob], imageFile.name, {
+          const file = new File([blob], imageFile.name, {
             type: imageFile.type,
             lastModified: Date.now()
           });
-          onCrop(croppedFile);
+          onCrop(file);
         }
       }, imageFile.type, 0.9);
     };
     img.src = imageUrl;
-  }, [imageFile, imageUrl, crop, imageSize, onCrop]);
+  }, [imageUrl, imageSize, crop, imageFile, onCrop]);
 
   const resetCrop = () => {
-    if (imageSize.width && imageSize.height) {
-      const cropSize = Math.min(imageSize.width, imageSize.height) * 0.7;
-      setCrop({
-        x: (imageSize.width - cropSize) / 2,
-        y: (imageSize.height - cropSize) / 2,
-        width: cropSize,
-        height: aspectRatio === 1 ? cropSize : cropSize / aspectRatio
-      });
-    }
+    const cs = Math.min(imageSize.width, imageSize.height) * 0.7;
+    setCrop({
+      x: (imageSize.width - cs) / 2,
+      y: (imageSize.height - cs) / 2,
+      width: cs,
+      height: aspectRatio === 1 ? cs : cs / aspectRatio
+    });
   };
 
   if (!isOpen) return null;
-
   return (
     <motion.div
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -336,20 +330,19 @@ const ImageCropModal = ({ isOpen, onClose, imageFile, onCrop, aspectRatio = 1, c
           >
             {imageUrl && (
               <>
-                <img
-                  ref={imageRef}
-                  src={imageUrl}
-                  alt="Crop preview"
-                  className="absolute pointer-events-none select-none"
-                  style={{
-                    width: imageSize.width,
-                    height: imageSize.height,
-                    left: imageOffset.x,
-                    top: imageOffset.y,
-                    transform: `scale(${zoom})`
-                  }}
-                  draggable={false}
-                />
+    <img
+  src={imageUrl}
+  alt="Crop preview"
+  className="absolute pointer-events-none select-none"
+  style={{
+    width: imageSize.width,
+    height: imageSize.height,
+    left: imageOffset.x,
+    top: imageOffset.y
+  }}
+  draggable={false}
+/>
+
                 
                 {/* Overlay */}
                 <div 

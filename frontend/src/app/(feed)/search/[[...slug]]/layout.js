@@ -2,7 +2,7 @@ export async function generateMetadata({ params }) {
   const slug = Array.isArray(params.slug) ? params.slug.join("/") : params.slug || "";
   const match = slug.match(/^acompanhantes-em-(.+)-([a-z]{2})$/i);
 
-  const defaultImage = "https://www.faixarosa.com/Faixa%20Rosa-%20Fundo%20branco.png";
+  const defaultImage = "https://www.faixarosa.com/og-image.png";
 
   if (!match) {
     return {

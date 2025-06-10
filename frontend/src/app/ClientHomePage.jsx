@@ -270,24 +270,23 @@ export default function HomePage() {
           }
         }
         
-        /* Modo escuro */
-        @media (prefers-color-scheme: dark) {
-          .loading-screen {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          }
-          
-          .progress-bar {
-            background-color: #334155;
-          }
-          
-          .loading-text {
-            color: #94a3b8;
-          }
-          
-          .progress-percentage {
-            color: #cbd5e1;
-          }
-        }
+      /* Modo claro fixo */
+.loading-screen {
+  background: white; /* Fundo branco */
+}
+
+.progress-bar {
+  background-color: #e5e7eb; /* Cinza claro */
+}
+
+.loading-text {
+  color: #1e293b; /* Cinza escuro */
+}
+
+.progress-percentage {
+  color: #0f172a; /* Azul bem escuro */
+}
+
       `}</style>
 
       {/* Loading Screen Profissional */}
@@ -297,7 +296,7 @@ export default function HomePage() {
             {/* Logo */}
             <div className="logo-container">
               <Image
-                src="/FaixaRosaSombra.png"
+                src="/og-image.png"
                 alt="Faixa Rosa"
                 width={200}
                 height={105}

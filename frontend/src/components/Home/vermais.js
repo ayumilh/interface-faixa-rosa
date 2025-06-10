@@ -13,18 +13,21 @@ const VerMais = memo(() => {
     setExpandido((prev) => !prev);
   }, []);
 
-  // GeoIP: detecta a região do visitante via IP - otimizado
+  // GeoIP: detecta a região do visitante via IP usando Geolocation DB
   useEffect(() => {
     const detectarRegiao = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://ipapi.co/json/");
+        const response = await fetch("https://geolocation-db.com/json/");
+        if (!response.ok) throw new Error("Falha ao buscar localização");
         const data = await response.json();
-        const cidade = data.city;
-        const estado = data.region_code || data.region;
-        
-        if (cidade && estado) {
-          setRegiao(`${cidade} - ${estado}`);
+        // Geolocation DB retorna: { city: "...", state: "...", ... }
+        const city = data.city;
+        const state = data.state;
+        if (city && state) {
+          setRegiao(`${city} - ${state}`);
+        } else if (city) {
+          setRegiao(city);
         } else {
           setRegiao("sua cidade");
         }
@@ -60,7 +63,7 @@ const VerMais = memo(() => {
           </h2>
           <Sparkle size={24} className="text-purple-500 hidden sm:block" weight="duotone" />
         </div>
-        
+
         {/* Localização detectada */}
         <motion.div
           className="inline-flex items-center gap-2 bg-pink-50 border border-pink-200 rounded-full px-4 py-2 text-sm font-medium text-pink-700"
@@ -197,30 +200,15 @@ const VerMais = memo(() => {
           className="group relative flex items-center gap-3 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 hover:from-pink-600 hover:via-pink-700 hover:to-purple-700 text-white font-semibold py-4 px-8 md:px-12 rounded-full shadow-lg transition-all duration-300 hover:shadow-2xl overflow-hidden"
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.98 }}
-          style={{ 
-            boxShadow: "0 8px 25px rgba(236, 72, 153, 0.4)" 
-          }}
+          style={{ boxShadow: "0 8px 25px rgba(236, 72, 153, 0.4)" }}
         >
-          {/* Background animado */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-          
           <span className="relative z-10 text-sm md:text-base">
             {expandido ? "Ver Menos" : "Ver Mais"}
           </span>
-          
-          <motion.div
-            animate={{ rotate: expandido ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="relative z-10"
-          >
-            {expandido ? (
-              <CaretUp size={20} weight="bold" />
-            ) : (
-              <CaretDown size={20} weight="bold" />
-            )}
+          <motion.div animate={{ rotate: expandido ? 180 : 0 }} transition={{ duration: 0.3 }} className="relative z-10">
+            {expandido ? <CaretUp size={20} weight="bold" /> : <CaretDown size={20} weight="bold" />}
           </motion.div>
-
-          {/* Efeito de brilho */}
           <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         </motion.button>
       </motion.div>
@@ -228,6 +216,6 @@ const VerMais = memo(() => {
   );
 });
 
-VerMais.displayName = 'VerMais';
+VerMais.displayName = "VerMais";
 
 export default VerMais;

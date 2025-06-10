@@ -1,3 +1,12 @@
+import nextPWA from 'next-pwa';
+import { resolve } from 'path';
+
+const withPWA = nextPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -33,10 +42,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cdn.faixarosa.com', // Também adicionando o CDN aqui
+        hostname: 'cdn.faixarosa.com',
       },
     ],
   },
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

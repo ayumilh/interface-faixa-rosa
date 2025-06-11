@@ -23,27 +23,12 @@ export default async function Page({ params }) {
     notFound();
   }
 
-  // 3) Busca acompanhantes no servidor (SSR)
-  let initialCompanions = [];
-  try {
-    const url = slugString
-      ? `${process.env.NEXT_PUBLIC_API_URL}/acompanhantes?cidade=${encodeURIComponent(cityName)}&uf=${stateUF}`
-      : `${process.env.NEXT_PUBLIC_API_URL}/acompanhantes`;
-
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("Falha ao buscar acompanhantes");
-    initialCompanions = await res.json();
-  } catch (err) {
-    console.error("Erro ao buscar acompanhantes no servidor:", err);
-    // Continua com array vazio se der erro
-  }
 
   // 4) Retorna o componente client-side
   return (
     <ClientSearch
       initialCity={cityName}
       initialState={stateUF}
-      initialCompanions={initialCompanions}
     />
   );
 }

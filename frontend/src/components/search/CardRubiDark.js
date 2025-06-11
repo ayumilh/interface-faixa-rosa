@@ -267,8 +267,6 @@ const CardRubiDark = ({
   description,
   images,
   contact,
-  plan,
-  planType,
   subscriptions,
   isAgeHidden,
   isOnline,

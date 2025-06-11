@@ -97,7 +97,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
       setLoading(true);
       try {
         const normalizedQuery = normalizeText(query);
-        
+
         const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios`);
         if (!response.ok) {
           console.error("Erro ao buscar cidades:", response.statusText);
@@ -106,7 +106,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
         }
 
         const data = await response.json();
-        
+
         // Filtra e remove duplicatas por nome da cidade
         const filteredCities = data.filter((cidade) =>
           normalizeText(cidade.nome).includes(normalizedQuery)
@@ -123,7 +123,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
 
         // Converte de volta para array e limita resultados
         const finalResults = Array.from(uniqueCities.values()).slice(0, 10);
-        
+
         setSuggestions(finalResults);
       } catch (error) {
         console.error("Erro ao buscar cidades", error);
@@ -212,7 +212,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
           >
             {/* Efeito de brilho no fundo */}
             <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 rounded-3xl opacity-50"></div>
-            
+
             {/* Botão de Fechar */}
             <motion.button
               className="absolute top-6 right-6 text-gray-400 hover:text-pink-500 text-2xl font-bold focus:outline-none z-10 transition-all duration-300 hover:scale-110"
@@ -225,7 +225,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
             </motion.button>
 
             {/* Título do Modal */}
-            <motion.div 
+            <motion.div
               className="relative z-10 mb-8 text-center"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -242,7 +242,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
             </motion.div>
 
             {/* Campo de Busca */}
-            <motion.div 
+            <motion.div
               className="relative z-10 flex flex-col gap-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -251,9 +251,9 @@ const ModalBusca = ({ isOpen, onClose }) => {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
                 <div className="relative">
-                  <MagnifyingGlass 
-                    size={20} 
-                    className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" 
+                  <MagnifyingGlass
+                    size={20}
+                    className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 z-10"
                     weight="bold"
                   />
                   <input
@@ -299,7 +299,7 @@ const ModalBusca = ({ isOpen, onClose }) => {
 
               {/* Sugestões de Cidades */}
               <AnimatePresence>
-                <motion.div 
+                <motion.div
                   className="max-h-64 overflow-y-auto rounded-2xl shadow-inner p-2"
                   style={{
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(249, 250, 251, 0.8) 100%)',
@@ -307,20 +307,20 @@ const ModalBusca = ({ isOpen, onClose }) => {
                     border: '1px solid rgba(229, 231, 235, 0.5)',
                   }}
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ 
+                  animate={{
                     opacity: loading || suggestions.length > 0 || (city && suggestions.length === 0) ? 1 : 0,
                     height: loading || suggestions.length > 0 || (city && suggestions.length === 0) ? 'auto' : 0
                   }}
                   transition={{ duration: 0.3 }}
                 >
                   {loading ? (
-                    <motion.div 
+                    <motion.div
                       className="text-center py-8"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
                       <motion.div
-                        animate={{ 
+                        animate={{
                           scale: [1, 1.1, 1],
                           rotate: [0, 10, -10, 0]
                         }}
@@ -355,16 +355,16 @@ const ModalBusca = ({ isOpen, onClose }) => {
                               {cidade.microrregiao.mesorregiao.UF.sigla}
                             </span>
                           </div>
-                          <ArrowRight 
-                            size={18} 
-                            className="text-gray-300 group-hover:text-pink-500 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0" 
+                          <ArrowRight
+                            size={18}
+                            className="text-gray-300 group-hover:text-pink-500 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0"
                           />
                         </motion.div>
                       ))}
                     </div>
                   ) : (
                     city && (
-                      <motion.div 
+                      <motion.div
                         className="text-center py-8"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -454,7 +454,7 @@ export default function Search() {
       </div>
 
       {loading && (
-        <motion.div 
+        <motion.div
           className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -463,13 +463,13 @@ export default function Search() {
             backdropFilter: 'blur(20px)',
           }}
         >
-          <motion.div 
+          <motion.div
             className="flex flex-col items-center gap-4"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
             <motion.div
-              animate={{ 
+              animate={{
                 scale: [1, 1.2, 1],
                 rotate: [0, 360]
               }}
@@ -483,7 +483,7 @@ export default function Search() {
                 className="drop-shadow-lg"
               />
             </motion.div>
-            <motion.p 
+            <motion.p
               className="text-pink-600 font-semibold text-lg"
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 1.5, repeat: Infinity }}
@@ -498,7 +498,7 @@ export default function Search() {
 
       <main className="flex-1 pb-10 min-h-screen relative z-10">
         {/* Breadcrumbs */}
-        <motion.div 
+        <motion.div
           className="w-full max-w-7xl mx-auto p-4 mt-16 flex justify-start items-center"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -519,14 +519,14 @@ export default function Search() {
         </motion.div>
 
         {/* Título */}
-        <motion.div 
+        <motion.div
           className="w-full flex justify-center items-start mt-12 mb-8"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="text-center px-4 max-w-4xl">
-            <motion.h1 
+            <motion.h1
               className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight"
               style={{
                 background: 'linear-gradient(135deg, #1f2937 0%, #ec4899 50%, #8b5cf6 100%)',
@@ -534,7 +534,7 @@ export default function Search() {
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}
-              animate={{ 
+              animate={{
                 backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
               }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -545,7 +545,7 @@ export default function Search() {
                   ? `Acompanhantes não encontradas em ${decodeURIComponent(city)}, ${stateUF}`
                   : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
             </motion.h1>
-            <motion.p 
+            <motion.p
               className="text-gray-600 text-lg font-medium"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -557,7 +557,7 @@ export default function Search() {
         </motion.div>
 
         {/* Barra de Pesquisa */}
-        <motion.div 
+        <motion.div
           className="relative w-full max-w-5xl mx-auto p-4"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -566,8 +566,8 @@ export default function Search() {
           <div className="relative group">
             {/* Efeito de brilho no fundo */}
             <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-3xl blur-lg opacity-20 group-hover:opacity-30 transition duration-1000"></div>
-            
-            <div 
+
+            <div
               className="relative p-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-2xl transition-all duration-500 group-hover:shadow-3xl"
               style={{
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%)',
@@ -577,8 +577,8 @@ export default function Search() {
               }}
             >
               {/* Campo de Busca - Agora com o clique para abrir o Modal */}
-              <motion.div 
-                className="relative flex-1 flex items-center cursor-pointer w-full group/input" 
+              <motion.div
+                className="relative flex-1 flex items-center cursor-pointer w-full group/input"
                 onClick={() => setShowModalBusca(true)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -593,7 +593,7 @@ export default function Search() {
                   readOnly
                   placeholder="Busque por cidade..."
                 />
-                <motion.div 
+                <motion.div
                   className="absolute right-4 text-pink-400 opacity-0 group-hover/input:opacity-100 transition-all duration-300 relative z-10"
                   animate={{ x: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
@@ -606,7 +606,7 @@ export default function Search() {
         </motion.div>
 
         {/* Stories */}
-        <motion.div 
+        <motion.div
           className="w-full max-w-7xl mx-auto mt-8 px-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -621,13 +621,13 @@ export default function Search() {
         )}
 
         {/* Grid de Cartões */}
-        <motion.div 
+        <motion.div
           className="mt-10 w-full max-w-7xl mx-auto px-4"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <motion.div 
+          <motion.div
             className="flex flex-col sm:flex-row justify-between items-center mb-8 p-6 rounded-2xl"
             style={{
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(249, 250, 251, 0.8) 100%)',
@@ -642,15 +642,15 @@ export default function Search() {
                   : `Resultados para ${category} em todo o Brasil:`}
               </h2>
               <p className="text-gray-600 text-sm">
-                {Array.isArray(companions) ? companions.filter(card => 
-                  card.documentStatus === "APPROVED" && 
-                  card.profileStatus === "ACTIVE" && 
+                {Array.isArray(companions) ? companions.filter(card =>
+                  card.documentStatus === "APPROVED" &&
+                  card.profileStatus === "ACTIVE" &&
                   card.plan
                 ).length : 0} acompanhantes encontradas
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <motion.button 
+              <motion.button
                 className="text-gray-700 text-sm font-medium hover:text-pink-600 transition-colors duration-300"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -677,39 +677,35 @@ export default function Search() {
             {Array.isArray(companions) && companions.length > 0 ? (
               companions.map((card, index) => {
                 // Verifica se o status do documento e o status do perfil estão aprovados
-                if (card.documentStatus !== "APPROVED" || card.profileStatus !== "ACTIVE") {
-                  return null;
-                }
+                if (
+                  card.documentStatus !== "APPROVED" ||
+                  card.profileStatus !== "ACTIVE" ||
+                  !card.plan
+                ) return null;
 
-                if (!card.plan) return null;
+                // Verifica se tem plano extra "DarkMode" ou "Plano Nitro"
+                const hasDarkModeOrNitro = card.subscriptions?.some(sub =>
+                  sub.extraPlan?.name === "DarkMode" || sub.extraPlan?.name === "Plano Nitro"
+                );
 
                 let CardComponent;
+                const planName = card.plan?.name;
 
-                const hasDarkMode = card.subscriptions.some(subscription => subscription.extraPlan?.name === "DarkMode");
-
-                if (card.plan?.name === "Plano Rubi" && hasDarkMode) {
-                  CardComponent = CardRubiDark;
-                } else if (card.plan?.name === "Plano Rubi") {
-                  CardComponent = CardRubi;
-                } else if (card.plan?.name === "Plano Safira" && hasDarkMode) {
-                  CardComponent = CardSafiraDark;
-                } else if (card.plan?.name === "Plano Safira") {
-                  CardComponent = CardSafira;
-                } else if (card.plan?.name === "Plano Pink" && hasDarkMode) {
-                  CardComponent = CardPinkDark;
-                } else if (card.plan?.name === "Plano Vip" && hasDarkMode) {
-                  CardComponent = CardVIPDark;
-                } else if (card.plan?.name === "Plano Vip") {
-                  CardComponent = CardVIP;
-                } else if (card.plan?.name === "Plano Pink") {
-                  CardComponent = CardPink;
+                if (planName === "Plano Rubi") {
+                  CardComponent = hasDarkModeOrNitro ? CardRubiDark : CardRubi;
+                } else if (planName === "Plano Safira") {
+                  CardComponent = hasDarkModeOrNitro ? CardSafiraDark : CardSafira;
+                } else if (planName === "Plano Pink") {
+                  CardComponent = hasDarkModeOrNitro ? CardPinkDark : CardPink;
+                } else if (planName === "Plano Vip") {
+                  CardComponent = hasDarkModeOrNitro ? CardVIPDark : CardVIP;
                 } else {
-                  CardComponent = CardVIP; // Usando o CardVIP se não tiver o plano "DarkMode"
+                  CardComponent = CardVIP;
                 }
 
                 return (
-                  <motion.div 
-                    key={index} 
+                  <motion.div
+                    key={index}
                     className="break-inside-avoid px-2 pb-6 sm:pb-4"
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -745,7 +741,7 @@ export default function Search() {
                 );
               })
             ) : (
-              <motion.div 
+              <motion.div
                 className="col-span-full text-center py-16"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -753,7 +749,7 @@ export default function Search() {
               >
                 <div className="max-w-md mx-auto">
                   <motion.div
-                    animate={{ 
+                    animate={{
                       scale: [1, 1.1, 1],
                       rotate: [0, 5, -5, 0]
                     }}

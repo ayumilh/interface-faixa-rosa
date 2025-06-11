@@ -266,17 +266,22 @@ const CardVIP = ({
           <FaMapMarkerAlt className="mr-2 text-yellow-700" /> {location}
         </p>
 
+        {subscriptions.some(subscription => {
+          const name = subscription.extraPlan?.name?.trim()?.toLowerCase();
+          return subscription.extraPlan?.hasPublicReviews || name === "plano nitro";
+        }) && (
+            <p className="text-gray-500 mb-3 flex items-center">
+              <FaRegComments className="mr-1 text-yellow-700" />
+              {totalReviews > 0 ? (
+                <span className="text-green-600">
+                  {totalReviews} review{totalReviews !== 1 ? 's' : ''}
+                </span>
+              ) : (
+                'Sem reviews'
+              )}
+            </p>
+          )}
 
-        {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) && (
-          <p className="text-gray-500 mb-3 flex items-center">
-            <FaRegComments className="mr-1 text-yellow-700" />
-            {totalReviews > 0 ? (
-              <span className="text-green-600">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</span>
-            ) : (
-              'Sem reviews'
-            )}
-          </p>
-        )}
 
         {contact && hasExtraContact && (
           <button

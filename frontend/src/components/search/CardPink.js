@@ -55,21 +55,21 @@ const CardPink = ({
     }
   };
 
-    const [expanded, setExpanded] = useState(false);
-    const descRef = useRef(null);
-  
-    const toggleExpand = () => {
-      setExpanded(!expanded);
-    };
-  
-    useEffect(() => {
-      if (expanded && descRef.current) {
-        descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, [expanded]);
+  const [expanded, setExpanded] = useState(false);
+  const descRef = useRef(null);
 
-    const fallbackImages = Array.isArray(images) ? images : [];
-    const activeImages =
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  useEffect(() => {
+    if (expanded && descRef.current) {
+      descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
+
+  const fallbackImages = Array.isArray(images) ? images : [];
+  const activeImages =
     Array.isArray(carrouselImages) && carrouselImages.length > 0
       ? carrouselImages.map((img) =>
         typeof img === "string" ? { imageUrl: img } : img
@@ -77,7 +77,7 @@ const CardPink = ({
       : fallbackImages.map((img) =>
         typeof img === "string" ? { imageUrl: img } : img
       );
-  
+
 
   const hasExtraContact = subscriptions.some(subscription => subscription.extraPlan?.hasContact);
 
@@ -275,8 +275,10 @@ const CardPink = ({
         <p className={`${isDarkMode ? 'text-gray-400' : 'text-black-500'} mb-1 flex items-center`}>
           <FaMapMarkerAlt className="mr-2 text-pink-400" /> {location}
         </p>
-
-        {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
+        {subscriptions.some(subscription => {
+          const name = subscription.extraPlan?.name?.trim()?.toLowerCase();
+          return subscription.extraPlan?.hasPublicReviews || name === "plano nitro";
+        }) ? (
           <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-400'} mb-3 flex items-center`}>
             <FaRegComments className="mr-1 text-pink-500" />
             {totalReviews > 0 ? (

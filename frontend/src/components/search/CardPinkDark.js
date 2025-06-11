@@ -31,18 +31,18 @@ const CardPinkDark = ({
 }) => {
   const [showModalNumero, setShowModalNumero] = useState(false);
 
-    const [expanded, setExpanded] = useState(false);
-    const descRef = useRef(null);
-  
-    const toggleExpand = () => {
-      setExpanded(!expanded);
-    };
-  
-    useEffect(() => {
-      if (expanded && descRef.current) {
-        descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }, [expanded]);
+  const [expanded, setExpanded] = useState(false);
+  const descRef = useRef(null);
+
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  useEffect(() => {
+    if (expanded && descRef.current) {
+      descRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
 
   const handleOpenModal = () => {
     setShowModalNumero(true);
@@ -65,13 +65,13 @@ const CardPinkDark = ({
 
   const fallbackImages = Array.isArray(images) ? images : [];
   const activeImages =
-  Array.isArray(carrouselImages) && carrouselImages.length > 0
-    ? carrouselImages.map((img) =>
-      typeof img === "string" ? { imageUrl: img } : img
-    )
-    : fallbackImages.map((img) =>
-      typeof img === "string" ? { imageUrl: img } : img
-    );
+    Array.isArray(carrouselImages) && carrouselImages.length > 0
+      ? carrouselImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      )
+      : fallbackImages.map((img) =>
+        typeof img === "string" ? { imageUrl: img } : img
+      );
 
 
   useEffect(() => {
@@ -128,31 +128,31 @@ const CardPinkDark = ({
   return (
     <>
       <div className="bg-black border border-pink-600 rounded-lg shadow-2xl p-4 relative transition transform hover:scale-105 hover:shadow-2xl">
-      {activeImages.length > 0 ? (
-        <>
-          <Image
-            src={activeImages[0]?.imageUrl || "/default-image.jpg"}
-            alt={`Imagem de ${userName}`}
-            layout="responsive"
-            width={500}
-            height={200}
-            className="rounded-md mb-4 max-h-64 object-cover"
-          />
+        {activeImages.length > 0 ? (
+          <>
+            <Image
+              src={activeImages[0]?.imageUrl || "/default-image.jpg"}
+              alt={`Imagem de ${userName}`}
+              layout="responsive"
+              width={500}
+              height={200}
+              className="rounded-md mb-4 max-h-64 object-cover"
+            />
 
-          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {activeImages.map((_, index) => (
-              <span
-                key={index}
-                className={`w-3 h-3 rounded-full transition-all`}
-              ></span>
-            ))}
+            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              {activeImages.map((_, index) => (
+                <span
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-all`}
+                ></span>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
+            Nenhuma imagem disponível
           </div>
-        </>
-      ) : (
-        <div className="w-full h-56 bg-gray-200 rounded-md mb-4 flex items-center justify-center text-gray-500">
-          Nenhuma imagem disponível
-        </div>
-      )}
+        )}
 
         <h3 className="text-xl font-extrabold text-pink-400 mb-1">{userName}</h3>
 
@@ -260,8 +260,10 @@ const CardPinkDark = ({
         <p className="text-white mb-1 flex items-center">
           <FaMapMarkerAlt className="mr-2 text-pink-400" /> {location}
         </p>
-
-        {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
+        {subscriptions.some(subscription => {
+          const name = subscription.extraPlan?.name?.trim()?.toLowerCase();
+          return subscription.extraPlan?.hasPublicReviews || name === "plano nitro";
+        }) ? (
           <p className="text-gray-400 mb-3 flex items-center">
             <FaRegComments className="mr-1 text-pink-500" />
             {totalReviews > 0 ? (

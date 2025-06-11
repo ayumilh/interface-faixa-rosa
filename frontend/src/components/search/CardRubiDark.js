@@ -475,14 +475,20 @@ const CardRubiDark = ({
         {/* Informações */}
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
-            {subscriptions.some(subscription => subscription.extraPlan?.hasPublicReviews) ? (
+            {subscriptions.some(subscription => {
+              const name = subscription.extraPlan?.name?.trim()?.toLowerCase();
+              return subscription.extraPlan?.hasPublicReviews || name === "plano nitro";
+            }) ? (
               <div className="flex items-center mt-2">
                 <FaStar className="text-yellow-400 mr-1" />
                 <p className="text-green-500 font-semibold">
-                  {totalReviews} review{totalReviews !== 1 ? 's' : ''}
+                  {totalReviews > 0
+                    ? `${totalReviews} review${totalReviews !== 1 ? 's' : ''}`
+                    : 'Sem reviews'}
                 </p>
               </div>
             ) : null}
+
 
             {/* Exibição da idade com ícone */}
             {subscriptions.some(

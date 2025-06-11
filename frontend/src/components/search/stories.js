@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, use } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { usePlan } from "@/context/PlanContext";
 import axios from "axios";
@@ -21,7 +21,7 @@ import {
   FaShare
 } from "react-icons/fa";
 
-export default function Stories() {
+export default function Stories({ cidade, estado }) {
   const { userInfo, fetchUserData } = useContext(AuthContext);
   const { companions } = usePlan();
   const userToken = Cookies.get("userToken");
@@ -55,6 +55,12 @@ export default function Stories() {
 
   // Verificação final
   const canPostStory = isAcompanhante && (mainPlanAllowsStories || extraPlanAllowsStories);
+
+  const canUploadStory = isAcompanhante &&
+    Array.isArray(companionData?.subscriptions) &&
+    companionData.subscriptions.some(
+      sub => sub?.extraPlan?.hasStories === true
+    );
 
   useEffect(() => {
     if (!userInfo) fetchUserData();
@@ -91,7 +97,10 @@ export default function Stories() {
 
   async function fetchStories() {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/story/`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/search/story`, {
+        params: { cidade, estado },
+      });
+
       const grouped = groupStoriesByUser(res.data || []);
       setStories(grouped);
 
@@ -111,7 +120,7 @@ export default function Stories() {
 
   useEffect(() => {
     fetchStories();
-  }, []);
+  }, [cidade, estado]);
 
   const handleStoryUpload = async (e) => {
     const file = e.target.files[0];
@@ -367,110 +376,127 @@ export default function Stories() {
     ));
   };
 
+
   return (<>
-    {!canPostStory && isAcompanhante && (
-      <div className="w-full mt-6 flex justify-center">
-        <div className="bg-white/70 backdrop-blur-md border border-pink-200 text-pink-800 rounded-xl px-6 py-4 text-center shadow-lg max-w-md">
-          <p className="text-sm sm:text-base font-medium">
-            Você ainda <span className="text-pink-600 font-semibold">não tem acesso aos Stories</span>.
-          </p>
-          <p className="mt-1 text-xs text-gray-600">
-            Faça upgrade de plano e ative essa função exclusiva.
-          </p>
-          <button
-            onClick={() => router.push('/planos')}
-            className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm px-5 py-2 rounded-full font-semibold hover:scale-105 transition"
-          >
-            Ver planos disponíveis
-          </button>
+    {isAcompanhante &&
+      Array.isArray(companionData?.subscriptions) &&
+      !companionData.subscriptions.some(sub => sub.extraPlan?.hasStories) && (
+        <div className="w-full mt-6 flex justify-center">
+          <div className="bg-white/70 backdrop-blur-md border border-pink-200 text-pink-800 rounded-xl px-6 py-4 text-center shadow-lg max-w-md">
+            <p className="text-sm sm:text-base font-medium">
+              Você ainda <span className="text-pink-600 font-semibold">não tem acesso aos Stories</span>.
+            </p>
+            <p className="mt-1 text-xs text-gray-600">
+              Faça upgrade de plano e ative essa função exclusiva.
+            </p>
+            <button
+              onClick={() => router.push('/planos')}
+              className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm px-5 py-2 rounded-full font-semibold hover:scale-105 transition"
+            >
+              Ver planos disponíveis
+            </button>
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
-    <div className={`w-full px-4${canPostStory ? 'bg-gradient-to-r from-gray-50 to-white py-6' : ''
+    <div className={`w-full px-4 mt-4 ${canPostStory ? 'bg-gradient-to-r from-gray-50 to-white py-6' : ''
       }`}>
-      <div className="flex overflow-x-auto space-x-6 items-center pb-2 scrollbar-hide">
-        {/* Botão de adicionar story */}
-        {canPostStory && (
-          <motion.div
-            className="flex-shrink-0 text-center group"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <label className="relative cursor-pointer block">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-500 via-purple-500 to-pink-500 p-1 shadow-lg group-hover:shadow-2xl transition-all duration-300">
-                <div className="w-full h-full rounded-3xl bg-white flex items-center justify-center relative overflow-hidden">
-                  {isUploading ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <FaPlus className="text-white text-lg" />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <input
-                type="file"
-                accept="image/*,video/*"
-                className="hidden"
-                ref={inputRef}
-                onChange={handleStoryUpload}
-                disabled={isUploading}
-              />
-            </label>
-            <span className="block mt-3 text-sm text-gray-700 font-semibold max-w-[5rem] truncate mx-auto">
-              {isUploading ? "Enviando..." : "Adicionar"}
-            </span>
-          </motion.div>
-        )}
-
-        {/* Stories existentes */}
-        {stories.map((storyGroup, index) => (
-          <motion.div
-            key={index}
-            className="flex-shrink-0 text-center group cursor-pointer"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => openStory(index)}
-          >
-            <div className="relative">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-500 via-purple-500 to-pink-500 p-1 shadow-lg group-hover:shadow-2xl transition-all duration-300">
-                <div className="w-full h-full rounded-3xl overflow-hidden bg-gray-200 relative">
-                  {storyGroup.companion?.profileImage ? (
-                    <Image
-                      src={storyGroup.companion.profileImage}
-                      alt={storyGroup.companion.userName || "Usuário"}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center text-pink-600 font-bold text-2xl">
-                      {storyGroup.companion?.userName?.charAt(0)?.toUpperCase() || "?"}
-                    </div>
-                  )}
-
-                  {/* Indicador de stories */}
-                  <div className="absolute bottom-1 right-1 w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
-                    {storyGroup.stories.length}
+      {Array.isArray(stories) && stories.length === 0 ? (
+        <div className="w-full mt-6 flex justify-center">
+          <div className="bg-white/70 backdrop-blur-md border border-pink-200 text-pink-800 rounded-xl px-6 py-4 text-center shadow-lg max-w-md">
+            <p className="text-sm sm:text-base font-medium">
+              Nenhuma acompanhante postou stories em{" "}
+              <span className="text-pink-600 font-semibold">{cidade}, {estado}</span>.
+            </p>
+            <p className="mt-1 text-xs text-gray-600">
+              Tente buscar em outra cidade ou volte mais tarde.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex overflow-x-auto space-x-6 items-center pb-2 scrollbar-hide">
+          {/* Botão de adicionar story */}
+          {canUploadStory && (
+            <motion.div
+              className="flex-shrink-0 text-center group"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <label className="relative cursor-pointer block">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-500 via-purple-500 to-pink-500 p-1 shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                  <div className="w-full h-full rounded-3xl bg-white flex items-center justify-center relative overflow-hidden">
+                    {isUploading ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <FaPlus className="text-white text-lg" />
+                      </div>
+                    )}
                   </div>
                 </div>
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  className="hidden"
+                  ref={inputRef}
+                  onChange={handleStoryUpload}
+                  disabled={isUploading}
+                />
+              </label>
+              <span className="block mt-3 text-sm text-gray-700 font-semibold max-w-[5rem] truncate mx-auto">
+                {isUploading ? "Enviando..." : "Adicionar"}
+              </span>
+            </motion.div>
+          )}
+
+          {/* Stories existentes */}
+          {stories.map((storyGroup, index) => (
+            <motion.div
+              key={index}
+              className="flex-shrink-0 text-center group cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => openStory(index)}
+            >
+              <div className="relative">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-500 via-purple-500 to-pink-500 p-1 shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                  <div className="w-full h-full rounded-3xl overflow-hidden bg-gray-200 relative">
+                    {storyGroup.companion?.profileImage ? (
+                      <Image
+                        src={storyGroup.companion.profileImage}
+                        alt={storyGroup.companion.userName || "Usuário"}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center text-pink-600 font-bold text-2xl">
+                        {storyGroup.companion?.userName?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                    )}
+
+                    {/* Indicador de stories */}
+                    <div className="absolute bottom-1 right-1 w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white">
+                      {storyGroup.stories.length}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status online */}
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-3 border-white"></div>
               </div>
 
-              {/* Status online */}
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-3 border-white"></div>
-            </div>
-
-            <span className="block mt-3 text-sm text-gray-700 font-semibold max-w-[5rem] truncate mx-auto">
-              {storyGroup.companion?.userName || "Usuário"}
-            </span>
-          </motion.div>
-        ))}
-      </div>
+              <span className="block mt-3 text-sm text-gray-700 font-semibold max-w-[5rem] truncate mx-auto">
+                {storyGroup.companion?.userName || "Usuário"}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       {/* Modal do Story */}
       <AnimatePresence>

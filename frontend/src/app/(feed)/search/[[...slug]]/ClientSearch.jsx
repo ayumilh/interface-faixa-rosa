@@ -612,7 +612,7 @@ export default function Search() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          <Stories />
+          <Stories cidade={city} estado={stateUF} />
         </motion.div>
 
         {/* ModalBusca */}

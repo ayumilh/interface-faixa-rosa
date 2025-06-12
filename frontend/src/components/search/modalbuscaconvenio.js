@@ -31,7 +31,7 @@ export default function ModalBusca({ showModalBusca, setShowModalBusca, onSelect
           console.log(position.coords.latitude, position.coords.longitude);
           // Aqui você pode usar as coordenadas para obter a cidade através de uma API
           const cityData = {
-            nome: "Sorocaba",
+            nome: "Lins",
             microrregiao: {
               mesorregiao: {
                 UF: {

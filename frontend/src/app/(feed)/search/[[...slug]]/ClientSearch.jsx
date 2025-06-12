@@ -32,6 +32,11 @@ import CardSafiraDark from "@/components/search/CardSafiraDark";
 import CardRubi from "@/components/search/CardRubi";
 import CardRubiDark from "@/components/search/CardRubiDark";
 
+// Função para capitalizar a primeira letra de cada palavra
+const capitalizeCity = (cityName) => {
+  return cityName.replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 // Componente de Modal para Busca
 const ModalBusca = ({ isOpen, onClose }) => {
   const [city, setCity] = useState("");
@@ -158,9 +163,9 @@ const ModalBusca = ({ isOpen, onClose }) => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           // Aqui você poderia usar geocoding (ex. via Google Maps API) pra converter
-          // lat/lng -> cidade. Neste exemplo, é fixo "Sorocaba - SP"
+          // lat/lng -> cidade. Neste exemplo, é fixo "Lins - SP"
           const cityData = {
-            nome: "Sorocaba",
+            nome: "Lins",
             microrregiao: {
               mesorregiao: {
                 UF: {
@@ -419,7 +424,7 @@ export default function Search() {
       if (match) {
         const citySlug = match[2];
         const uf = match[3];
-        const cityName = decodeURIComponent(citySlug).replace(/-/g, " ");
+        const cityName = capitalizeCity(decodeURIComponent(citySlug).replace(/-/g, " "));
         setCity(cityName);
         setStateUF(uf.toUpperCase());
 
@@ -542,8 +547,8 @@ export default function Search() {
               {!city
                 ? "Acompanhantes disponíveis em todo o Brasil"
                 : companions.length === 0
-                  ? `Acompanhantes não encontradas em ${decodeURIComponent(city)}, ${stateUF}`
-                  : `Acompanhantes disponíveis em ${decodeURIComponent(city)}, ${stateUF}`}
+                  ? `Acompanhantes não encontradas em ${city}, ${stateUF}`
+                  : `Acompanhantes disponíveis em ${city}, ${stateUF}`}
             </motion.h1>
             <motion.p
               className="text-gray-600 text-lg font-medium"
@@ -588,7 +593,7 @@ export default function Search() {
                 <input
                   id="city"
                   type="text"
-                  value={city && stateUF ? `${decodeURIComponent(city)}, ${stateUF}` : "Busque por cidade..."}
+                  value={city && stateUF ? `${city}, ${stateUF}` : "Busque por cidade..."}
                   className="w-full bg-gray-100/80 backdrop-blur-sm rounded-2xl px-6 py-4 text-gray-800 focus:outline-none focus:ring-4 focus:ring-pink-500/30 transition-all duration-300 cursor-pointer text-lg font-medium border-2 border-transparent group-hover/input:border-pink-200/50 relative z-10"
                   readOnly
                   placeholder="Busque por cidade..."

@@ -236,9 +236,9 @@ const ModalBusca = ({ isOpen, onClose }) => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           // Aqui você poderia usar geocoding (ex. via Google Maps API) pra converter
-          // lat/lng -> cidade. Neste exemplo, é fixo "Sorocaba - SP"
+          // lat/lng -> cidade. Neste exemplo, é fixo "Lins - SP"
           const cityData = {
-            nome: "Sorocaba",
+            nome: "Lins",
             microrregiao: {
               mesorregiao: {
                 UF: {

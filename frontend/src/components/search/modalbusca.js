@@ -73,9 +73,9 @@ export default function ModalBusca({ showModalBusca, setShowModalBusca }) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           // Aqui você pode implementar a lógica para converter as coordenadas em uma cidade.
-          // Por enquanto, está hardcoded para "Sorocaba".
+          // Por enquanto, está hardcoded para "Lins".
           const cityData = {
-            nome: "Sorocaba",
+            nome: "Lins",
             microrregiao: {
               mesorregiao: {
                 UF: {

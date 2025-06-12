@@ -227,7 +227,7 @@ const ModalBusca = memo(({ isOpen, onClose }) => {
             navigator.geolocation.getCurrentPosition(
                 () => {
                     const cityData = {
-                        nome: "Sorocaba",
+                        nome: "Lins",
                         microrregiao: {
                             mesorregiao: {
                                 UF: { sigla: "SP" },

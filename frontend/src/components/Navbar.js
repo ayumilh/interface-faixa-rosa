@@ -35,12 +35,12 @@ export default function Navbar({ bgColor = "pink" }) {
 
   const toggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
-    if (showNotifications) setShowNotifications(false); // Close notifications if open
+    if (showNotifications) setShowNotifications(false);
   };
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
-    if (showProfileMenu) setShowProfileMenu(false); // Close profile menu if open
+    if (showProfileMenu) setShowProfileMenu(false);
   };
 
   const handleLogout = () => {
@@ -59,23 +59,23 @@ export default function Navbar({ bgColor = "pink" }) {
   if (loadingUserInfo) {
     return (
       <header className={`w-full fixed top-0 left-0 z-50 ${backgroundClass} shadow-lg`}>
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+        <nav className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 flex justify-between items-center h-14 sm:h-16">
           <div className="flex items-center">
             <div className="relative group">
               <Image
                 src={logoSrc}
                 alt="Logo"
-                width={120}
-                height={48}
-                className="h-12 w-auto mr-2 cursor-pointer transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-lg"
+                width={80}
+                height={32}
+                className="h-8 sm:h-10 lg:h-12 w-auto cursor-pointer transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-lg"
                 onClick={handleLogoClick}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-pink-200 to-purple-200 rounded-full animate-pulse"></div>
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full animate-pulse delay-75"></div>
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-pink-200 to-purple-200 rounded-full animate-pulse"></div>
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full animate-pulse delay-75"></div>
           </div>
         </nav>
       </header>
@@ -84,37 +84,37 @@ export default function Navbar({ bgColor = "pink" }) {
 
   return (
     <header className={`w-full fixed top-0 left-0 z-50 ${backgroundClass} shadow-xl`}>
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+      <nav className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 flex justify-between items-center h-14 sm:h-16">
         {/* Logo */}
-        <div className="flex items-center">
+        <div className="flex items-center flex-shrink-0">
           <div className="relative group">
             <Image
               src={logoSrc}
               alt="Logo"
-              width={120}
-              height={48}
-              className="h-12 w-auto mr-2 cursor-pointer transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-2xl"
+              width={80}
+              height={32}
+              className="h-8 sm:h-10 lg:h-12 w-auto cursor-pointer transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-2xl"
               onClick={handleLogoClick}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-pink-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 blur-xl"></div>
-            <HiSparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-400 opacity-0 group-hover:opacity-100 transition-all duration-300 animate-pulse" />
+            <HiSparkles className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 opacity-0 group-hover:opacity-100 transition-all duration-300 animate-pulse" />
           </div>
         </div>
 
         {/* Right Side of Navbar */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6">
           {/* Notificações */}
           {!loadingUserInfo && isAuthenticated && (
             <div className="relative" ref={notificationsRef}>
               <button
-                className={`relative p-3 rounded-full transition-all duration-300 hover:scale-110 hover:rotate-12 focus:outline-none group ${bgColor === "pink"
+                className={`relative p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110 hover:rotate-12 focus:outline-none group ${bgColor === "pink"
                     ? "text-white hover:bg-white/10 hover:shadow-lg"
                     : "text-pink-500 hover:bg-pink-50 hover:shadow-md"
                   }`}
                 onClick={toggleNotifications}
               >
-                <FaBell className="w-5 h-5" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
+                <FaBell className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></div>
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150"></div>
               </button>
 
@@ -128,20 +128,20 @@ export default function Navbar({ bgColor = "pink" }) {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <div className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden">
-                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-4">
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <FaBell className="w-4 h-4" />
+                <div className="absolute right-0 mt-2 sm:mt-3 w-72 sm:w-80 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden">
+                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                      <FaBell className="w-3 h-3 sm:w-4 sm:h-4" />
                       Notificações
                     </h3>
                   </div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-center h-20 text-gray-500">
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-center justify-center h-16 sm:h-20 text-gray-500">
                       <div className="text-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <FaBell className="w-5 h-5 text-pink-400" />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <FaBell className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
                         </div>
-                        <p className="text-sm font-medium">Nenhuma notificação</p>
+                        <p className="text-xs sm:text-sm font-medium">Nenhuma notificação</p>
                       </div>
                     </div>
                   </div>
@@ -159,24 +159,24 @@ export default function Navbar({ bgColor = "pink" }) {
                 title="Abrir menu de perfil"
               >
                 <div className="relative">
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-110">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-110">
                     {userInfo?.companion?.profileImage ? (
                       <Image
                         src={userInfo.companion.profileImage}
                         alt="Imagem de Perfil"
                         width={44}
                         height={44}
-                        className="rounded-full w-11 h-11 object-cover border-2 border-white/20"
+                        className="rounded-full w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 object-cover border-2 border-white/20"
                       />
                     ) : (
-                      <span className="text-lg font-bold">
+                      <span className="text-sm sm:text-base lg:text-lg font-bold">
                         {userInfo?.userType === "ADMIN"
                           ? userInfo?.firstName?.charAt(0).toUpperCase()
                           : userInfo?.userName?.charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                  <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 border-2 border-white rounded-full"></div>
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-400/30 to-purple-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-150 animate-pulse"></div>
                 </div>
               </button>
@@ -191,40 +191,40 @@ export default function Navbar({ bgColor = "pink" }) {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden">
-                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-4">
+                <div className="absolute right-0 mt-2 sm:mt-3 w-56 sm:w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden">
+                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
                     {loadingUserInfo ? (
-                      <div className="text-white/80 animate-pulse">Carregando usuário...</div>
+                      <div className="text-white/80 animate-pulse text-sm">Carregando usuário...</div>
                     ) : userInfo ? (
                       <div className="text-white">
-                        <p className="font-bold text-lg">
+                        <p className="font-bold text-base sm:text-lg truncate">
                           {userInfo.userType === 'ADMIN' ? userInfo.first : userInfo.userName}
                         </p>
-                        <p className="text-sm text-white/80 truncate">{userInfo.email}</p>
+                        <p className="text-xs sm:text-sm text-white/80 truncate">{userInfo.email}</p>
                       </div>
                     ) : (
-                      <p className="text-white/80">Usuário não encontrado.</p>
+                      <p className="text-white/80 text-sm">Usuário não encontrado.</p>
                     )}
                   </div>
 
                   {!loadingUserInfo && userInfo && (
-                    <div className="py-2">
+                    <div className="py-1 sm:py-2">
                       {userInfo.userType === 'ACOMPANHANTE' && (
                         <>
                           <Link
                             href="/dashboard"
-                            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
+                            className="flex items-center px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
                           >
-                            <FaCog className="w-4 h-4 mr-3 text-pink-500 group-hover:rotate-180 transition-transform duration-300" />
-                            <span className="font-medium">Dashboard</span>
+                            <FaCog className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2.5 sm:mr-3 text-pink-500 group-hover:rotate-180 transition-transform duration-300" />
+                            <span className="font-medium text-sm sm:text-base">Dashboard</span>
                           </Link>
 
                           <Link
                             href={`/perfil/${userInfo?.userName || ''}`}
-                            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
+                            className="flex items-center px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
                           >
-                            <FaUser className="w-4 h-4 mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
-                            <span className="font-medium">Perfil</span>
+                            <FaUser className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2.5 sm:mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
+                            <span className="font-medium text-sm sm:text-base">Perfil</span>
                           </Link>
                         </>
                       )}
@@ -233,44 +233,43 @@ export default function Navbar({ bgColor = "pink" }) {
                         <>
                           <Link
                             href="/adminDashboard"
-                            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
+                            className="flex items-center px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
                           >
-                            <FaCog className="w-4 h-4 mr-3 text-pink-500 group-hover:rotate-180 transition-transform duration-300" />
-                            <span className="font-medium">Painel Admin</span>
+                            <FaCog className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2.5 sm:mr-3 text-pink-500 group-hover:rotate-180 transition-transform duration-300" />
+                            <span className="font-medium text-sm sm:text-base">Painel Admin</span>
                           </Link>
 
                           <Link
                             href="/"
-                            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
+                            className="flex items-center px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
                           >
-                            <HiSparkles className="w-4 h-4 mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
-                            <span className="font-medium">Início</span>
+                            <HiSparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2.5 sm:mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
+                            <span className="font-medium text-sm sm:text-base">Início</span>
                           </Link>
                         </>
                       )}
 
                       <Link
                         href="/search"
-                        className="relative flex items-center px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
+                        className="relative flex items-center px-4 sm:px-6 py-2.5 sm:py-3 text-gray-700 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all duration-200 group"
                         title="Explore perfis com stories disponíveis"
                       >
                         <div className="relative">
-                          <FaSearch className="w-4 h-4 mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
+                          <FaSearch className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2.5 sm:mr-3 text-pink-500 group-hover:scale-110 transition-transform duration-200" />
                         </div>
-                        <span className="font-medium">
+                        <span className="font-medium text-sm sm:text-base flex items-center flex-wrap">
                           Search
-                          <span className="ml-2 inline-block text-xs text-pink-600 font-semibold bg-pink-100 px-2 py-0.5 rounded-full">Poste Stories</span>
+                          <span className="ml-1.5 sm:ml-2 inline-block text-xs text-pink-600 font-semibold bg-pink-100 px-1.5 sm:px-2 py-0.5 rounded-full">Poste Stories</span>
                         </span>
                       </Link>
 
-
-                      <div className="border-t border-gray-200/50 mt-2">
+                      <div className="border-t border-gray-200/50 mt-1 sm:mt-2">
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center px-6 py-3 text-red-600 hover:bg-red-50 transition-all duration-200 group"
+                          className="w-full flex items-center px-4 sm:px-6 py-2.5 sm:py-3 text-red-600 hover:bg-red-50 transition-all duration-200 group"
                         >
-                          <FaSignOutAlt className="w-4 h-4 mr-3 group-hover:translate-x-1 transition-transform duration-200" />
-                          <span className="font-medium">Sair</span>
+                          <FaSignOutAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2.5 sm:mr-3 group-hover:translate-x-1 transition-transform duration-200" />
+                          <span className="font-medium text-sm sm:text-base">Sair</span>
                         </button>
                       </div>
                     </div>
@@ -279,10 +278,10 @@ export default function Navbar({ bgColor = "pink" }) {
               </Transition>
             </div>
           ) : (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
               <button
                 onClick={() => router.push('/registro')}
-                className="relative px-8 py-3 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-bold text-sm rounded-full overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                className="relative px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-bold text-xs sm:text-sm rounded-full overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:scale-105"
               >
                 <span className="relative z-10">CADASTRE-SE</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -291,7 +290,7 @@ export default function Navbar({ bgColor = "pink" }) {
 
               <button
                 onClick={() => router.push('/login')}
-                className="relative px-8 py-3 bg-white/90 backdrop-blur-sm text-gray-800 font-bold text-sm rounded-full border-2 border-gray-200/50 overflow-hidden group transition-all duration-300 hover:shadow-xl hover:scale-105 hover:border-pink-300"
+                className="relative px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 bg-white/90 backdrop-blur-sm text-gray-800 font-bold text-xs sm:text-sm rounded-full border-2 border-gray-200/50 overflow-hidden group transition-all duration-300 hover:shadow-xl hover:scale-105 hover:border-pink-300"
               >
                 <span className="relative z-10 group-hover:text-pink-600 transition-colors duration-200">LOGIN</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

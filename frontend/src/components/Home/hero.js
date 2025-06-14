@@ -481,7 +481,7 @@ const Hero = () => {
             </div>
 
             {/* Conteúdo Principal - Mobile First */}
-            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 text-center py-6 md:py-16">
+            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 text-center py-6 md:py-16 mt-20 md:mt-0">
                 {/* Título Principal - Responsivo */}
                 <div className="mb-6 md:mb-12">
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-3 md:mb-6 leading-tight px-2">

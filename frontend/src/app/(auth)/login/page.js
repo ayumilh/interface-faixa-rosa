@@ -2,7 +2,8 @@ import LoginClient from "./LoginClient";
 
 export const metadata = {
   title: "Entrar na Conta – Faixa Rosa",
-  description: "Faça login, acesse sua conta ou inicie sessão no Faixa Rosa. Área segura para acompanhantes e contratantes acessarem seus perfis.",
+  description:
+    "Faça login, acesse sua conta ou inicie sessão no Faixa Rosa. Área segura para acompanhantes e contratantes acessarem seus perfis.",
   keywords: [
     "login Faixa Rosa",
     "entrar na conta Faixa Rosa",
@@ -11,7 +12,7 @@ export const metadata = {
     "painel do usuário Faixa Rosa",
     "painel do anunciante Faixa Rosa",
     "login acompanhantes",
-    "login contratantes"
+    "login contratantes",
   ],
   openGraph: {
     title: "Entrar – Faixa Rosa",
@@ -40,5 +41,17 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <LoginClient />;
+  return (
+    <main className="min-h-screen flex items-center justify-center">
+      {/* Conteúdo visível para SEO */}
+      <div className="sr-only">
+        <h1>Entrar na Conta – Faixa Rosa</h1>
+        <p>
+          Acesse sua conta no Faixa Rosa. Área segura para acompanhantes e contratantes gerenciarem seus perfis, anúncios e informações.
+        </p>
+      </div>
+
+      <LoginClient />
+    </main>
+  );
 }

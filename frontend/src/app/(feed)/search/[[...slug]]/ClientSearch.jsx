@@ -398,59 +398,85 @@ ModalBusca.propTypes = {
 };
 
 export default function Search() {
-  const params = useParams();
+   const params = useParams();
 
-  let slugString = "";
-  if (params.slug) {
-    slugString = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
-  }
-
+  const { companions, fetchCompanions, loading } = usePlan();
+  const [category, setCategory] = useState("acompanhantes");
   const [city, setCity] = useState("");
   const [stateUF, setStateUF] = useState("");
-  const [category, setCategory] = useState("acompanhantes");
+  const [cityDictionary, setCityDictionary] = useState({});
   const [showModalBusca, setShowModalBusca] = useState(false);
   const [showModalFiltro, setShowModalFiltro] = useState(false);
 
-  const { companions, fetchCompanions, loading } = usePlan();
-
+  // 🔥 Função para transformar texto em slug (URL amigável)
   const slugify = (text) => {
-    return text.replace(/\s+/g, '-'); // Apenas troca espaço por hífen
+    return text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, "-");
   };
 
+  // 🔥 Função para converter slug de volta para nome com acento
+  const slugToCityName = (slug) => {
+    const name = slug.replace(/-/g, " ").toLowerCase();
+    return cityDictionary[name] || name.replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
+  // 🚀 Carrega dicionário de cidades do IBGE
   useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/municipios");
+        const data = await res.json();
+
+        const dict = {};
+        data.forEach((cidade) => {
+          const key = cidade.nome
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+          dict[key] = cidade.nome;
+        });
+
+        setCityDictionary(dict);
+      } catch (error) {
+        console.error("Erro ao carregar cidades:", error);
+      }
+    };
+
+    loadCities();
+  }, []);
+
+  // 🚀 Interpreta slug da URL e busca acompanhantes
+  useEffect(() => {
+    const slugString = params.slug
+      ? Array.isArray(params.slug)
+        ? params.slug.join("/")
+        : params.slug
+      : "";
+
     const regex = /(.*?)\-em\-(.*?)-(\w{2})$/;
-    if (slugString) {
-      const match = slugString.match(regex);
-      if (match) {
-        const citySlug = match[2];
-        const uf = match[3];
-        const cityName = capitalizeCity(decodeURIComponent(citySlug).replace(/-/g, " "));
-        setCity(cityName);
-        setStateUF(uf.toUpperCase());
+    const match = slugString.match(regex);
 
-        // Executa o fetch com a cidade e estado
-        fetchCompanions({ cidade: cityName, estado: uf.toUpperCase() });
-      } else {
-        console.error("Formato do slug inválido:", slugString);
-      }
-    }
-  }, [slugString, fetchCompanions]);
+    if (match) {
+      const citySlug = decodeURIComponent(match[2]);
+      const uf = decodeURIComponent(match[3]);
 
-  useEffect(() => {
-    if (slugString) {
-      // Se vier da URL, e já temos cidade e estado, faz busca filtrada
-      if (city && stateUF) {
-        fetchCompanions({ cidade: city, estado: stateUF });
-      }
+      const cityName = slugToCityName(citySlug);
+
+      setCity(cityName);
+      setStateUF(uf.toUpperCase());
+
+      fetchCompanions({ cidade: cityName, estado: uf.toUpperCase() });
     } else {
-      // Se não veio da URL (ou acesso direto sem filtros), busca todas
       fetchCompanions();
     }
-  }, [slugString, city, stateUF, fetchCompanions]);
+  }, [params.slug, cityDictionary, fetchCompanions]);
 
-  const companionIds = Array.isArray(companions) ? companions.map(c => c.userId) : [];
+  const companionIds = Array.isArray(companions) ? companions.map((c) => c.userId) : [];
   const statusMap = useStatusTracker(companionIds);
-
+  
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Background com gradiente animado */}
@@ -547,8 +573,8 @@ export default function Search() {
               {!city
                 ? "Acompanhantes disponíveis em todo o Brasil"
                 : companions.length === 0
-                  ? `Acompanhantes não encontradas em ${city}, ${stateUF}`
-                  : `Acompanhantes disponíveis em ${city}, ${stateUF}`}
+                ? `Acompanhantes não encontradas em ${city}, ${stateUF}`
+                : `Acompanhantes disponíveis em ${city}, ${stateUF}`}
             </motion.h1>
             <motion.p
               className="text-gray-600 text-lg font-medium"

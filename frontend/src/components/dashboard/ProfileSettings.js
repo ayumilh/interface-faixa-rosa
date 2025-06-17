@@ -318,34 +318,34 @@ const ImageCropModal = ({
         </div>
 
         {/* Crop Area */}
-                  <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6">
           <div
             ref={containerRef}
             className="relative bg-gray-100 rounded-xl overflow-hidden mx-auto"
-            style={{ 
-              width: containerSize.width || 300, 
+            style={{
+              width: containerSize.width || 300,
               height: containerSize.height || 300,
               touchAction: 'none'
             }}
           >
             {imageUrl && (
               <>
-    <img
-  src={imageUrl}
-  alt="Crop preview"
-  className="absolute pointer-events-none select-none"
-  style={{
-    width: imageSize.width,
-    height: imageSize.height,
-    left: imageOffset.x,
-    top: imageOffset.y
-  }}
-  draggable={false}
-/>
+                <img
+                  src={imageUrl}
+                  alt="Crop preview"
+                  className="absolute pointer-events-none select-none"
+                  style={{
+                    width: imageSize.width,
+                    height: imageSize.height,
+                    left: imageOffset.x,
+                    top: imageOffset.y
+                  }}
+                  draggable={false}
+                />
 
-                
+
                 {/* Overlay */}
-                <div 
+                <div
                   className="absolute inset-0 bg-black/50"
                   style={{
                     left: imageOffset.x,
@@ -354,7 +354,7 @@ const ImageCropModal = ({
                     height: imageSize.height
                   }}
                 />
-                
+
                 {/* Crop Box */}
                 <div
                   className="absolute border-2 border-white cursor-move"
@@ -375,7 +375,7 @@ const ImageCropModal = ({
                     <div className="absolute left-1/3 top-0 bottom-0 w-px bg-white/50" />
                     <div className="absolute left-2/3 top-0 bottom-0 w-px bg-white/50" />
                   </div>
-                  
+
                   {/* Resize Handle - Melhorado */}
                   <div
                     className="absolute -bottom-3 -right-3 w-8 h-8 bg-white border-2 border-pink-500 rounded-full cursor-se-resize flex items-center justify-center shadow-lg hover:bg-pink-50 transition-colors"
@@ -390,7 +390,7 @@ const ImageCropModal = ({
                   >
                     <div className="w-2 h-2 bg-pink-500 rounded-full" />
                   </div>
-                  
+
                   {/* Handles de canto adicionais */}
                   <div
                     className="absolute -top-1 -right-1 w-4 h-4 bg-white border border-pink-500 rounded-full cursor-nw-resize opacity-75 hover:opacity-100"
@@ -428,7 +428,7 @@ const ImageCropModal = ({
               <FaUndo className="text-sm" />
               <span className="hidden sm:inline">Resetar</span>
             </button>
-            
+
             <div className="flex space-x-2 sm:space-x-3">
               <button
                 onClick={onClose}
@@ -445,7 +445,7 @@ const ImageCropModal = ({
             </div>
           </div>
         </div>
-        
+
         <canvas ref={canvasRef} className="hidden" />
       </motion.div>
     </motion.div>
@@ -465,6 +465,8 @@ const ProfileSettings = ({ onUpdate }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
   const [documentsValidated, setDocumentsValidated] = useState(false);
+  const [documentStatus, setDocumentStatus] = useState("");
+
   const [rankingPosition, setRankingPosition] = useState(null);
   const [timeLeft, setTimeLeft] = useState("");
   const [timeProgress, setTimeProgress] = useState(100);
@@ -597,6 +599,8 @@ const ProfileSettings = ({ onUpdate }) => {
         }
       );
 
+      console.log("GET:", response.data);
+
       if (response.status === 200) {
         const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
 
@@ -615,7 +619,8 @@ const ProfileSettings = ({ onUpdate }) => {
 
         setProfileImage(profileImage);
         setBannerImage(bannerImage);
-        setDocumentsValidated(documentsValidated);
+        setDocumentStatus(documentsValidated);
+        setDocumentsValidated(documentsValidated === "APPROVED");
         setStartDate(new Date(response.data.media.startDate));
         setAllowedCarouselImages(Number(allowedImages));
 
@@ -646,7 +651,7 @@ const ProfileSettings = ({ onUpdate }) => {
 
     setCropImageFile(file);
     setCropType(type);
-    
+
     // Define aspect ratio baseado no tipo
     if (type === 'profile') {
       setCropAspectRatio(1); // Quadrado
@@ -655,7 +660,7 @@ const ProfileSettings = ({ onUpdate }) => {
     } else {
       setCropAspectRatio(1); // Carousel quadrado
     }
-    
+
     setShowCropModal(true);
   };
 
@@ -669,7 +674,7 @@ const ProfileSettings = ({ onUpdate }) => {
 
       if (cropType === 'profile' || cropType === 'banner') {
         formData.append(cropType === "profile" ? "profileImage" : "bannerImage", croppedFile);
-        
+
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/update`,
           formData,
@@ -1516,7 +1521,7 @@ const ProfileSettings = ({ onUpdate }) => {
           Validação de Documentos
         </h3>
 
-        {documentsValidated ? (
+        {documentStatus === "APPROVED" ? (
           <div className="text-center py-6 sm:py-8">
             <div className="bg-green-100 p-3 sm:p-4 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
               <FaCheckCircle className="text-green-500 text-2xl sm:text-3xl" />
@@ -1528,22 +1533,51 @@ const ProfileSettings = ({ onUpdate }) => {
               Seus documentos foram aprovados e seu perfil está verificado.
             </p>
           </div>
-        ) : (
-          <>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl p-4 mb-4 sm:mb-6">
-              <div className="flex items-start space-x-3">
-                <FaExclamationTriangle className="text-yellow-500 mt-1 flex-shrink-0" />
-                <div>
-                  <h4 className="font-semibold text-gray-800 text-sm sm:text-base">Verificação Pendente</h4>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                    Para ter seu perfil verificado, envie fotos nítidas de ambos os lados do seu documento de identidade.
-                  </p>
-                </div>
+        ) : documentStatus === "IN_ANALYSIS" ? (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl p-4 mb-4 sm:mb-6">
+            <div className="flex items-start space-x-3">
+              <FaClock className="text-yellow-500 mt-1 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold text-gray-800 text-sm sm:text-base">Documentos em Análise</h4>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                  Seus documentos foram enviados e estão em análise. Isso pode levar até 24 horas úteis.
+                </p>
               </div>
             </div>
+          </div>
+        ) : (
+          <>
+            {documentStatus === "REJECTED" && (
+              <div className="bg-red-50 border border-red-200 rounded-lg sm:rounded-xl p-4 mb-4 sm:mb-6">
+                <div className="flex items-start space-x-3">
+                  <FaExclamationTriangle className="text-red-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-gray-800 text-sm sm:text-base">Verificação Recusada</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                      Seus documentos foram recusados. Verifique se as fotos estão nítidas e todos os dados visíveis, e envie novamente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
+            {documentStatus === "PENDING" && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl p-4 mb-4 sm:mb-6">
+                <div className="flex items-start space-x-3">
+                  <FaExclamationTriangle className="text-yellow-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-gray-800 text-sm sm:text-base">Verificação Pendente</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                      Para ter seu perfil verificado, envie fotos nítidas de ambos os lados do seu documento.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Upload de Documentos */}
             <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0">
-              {/* Frente do documento */}
+              {/* Frente */}
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-800 text-sm sm:text-base">Frente do Documento</h4>
                 <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
@@ -1567,7 +1601,7 @@ const ProfileSettings = ({ onUpdate }) => {
                 </label>
               </div>
 
-              {/* Verso do documento */}
+              {/* Verso */}
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-800 text-sm sm:text-base">Verso do Documento</h4>
                 <label className="block border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300">
@@ -1592,7 +1626,7 @@ const ProfileSettings = ({ onUpdate }) => {
               </div>
             </div>
 
-            {/* Preview dos documentos */}
+            {/* Previews */}
             {(documentFront || documentBack) && (
               <div className="space-y-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0 mt-4 sm:mt-6">
                 {documentFront && (
@@ -1624,6 +1658,7 @@ const ProfileSettings = ({ onUpdate }) => {
               </div>
             )}
 
+            {/* Botão de Envio */}
             {isReadyToSend && (
               <button
                 onClick={handleSendDocuments}
@@ -1644,7 +1679,7 @@ const ProfileSettings = ({ onUpdate }) => {
               </button>
             )}
 
-            {/* Dicas para documentos */}
+            {/* Dicas */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-4 mt-4 sm:mt-6">
               <h4 className="font-semibold text-gray-800 mb-3 flex items-center text-sm sm:text-base">
                 <FaInfoCircle className="text-blue-500 mr-2" />
@@ -1653,28 +1688,30 @@ const ProfileSettings = ({ onUpdate }) => {
               <div className="space-y-2 text-xs sm:text-sm text-gray-600">
                 <div className="flex items-center space-x-2">
                   <FaCheck className="text-green-500 flex-shrink-0" />
-                  <span>Certifique-se de que o documento esteja bem iluminado</span>
+                  <span>Documento bem iluminado</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <FaCheck className="text-green-500 flex-shrink-0" />
-                  <span>Todas as informações devem estar legíveis</span>
+                  <span>Informações legíveis e sem reflexos</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <FaCheck className="text-green-500 flex-shrink-0" />
-                  <span>Evite reflexos ou sombras no documento</span>
+                  <span>Evite cortes nas bordas do documento</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <FaCheck className="text-green-500 flex-shrink-0" />
-                  <span>Use formato JPG ou PNG de boa qualidade</span>
+                  <span>Use JPG ou PNG de boa qualidade</span>
                 </div>
               </div>
             </div>
           </>
         )}
+
+
       </div>
     </div>
   );
-  
+
   // Loading screen
   if (loading) {
     return (
@@ -1765,8 +1802,8 @@ const ProfileSettings = ({ onUpdate }) => {
                           setShowMobileMenu(false);
                         }}
                         className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${activeTab === tab.id
-                            ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
-                            : "text-gray-600 hover:bg-gray-50"
+                          ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
+                          : "text-gray-600 hover:bg-gray-50"
                           }`}
                       >
                         <Icon className="text-lg" />
@@ -1788,8 +1825,8 @@ const ProfileSettings = ({ onUpdate }) => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${activeTab === tab.id
-                      ? "bg-white text-pink-600 shadow-lg"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "bg-white text-pink-600 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   <Icon className="text-lg" />
@@ -1836,9 +1873,9 @@ const ProfileSettings = ({ onUpdate }) => {
                   return (
                     <div className="text-center">
                       <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 ${currentStep === 0 ? 'bg-gradient-to-br from-purple-500 to-purple-600' :
-                          currentStep === 1 ? 'bg-gradient-to-br from-pink-500 to-pink-600' :
-                            currentStep === 2 ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
-                              'bg-gradient-to-br from-green-500 to-green-600'
+                        currentStep === 1 ? 'bg-gradient-to-br from-pink-500 to-pink-600' :
+                          currentStep === 2 ? 'bg-gradient-to-br from-blue-500 to-blue-600' :
+                            'bg-gradient-to-br from-green-500 to-green-600'
                         }`}>
                         <IconComponent className="text-white text-lg sm:text-2xl" />
                       </div>
@@ -1925,8 +1962,8 @@ const ProfileSettings = ({ onUpdate }) => {
               aspectRatio={cropAspectRatio}
               cropTitle={
                 cropType === 'profile' ? 'Ajustar Foto de Perfil' :
-                cropType === 'banner' ? 'Ajustar Banner' :
-                'Ajustar Foto da Galeria'
+                  cropType === 'banner' ? 'Ajustar Banner' :
+                    'Ajustar Foto da Galeria'
               }
             />
           )}

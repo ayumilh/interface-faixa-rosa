@@ -393,7 +393,7 @@ export default function Stories({ cidade, estado }) {
               onClick={() => router.push('/planos')}
               className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm px-5 py-2 rounded-full font-semibold hover:scale-105 transition"
             >
-              Ver planos disponíveis.
+              Ver planos disponíveis
             </button>
           </div>
         </div>

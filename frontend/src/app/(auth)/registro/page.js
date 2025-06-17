@@ -47,5 +47,18 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <RegisterClient />;
+  return (
+    <main className="min-h-screen flex items-center justify-center">
+      {/* Conteúdo visível para SEO */}
+      <div className="sr-only">
+        <h1>Cadastro Faixa Rosa – Crie sua Conta</h1>
+        <p>
+          Crie sua conta gratuitamente no Faixa Rosa. Seja anunciante ou contratante, tenha acesso à plataforma com segurança, verificação de identidade e perfil personalizado.
+        </p>
+      </div>
+
+      {/* Componente de Registro */}
+      <RegisterClient />
+    </main>
+  );
 }

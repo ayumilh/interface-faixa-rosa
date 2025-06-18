@@ -43,6 +43,13 @@
     <priority>0.5</priority>
   </url>
 
+    <url>
+    <loc>https://faixarosa.com/politica-privacidade</loc>
+    <lastmod>2025-06-17</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <url>
     <loc>https://faixarosa.com/blog</loc>
     <lastmod>2025-06-17</lastmod>

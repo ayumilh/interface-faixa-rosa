@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <sitemap>
+    <loc>https://faixarosa.com/sitemap.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-ac.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-al.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-am.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-ap.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-ba.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-ce.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-go.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-rj.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-sp.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/citymap-todos-restantes.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+
+  <sitemap>
+    <loc>https://faixarosa.com/BingSiteAuth.xml</loc>
+    <lastmod>2025-06-17</lastmod>
+  </sitemap>
+</sitemapindex>

@@ -5,8 +5,8 @@
     <loc>https://faixarosa.com/sitemap.xml</loc>
     <lastmod>2025-06-17</lastmod>
   </sitemap>
-  
- <sitemap>
+
+  <sitemap>
     <loc>https://faixarosa.com/citymap-sp.xml</loc>
     <lastmod>2025-06-17</lastmod>
   </sitemap>
@@ -51,15 +51,9 @@
     <lastmod>2025-06-17</lastmod>
   </sitemap>
 
-
-
   <sitemap>
     <loc>https://faixarosa.com/citymap-todos-restantes.xml</loc>
     <lastmod>2025-06-17</lastmod>
   </sitemap>
 
-  <sitemap>
-    <loc>https://faixarosa.com/BingSiteAuth.xml</loc>
-    <lastmod>2025-06-17</lastmod>
-  </sitemap>
 </sitemapindex>

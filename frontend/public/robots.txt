@@ -1,4 +1,13 @@
 User-agent: *
+Disallow: /favoritos
+Disallow: /buscar
+Disallow: /assets
+Disallow: /password
+Disallow: /cdn-cgi/
+Disallow: /manifest.json
+Disallow: /$
+Disallow: /arquivo
+
 Allow: /
 
-Sitemap: https://faixarosa.com/sitemap.xml
+Sitemap: https://faixarosa.com/sitemap-index.xml

@@ -58,7 +58,7 @@ export default function Termos() {
         plataforma e a contratação de planos de destaque em buscas na plataforma{" "}
         <strong>O Faixa Rosa</strong>. As informações detalhadas estão
         disponíveis para o VISITANTE no site{" "}
-        <a href="http://www.faixarosa.com.br">www.faixarosa.com.br</a>.
+        <a href="http://www.faixarosa.com">www.faixarosa.com</a>.
       </p>
       <p>
         2.2 Todos os dispositivos dos Termos de Uso e Serviços são aplicáveis a

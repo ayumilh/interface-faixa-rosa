@@ -93,7 +93,7 @@ export default function PoliticaPrivacidade() {
                   </h4>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p><strong>E-mail DPO:</strong> contato@faixarosa.com</p>
-                    <p><strong>Site:</strong> www.faixarosa.com.br</p>
+                    <p><strong>Site:</strong> www.faixarosa.com</p>
                     <p><strong>Prazo de Resposta:</strong> Até 15 dias úteis</p>
                   </div>
                 </div>

@@ -18,7 +18,6 @@ const nextAuthOptions = {
         password: { label: "password", type: "password" }
       },
       async authorize(credentials, req) {
-        console.log("Autenticando no NextAuth:", credentials);
         try {
           const res = await axios.post(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
@@ -35,8 +34,6 @@ const nextAuthOptions = {
           );
 
           const user = res.data;
-          console.log("Usuário autenticado pelo backend:", user);
-
           if (!user.token) {
             console.error("Erro: Nenhum token recebido do backend.");
             return null;
@@ -64,7 +61,6 @@ const nextAuthOptions = {
         token.name = user.name;
         token.email = user.email;
         token.userType = user.userType || "CONTRATANTE";
-        console.log("Token JWT gerado:", token);
       }
       return token;
     },
@@ -101,7 +97,6 @@ const nextAuthOptions = {
     //       return false;
     //     }
     //   }
-    //   console.log("Tentando login com:", account?.provider, user);
     //   return true;
     // },
   },

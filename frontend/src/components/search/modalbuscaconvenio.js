@@ -28,7 +28,6 @@ export default function ModalBusca({ showModalBusca, setShowModalBusca, onSelect
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log(position.coords.latitude, position.coords.longitude);
           // Aqui você pode usar as coordenadas para obter a cidade através de uma API
           const cityData = {
             nome: "Lins",

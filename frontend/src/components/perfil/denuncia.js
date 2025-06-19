@@ -1,8 +1,11 @@
 import { FaFlag, FaBook, FaTimes, FaShieldAlt, FaExclamationTriangle, FaCheckCircle, FaUpload, FaFileImage, FaFileVideo } from 'react-icons/fa';
 import { useState } from 'react';
+import axios from 'axios';
+import Cookies from "js-cookie";
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
 
-export default function Denuncia({ dataCriacao }) {
+export default function Denuncia({ dataCriacao, denunciadoId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
@@ -51,21 +54,42 @@ export default function Denuncia({ dataCriacao }) {
     setIsConfirmationOpen(true);
   };
 
-  const handleConfirm = () => {
+const handleConfirm = async () => {
+  try {
+    const userToken = Cookies.get("userToken");
+    if (!userToken) {
+      toast.error('Você precisa estar logado para fazer uma denúncia.');
+      return;
+    }
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/denuncias/create`,
+      {
+        denunciadoId: denunciadoId, // <-- Verifique se esse ID está vindo corretamente como prop
+        motivo: motivoSelecionado === 'outros' ? motivo : motivoSelecionado,
+        descricao: descricao,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+
+    toast.success('Denúncia enviada com sucesso!');
     setIsConfirmationOpen(false);
     setIsThankYouOpen(true);
+    resetModal();
+  } catch (error) {
+    console.error('Erro ao enviar denúncia:', error);
+    if (error.response?.data?.error) {
+      toast.error(`❌ ${error.response.data.error}`);
+    } else {
+      toast.error('❌ Erro ao enviar denúncia. Tente novamente.');
+    }
+  }
+};
 
-    // Simulação de envio ao servidor
-    setTimeout(() => {
-      console.log('Denúncia enviada:', { motivoSelecionado, motivo, descricao, anexo });
-      setMotivo('');
-      setMotivoSelecionado('');
-      setDescricao('');
-      setAnexo(null);
-      setStatus('');
-      setIsThankYouOpen(false);
-    }, 3000);
-  };
 
   const resetModal = () => {
     setIsModalOpen(false);
@@ -108,12 +132,12 @@ export default function Denuncia({ dataCriacao }) {
           >
             <FaShieldAlt className="text-white text-xl sm:text-2xl" />
           </motion.div>
-          
+
           <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
             Ajude-nos a manter a comunidade segura
           </h3>
           <p className="text-gray-600 text-sm sm:text-base mb-6 leading-relaxed">
-            Se você encontrou algum problema com este perfil, por favor nos informe. 
+            Se você encontrou algum problema com este perfil, por favor nos informe.
             Sua denúncia será analisada com total confidencialidade.
           </p>
 
@@ -179,28 +203,25 @@ export default function Denuncia({ dataCriacao }) {
                     {motivosDisponiveis.map((motivoItem) => (
                       <motion.div
                         key={motivoItem.id}
-                        className={`border rounded-xl p-4 cursor-pointer transition-all duration-200 ${
-                          motivoSelecionado === motivoItem.id
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:border-red-300 hover:bg-red-50'
-                        }`}
+                        className={`border rounded-xl p-4 cursor-pointer transition-all duration-200 ${motivoSelecionado === motivoItem.id
+                          ? 'border-red-500 bg-red-50'
+                          : 'border-gray-200 hover:border-red-300 hover:bg-red-50'
+                          }`}
                         onClick={() => setMotivoSelecionado(motivoItem.id)}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-lg ${
-                            motivoSelecionado === motivoItem.id
-                              ? 'bg-red-500 text-white'
-                              : 'bg-gray-100 text-gray-600'
-                          }`}>
+                          <div className={`p-2 rounded-lg ${motivoSelecionado === motivoItem.id
+                            ? 'bg-red-500 text-white'
+                            : 'bg-gray-100 text-gray-600'
+                            }`}>
                             <motivoItem.icon className="text-sm" />
                           </div>
-                          <span className={`font-medium text-sm ${
-                            motivoSelecionado === motivoItem.id
-                              ? 'text-red-700'
-                              : 'text-gray-700'
-                          }`}>
+                          <span className={`font-medium text-sm ${motivoSelecionado === motivoItem.id
+                            ? 'text-red-700'
+                            : 'text-gray-700'
+                            }`}>
                             {motivoItem.label}
                           </span>
                         </div>
@@ -247,7 +268,7 @@ export default function Denuncia({ dataCriacao }) {
                 </div>
 
                 {/* Upload de arquivo */}
-                <div>
+                {/* <div>
                   <label className="block font-bold text-gray-800 mb-3">
                     Anexar Evidências (opcional)
                   </label>
@@ -304,7 +325,7 @@ export default function Denuncia({ dataCriacao }) {
                       </motion.button>
                     </motion.div>
                   )}
-                </div>
+                </div> */}
 
                 {/* Status/erro */}
                 {status && (
@@ -369,7 +390,7 @@ export default function Denuncia({ dataCriacao }) {
                   </div>
                   <h2 className="text-xl font-bold text-gray-800 mb-2">Confirmar Denúncia</h2>
                   <p className="text-gray-600 text-sm leading-relaxed">
-                    Você tem certeza que deseja prosseguir com esta denúncia? 
+                    Você tem certeza que deseja prosseguir com esta denúncia?
                     Ela será enviada para nossa equipe de moderação.
                   </p>
                 </div>
@@ -423,13 +444,13 @@ export default function Denuncia({ dataCriacao }) {
                 >
                   <FaCheckCircle className="text-green-600 text-2xl" />
                 </motion.div>
-                
+
                 <h2 className="text-xl font-bold text-gray-800 mb-3">Denúncia Recebida!</h2>
-                
+
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
                   <p className="text-green-800 text-sm leading-relaxed">
-                    Obrigado por nos ajudar a manter a comunidade segura. 
-                    O <span className="font-semibold text-pink-600">Faixa Rosa</span> está 
+                    Obrigado por nos ajudar a manter a comunidade segura.
+                    O <span className="font-semibold text-pink-600">Faixa Rosa</span> está
                     investigando sua denúncia e tomará as medidas necessárias.
                   </p>
                 </div>

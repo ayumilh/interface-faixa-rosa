@@ -17,7 +17,7 @@ import Denuncia from "./denuncia";
 import axios from "axios";
 import { usePlan } from "@/context/PlanContext";
 
-export default function Fotos({ userName, createdAtFormatted }) {
+export default function Fotos({ userName, createdAtFormatted, denunciado }) {
   const [photos, setPhotos] = useState([]);
   const [visiblePhotos, setVisiblePhotos] = useState(12);
   const [showModal, setShowModal] = useState(false);
@@ -335,7 +335,7 @@ export default function Fotos({ userName, createdAtFormatted }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Denuncia dataCriacao={createdAtFormatted} />
+          <Denuncia dataCriacao={createdAtFormatted} denunciadoId={denunciado}  />
         </motion.div>
       </div>
     </div>

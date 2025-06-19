@@ -282,7 +282,6 @@ const DescriptionManagement = () => {
       canHideAge: !isAgeVisible,
     };
 
-    console.log("Atualizando visibilidade da idade:", updatedData);
     try {
       const userToken = Cookies.get("userToken");
       const response = await axios.post(

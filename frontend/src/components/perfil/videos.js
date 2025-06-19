@@ -53,7 +53,7 @@ const VideoThumbnail = ({ videoUrl, className, onThumbnailClick }) => {
   );
 };
 
-export default function Videos({ userName, createdAtFormatted }) {
+export default function Videos({ userName, createdAtFormatted, denunciado }) {
   const [videos, setVideos] = useState([]);
   const [visibleVideos, setVisibleVideos] = useState(12);
   const [showModal, setShowModal] = useState(false);
@@ -395,7 +395,7 @@ export default function Videos({ userName, createdAtFormatted }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <Denuncia dataCriacao={createdAtFormatted} />
+          <Denuncia dataCriacao={createdAtFormatted} denunciadoId={denunciado} />
         </motion.div>
       </div>
     </div>

@@ -135,10 +135,6 @@ export default function ModalFiltro({ showModalFiltro, setShowModalFiltro }) {
     }
     // Aqui você pode implementar a lógica para aplicar os filtros selecionados
     // Por exemplo, enviar os filtros para uma API ou atualizar o estado global
-    console.log("Filtros aplicados:", {
-      ...filters,
-      trans: selectedSubgeneroTrans,
-    });
     setShowModalFiltro(false);
   };
 

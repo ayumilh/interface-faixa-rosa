@@ -599,8 +599,6 @@ const ProfileSettings = ({ onUpdate }) => {
         }
       );
 
-      console.log("GET:", response.data);
-
       if (response.status === 200) {
         const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;
 

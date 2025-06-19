@@ -6,10 +6,6 @@ import {
   FaCogs,
   FaFileInvoiceDollar,
   FaShieldAlt,
-  FaChartLine,
-  FaBullhorn,
-  FaPalette,
-  FaLifeRing,
   FaWrench,
   FaSignOutAlt,
   FaBars,
@@ -28,15 +24,14 @@ import Modal from "@/components/adminDashboard/Modal";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import Anunciantes from "@/components/adminDashboard/Anunciantes";
 import Clientes from "@/components/adminDashboard/Clientes";
-import EstatisticasERelatorios from "@/components/adminDashboard/EstatisticasERelatorios";
-import Image from "next/image";
+import Denuncias from "@/components/adminDashboard/Denuncias";
 import { AuthContext } from "@/context/AuthContext";
 import GerenciamentoDePlanos from "@/components/adminDashboard/planos/GerenciamentoDePlanos";
 import GerenciamentoDeAssinaturas from "@/components/adminDashboard/planos/GerenciamentoDeAssinaturas";
 
 // Componente Placeholder aprimorado
 const Placeholder = ({ title, items = [], icon: Icon }) => (
-  <motion.div 
+  <motion.div
     className="p-8"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -52,11 +47,11 @@ const Placeholder = ({ title, items = [], icon: Icon }) => (
         {title}
       </h2>
     </div>
-    
+
     {items.length > 0 ? (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
         {items.map((item, index) => (
-          <motion.div 
+          <motion.div
             key={index}
             className="bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200"
             initial={{ opacity: 0, x: -20 }}
@@ -96,7 +91,7 @@ const AdminDashboardContent = () => {
   const [notifications, setNotifications] = useState(3); // Exemplo de notificações
   const [sortOrder, setSortOrder] = useState("desc"); // "desc" = mais novos primeiro, "asc" = mais antigos primeiro
   const mobileMenuRef = useRef(null);
-  
+
   const isMobile = useMediaQuery("(max-width: 768px)");
   const { logout } = useContext(AuthContext);
 
@@ -154,6 +149,15 @@ const AdminDashboardContent = () => {
       color: "from-yellow-500 to-yellow-600",
       subItems: [],
     },
+    {
+      id: "moderacao",
+      label: "Segurança e Moderação",
+      icon: FaShieldAlt,
+      color: "from-red-500 to-pink-600",
+      subItems: [
+        { id: "denuncias", label: "Denúncias", badge: null },
+      ],
+    },
   ];
 
   // Animações para transições
@@ -165,30 +169,30 @@ const AdminDashboardContent = () => {
 
   const handleMainTabClick = (tabId) => {
     if (activeMainTab === tabId) return; // Evita re-render desnecessário
-    
+
     setIsLoading(true);
     setActiveMainTab(tabId);
-    
+
     const mainItem = menuItems.find((item) => item.id === tabId);
     if (mainItem && mainItem.subItems && mainItem.subItems.length > 0) {
       setActiveSubTab(mainItem.subItems[0].id);
     } else {
       setActiveSubTab("");
     }
-    
+
     if (isMobile) setMobileMenuOpen(false);
-    
+
     // Simula loading (remover em produção se não houver carregamento real)
     setTimeout(() => setIsLoading(false), 300);
   };
 
   const handleSubTabClick = (subId) => {
     if (activeSubTab === subId) return;
-    
+
     setIsLoading(true);
     setActiveSubTab(subId);
     if (isMobile) setMobileMenuOpen(false);
-    
+
     setTimeout(() => setIsLoading(false), 200);
   };
 
@@ -298,6 +302,13 @@ const AdminDashboardContent = () => {
       );
     }
 
+    if (activeMainTab === "moderacao") {
+      if (activeSubTab === "denuncias") {
+        return <Denuncias />;
+      }
+    }
+
+
     return <Placeholder title="Selecione uma opção do menu" icon={FaHome} />;
   };
 
@@ -314,7 +325,7 @@ const AdminDashboardContent = () => {
       warning: "bg-yellow-500 text-white",
       success: "bg-green-500 text-white",
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs rounded-full font-medium ${variants[variant]}`}>
         {children}
@@ -334,9 +345,9 @@ const AdminDashboardContent = () => {
             <div className="p-6">
               {/* Barra de destaque */}
               <div className="h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-full mb-6"></div>
-              
+
               {/* Header do Admin */}
-              <motion.div 
+              <motion.div
                 className="flex items-center mb-8 p-4 bg-gray-700/50 rounded-xl border border-gray-600/50"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -375,65 +386,63 @@ const AdminDashboardContent = () => {
               {/* Menu Principal */}
               <ul className="space-y-2">
                 {menuItems
-                  .filter(item => 
-                    searchTerm === "" || 
+                  .filter(item =>
+                    searchTerm === "" ||
                     item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     item.subItems.some(sub => sub.label.toLowerCase().includes(searchTerm.toLowerCase()))
                   )
                   .map((item, index) => (
-                  <motion.li 
-                    key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <div
-                      className={`flex items-center cursor-pointer px-4 py-3 rounded-xl text-sm lg:text-base transition-all duration-200 ${
-                        activeMainTab === item.id
+                    <motion.li
+                      key={item.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div
+                        className={`flex items-center cursor-pointer px-4 py-3 rounded-xl text-sm lg:text-base transition-all duration-200 ${activeMainTab === item.id
                           ? `bg-gradient-to-r ${item.color}/20 text-white border border-pink-500/30`
                           : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
-                      }`}
-                      onClick={() => handleMainTabClick(item.id)}
-                    >
-                      <item.icon className="mr-3 text-lg" />
-                      <span className="flex-1">{item.label}</span>
-                      {activeMainTab === item.id && (
-                        <div className="ml-auto w-2 h-2 rounded-full bg-pink-500"></div>
-                      )}
-                    </div>
+                          }`}
+                        onClick={() => handleMainTabClick(item.id)}
+                      >
+                        <item.icon className="mr-3 text-lg" />
+                        <span className="flex-1">{item.label}</span>
+                        {activeMainTab === item.id && (
+                          <div className="ml-auto w-2 h-2 rounded-full bg-pink-500"></div>
+                        )}
+                      </div>
 
-                    {/* Submenu */}
-                    <AnimatePresence>
-                      {activeMainTab === item.id && item.subItems && item.subItems.length > 0 && (
-                        <motion.ul 
-                          className="ml-8 mt-2 space-y-1"
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          {item.subItems.map((sub) => (
-                            <motion.li
-                              key={sub.id}
-                              onClick={() => handleSubTabClick(sub.id)}
-                              className={`cursor-pointer text-sm px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-between ${
-                                activeSubTab === sub.id
+                      {/* Submenu */}
+                      <AnimatePresence>
+                        {activeMainTab === item.id && item.subItems && item.subItems.length > 0 && (
+                          <motion.ul
+                            className="ml-8 mt-2 space-y-1"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {item.subItems.map((sub) => (
+                              <motion.li
+                                key={sub.id}
+                                onClick={() => handleSubTabClick(sub.id)}
+                                className={`cursor-pointer text-sm px-3 py-2 rounded-lg transition-all duration-200 flex items-center justify-between ${activeSubTab === sub.id
                                   ? "bg-gray-600 text-gray-100"
                                   : "text-gray-300 hover:bg-gray-700/50 hover:text-gray-100"
-                              }`}
-                              whileHover={{ x: 4 }}
-                            >
-                              <span>{sub.label}</span>
-                              {sub.badge && (
-                                <Badge variant="warning">{sub.badge}</Badge>
-                              )}
-                            </motion.li>
-                          ))}
-                        </motion.ul>
-                      )}
-                    </AnimatePresence>
-                  </motion.li>
-                ))}
+                                  }`}
+                                whileHover={{ x: 4 }}
+                              >
+                                <span>{sub.label}</span>
+                                {sub.badge && (
+                                  <Badge variant="warning">{sub.badge}</Badge>
+                                )}
+                              </motion.li>
+                            ))}
+                          </motion.ul>
+                        )}
+                      </AnimatePresence>
+                    </motion.li>
+                  ))}
 
                 {/* Logout */}
                 <motion.li
@@ -452,13 +461,12 @@ const AdminDashboardContent = () => {
 
         {/* Conteúdo Principal */}
         <main
-          className={`flex-1 container mx-auto px-4 py-8 mt-16 transition-all duration-300 ${
-            !isMobile ? "ml-64 lg:ml-72 xl:ml-80" : ""
-          }`}
+          className={`flex-1 container mx-auto px-4 py-8 mt-16 transition-all duration-300 ${!isMobile ? "ml-64 lg:ml-72 xl:ml-80" : ""
+            }`}
         >
           {/* Header Mobile */}
           {isMobile && (
-            <motion.div 
+            <motion.div
               className="flex justify-between items-center bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-6 border border-gray-200/50"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -510,7 +518,7 @@ const AdminDashboardContent = () => {
 
           {/* Overlay Mobile */}
           {mobileMenuOpen && (
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 z-30 lg:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
@@ -528,7 +536,7 @@ const AdminDashboardContent = () => {
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
               >
                 <div className="h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"></div>
-                
+
                 <div className="p-4 mt-16">
                   {/* Busca Mobile */}
                   <div className="relative mb-4">
@@ -544,37 +552,37 @@ const AdminDashboardContent = () => {
 
                   <ul className="space-y-2">
                     {menuItems
-                      .filter(item => 
-                        searchTerm === "" || 
+                      .filter(item =>
+                        searchTerm === "" ||
                         item.label.toLowerCase().includes(searchTerm.toLowerCase())
                       )
                       .map((item) => (
-                      <li key={item.id}>
-                        <div
-                          className="flex items-center cursor-pointer px-3 py-3 rounded-xl text-sm transition-all duration-200 text-gray-300 hover:bg-gray-700/50 hover:text-white"
-                          onClick={() => handleMainTabClick(item.id)}
-                        >
-                          <item.icon className="mr-3 text-lg" />
-                          {item.label}
-                        </div>
-                        {activeMainTab === item.id && item.subItems && item.subItems.length > 0 && (
-                          <ul className="ml-8 mt-2 space-y-1">
-                            {item.subItems.map((sub) => (
-                              <li
-                                key={sub.id}
-                                onClick={() => handleSubTabClick(sub.id)}
-                                className="cursor-pointer text-sm text-gray-300 px-2 py-2 rounded transition-colors hover:bg-gray-700/50 hover:text-gray-100 flex items-center justify-between"
-                              >
-                                <span>{sub.label}</span>
-                                {sub.badge && (
-                                  <Badge variant="warning">{sub.badge}</Badge>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    ))}
+                        <li key={item.id}>
+                          <div
+                            className="flex items-center cursor-pointer px-3 py-3 rounded-xl text-sm transition-all duration-200 text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                            onClick={() => handleMainTabClick(item.id)}
+                          >
+                            <item.icon className="mr-3 text-lg" />
+                            {item.label}
+                          </div>
+                          {activeMainTab === item.id && item.subItems && item.subItems.length > 0 && (
+                            <ul className="ml-8 mt-2 space-y-1">
+                              {item.subItems.map((sub) => (
+                                <li
+                                  key={sub.id}
+                                  onClick={() => handleSubTabClick(sub.id)}
+                                  className="cursor-pointer text-sm text-gray-300 px-2 py-2 rounded transition-colors hover:bg-gray-700/50 hover:text-gray-100 flex items-center justify-between"
+                                >
+                                  <span>{sub.label}</span>
+                                  {sub.badge && (
+                                    <Badge variant="warning">{sub.badge}</Badge>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
                   </ul>
                 </div>
               </motion.div>
@@ -582,7 +590,7 @@ const AdminDashboardContent = () => {
           </AnimatePresence>
 
           {/* Breadcrumb Melhorado */}
-          <motion.div 
+          <motion.div
             className="mb-6"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -633,7 +641,7 @@ const AdminDashboardContent = () => {
           </motion.div>
 
           {/* Área de Conteúdo Dinâmico */}
-          <motion.div 
+          <motion.div
             className="bg-white/80 backdrop-blur-sm shadow-xl rounded-xl overflow-hidden border border-gray-200/50"
             variants={tabVariants}
             initial="hidden"

@@ -369,8 +369,6 @@ export default function Perfil() {
     }
   }, [userName, fetchCompanions]);
 
-  console.log("Companions from context:", companions);
-
   // Função separada para buscar mais acompanhantes
   const fetchMoreCompanions = useCallback(async (city, state, currentUserName) => {
     if (!city || !state) return;
@@ -436,15 +434,11 @@ export default function Perfil() {
     fetchProfile();
   }, [fetchProfile]);
 
-  console.log("Companion data:", companionData);
 
   const hasActiveCanHideAge = companions?.subscriptions?.some((sub) => {
     const canHideAge = sub.extraPlan?.canHideAge === true;
     return canHideAge;
   });
-
-
-  console.log("hasActiveCanHideAge data:", hasActiveCanHideAge)
 
   const handleTabClick = useCallback((tab) => {
     setActiveTab(tab);
@@ -470,8 +464,8 @@ export default function Perfil() {
     if (!companionData) return null;
 
     const tabComponents = {
-      fotos: <Fotos userName={companionData.userName} createdAtFormatted={companionData.createdAtFormatted} />,
-      videos: <Videos userName={companionData.userName} createdAtFormatted={companionData.createdAtFormatted} />,
+      fotos: <Fotos userName={companionData.userName} createdAtFormatted={companionData.createdAtFormatted} denunciado={companionData.user.id} />,
+      videos: <Videos userName={companionData.userName} createdAtFormatted={companionData.createdAtFormatted} denunciado={companionData.user.id} />,
       sobre: <Sobre physicalCharacteristics={companionData.PhysicalCharacteristics} description={companionData.description} media={companionData.media} />,
       localidade: <Localidade lugares={companionData.lugares} city={companionData.city} state={companionData.state} />,
       serviços: <Servicos servicesOffered={companionData.servicesOffered} weeklySchedules={companionData.weeklySchedules} />,

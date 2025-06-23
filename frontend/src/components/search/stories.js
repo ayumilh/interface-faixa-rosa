@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useContext, use } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { usePlan } from "@/context/PlanContext";
 import axios from "axios";
@@ -43,6 +43,11 @@ export default function Stories({ cidade, estado }) {
   const companionData = Array.isArray(companions)
     ? companions.find(c => c.userName === userInfo?.userName)
     : null;
+
+
+  useEffect(() => {
+    console.log("Companion data:", companionData);
+  }, [companionData]);
 
   // Verifica se o plano principal dá acesso aos stories
   const mainPlanAllowsStories = companionData?.plan?.description?.toLowerCase().includes("acesso aos stories");
@@ -157,7 +162,7 @@ export default function Stories({ cidade, estado }) {
       );
 
       if (res.data) {
-        toast.success("Story enviado com sucesso! 🎉");
+        toast.success("Story enviado com sucesso!");
         fetchStories();
       }
     } catch (err) {
@@ -378,6 +383,46 @@ export default function Stories({ cidade, estado }) {
 
 
   return (<>
+    {canUploadStory && stories.length === 0 && (
+      <div className="flex overflow-x-auto space-x-6 items-center pb-2 scrollbar-hide">
+        <motion.div
+          className="flex-shrink-0 text-center group"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <label className="relative cursor-pointer block">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-pink-500 via-purple-500 to-pink-500 p-1 shadow-lg group-hover:shadow-2xl transition-all duration-300">
+              <div className="w-full h-full rounded-3xl bg-white flex items-center justify-center relative overflow-hidden">
+                {isUploading ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-8 h-8 border-3 border-pink-500 border-t-transparent rounded-full"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <FaPlus className="text-white text-lg" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <input
+              type="file"
+              accept="image/*,video/*"
+              className="hidden"
+              ref={inputRef}
+              onChange={handleStoryUpload}
+              disabled={isUploading}
+            />
+          </label>
+          <span className="block mt-3 text-sm text-gray-700 font-semibold max-w-[5rem] truncate mx-auto">
+            {isUploading ? "Enviando..." : "Adicionar"}
+          </span>
+        </motion.div>
+      </div>
+    )}
+
+
     {isAcompanhante &&
       Array.isArray(companionData?.subscriptions) &&
       !companionData.subscriptions.some(sub => sub.extraPlan?.hasStories) && (

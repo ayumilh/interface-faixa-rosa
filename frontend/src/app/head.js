@@ -9,7 +9,7 @@ export const viewport = {
 // Função otimizada para gerar JSON-LD com schema mais rico
 function generateEnhancedJsonLd() {
   const currentDate = new Date().toISOString();
-  
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -17,9 +17,9 @@ function generateEnhancedJsonLd() {
         "@type": "WebSite",
         "@id": "https://www.faixarosa.com/#website",
         url: "https://www.faixarosa.com",
-        name: "Faixa Rosa - A Melhor Plataforma de Acompanhantes do Brasil",
+        name: "Faixa Rosa",
         alternateName: ["FaixaRosa", "Faixa Rosa Brasil"],
-        description: "🌹 A plataforma #1 de acompanhantes verificadas no Brasil. , fotos reais 100% verificadas, segurança total. Cadastro gratuito!",
+        description: "🌹 A plataforma #1 de acompanhantes verificadas no Brasil. Fotos reais 100% verificadas, segurança total. Cadastro gratuito!",
         keywords: "acompanhantes brasil, acompanhantes verificadas, faixa rosa, garotas de programa, acompanhantes de luxo",
         inLanguage: "pt-BR",
         dateCreated: "2024-01-01",
@@ -58,15 +58,14 @@ function generateEnhancedJsonLd() {
         ]
       },
       {
-        "@type": "Organization",
-        "@id": "https://www.faixarosa.com/#organization",
         "@type": ["Organization", "LocalBusiness"],
+        "@id": "https://www.faixarosa.com/#organization",
         name: "Faixa Rosa Brasil",
         legalName: "Faixa Rosa Plataforma Digital Ltda",
         url: "https://www.faixarosa.com",
         foundingDate: "2024",
-        slogan: "A Plataforma Mais Confiável de Acompanhantes do Brasil",
-        description: "Líder em verificação de perfis de acompanhantes no Brasil. sistema de verificação em 3 etapas, suporte 24/7.",
+        slogan: "A Plataforma Mais Confiável de Acompanhentes do Brasil",
+        description: "Líder em verificação de perfis de acompanhantes no Brasil. Sistema de verificação em 3 etapas, suporte 24/7.",
         knowsAbout: [
           "Acompanhantes Verificadas",
           "Garotas de Programa Premium",
@@ -138,7 +137,10 @@ function generateEnhancedJsonLd() {
             availableLanguage: ["Portuguese", "pt-BR"],
             hoursAvailable: {
               "@type": "OpeningHoursSpecification",
-              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+              dayOfWeek: [
+                "Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday", "Sunday"
+              ],
               opens: "00:00",
               closes: "23:59"
             }
@@ -172,7 +174,7 @@ function generateEnhancedJsonLd() {
         keywords: "acompanhantes brasil 2025, melhores acompanhantes, faixa rosa, garotas programa verificadas",
         inLanguage: "pt-BR",
         datePublished: "2024-01-01T00:00:00-03:00",
-        dateModified: currentDate,
+        dateModified: currentDate, // Note: currentDate é injetado no Head
         author: {
           "@id": "https://www.faixarosa.com/#organization"
         },
@@ -218,6 +220,7 @@ function generateEnhancedJsonLd() {
       },
       {
         "@type": "FAQPage",
+        "@id": "https://www.faixarosa.com/#faq",
         mainEntity: [
           {
             "@type": "Question",
@@ -253,7 +256,13 @@ export default function Head() {
       {/* Meta tags essenciais */}
       <meta charSet="utf-8" />
       <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-      
+
+      {/* Meta tags de “site name” para Google, Bing, Yahoo, redes sociais e navegadores */}
+      <meta name="google-site-name" content="Faixa Rosa" />
+      <meta property="og:site_name" content="Faixa Rosa" />
+      <meta name="application-name" content="Faixa Rosa" />
+      <meta name="apple-mobile-web-app-title" content="Faixa Rosa" />
+
       {/* Title e description otimizados para SEO */}
       <title>Faixa Rosa - Acompanhantes Verificadas Brasil #{currentYear} | #1 em Confiança</title>
       <meta
@@ -315,7 +324,7 @@ export default function Head() {
       <meta property="og:type" content="website" />
       <meta property="og:locale" content="pt_BR" />
       <meta property="og:url" content="https://www.faixarosa.com" />
-      <meta property="og:site_name" content="Faixa Rosa - A #1 do Brasil" />
+      <meta property="og:site_name" content="Faixa Rosa" />
       <meta property="og:title" content="Faixa Rosa - As Melhores Acompanhantes do Brasil | Perfis 100% Verificados" />
       <meta
         property="og:description"
@@ -352,6 +361,9 @@ export default function Head() {
       <link rel="alternate" href="https://www.faixarosa.com" hrefLang="pt-br" />
       <link rel="alternate" href="https://www.faixarosa.com" hrefLang="pt" />
       <link rel="alternate" href="https://www.faixarosa.com" hrefLang="x-default" />
+
+      {/* Link para JSON-LD externo */}
+      <link rel="alternate" type="application/ld+json" href="/schema.json" />
 
       {/* Preconnect para performance */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -440,7 +452,7 @@ export default function Head() {
       <meta name="msvalidate.01" content="25D25C0199BF93F6D8618BB8BE055A09" />
       <meta name="yandex-verification" content="186f30a47ed07d1e" />
 
-      {/* Schema.org JSON-LD otimizado */}
+      {/* Schema.org JSON-LD inline */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: generateEnhancedJsonLd() }}

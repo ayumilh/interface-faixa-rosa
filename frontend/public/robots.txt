@@ -1,11 +1,11 @@
 User-agent: *
 Disallow: /favoritos
 Disallow: /buscar
-Disallow: /assets
+Disallow: /assets/
 Disallow: /password
 Disallow: /cdn-cgi/
 Disallow: /manifest.json
-Disallow: /arquivo
+Disallow: /arquivo/
 
 Allow: /
 

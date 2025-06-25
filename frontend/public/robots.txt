@@ -5,9 +5,17 @@ Disallow: /assets
 Disallow: /password
 Disallow: /cdn-cgi/
 Disallow: /manifest.json
-Disallow: /$
 Disallow: /arquivo
 
 Allow: /
 
-Sitemap: https://faixarosa.com/sitemap-index.xml
+Sitemap: https://www.faixarosa.com/citymap-ac.xml
+Sitemap: https://www.faixarosa.com/citymap-al.xml
+Sitemap: https://www.faixarosa.com/citymap-am.xml
+Sitemap: https://www.faixarosa.com/citymap-ap.xml
+Sitemap: https://www.faixarosa.com/citymap-ba.xml
+Sitemap: https://www.faixarosa.com/citymap-ce.xml
+Sitemap: https://www.faixarosa.com/citymap-go.xml
+Sitemap: https://www.faixarosa.com/citymap-rj.xml
+Sitemap: https://www.faixarosa.com/citymap-sp.xml
+Sitemap: https://www.faixarosa.com/citymap-todos-restantes.xml

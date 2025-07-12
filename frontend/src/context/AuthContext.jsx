@@ -1,25 +1,22 @@
 "use client";
 import { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userInfo, setUserInfo] = useState(null); // Novo: dados complementares do usuário
     const [currentUser, setCurrentUser] = useState(null);
-    const [userInfo, setUserInfo] = useState(null);
+    const [sessionInfo, setSessionInfo] = useState(null); // Novo: info da sessão Better Auth
     const [loadingUserInfo, setLoadingUserInfo] = useState(true);
 
     // usado no BtnSignOut
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const toggleModal = () => {
-        setIsModalOpen(!isModalOpen);
-    };
+    const toggleModal = () => setIsModalOpen(!isModalOpen);
 
     const login = async (inputs) => {
         try {
@@ -31,9 +28,9 @@ export const AuthContextProvider = ({ children }) => {
                 ...inputs,
                 browser_fingerprint: fingerprint
             };
-            
+
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/login`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signin/email`, // Endpoint Better Auth
                 loginData,
                 {
                     withCredentials: true,
@@ -44,108 +41,105 @@ export const AuthContextProvider = ({ children }) => {
                 }
             );
 
-            Cookies.set("userToken", res.data.token, { expires: 1 });
-            Cookies.set("userType", res.data.user.userType, { expires: 1 });
-
-
-            if (!res.data.token || !res.data.user) return null;
-
-            setIsAuthenticated(true);
-            setCurrentUser(res.data.user);
+            // Após login bem-sucedido, buscar dados da sessão
             await fetchUserData();
-            return {
-                user: res.data.user,
-                token: res.data.token,
-                userType: res.data.userType
-            }
+
+            return { user: res.data.user }; // Ou personalizar conforme necessário
         } catch (error) {
             setIsAuthenticated(false);
 
-            if (error.response && error.response.status === 401) {
-                return { status: 401, message: error.response?.data?.error || 'Credenciais inválidas' };
-            } else if (error.response && error.response.status === 404) {
-                return { status: 404, message: error.response?.data?.error || 'Usuário não encontrado' };
+            if (error.response?.status === 401) {
+                return { status: 401, message: error.response.data?.error || "Credenciais inválidas" };
+            } else if (error.response?.status === 404) {
+                return { status: 404, message: error.response.data?.error || "Usuário não encontrado" };
             } else {
-                // Para outros erros, retorna a mensagem do erro
-                return { status: error.response?.status || 500, message: error.response?.data?.message || 'Ocorreu um erro ao realizar o login.' };
+                return { status: 500, message: error.response?.data?.message || "Erro ao realizar login." };
             }
         }
     };
 
-    const logout = () => {
-        Cookies.remove("token");
-        Cookies.remove("userToken");
-        Cookies.remove("userType");
-        setCurrentUser(null);
-        setIsAuthenticated(false);
-        setUserInfo(null);
-        router.push("/login");
+    const logout = async () => {
+        try {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signout`, {}, { withCredentials: true });
+        } catch (err) {
+            console.warn("Erro ao sair:", err);
+        } finally {
+            setCurrentUser(null);
+            setIsAuthenticated(false);
+            setSessionInfo(null);
+            router.push("/login");
+        }
     };
+
 
     const fetchUserData = useCallback(async () => {
-        const tokenId = Cookies.get("userToken");
-        const tipoPerfil = Cookies.get("userType");
+        try {
+            const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/me`, {
+                withCredentials: true,
+                validateStatus: (status) => status < 500, // evita erro 401 no DevTools
+            });
 
-        if (!tokenId || !tipoPerfil) {
-            setUserInfo(null);
-            setIsAuthenticated(false);
-            setLoadingUserInfo(false);
-            return;
-        }
+            const sessionObj = res.data.session?.session;
+            const user = res.data.session?.user;
+            const userType = res.data.appUser?.userType;
 
-        if (tokenId) {
+            if (!user || !sessionObj || !userType) {
+                console.warn("Sessão inválida ou não autenticada. Redirecionando...");
+                setIsAuthenticated(false);
+                setCurrentUser(null);
+                setSessionInfo(null);
+                setUserInfo(null);
+                router.push("/");
+                return;
+            }
+
+            setCurrentUser({ ...user, userType }); // junta user + userType
+            setSessionInfo(sessionObj);
+            setIsAuthenticated(true);
+
+            // Busca dados complementares
             try {
-
-                const res = await axios.get(
-                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info?tipoPerfil=${tipoPerfil}`,
+                const extra = await axios.get(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/info?tipoPerfil=${userType}`,
                     {
-                        headers: {
-                            Authorization: `Bearer ${tokenId}`,
-                        },
+                        withCredentials: true,
                     }
                 );
-                if (res.data) {
-                    setUserInfo(res.data);
-                    setCurrentUser(res.data);
-                    setIsAuthenticated(true);
-                }
+                setUserInfo(extra.data);
             } catch (err) {
-                console.error("Erro ao buscar dados do usuário:", err);
-                setIsAuthenticated(false);
+                console.warn("Erro ao buscar dados complementares do usuário:", err);
                 setUserInfo(null);
-            } finally {
-                setLoadingUserInfo(false);
             }
-        }
-    }, [currentUser, isAuthenticated]);
 
-    // Decodifica o token e faz login automático
-    useEffect(() => {
-        const token = Cookies.get("userToken");
-        const tipoPerfil = Cookies.get("userType");
-
-        if (token && tipoPerfil && !currentUser) {
-            try {
-                const decoded = jwtDecode(token);
-                setCurrentUser(decoded);
-                setIsAuthenticated(true);
-                fetchUserData();
-            } catch (err) {
-                setCurrentUser(null);
-                setIsAuthenticated(false);
-                Cookies.remove("userToken");
+        } catch (err) {
+            if (err?.response?.status === 401) {
+                console.warn("Sessão expirada ou inválida. Redirecionando...");
+                router.push("/");
+            } else {
+                console.error("Erro ao buscar sessão do usuário:", err);
             }
-        } else {
+
+            setIsAuthenticated(false);
+            setCurrentUser(null);
+            setSessionInfo(null);
+            setUserInfo(null);
+        } finally {
             setLoadingUserInfo(false);
         }
-    }, [fetchUserData]);
+    }, [router]);
 
+
+    // Carrega a sessão ao iniciar
+    useEffect(() => {
+        fetchUserData();
+    }, [fetchUserData]);
 
     return (
         <AuthContext.Provider
             value={{
                 isAuthenticated,
                 currentUser,
+                sessionInfo,
                 login,
                 logout,
                 userInfo,

@@ -217,7 +217,7 @@ export default function CadastroPage() {
         setLoading(true);
 
         const formDataToSend = new FormData();
-        formDataToSend.append("firstName", formData.firstName);
+        formDataToSend.append("name", formData.firstName);
         formDataToSend.append("lastName", formData.lastName);
         formDataToSend.append("userName", formData.userName);
         formDataToSend.append("email", formData.email);
@@ -231,7 +231,7 @@ export default function CadastroPage() {
         if (formData.documents.fileBack) formDataToSend.append("fileBack", formData.documents.fileBack);
 
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/register`, formDataToSend, { withCredentials: true });
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/sign-up/email`, formDataToSend, { withCredentials: true });
 
             if (response.status === 200 || response.status === 201) {
                 localStorage.removeItem("cadastroStepForm");
@@ -645,7 +645,7 @@ export default function CadastroPage() {
                                 <div className="flex gap-4 pt-6">
                                     <button
                                         type="button"
-                                        onClick={() => setStep(step - 1)}
+                                        onClick={handlePreviousStep}
                                         className="flex-1 py-3 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 group"
                                     >
                                         <FaArrowLeft className="group-hover:-translate-x-1 transition-transform duration-200" />

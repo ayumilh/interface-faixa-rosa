@@ -53,7 +53,7 @@ export default function EmailField({
     setIsAvailable(null);
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-email`, { email });
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-email`, { email });
       if (res.data.valid) {
         setValid(true);
         setError('');

@@ -21,32 +21,48 @@ export default function LoginClient() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-const handleLoginSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/sign-in/email`, {
-      method: "POST",
-      credentials: "include", // importante para salvar os cookies do backend
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/sign-in/email`, {
+        method: "POST",
+        credentials: "include", // importante para salvar os cookies do backend
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (response.ok) {
-      router.push("/redirect");
-    } else {
-      const json = await response.json();
-      toast.error(json.message || "Credenciais inválidas");
+      if (response.ok) {
+        const data = await response.json();
+
+        // Mapa de redirecionamento por tipo de usuário
+        const pathMap = {
+          CONTRATANTE: "/userDashboard",
+          ACOMPANHANTE: "/dashboard",
+          ADMIN: "/adminDashboard",
+        };
+
+        const redirectPath = pathMap[data.userType];
+
+        if (redirectPath) {
+          router.push(redirectPath);
+        } else {
+          toast.error("Tipo de usuário não reconhecido.");
+          router.push("/"); // Redireciona para uma página padrão
+        }
+      } else {
+        const json = await response.json();
+        toast.error(json.message || "Credenciais inválidas");
+      }
+    } catch (error) {
+      toast.error("Erro inesperado");
     }
-  } catch (error) {
-    toast.error("Erro inesperado");
-  }
 
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
 
   const sanitizeInput = (value, regex, shouldTrim = true) => {
@@ -235,8 +251,8 @@ const handleLoginSubmit = async (e) => {
               type="submit"
               disabled={loading}
               className={`w-full py-3 px-4 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg relative overflow-hidden ${loading
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-[1.02] hover:shadow-2xl hover:from-pink-600 hover:via-purple-600 hover:to-pink-500'
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:scale-[1.02] hover:shadow-2xl hover:from-pink-600 hover:via-purple-600 hover:to-pink-500'
                 }`}
             >
               {loading ? (

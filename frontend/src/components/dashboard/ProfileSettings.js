@@ -595,9 +595,11 @@ const ProfileSettings = ({ onUpdate }) => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/`,
         {
-          headers: { Authorization: `Bearer ${userToken}` },
+          withCredentials: true,
         }
       );
+
+      console.log("Fetched media:", response.data);
 
       if (response.status === 200) {
         const { profileImage, bannerImage, documentsValidated, planName } = response.data.media;

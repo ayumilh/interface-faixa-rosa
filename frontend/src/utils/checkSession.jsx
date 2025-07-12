@@ -1,43 +1,57 @@
-// utils/checkSession.js
-import { auth } from "@/utils/auth"; // sua instância do Better Auth
-import { fromNodeHeaders } from "better-auth/node";
-import { headers } from "next/headers";
+import { cookies } from "next/headers";
+import axios from "axios";
+
 
 const routePermissions = {
-  CONTRATANTE: ["/"],
+  CONTRATANTE: ["/userDashboard"],
   ACOMPANHANTE: ["/dashboard"],
   ADMIN: ["/adminDashboard"],
 };
 
 const publicRoutes = ["/planos", "/login", "/register"];
 
-export async function checkSession(currentRoute = "/") {
+export const checkSession = async (currentRoute) => {
   try {
-    const session = await auth.api.getSession({
-      headers: fromNodeHeaders(headers()),
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get("better-auth.session_token");
+
+    if (!sessionToken) {
+      return null;
+    }
+
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/me`, {
+      headers: {
+        Cookie: `better-auth.session_token=${sessionToken.value}`,
+      },
     });
 
-    if (!session?.user) {
+    const data = res.data;
+
+    const userType = data?.appUser?.userType || null;
+ 
+    if (!userType) {
+      console.error("userType ausente na resposta de /me");
       return null;
     }
 
-    const userType = session.user?.userType;
-
-    if (!userType) return null;
-
-    // ✅ Permissões
     if (publicRoutes.includes(currentRoute)) {
-      return session;
+      return data;
     }
 
-    const allowedRoutes = routePermissions[userType];
-    if (!allowedRoutes || !allowedRoutes.includes(currentRoute)) {
+    if (!Object.keys(routePermissions).includes(userType)) {
       return null;
     }
 
-    return session;
-  } catch (error) {
-    console.error("Erro ao verificar sessão:", error);
+    const isAuthorized = routePermissions[userType].includes(currentRoute);
+
+    if (!isAuthorized) {
+      console.warn(`${userType} tentou acessar ${currentRoute}`);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Erro em checkSession:", err?.response?.data || err.message);
     return null;
   }
-}
+};

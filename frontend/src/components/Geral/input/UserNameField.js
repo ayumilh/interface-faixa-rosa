@@ -52,7 +52,7 @@ export default function UserNameField({
     setLoading(true);
     setIsAvailable(null);
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/verify-username`, { userName });
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/verify-username`, { userName });
       if (res.data.valid) {
         setValid(true);
         setError("");

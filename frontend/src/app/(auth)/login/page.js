@@ -41,6 +41,16 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <LoginClient />;
+  <main className="min-h-screen flex items-center justify-center">
+    {/* Conteúdo visível para SEO */}
+    <div className="sr-only">
+      <h1>Entrar na Conta – Faixa Rosa</h1>
+      <p>
+        Acesse sua conta no Faixa Rosa. Área segura para acompanhantes e contratantes gerenciarem seus perfis, anúncios e informações.
+      </p>
+    </div>
+
+    <LoginClient />
+  </main>
 }
 

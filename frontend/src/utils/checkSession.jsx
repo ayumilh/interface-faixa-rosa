@@ -3,7 +3,7 @@ import axios from "axios";
 
 
 const routePermissions = {
-  CONTRATANTE: ["/userDashboard"],
+  CONTRATANTE: ["/"],
   ACOMPANHANTE: ["/dashboard"],
   ADMIN: ["/adminDashboard"],
 };

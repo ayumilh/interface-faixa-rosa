@@ -22,6 +22,7 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
+    "better-auth": "^1.2.12",
     "chart.js": "^4.4.7",
     "d3": "^7.9.0",
     "d3-scale": "^4.0.2",

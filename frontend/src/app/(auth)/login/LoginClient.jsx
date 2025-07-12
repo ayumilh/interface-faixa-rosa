@@ -2,7 +2,6 @@
 
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from '@/context/AuthContext';
 import { FaSpinner, FaUser, FaLock, FaEye, FaEyeSlash, FaArrowRight, FaUserPlus, FaShieldAlt } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { toast } from "react-toastify";
@@ -11,7 +10,7 @@ import Link from "next/link";
 import InputField from "@/components/ui/input/InputField";
 import PasswordField from "@/components/ui/input/PasswordField";
 
-export default function AuthPage() {
+export default function LoginClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,43 +18,36 @@ export default function AuthPage() {
   const [inputClass, setInputClass] = useState('mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-pink-500 focus:border-pink-500 transition duration-200 text-gray-800');
 
   const router = useRouter();
-  const { login, isAuthenticated, currentUser } = useContext(AuthContext);
 
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    if (isAuthenticated && currentUser) {
-      if (!sessionStorage.getItem("loginToastShown")) {
-        toast.success("Login realizado com sucesso!");
-        sessionStorage.setItem("loginToastShown", "true");
-      }
+const handleLoginSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-      const { userType } = currentUser;
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/sign-in/email`, {
+      method: "POST",
+      credentials: "include", // importante para salvar os cookies do backend
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const pathMap = {
-        CONTRATANTE: "/userDashboard",
-        ACOMPANHANTE: "/dashboard",
-        ADMIN: "/adminDashboard",
-      };
-
-      router.push(pathMap[userType] || "/login");
+    if (response.ok) {
+      router.push("/redirect");
+    } else {
+      const json = await response.json();
+      toast.error(json.message || "Credenciais inválidas");
     }
-  }, [isAuthenticated, currentUser, router]);
+  } catch (error) {
+    toast.error("Erro inesperado");
+  }
 
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  setLoading(false);
+};
 
-    const response = await login({ email, password });
-
-    if (response?.status === 401 || response?.status === 404) {
-      toast.error(response.message);
-    } else if (!response?.token) {
-      toast.error("Erro inesperado ao fazer login.");
-    }
-
-    setLoading(false);
-  };
 
   const sanitizeInput = (value, regex, shouldTrim = true) => {
     const sanitizedValue = shouldTrim ? value.trim().replace(regex, '') : value.replace(regex, '');
@@ -137,7 +129,7 @@ export default function AuthPage() {
       {/* Login Form Container */}
       <div className="relative min-h-screen flex items-center justify-center p-4 lg:justify-end lg:p-6">
         <div className="w-full max-w-sm mx-auto bg-white/95 backdrop-blur-xl p-6 rounded-2xl shadow-2xl border border-white/20 lg:max-w-md lg:mr-[80px] xl:mr-[120px] z-10 transition-all duration-300">
-          
+
           {/* Header */}
           <div className="text-center mb-6">
             <div className="relative group">
@@ -151,7 +143,7 @@ export default function AuthPage() {
               />
               <HiSparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-400 opacity-0 group-hover:opacity-100 transition-all duration-300 animate-ping" />
             </div>
-            
+
             <div className="mt-4">
               <h2 className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-1 lg:text-2xl">
                 Bem-vindo de volta!
@@ -175,7 +167,7 @@ export default function AuthPage() {
 
           {/* Login Form */}
           <form onSubmit={handleLoginSubmit} className="space-y-5">
-            
+
             {/* Email Field */}
             <div className="space-y-1">
               <div className="relative w-full">
@@ -229,7 +221,7 @@ export default function AuthPage() {
                   Lembrar de mim
                 </span>
               </label>
-              
+
               <Link
                 href="esqueceu-senha"
                 className="text-xs font-medium text-pink-500 hover:text-pink-600 transition-colors duration-200 hover:underline text-center lg:text-right"
@@ -242,11 +234,10 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg relative overflow-hidden ${
-                loading 
-                  ? 'opacity-50 cursor-not-allowed' 
+              className={`w-full py-3 px-4 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 text-white font-bold text-sm rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg relative overflow-hidden ${loading
+                  ? 'opacity-50 cursor-not-allowed'
                   : 'hover:scale-[1.02] hover:shadow-2xl hover:from-pink-600 hover:via-purple-600 hover:to-pink-500'
-              }`}
+                }`}
             >
               {loading ? (
                 <>
@@ -260,7 +251,7 @@ export default function AuthPage() {
                   <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                 </>
               )}
-              
+
               {/* Shimmer effect */}
               {!loading && (
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform skew-x-12 -translate-x-full group-hover:translate-x-full duration-1000"></div>

@@ -20,19 +20,19 @@ import {
   FaSpinner
 } from 'react-icons/fa';
 import { IoIosArrowBack } from "react-icons/io";
-import { usePlan } from "@/context/PlanContext";
+import { usePlan } from "../../../context/PlanContext";
 import { X, ArrowRight, MapPin } from "phosphor-react";
 
 // Lazy loading de componentes pesados
-const Navbar = lazy(() => import("@/components/Navbar"));
-const Footer = lazy(() => import('@/components/search/footer'));
-const Stories = lazy(() => import("@/components/search/stories"));
-const Fotos = lazy(() => import("@/components/perfil/fotos"));
-const Videos = lazy(() => import("@/components/perfil/videos"));
-const Sobre = lazy(() => import("@/components/perfil/sobre"));
-const Servicos = lazy(() => import("@/components/perfil/serviços"));
-const Localidade = lazy(() => import("@/components/perfil/localidade"));
-const Valores = lazy(() => import("@/components/perfil/valores"));
+const Navbar = lazy(() => import("../../../components/Navbar"));
+const Footer = lazy(() => import('../../../components/search/footer'));
+const Stories = lazy(() => import("../../../components/search/stories"));
+const Fotos = lazy(() => import("../../../components/perfil/fotos"));
+const Videos = lazy(() => import("../../../components/perfil/videos"));
+const Sobre = lazy(() => import("../../../components/perfil/sobre"));
+const Servicos = lazy(() => import("../../../components/perfil/serviços"));
+const Localidade = lazy(() => import("../../../components/perfil/localidade"));
+const Valores = lazy(() => import("../../../components/perfil/valores"));
 
 // Loading component otimizado
 const LoadingSpinner = memo(() => (

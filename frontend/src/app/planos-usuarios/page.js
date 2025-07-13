@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { FaCheckCircle, FaCreditCard, FaMoneyBillWave, FaBarcode } from "react-icons/fa";
-import Navbar from "@/components/Navbar";
-import Final from "@/components/search/final";
+import Navbar from "../../components/Navbar";
+import Final from "../../components/search/final";
 
 export default function PlanosUsuarios() {
   const [selectedOption, setSelectedOption] = useState("");

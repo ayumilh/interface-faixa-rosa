@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useContext, useRef } from "react";
 import Image from "next/image";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaUpload,

@@ -268,7 +268,7 @@ const Rodape = memo(() => {
             
             <ul className="space-y-3">
               {[
-                { href: "https://faixarosa.blog/", label: "Conheça o Blog Faixa Rosa", icon: <Article size={16} /> },
+                { href: "https://faixarosa.com/blog", label: "Conheça o Blog Faixa Rosa", icon: <Article size={16} /> },
                 { href: "/planos", label: "Planos para Anunciantes", icon: <Users size={16} /> }
               ].map((link, index) => (
                 <motion.li

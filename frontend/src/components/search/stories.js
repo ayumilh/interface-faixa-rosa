@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useContext } from "react";
-import { AuthContext } from "@/context/AuthContext";
-import { usePlan } from "@/context/PlanContext";
+import { AuthContext } from "../../context/AuthContext";
+import { usePlan } from "../../context/PlanContext";
 import axios from "axios";
 import Image from "next/image";
 import Cookies from "js-cookie";

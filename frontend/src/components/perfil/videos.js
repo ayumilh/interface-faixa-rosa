@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Reviews from "./reviews";
 import Denuncia from "./denuncia";
 import axios from "axios";
-import { usePlan } from "@/context/PlanContext";
+import { usePlan } from "../../context/PlanContext";
 
 // Componente simplificado para thumbnail de vídeo
 const VideoThumbnail = ({ videoUrl, className, onThumbnailClick }) => {

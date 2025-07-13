@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FaBell, FaSearch } from "react-icons/fa";
-import ModalBusca from "@/components/search/modalbusca";
+import ModalBusca from "../components/search/modalbusca";
 
 export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);

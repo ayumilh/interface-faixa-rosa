@@ -1,10 +1,10 @@
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContextProvider } from "@/context/AuthContext";
-import { PlanProvider } from "@/context/PlanContext";
-import SocketWrapper from "@/providers/SocketWrapper";
-import SWUpdater from "@/components/SWUpdater";
+import { AuthContextProvider } from "../context/AuthContext";
+import { PlanProvider } from "../context/PlanContext";
+import SocketWrapper from "../providers/SocketWrapper";
+import SWUpdater from "../components/SWUpdater";
 
 export const metadata = {
   title: "Faixa Rosa – Acompanhantes em todo Brasil!",

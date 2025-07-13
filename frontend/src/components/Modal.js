@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
-import { useEscKey } from "@/hooks/useEscKey"; // Caso você tenha um hook personalizado para detectar a tecla Esc
+import { useEscKey } from "../hooks/useEscKey"; // Caso você tenha um hook personalizado para detectar a tecla Esc
 
 const Modal = ({ onClose, title, description, children }) => {
   useEscKey(onClose); // Fecha o modal ao pressionar a tecla Esc

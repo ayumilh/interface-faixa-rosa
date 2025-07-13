@@ -28,7 +28,7 @@ import {
   FaChevronDown,
   FaChevronUp
 } from "react-icons/fa";
-import Charts from "@/components/dashboard/Charts";
+import Charts from "../../components/dashboard/Charts";
 import Cookies from "js-cookie";
 import Image from "next/image";
 

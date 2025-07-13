@@ -2,17 +2,19 @@
 import { useEffect, useState, useCallback } from "react";
 import dynamic from 'next/dynamic';
 import Image from "next/image";
-import ConsentModal from "@/components/ConsentModal";
+import ConsentModal from "../components/ConsentModal";
 
 // Lazy loading otimizado
-const HeroSection = dynamic(() => import("@/components/Home/hero"));
-const VSLSection = dynamic(() => import("@/components/Home/vsl"), { ssr: false });
-const TopAnunciantes = dynamic(() => import("@/components/Home/topAnunciantes"));
-const BlogSection = dynamic(() => import("@/components/Home/blog"));
-const Footer = dynamic(() => import("@/components/Home/footer"));
-const VerMais = dynamic(() => import("@/components/Home/vermais"));
-const Navbar = dynamic(() => import("@/components/Navbar"));
-
+const HeroSection = dynamic(() => import("../components/Home/hero"));
+const VSLSection = dynamic(() => import("../components/Home/vsl"), { ssr: false });
+const TopAnunciantes = dynamic(() => import("../components/Home/topAnunciantes"));
+const BlogSection = dynamic(() => import("../components/Home/blog"));
+const Footer = dynamic(() => import("../components/Home/footer"));
+const VerMais = dynamic(() => import("../components/Home/vermais"));
+const Navbar = dynamic(() => import("../components/Navbar"));
+// Novos componentes - nomes em minúsculo
+const Banners = dynamic(() => import("../components/Home/banners"));
+const Cidades = dynamic(() => import("../components/Home/cidades"));
 export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -337,14 +339,17 @@ export default function HomePage() {
       {/* Conteúdo Principal */}
       {!loading && (
         <div className="content-wrapper min-h-screen bg-white">
-          <Navbar bgColor="white" />
-          <HeroSection />
-          <VSLSection />
-          <TopAnunciantes />
-          <BlogSection />
-          <VerMais />
-          <Footer />
-        </div>
+  <Navbar bgColor="white" />
+  <Banners />      {/* Novo componente acima */}
+  <Cidades />      {/* Novo componente acima */}
+  <TopAnunciantes />
+
+  <HeroSection />
+  <VSLSection />
+  <BlogSection />
+  <VerMais />
+  <Footer />
+</div>
       )}
     </>
   );

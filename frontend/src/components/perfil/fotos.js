@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Reviews from "./reviews";
 import Denuncia from "./denuncia";
 import axios from "axios";
-import { usePlan } from "@/context/PlanContext";
+import { usePlan } from "../../context/PlanContext";
 
 export default function Fotos({ userName, createdAtFormatted, denunciado }) {
   const [photos, setPhotos] = useState([]);

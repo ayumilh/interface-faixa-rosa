@@ -48,8 +48,8 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
-import { usePlan } from "@/context/PlanContext";
-import { AuthContext } from "@/context/AuthContext";
+import { usePlan } from "../../context/PlanContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const atendimentoOptions = [
   {

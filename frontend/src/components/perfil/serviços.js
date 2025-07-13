@@ -9,7 +9,7 @@ import {
   FaDollarSign,
   FaClock
 } from 'react-icons/fa';
-import Expediente from "@/components/perfil/Expediente";
+import Expediente from "../../components/perfil/Expediente";
 
 export default function Servicos({ servicesOffered, weeklySchedules }) {
   const [mostrarNaoOferecidos, setMostrarNaoOferecidos] = useState(false);

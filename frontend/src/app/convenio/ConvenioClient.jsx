@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useMemo } from "react";
-import Navbar from "@/components/Navbar";
-import Final from "@/components/search/final";
-import ModalBuscaconvenio from "@/components/search/modalbuscaconvenio";
-import EstablishmentCard from "@/components/convenio/EstablishmentCard";
-import { estabelecimentos } from "@/components/convenio/estabelecimentosData";
+import Navbar from "../../components/Navbar";
+import Final from "../../components/search/final";
+import ModalBuscaconvenio from "../../components/search/modalbuscaconvenio";
+import EstablishmentCard from "../../components/convenio/EstablishmentCard";
+import { estabelecimentos } from "../../components/convenio/estabelecimentosData";
 import { FaFilter } from "react-icons/fa";
 import { FiChevronDown } from "react-icons/fi";
 

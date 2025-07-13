@@ -157,7 +157,7 @@ const TopAnunciantes = memo(() => {
         transition={{ duration: 0.6 }}
       >
         <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-2 md:mb-4 font-sans">
-          🏆 Top 5 Anunciantes do Brasil
+          Acompanhantes Faixa Rosa em destaque! 
         </h2>
         <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto px-4">
           Conheça os profissionais mais bem avaliados da nossa plataforma

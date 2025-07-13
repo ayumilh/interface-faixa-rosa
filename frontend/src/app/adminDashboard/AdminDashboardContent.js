@@ -19,15 +19,15 @@ import {
   FaSortAmountUp
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import Modal from "@/components/adminDashboard/Modal";
-import useMediaQuery from "@/hooks/useMediaQuery";
-import Anunciantes from "@/components/adminDashboard/Anunciantes";
-import Clientes from "@/components/adminDashboard/Clientes";
-import Denuncias from "@/components/adminDashboard/Denuncias";
-import { AuthContext } from "@/context/AuthContext";
-import GerenciamentoDePlanos from "@/components/adminDashboard/planos/GerenciamentoDePlanos";
-import GerenciamentoDeAssinaturas from "@/components/adminDashboard/planos/GerenciamentoDeAssinaturas";
+import Navbar from "../../components/Navbar";
+import Modal from "../../components/adminDashboard/Modal";
+import useMediaQuery from "../../hooks/useMediaQuery";
+import Anunciantes from "../../components/adminDashboard/Anunciantes";
+import Clientes from "../../components/adminDashboard/Clientes";
+import Denuncias from "../../components/adminDashboard/Denuncias";
+import { AuthContext } from "../../context/AuthContext";
+import GerenciamentoDePlanos from "../../components/adminDashboard/planos/GerenciamentoDePlanos";
+import GerenciamentoDeAssinaturas from "../../components/adminDashboard/planos/GerenciamentoDeAssinaturas";
 
 // Componente Placeholder aprimorado
 const Placeholder = ({ title, items = [], icon: Icon }) => (

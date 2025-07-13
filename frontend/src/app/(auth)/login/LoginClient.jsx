@@ -7,8 +7,8 @@ import { HiSparkles } from "react-icons/hi";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import Link from "next/link";
-import InputField from "@/components/ui/input/InputField";
-import PasswordField from "@/components/ui/input/PasswordField";
+import InputField from "../../../components/ui/input/InputField";
+import PasswordField from "../../../components/ui/input/PasswordField";
 
 export default function LoginClient() {
   const [email, setEmail] = useState("");

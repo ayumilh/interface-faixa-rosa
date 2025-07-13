@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
-import { AuthContext } from '@/context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 
 export default function StoryUploader() {

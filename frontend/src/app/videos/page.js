@@ -11,10 +11,10 @@ import {
   FaMale, 
   FaFemale 
 } from "react-icons/fa";
-import Navbar from "@/components/Navbar";
+import Navbar from "../../components/Navbar";
 import Image from "next/image";
-import Footer from "@/components/search/footer";
-import Final from "@/components/search/final"; // Componente de Final
+import Footer from "../../components/search/footer";
+import Final from "../../components/search/final"; // Componente de Final
 
 export default function AcompanhantesBrasil() {
   const [filter, setFilter] = useState("mulheres");

@@ -1,7 +1,7 @@
 import ConvenioClient from './ConvenioClient';
 
 export const metadata = {
-  title: "Convênios Faixa Rosa – Benefícios para Acompanhantes de Elite",
+  title: "Convênios Faixa Rosa – Benefícios para Acompanhantes ",
   description: "Acesse os convênios exclusivos do Faixa Rosa. Descontos em academias, psicólogos, hotéis e serviços premium para acompanhantes cadastradas.",
   keywords: [
     "Convênios Faixa Rosa",

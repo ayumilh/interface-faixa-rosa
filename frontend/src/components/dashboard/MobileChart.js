@@ -1,7 +1,7 @@
 import React from "react";
 import { useMediaQuery } from "react-responsive"; // Para detectar o tamanho da tela
-import MobileChart from "@/components/dashboard/MobileChart"; // Segundo gráfico
-import Charts from "@/components/dashboard/Charts"; // Gráfico original
+import MobileChart from "../components/dashboard/MobileChart"; // Segundo gráfico
+import Charts from "../components/dashboard/Charts"; // Gráfico original
 
 const ResponsiveCharts = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 }); // Detecta telas menores que 768px

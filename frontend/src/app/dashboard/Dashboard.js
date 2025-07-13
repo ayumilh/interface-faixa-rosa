@@ -11,21 +11,21 @@ import {
   FaTimes
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "@/components/Navbar";
+import Navbar from "../../components/Navbar";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
-import Modal from "@/components/dashboard/Modal";
+import { AuthContext } from "../../context/AuthContext";
+import Modal from "../../components/dashboard/Modal";
 import Image from "next/image";
-import Metrics from "@/components/dashboard/Metrics";
-import MetricsMobile from "@/components/dashboard/MetricsMobile";
-import ProfileSettings from "@/components/dashboard/ProfileSettings";
-import FinancialControl from "@/components/dashboard/FinancialControl";
-import DescriptionManagement from "@/components/dashboard/DescriptionManagement";
-import ServicesManagement from "@/components/dashboard/ServicesManagement";
-import WorkingHours from "@/components/dashboard/WorkingHours";
-import CityManagement from "@/components/dashboard/CityManagement";
-import MediaManagement from "@/components/dashboard/MediaManagement";
-import useMediaQuery from "@/hooks/useMediaQuery";
+import Metrics from "../../components/dashboard/Metrics";
+import MetricsMobile from "../../components/dashboard/MetricsMobile";
+import ProfileSettings from "../../components/dashboard/ProfileSettings";
+import FinancialControl from "../../components/dashboard/FinancialControl";
+import DescriptionManagement from "../../components/dashboard/DescriptionManagement";
+import ServicesManagement from "../../components/dashboard/ServicesManagement";
+import WorkingHours from "../../components/dashboard/WorkingHours";
+import CityManagement from "../../components/dashboard/CityManagement";
+import MediaManagement from "../../components/dashboard/MediaManagement";
+import useMediaQuery from "../../hooks/useMediaQuery";
 
 const Dashboard = () => {
   const { userInfo, fetchUserData } = useContext(AuthContext);

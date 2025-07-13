@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Navbar = dynamic(() => import('@/components/Navbar'));
-const Footer = dynamic(() => import('@/components/Home/footer'));
+const Navbar = dynamic(() => import('../components/Navbar'));
+const Footer = dynamic(() => import('../components/Home/footer'));
 
 // Ícone de volta otimizado
 const ArrowLeftIcon = ({ className = "w-5 h-5" }) => (

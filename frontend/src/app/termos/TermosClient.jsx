@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
+import Navbar from "../../components/Navbar";
 import "./styles-termos.css";
 
 

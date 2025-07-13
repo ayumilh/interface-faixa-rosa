@@ -5,7 +5,7 @@ import { FaSpinner } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import InputField from "@/components/ui/input/InputField";
+import InputField from "../../../components/ui/input/InputField";
 
 export default function EsqueceuSenhaPage() {
   const [email, setEmail] = useState("");

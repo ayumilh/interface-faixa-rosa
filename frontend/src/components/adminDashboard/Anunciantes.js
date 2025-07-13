@@ -31,7 +31,7 @@ import Tooltip from "../common/Tooltip";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
-import { usePlan } from "@/context/PlanContext";
+import { usePlan } from "../../context/PlanContext";
 import ModalEditarPlano from "./modalAction/ModalEditarPlano";
 import ModalVerificarDocumentos from "./modalAction/ModalVerificarDocumentos";
 import ModalVerificarVideo from "./modalAction/ModalVerificarVideo";

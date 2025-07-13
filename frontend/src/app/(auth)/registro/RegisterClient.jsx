@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { searchUserId } from "@/utils/searchUserId";
+import { searchUserId } from "../../../utils/searchUserId";
 
 // UI components
 import InputField from "../../../components/Geral/input/InputField";

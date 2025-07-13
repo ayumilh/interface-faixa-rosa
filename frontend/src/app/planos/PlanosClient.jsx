@@ -1,22 +1,22 @@
 
 "use client";
 import React, { useEffect } from "react";
-import Navbar from "@/components/Navbar";
+import Navbar from "../../components/Navbar";
 import { IoIosArrowBack } from "react-icons/io";
 import Link from "next/link";
-import Final from "@/components/search/final";
-import Contato from "@/components/planos/Contato";
-import PlanoOculto from "@/components/planos/PlanoOculto";
-import TrocaDeCidade from "@/components/planos/TrocaDeCidade";
-import PlanoReviews from "@/components/planos/PlanoReviews";
-import DarkMode from "@/components/planos/DarkMode";
-import PlanoNitro from "@/components/planos/PlanoNitro";
-import PlanoRubi from "@/components/planos/PlanoRubi";
-import PlanoSafira from "@/components/planos/PlanoSafira";
-import PlanoPink from "@/components/planos/PlanoPink";
-import PlanoVip from "@/components/planos/PlanoVip";
-import Simular from "@/components/planos/simular";
-import "@/app/planos/planos.css";
+import Final from "../../components/search/final";
+import Contato from "../../components/planos/Contato";
+import PlanoOculto from "../../components/planos/PlanoOculto";
+import TrocaDeCidade from "../../components/planos/TrocaDeCidade";
+import PlanoReviews from "../../components/planos/PlanoReviews";
+import DarkMode from "../../components/planos/DarkMode";
+import PlanoNitro from "../../components/planos/PlanoNitro";
+import PlanoRubi from "../../components/planos/PlanoRubi";
+import PlanoSafira from "../../components/planos/PlanoSafira";
+import PlanoPink from "../../components/planos/PlanoPink";
+import PlanoVip from "../../components/planos/PlanoVip";
+import Simular from "../../components/planos/simular";
+import "../../app/planos/planos.css";
 
 const Planos = () => {
   useEffect(() => {

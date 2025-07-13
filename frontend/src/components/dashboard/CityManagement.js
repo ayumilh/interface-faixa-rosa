@@ -47,8 +47,8 @@ import {
   FaEye,
   FaTimesCircle
 } from "react-icons/fa";
-import Modal from "@/components/dashboard/Modal";
-import ModalBusca from "@/components/search/modalbuscaconvenio";
+import Modal from "../../components/dashboard/Modal";
+import ModalBusca from "../../components/search/modalbuscaconvenio";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import { toast } from "react-toastify";

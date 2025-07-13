@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import Navbar from '@/components/Navbar';
-import Final from '@/components/search/final';
+import Navbar from '../../../components/Navbar';
+import Footer from '../../../components/Home/footer';
 import { IoIosArrowBack } from "react-icons/io";
 import { FaCheckCircle } from "react-icons/fa";
 import axios from 'axios';
@@ -178,7 +178,7 @@ const PagamentoRetorno = () => {
                     </div>
                 )}
             </main>
-            <Final />
+            <Footer />
         </div>
     );
 };

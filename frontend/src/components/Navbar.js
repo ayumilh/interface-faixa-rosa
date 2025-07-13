@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { FaBell, FaUser, FaCog, FaSearch, FaSignOutAlt } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import Image from "next/image";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 import Link from "next/link";
 import { Transition } from "@headlessui/react";
 

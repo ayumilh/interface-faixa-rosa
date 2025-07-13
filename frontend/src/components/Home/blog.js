@@ -11,35 +11,35 @@ const Blog = memo(() => {
   const articles = [
     {
       id: 1,
-      title: "Diversidade e Inclusão: O Faixa Rosa Como Espaço Livre de Discriminação",
-      description: "No universo da plataforma Faixa Rosa, a diversidade é celebrada e a inclusão é um valor fundamental que permeia todas as nossas ações...",
+      title: "Anunciar na Plataforma Faixa Rosa: alcance o público certo com o anúncio ideal",
+      description: "Anunciar Anuncio Plataforma Alcance Público — essas não são apenas palavras-chave, são ações que geram resultados reais. Quando você escolhe o Faixa Rosa para divulgar sua marca, você não está apenas anunciando: está se conectando com um público engajado, plural e pronto para consumir com propósito...",
       image: "/files/images/Blog01.png",
-      author: "Faixa Rosa",
+      author: "Júlia Santina",
       date: "22 de abril de 2024",
-      link: "https://faixarosa.blog/por-que-anunciar-no-faixa-rosa/",
-      category: "Inclusão",
+      link: "https://faixarosa.com/blog/marketing",
+      category: "Marketing",
       readTime: "5 min"
     },
     {
       id: 2,
-      title: "A Importância da Segurança Digital para Anunciantes: Dicas do Faixa Rosa",
-      description: "No cenário digital em constante evolução, a segurança online tornou-se uma prioridade inegável para todos os profissionais...",
+      title: "Diversidade e Inclusão no Faixa Rosa: um espaço livre de preconceitos",
+      description: "Diversidade e Inclusão no Faixa Rosa não são apenas valores: são práticas diárias que moldam nossa plataforma. Desde a fundação, o Faixa Rosa se comprometeu com um ambiente seguro, representativo e...",
       image: "/files/images/Blog02.png",
-      author: "Faixa Rosa",
-      date: "24 de julho de 2023",
-      link: "https://faixarosa.blog/diversidade-e-inclusao-o-faixa-rosa-como-espaco-livre-de-discriminacao/",
-      category: "Segurança",
+      author: "Diversidade e Inclusão no Faixa Rosa: um espaço livre de preconceitos",
+      date: "24 de julho de 2024",
+      link: "https://faixarosa.com/blog/inclusao/diversidade-e-inclusao-no-faixa-rosa-um-espaco-livre-de-preconceitos",
+      category: "Inclusão",
       readTime: "8 min"
     },
     {
       id: 3,
-      title: "Por que Anunciar no Faixa Rosa?",
-      description: "Se você está no mundo dos anúncios, provavelmente já percebeu que a escolha da plataforma certa pode fazer toda a diferença...",
+      title: "A Importância da Segurança Digital para Anunciantes: Dicas do Faixa Rosa",
+      description: "A Importância da Segurança Digital para Anunciantes: Dicas do Faixa Rosa é um tema essencial para quem deseja proteger seus investimentos e garantir a reputação...",
       image: "/files/images/Blog03.png",
-      author: "Faixa Rosa",
+      author: "Júlia Santina",
       date: "4 de abril de 2024",
-      link: "https://faixarosa.blog/dicas-faixarosa/",
-      category: "Marketing",
+      link: "https://faixarosa.com/blog/seguranca/a-importancia-da-seguranca-digital-para-anunciantes-dicas-do-faixa-rosa",
+      category: "Segurança",
       readTime: "6 min"
     },
   ];
@@ -303,8 +303,7 @@ const Blog = memo(() => {
         transition={{ delay: 0.8 }}
       >
         <motion.a
-          href="https://faixarosa.blog"
-          target="_blank"
+          href="https://faixarosa.com/blog"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
           whileHover={{ scale: 1.05, y: -2 }}

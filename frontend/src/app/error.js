@@ -5,8 +5,8 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const Navbar = dynamic(() => import('@/components/Navbar'));
-const Footer = dynamic(() => import('@/components/Home/footer'));
+const Navbar = dynamic(() => import('../components/Navbar'));
+const Footer = dynamic(() => import('../components/Home/footer'));
 
 export default function Error({ error, reset }) {
   useEffect(() => {

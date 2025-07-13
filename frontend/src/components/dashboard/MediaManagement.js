@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, memo, use } from "react";
 import { FaPlus, FaCamera, FaVideo, FaEdit, FaSpinner } from "react-icons/fa";
-import Modal from "@/components/dashboard/Modal";
+import Modal from "../../components/dashboard/Modal";
 import { AnimatePresence } from "framer-motion";
 import Image from "next/image";
 

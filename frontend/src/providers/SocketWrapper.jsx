@@ -1,7 +1,7 @@
 "use client";
 import { useContext } from "react";
-import { AuthContext } from "@/context/AuthContext";
-import useSocket from "@/hooks/useSocket";
+import { AuthContext } from "../context/AuthContext";
+import useSocket from "../hooks/useSocket";
 
 export default function SocketWrapper() {
   const { userInfo } = useContext(AuthContext);

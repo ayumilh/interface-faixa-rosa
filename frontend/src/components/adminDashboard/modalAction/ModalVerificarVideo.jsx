@@ -21,7 +21,7 @@ const ModalVerificarVideo = ({ anunciante, userToken, atualizarStatusMedia, onCl
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/approve`,
         {},
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        { withCredentials: true }
       );
       toast.success("Vídeo aprovado com sucesso!");
       atualizarStatusMedia(anunciante.id, "APPROVED");
@@ -37,7 +37,7 @@ const ModalVerificarVideo = ({ anunciante, userToken, atualizarStatusMedia, onCl
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/reject`,
         {},
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        { withCredentials: true }
       );
       toast.success("Vídeo rejeitado com sucesso!");
       atualizarStatusMedia(anunciante.id, "REJECTED");
@@ -53,7 +53,7 @@ const ModalVerificarVideo = ({ anunciante, userToken, atualizarStatusMedia, onCl
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/media/suspend`,
         {},
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        { withCredentials: true }
       );
       toast.success("Vídeo suspenso com sucesso!");
       atualizarStatusMedia(anunciante.id, "SUSPENDED");

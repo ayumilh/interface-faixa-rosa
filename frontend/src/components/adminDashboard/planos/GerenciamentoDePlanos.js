@@ -20,18 +20,18 @@ export default function GerenciamentoDePlanos() {
 
 
   // Buscar planos do backend
-  const fetchPlans = useCallback( async () => {
+  const fetchPlans = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/plans`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/plans`,
+        { withCredentials: true }
+      );
       setPlans(response.data);
     } catch (error) {
       console.error("Erro ao buscar planos:", error);
       toast.error("Erro ao buscar planos.");
     }
   }, [token]);
-  
+
   useEffect(() => {
     fetchPlans();
   }, [fetchPlans]);
@@ -48,9 +48,7 @@ export default function GerenciamentoDePlanos() {
           isBasic: newPlan.isBasic,
           planTypeId: newPlan.planTypeId, // Certifique-se de enviar esse campo conforme necessário
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
       setIsModalOpen(false); // Fecha modal
       fetchPlans(); // Atualiza lista
@@ -73,9 +71,7 @@ export default function GerenciamentoDePlanos() {
     try {
       const response = await axios.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/plans/${id}/delete`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
       toast.success("Plano deletado com sucesso.");
       fetchPlans(); // Atualiza a lista de planos
@@ -90,9 +86,9 @@ export default function GerenciamentoDePlanos() {
       {/* ToastContainer para exibir notificações */}
       <ToastContainer />
 
-        <h2 className="text-3xl font-bold text-gray-800 text-start">
-          Gerenciamento de Planos
-        </h2>
+      <h2 className="text-3xl font-bold text-gray-800 text-start">
+        Gerenciamento de Planos
+      </h2>
 
       {/* Modal de Criação de Planos */}
       {isModalOpen && (
@@ -175,9 +171,9 @@ export default function GerenciamentoDePlanos() {
 
       {/* Lista de Planos */}
       <div className="flex justify-between items-center">
-      <h3 className="text-2xl font-semibold mt-12 mb-6 text-gray-700 text-start">
-        Planos Cadastrados
-      </h3>
+        <h3 className="text-2xl font-semibold mt-12 mb-6 text-gray-700 text-start">
+          Planos Cadastrados
+        </h3>
         {/* Botão para abrir modal */}
         <div className="flex justify-end mb-6">
           <button
@@ -192,22 +188,20 @@ export default function GerenciamentoDePlanos() {
         {plans.map((plan) => (
           <div
             key={plan.id}
-            className={`p-6 shadow-lg rounded-xl transition transform hover:scale-105 ${
-              plan.isBasic
-                ? "bg-blue-50 border-blue-500"
-                : "bg-pink-50 border-pink-500"
-            } border-2`}
+            className={`p-6 shadow-lg rounded-xl transition transform hover:scale-105 ${plan.isBasic
+              ? "bg-blue-50 border-blue-500"
+              : "bg-pink-50 border-pink-500"
+              } border-2`}
           >
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-xl font-semibold text-gray-800">
                 {plan.name}
               </h4>
               <span
-                className={`px-3 py-1 rounded-full text-sm font-bold ${
-                  plan.isBasic
-                    ? "bg-blue-500 text-white"
-                    : "bg-pink-500 text-white"
-                }`}
+                className={`px-3 py-1 rounded-full text-sm font-bold ${plan.isBasic
+                  ? "bg-blue-500 text-white"
+                  : "bg-pink-500 text-white"
+                  }`}
               >
                 {plan.isBasic ? "Plano Básico" : "Plano Extra"}
               </span>

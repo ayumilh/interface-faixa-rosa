@@ -39,31 +39,27 @@ const PagamentoRetorno = () => {
 
         axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/checkout/status/${transactionId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                },
-            }
+            { withCredentials: true }
         )
-        .then(response => {
-            const paymentData = response.data;
-            setPaymentData(paymentData);
+            .then(response => {
+                const paymentData = response.data;
+                setPaymentData(paymentData);
 
-            if (paymentData.paymentStatus === 'approved') {
-                setPaymentStatus('Pagamento aprovado!');
-                setPaymentDescription('Seu pagamento foi processado com sucesso! Você pode acessar sua conta agora.');
-            } else if (paymentData.paymentStatus === 'pending') {
-                setPaymentStatus('Pagamento pendente!');
-                setPaymentDescription('Pagamento está em análise. Você receberá uma notificação quando for confirmado.');
-                if (storedQRCodeText) setStoredQRCode(storedQRCodeText);
-                if (storedQRCode64) setQrCodeData(storedQRCode64);
-            } else if (paymentData.paymentStatus === 'refused') {
-                setPaymentStatus('Pagamento recusado!');
-                setPaymentDescription('Pagamento recusado. Verifique suas informações de pagamento e tente novamente.');
-            }
-        })
-        .catch(() => setError('Erro ao verificar o pagamento.'))
-        .finally(() => setLoading(false));
+                if (paymentData.paymentStatus === 'approved') {
+                    setPaymentStatus('Pagamento aprovado!');
+                    setPaymentDescription('Seu pagamento foi processado com sucesso! Você pode acessar sua conta agora.');
+                } else if (paymentData.paymentStatus === 'pending') {
+                    setPaymentStatus('Pagamento pendente!');
+                    setPaymentDescription('Pagamento está em análise. Você receberá uma notificação quando for confirmado.');
+                    if (storedQRCodeText) setStoredQRCode(storedQRCodeText);
+                    if (storedQRCode64) setQrCodeData(storedQRCode64);
+                } else if (paymentData.paymentStatus === 'refused') {
+                    setPaymentStatus('Pagamento recusado!');
+                    setPaymentDescription('Pagamento recusado. Verifique suas informações de pagamento e tente novamente.');
+                }
+            })
+            .catch(() => setError('Erro ao verificar o pagamento.'))
+            .finally(() => setLoading(false));
     }, [router]);
 
     const handleCopyClick = () => {

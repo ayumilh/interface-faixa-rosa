@@ -70,7 +70,7 @@ const CityManagement = ({ onUpdate }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
+
   // Estados do tutorial
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -204,9 +204,7 @@ const CityManagement = ({ onUpdate }) => {
 
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/locations`,
-          {
-            headers: { Authorization: `Bearer ${userToken}` },
-          }
+          { withCredentials: true }
         );
 
         if (response.status === 200) {
@@ -299,9 +297,7 @@ const CityManagement = ({ onUpdate }) => {
       await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/locations/update`,
         payload,
-        {
-          headers: { Authorization: `Bearer ${userToken}` },
-        }
+        { withCredentials: true }
       );
 
       toast.success("✨ Dados de localidade atualizados com sucesso!");
@@ -451,7 +447,7 @@ const CityManagement = ({ onUpdate }) => {
             <FaMapMarkerAlt className="text-pink-500 mr-2" />
             Sua Localização Principal
           </h3>
-          
+
           <div className="bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -478,7 +474,7 @@ const CityManagement = ({ onUpdate }) => {
             <FaBuilding className="text-blue-500 mr-2" />
             Locais Onde Você Atende
           </h3>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {intermediaries.localities.slice(0, 6).map((locality, index) => (
               <div key={index} className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3">
@@ -491,7 +487,7 @@ const CityManagement = ({ onUpdate }) => {
               </div>
             ))}
           </div>
-          
+
           {configuredLocations > 6 && (
             <p className="text-center text-gray-500 text-sm mt-4">
               +{configuredLocations - 6} locais adicionais
@@ -512,7 +508,7 @@ const CityManagement = ({ onUpdate }) => {
             <FaWifi className="text-green-500 mr-2" />
             Comodidades Oferecidas
           </h3>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
             {intermediaries.amenities.map((amenity, index) => (
               <div key={index} className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
@@ -594,15 +590,15 @@ const CityManagement = ({ onUpdate }) => {
             )}
           </div>
         </div>
-        
+
         <div className="mt-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Progresso</span>
             <span>
               {Math.round(
-                ((selectedCity ? 1 : 0) + 
-                 (configuredLocations > 0 ? 1 : 0) + 
-                 (configuredAmenities > 0 ? 1 : 0)) / 3 * 100
+                ((selectedCity ? 1 : 0) +
+                  (configuredLocations > 0 ? 1 : 0) +
+                  (configuredAmenities > 0 ? 1 : 0)) / 3 * 100
               )}%
             </span>
           </div>
@@ -611,9 +607,9 @@ const CityManagement = ({ onUpdate }) => {
               className="bg-gradient-to-r from-pink-500 to-purple-500 h-3 rounded-full transition-all duration-500"
               style={{
                 width: `${Math.round(
-                  ((selectedCity ? 1 : 0) + 
-                   (configuredLocations > 0 ? 1 : 0) + 
-                   (configuredAmenities > 0 ? 1 : 0)) / 3 * 100
+                  ((selectedCity ? 1 : 0) +
+                    (configuredLocations > 0 ? 1 : 0) +
+                    (configuredAmenities > 0 ? 1 : 0)) / 3 * 100
                 )}%`
               }}
             ></div>
@@ -689,7 +685,7 @@ const CityManagement = ({ onUpdate }) => {
               <div className="flex items-center space-x-2">
                 <FaCheckCircle className="text-green-500" />
                 <span className="text-green-800 font-medium text-sm sm:text-base">
-                  Cidade configurada: 
+                  Cidade configurada:
                 </span>
               </div>
               <p className="text-green-700 text-sm sm:text-base mt-1 font-mono bg-white px-2 py-1 rounded">
@@ -705,9 +701,9 @@ const CityManagement = ({ onUpdate }) => {
               💡 Dicas importantes:
             </h4>
             <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
-            <li>• Escolha a cidade onde você tem mais facilidade de atender</li>
-<li>• Clientes buscam por cidade, então seja estratégica na escolha</li>
-<li>• Você pode atender cidades próximas marcando em &quot;Locais&quot;</li>
+              <li>• Escolha a cidade onde você tem mais facilidade de atender</li>
+              <li>• Clientes buscam por cidade, então seja estratégica na escolha</li>
+              <li>• Você pode atender cidades próximas marcando em &quot;Locais&quot;</li>
 
             </ul>
           </div>
@@ -812,9 +808,9 @@ const CityManagement = ({ onUpdate }) => {
               💡 Estratégias:
             </h4>
             <ul className="text-xs sm:text-sm text-purple-700 space-y-1">
-            <li>• &quot;A domicílio&quot; atrai clientes que valorizam privacidade</li>
-<li>• &quot;Hotéis&quot; é popular entre executivos e viajantes</li>
-<li>• &quot;Eventos&quot; pode gerar contratos de maior valor</li>
+              <li>• &quot;A domicílio&quot; atrai clientes que valorizam privacidade</li>
+              <li>• &quot;Hotéis&quot; é popular entre executivos e viajantes</li>
+              <li>• &quot;Eventos&quot; pode gerar contratos de maior valor</li>
 
             </ul>
           </div>
@@ -987,7 +983,7 @@ const CityManagement = ({ onUpdate }) => {
                 Configure onde você atende e que comodidades oferece
               </p>
             </div>
-            
+
             <button
               onClick={() => setShowTutorial(true)}
               className="mt-4 lg:mt-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base mx-auto lg:mx-0"
@@ -1010,7 +1006,7 @@ const CityManagement = ({ onUpdate }) => {
                 <FaBars className="text-gray-600" />
               </button>
             </div>
-            
+
             <AnimatePresence>
               {showMobileMenu && (
                 <motion.div
@@ -1028,11 +1024,10 @@ const CityManagement = ({ onUpdate }) => {
                           setActiveTab(tab.id);
                           setShowMobileMenu(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-                          activeTab === tab.id
-                            ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
-                            : "text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${activeTab === tab.id
+                          ? "bg-pink-50 text-pink-600 border-r-4 border-pink-500"
+                          : "text-gray-600 hover:bg-gray-50"
+                          }`}
                       >
                         <Icon className="text-lg" />
                         <span className="font-medium">{tab.label}</span>
@@ -1052,11 +1047,10 @@ const CityManagement = ({ onUpdate }) => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
-                    activeTab === tab.id
-                      ? "bg-white text-pink-600 shadow-lg"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${activeTab === tab.id
+                    ? "bg-white text-pink-600 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   <Icon className="text-lg" />
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -1098,17 +1092,17 @@ const CityManagement = ({ onUpdate }) => {
                 {(() => {
                   const currentTutorial = tutorialSteps[currentStep];
                   const IconComponent = currentTutorial.icon;
-                  
+
                   return (
                     <div className="text-center">
                       <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 bg-gradient-to-br ${currentTutorial.color}`}>
                         <IconComponent className="text-white text-lg sm:text-2xl" />
                       </div>
-                      
+
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
                         {currentTutorial.title}
                       </h3>
-                      
+
                       <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
                         {currentTutorial.description}
                       </p>
@@ -1118,9 +1112,8 @@ const CityManagement = ({ onUpdate }) => {
                           {tutorialSteps.map((_, index) => (
                             <div
                               key={index}
-                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                index === currentStep ? "bg-pink-500 w-6 sm:w-8" : "bg-gray-300"
-                              }`}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentStep ? "bg-pink-500 w-6 sm:w-8" : "bg-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
@@ -1134,7 +1127,7 @@ const CityManagement = ({ onUpdate }) => {
                               Anterior
                             </button>
                           )}
-                          
+
                           <button
                             onClick={handleNextStep}
                             className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-all duration-300 text-sm sm:text-base"
@@ -1183,7 +1176,7 @@ const CityManagement = ({ onUpdate }) => {
               transition={{ duration: 0.3 }}
             >
               <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Selecionar Locais Atendidos</h3>
-              
+
               <div className="space-y-3">
                 {[
                   { label: "A domicílio", value: "A_DOMICILIO", icon: <FaHome className="mr-3 text-blue-500" /> },
@@ -1209,7 +1202,7 @@ const CityManagement = ({ onUpdate }) => {
                   </label>
                 ))}
               </div>
-              
+
               <div className="flex justify-end space-x-4 mt-6">
                 <button
                   onClick={() => setShowLocalitiesModal(false)}
@@ -1246,7 +1239,7 @@ const CityManagement = ({ onUpdate }) => {
               transition={{ duration: 0.3 }}
             >
               <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Selecionar Comodidades</h3>
-              
+
               <div className="space-y-3">
                 {[
                   { label: "WiFi", value: "WIFI", icon: <FaWifi className="mr-3 text-green-500" /> },
@@ -1269,7 +1262,7 @@ const CityManagement = ({ onUpdate }) => {
                   </label>
                 ))}
               </div>
-              
+
               <div className="flex justify-end space-x-4 mt-6">
                 <button
                   onClick={() => setShowAmenitiesModal(false)}

@@ -44,9 +44,9 @@ export default function StoryUploader() {
   // Buscar stories da usuária
   async function fetchUserStories() {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story`, {
-        headers: { Authorization: `Bearer ${userToken}` },
-      });
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story`,
+        { withCredentials: true }
+      );
       if (Array.isArray(res.data)) {
         setStories(res.data);
       } else {
@@ -75,8 +75,8 @@ export default function StoryUploader() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/create`,
         formData,
         {
+          withCredentials: true,
           headers: {
-            Authorization: `Bearer ${userToken}`,
             'Content-Type': 'multipart/form-data',
           },
         }
@@ -95,9 +95,9 @@ export default function StoryUploader() {
 
   const handleRemove = async (id) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/${id}/delete`, {
-        headers: { Authorization: `Bearer ${userToken}` },
-      });
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/${id}/delete`, 
+        { withCredentials: true }
+      );
 
       setStories((prev) => prev.filter((s) => s.id !== id));
       toast.success('Story removido com sucesso!');

@@ -679,9 +679,9 @@ const ProfileSettings = ({ onUpdate }) => {
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/profile-banner/update`,
           formData,
           {
+            withCredentials: true,
             headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${userToken}`
+              'Content-Type': 'multipart/form-data'
             },
           }
         );
@@ -741,7 +741,7 @@ const ProfileSettings = ({ onUpdate }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
         body: formData,
       });
 
@@ -781,7 +781,7 @@ const ProfileSettings = ({ onUpdate }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/feed/create`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
         body: formData,
       });
 
@@ -828,8 +828,8 @@ const ProfileSettings = ({ onUpdate }) => {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/update`,
         formData,
         {
+          withCredentials: true,
           headers: {
-            Authorization: `Bearer ${userToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -863,7 +863,7 @@ const ProfileSettings = ({ onUpdate }) => {
         const response = await axios.delete(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/carrousel/delete`,
           {
-            headers: { Authorization: `Bearer ${userToken}` },
+            withCredentials: true,
             data: { imageUrl: imageToDelete },
           }
         );
@@ -900,8 +900,8 @@ const ProfileSettings = ({ onUpdate }) => {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/documents/upload`,
         formData,
         {
+          withCredentials: true,
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }

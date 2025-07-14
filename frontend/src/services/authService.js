@@ -1,18 +1,5 @@
-import { fetcher } from "../utils/fetcher.js";
+import api from './api';
 
-// Login
-export async function loginUser(email, password) {
-  return fetcher("/api/auth/sign-in/email", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-}
-
-// Registro com arquivos (FormData)
-export async function registerUser(formData) {
-  return fetcher("/api/auth/sign-up/email", {
-    method: "POST",
-    body: formData,
-  });
-}
+export const login = (data) => api.post('/auth/login', data);
+export const register = (data) => api.post('/auth/register', data);
+export const logout = () => api.post('/auth/logout');

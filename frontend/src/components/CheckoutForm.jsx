@@ -125,11 +125,9 @@ const CheckoutForm = ({ planId, planName, planPrice, onClose, planExtra }) => {
     }
 
     try {
-      const response = await axios.post(apiUrl, requestBody, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
+      const response = await axios.post(apiUrl, requestBody,
+        { withCredentials: true }
+      );
 
       if (response.data.message === 'Acompanhante já possui um plano ativo.') {
         toast.info(response.data.message);

@@ -154,8 +154,8 @@ export default function Stories({ cidade, estado }) {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/create`,
         formData,
         {
+          withCredentials: true, 
           headers: {
-            Authorization: `Bearer ${userToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -183,9 +183,9 @@ export default function Stories({ cidade, estado }) {
     if (!window.confirm("Tem certeza que deseja deletar este story?")) return;
 
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/${id}/delete`, {
-        headers: { Authorization: `Bearer ${userToken}` },
-      });
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/story/${id}/delete`,
+        { withCredentials: true },
+      );
       toast.success("Story deletado com sucesso!");
       closeModal();
       fetchStories();

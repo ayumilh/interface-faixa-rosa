@@ -29,7 +29,6 @@ import {
 import Modal from "./Modal";
 import Tooltip from "../common/Tooltip";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { usePlan } from "../../context/PlanContext";
 import ModalEditarPlano from "./modalAction/ModalEditarPlano";
@@ -45,7 +44,6 @@ const Anunciantes = () => {
     const [itemsPerPage] = useState(10); // Itens por página
     const [sortOrder, setSortOrder] = useState("desc"); // "asc" ou "desc"
     const [isLoading, setIsLoading] = useState(false);
-    const userToken = Cookies.get("userToken");
     const { companions, fetchCompanions } = usePlan();
 
     // Detect mobile
@@ -62,10 +60,9 @@ const Anunciantes = () => {
             try {
                 const response = await axios.get(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion`,
-                    {
-                        headers: { Authorization: `Bearer ${userToken}` },
-                    }
+                    { withCredentials: true }
                 );
+                console.log("Anunciantes:", response.data);
                 setAnunciantes(response.data);
             } catch (error) {
                 console.error("Erro ao buscar anunciantes:", error);
@@ -74,11 +71,8 @@ const Anunciantes = () => {
                 setIsLoading(false);
             }
         };
-
-        if (userToken) {
-            fetchAnunciantes();
-        }
-    }, [userToken]);
+        fetchAnunciantes();
+    }, []);
 
     // Estados e loading para modais
     const [documentStatusModal, setDocumentStatusModal] = useState(null);
@@ -219,7 +213,6 @@ const Anunciantes = () => {
                     anunciante={anunciante}
                     documentStatus={documentStatus}
                     atualizarStatusDocumento={atualizarStatusDocumento}
-                    userToken={userToken}
                     onClose={() => setModal({ isOpen: false, content: null })}
                     isLoading={isLoading}
                     setIsLoading={setIsLoading}
@@ -244,11 +237,7 @@ const Anunciantes = () => {
                 await axios.post(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/approve`,
                     {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${userToken}`,
-                        },
-                    }
+                    { withCredentials: true }
                 );
                 toast.success("Perfil aprovado com sucesso!");
                 atualizarStatusPerfil("ACTIVE");
@@ -264,11 +253,7 @@ const Anunciantes = () => {
                 await axios.post(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/reject`,
                     {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${userToken}`,
-                        },
-                    }
+                    { withCredentials: true }
                 );
                 toast.success("Perfil rejeitado com sucesso!");
                 atualizarStatusPerfil("REJECTED");
@@ -284,11 +269,7 @@ const Anunciantes = () => {
                 await axios.post(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/suspend`,
                     {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${userToken}`,
-                        },
-                    }
+                    { withCredentials: true }
                 );
                 toast.success("Perfil suspenso com sucesso!");
                 atualizarStatusPerfil("SUSPENDED");
@@ -366,11 +347,7 @@ const Anunciantes = () => {
             await axios.put(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-plan`,
                 { planId: Number(selectedPlano) },
-                {
-                    headers: {
-                        Authorization: `Bearer ${userToken}`,
-                    },
-                }
+                { withCredentials: true }
             );
             toast.success("Plano básico atualizado com sucesso!");
 
@@ -406,7 +383,7 @@ const Anunciantes = () => {
                 await axios.put(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
                     { extraPlanId: extraId, isChecked: true },
-                    { headers: { Authorization: `Bearer ${userToken}` } }
+                    { withCredentials: true }
                 );
             }
 
@@ -414,7 +391,7 @@ const Anunciantes = () => {
                 await axios.put(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anuncianteId}/update-extrasPlan`,
                     { extraPlanId: extraId, isChecked: false },
-                    { headers: { Authorization: `Bearer ${userToken}` } }
+                    { withCredentials: true }
                 );
             }
 
@@ -457,7 +434,6 @@ const Anunciantes = () => {
                     anunciante={anunciante}
                     planos={planos}
                     planosExtras={planosExtras}
-                    userToken={userToken}
                     onClose={() => setModal({ isOpen: false, content: null })}
                     onSalvarPlanoBasico={handleSalvarPlanoBasico}
                     onSalvarPlanoExtra={handleSalvarPlanoExtra}
@@ -471,9 +447,7 @@ const Anunciantes = () => {
         try {
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/posts`,
-                {
-                    headers: { Authorization: `Bearer ${userToken}` },
-                }
+                { withCredentials: true }
             );
 
             const posts = response.data;
@@ -566,9 +540,7 @@ const Anunciantes = () => {
         try {
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/activity`,
-                {
-                    headers: { Authorization: `Bearer ${userToken}` },
-                }
+                { withCredentials: true }
             );
 
             const history = response.data;
@@ -642,9 +614,7 @@ const Anunciantes = () => {
     const handleDeletarAnunciante = (anunciante) => {
         const confirmarExclusao = async (id) => {
             try {
-                await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/deletar/${id}`, {
-                    headers: { Authorization: `Bearer ${userToken}` },
-                });
+                await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/deletar/${id}`, { withCredentials: true });
                 toast.success("Anunciante excluído com sucesso!");
                 setAnunciantes(prev => prev.filter(a => a.id !== id));
                 setModal({ isOpen: false, content: null });
@@ -708,7 +678,6 @@ const Anunciantes = () => {
             content: (
                 <ModalVerificarVideo
                     anunciante={anunciante}
-                    userToken={userToken}
                     atualizarStatusMedia={atualizarStatusMedia}
                     onClose={() => setModal({ isOpen: false, content: null })}
                 />
@@ -720,11 +689,7 @@ const Anunciantes = () => {
         try {
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/detalhes`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${userToken}`,
-                    },
-                }
+                { withCredentials: true }
             );
             const dados = response.data;
 
@@ -763,24 +728,24 @@ const Anunciantes = () => {
                                     <div><strong>Plano:</strong> {dados.plan?.name || "Sem plano"}</div>
                                     <div><strong>Status do Perfil:</strong>
                                         <span className={`ml-2 px-2 py-1 rounded text-xs ${dados.profileStatus === "ACTIVE" ? "bg-green-100 text-green-800" :
-                                                dados.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
-                                                    "bg-red-100 text-red-800"
+                                            dados.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                                "bg-red-100 text-red-800"
                                             }`}>
                                             {dados.profileStatus}
                                         </span>
                                     </div>
                                     <div><strong>Status Documento:</strong>
                                         <span className={`ml-2 px-2 py-1 rounded text-xs ${dados.documentStatus === "APPROVED" ? "bg-green-100 text-green-800" :
-                                                dados.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
-                                                    "bg-yellow-100 text-yellow-800"
+                                            dados.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                                "bg-yellow-100 text-yellow-800"
                                             }`}>
                                             {dados.documentStatus}
                                         </span>
                                     </div>
                                     <div><strong>Status da Mídia:</strong>
                                         <span className={`ml-2 px-2 py-1 rounded text-xs ${dados.media?.[0]?.status === "APPROVED" ? "bg-green-100 text-green-800" :
-                                                dados.media?.[0]?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
-                                                    "bg-gray-100 text-gray-800"
+                                            dados.media?.[0]?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                                "bg-gray-100 text-gray-800"
                                             }`}>
                                             {dados.media?.[0]?.status || "Sem mídia"}
                                         </span>
@@ -905,8 +870,8 @@ const Anunciantes = () => {
                         onClick={goToPreviousPage}
                         disabled={currentPage === 1}
                         className={`p-2 rounded-lg ${currentPage === 1
-                                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-gray-700 hover:bg-gray-100"
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : "bg-white text-gray-700 hover:bg-gray-100"
                             } border shadow-sm`}
                         whileHover={currentPage !== 1 ? { scale: 1.05 } : {}}
                         whileTap={currentPage !== 1 ? { scale: 0.95 } : {}}
@@ -923,8 +888,8 @@ const Anunciantes = () => {
                                     <motion.button
                                         onClick={() => goToPage(page)}
                                         className={`px-3 py-2 rounded-lg text-sm font-medium ${currentPage === page
-                                                ? "bg-pink-500 text-white"
-                                                : "bg-white text-gray-700 hover:bg-gray-100"
+                                            ? "bg-pink-500 text-white"
+                                            : "bg-white text-gray-700 hover:bg-gray-100"
                                             } border shadow-sm`}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -940,8 +905,8 @@ const Anunciantes = () => {
                         onClick={goToNextPage}
                         disabled={currentPage === totalPages}
                         className={`p-2 rounded-lg ${currentPage === totalPages
-                                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-gray-700 hover:bg-gray-100"
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : "bg-white text-gray-700 hover:bg-gray-100"
                             } border shadow-sm`}
                         whileHover={currentPage !== totalPages ? { scale: 1.05 } : {}}
                         whileTap={currentPage !== totalPages ? { scale: 0.95 } : {}}
@@ -1011,10 +976,10 @@ const Anunciantes = () => {
                                 <td className="py-4 px-6 text-gray-700">{anunciante.plan?.name}</td>
                                 <td className="py-4 px-6">
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${anunciante.profileStatus === "ACTIVE" ? "bg-green-100 text-green-800" :
-                                            anunciante.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
-                                                anunciante.profileStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
-                                                    anunciante.profileStatus === "SUSPENDED" ? "bg-gray-100 text-gray-800" :
-                                                        "bg-red-100 text-red-800"
+                                        anunciante.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                            anunciante.profileStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                                anunciante.profileStatus === "SUSPENDED" ? "bg-gray-100 text-gray-800" :
+                                                    "bg-red-100 text-red-800"
                                         }`}>
                                         {anunciante.profileStatus === "ACTIVE" ? "Ativo" :
                                             anunciante.profileStatus === "PENDING" ? "Pendente" :
@@ -1024,9 +989,9 @@ const Anunciantes = () => {
                                 </td>
                                 <td className="py-4 px-6">
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${anunciante.documentStatus === "APPROVED" ? "bg-green-100 text-green-800" :
-                                            anunciante.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
-                                                anunciante.documentStatus === "REJECTED" ? "bg-red-100 text-red-800" :
-                                                    "bg-yellow-100 text-yellow-800"
+                                        anunciante.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                            anunciante.documentStatus === "REJECTED" ? "bg-red-100 text-red-800" :
+                                                "bg-yellow-100 text-yellow-800"
                                         }`}>
                                         {anunciante.documentStatus === "APPROVED" ? "Verificado" :
                                             anunciante.documentStatus === "REJECTED" ? "Rejeitado" :
@@ -1035,9 +1000,9 @@ const Anunciantes = () => {
                                 </td>
                                 <td className="py-4 px-6">
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${anunciante.media?.status === "APPROVED" ? "bg-green-100 text-green-800" :
-                                            anunciante.media?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
-                                                anunciante.media?.status === "REJECTED" ? "bg-red-100 text-red-800" :
-                                                    "bg-gray-100 text-gray-800"
+                                        anunciante.media?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                            anunciante.media?.status === "REJECTED" ? "bg-red-100 text-red-800" :
+                                                "bg-gray-100 text-gray-800"
                                         }`}>
                                         {anunciante.media?.status === "APPROVED" ? "Vídeo Aprovado" :
                                             anunciante.media?.status === "IN_ANALYSIS" ? "Vídeo em Análise" :
@@ -1066,8 +1031,8 @@ const Anunciantes = () => {
                                             <motion.button
                                                 onClick={() => handleAtivarDesativar(anunciante)}
                                                 className={`p-2 rounded-lg transition-colors ${anunciante.profileStatus === "ACTIVE"
-                                                        ? "text-yellow-600 hover:bg-yellow-100"
-                                                        : "text-green-600 hover:bg-green-100"
+                                                    ? "text-yellow-600 hover:bg-yellow-100"
+                                                    : "text-green-600 hover:bg-green-100"
                                                     }`}
                                                 whileHover={{ scale: 1.1 }}
                                                 whileTap={{ scale: 0.9 }}
@@ -1185,8 +1150,8 @@ const Anunciantes = () => {
                                 </p>
                             </div>
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${anunciante.profileStatus === "ACTIVE" ? "bg-green-100 text-green-800" :
-                                    anunciante.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
-                                        "bg-red-100 text-red-800"
+                                anunciante.profileStatus === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                    "bg-red-100 text-red-800"
                                 }`}>
                                 {anunciante.profileStatus === "ACTIVE" ? "Ativo" :
                                     anunciante.profileStatus === "PENDING" ? "Pendente" : "Inativo"}
@@ -1197,8 +1162,8 @@ const Anunciantes = () => {
                             <div>
                                 <p className="text-xs text-gray-500 mb-1">Documentos</p>
                                 <span className={`px-2 py-1 rounded text-xs font-semibold ${anunciante.documentStatus === "APPROVED" ? "bg-green-100 text-green-800" :
-                                        anunciante.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
-                                            "bg-yellow-100 text-yellow-800"
+                                    anunciante.documentStatus === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                        "bg-yellow-100 text-yellow-800"
                                     }`}>
                                     {anunciante.documentStatus === "APPROVED" ? "Verificado" :
                                         anunciante.documentStatus === "IN_ANALYSIS" ? "Em Análise" : "Pendente"}
@@ -1207,8 +1172,8 @@ const Anunciantes = () => {
                             <div>
                                 <p className="text-xs text-gray-500 mb-1">Mídia</p>
                                 <span className={`px-2 py-1 rounded text-xs font-semibold ${anunciante.media?.status === "APPROVED" ? "bg-green-100 text-green-800" :
-                                        anunciante.media?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
-                                            "bg-gray-100 text-gray-800"
+                                    anunciante.media?.status === "IN_ANALYSIS" ? "bg-orange-100 text-orange-800" :
+                                        "bg-gray-100 text-gray-800"
                                     }`}>
                                     {anunciante.media?.status === "APPROVED" ? "Aprovado" :
                                         anunciante.media?.status === "IN_ANALYSIS" ? "Análise" : "Sem Vídeo"}
@@ -1231,8 +1196,8 @@ const Anunciantes = () => {
                             <motion.button
                                 onClick={() => handleAtivarDesativar(anunciante)}
                                 className={`p-3 rounded-lg text-center ${anunciante.profileStatus === "ACTIVE"
-                                        ? "bg-yellow-100 text-yellow-600"
-                                        : "bg-green-100 text-green-600"
+                                    ? "bg-yellow-100 text-yellow-600"
+                                    : "bg-green-100 text-green-600"
                                     }`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -1363,8 +1328,8 @@ const Anunciantes = () => {
                                         key={filtro.key}
                                         onClick={() => setFiltroStatus(filtro.key)}
                                         className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${filtroStatus === filtro.key
-                                                ? `bg-${filtro.color}-500 text-white`
-                                                : `bg-${filtro.color}-100 text-${filtro.color}-700 hover:bg-${filtro.color}-200`
+                                            ? `bg-${filtro.color}-500 text-white`
+                                            : `bg-${filtro.color}-100 text-${filtro.color}-700 hover:bg-${filtro.color}-200`
                                             }`}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -1380,8 +1345,8 @@ const Anunciantes = () => {
                             <motion.button
                                 onClick={toggleSortOrder}
                                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${sortOrder === "desc"
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-blue-100 text-blue-700 hover:bg-blue-200"
                                     }`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}

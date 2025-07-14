@@ -45,9 +45,9 @@ const MercadoPagoForm = ({ totalPrice, planId, selectedExtraPlans }) => {
                 const userToken = Cookies.get("userToken");
                 if (!userToken) return;
 
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/cards`, {
-                    headers: { Authorization: `Bearer ${userToken}` },
-                });
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/payments/cards`,
+                    { withCredentials: true }
+                );
 
                 const savedCards = Array.isArray(res?.data?.cards) ? res.data.cards : [];
                 const selectElement = document.getElementById("form-checkout__cardId");
@@ -300,9 +300,7 @@ const MercadoPagoForm = ({ totalPrice, planId, selectedExtraPlans }) => {
                             }
 
                             try {
-                                const response = await axios.post(apiUrl, requestBody, {
-                                    headers: { Authorization: `Bearer ${userToken}` },
-                                });
+                                const response = await axios.post(apiUrl, requestBody, { withCredentials: true });
 
                                 if (response.data.message === "Acompanhante já possui um plano ativo.") {
                                     toast.info(response.data.message);

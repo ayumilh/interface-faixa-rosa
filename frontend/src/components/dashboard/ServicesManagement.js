@@ -45,11 +45,11 @@ const ServicesManagement = () => {
   const [services, setServices] = useState(null);
   const [pendingUpdates, setPendingUpdates] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
+
   // Estados do tutorial
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  
+
   // Estados para preço personalizado
   const [editingPrice, setEditingPrice] = useState(null);
   const [tempPrice, setTempPrice] = useState('');
@@ -108,9 +108,7 @@ const ServicesManagement = () => {
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/services`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { withCredentials: true }
         );
 
         if (response.data.services) {
@@ -232,11 +230,7 @@ const ServicesManagement = () => {
       await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/services/update`,
         payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       toast.success("✨ Serviços atualizados com sucesso!");
@@ -254,9 +248,9 @@ const ServicesManagement = () => {
   // Função para formatar preço
   const formatPrice = (price) => {
     if (price === 0) return "Grátis";
-    return `R$ ${price.toLocaleString("pt-BR", { 
+    return `R$ ${price.toLocaleString("pt-BR", {
       minimumFractionDigits: price % 1 !== 0 ? 2 : 0,
-      maximumFractionDigits: 2 
+      maximumFractionDigits: 2
     })}`;
   };
 
@@ -341,29 +335,29 @@ const ServicesManagement = () => {
             <FaTrophy className="text-yellow-500 mr-2" />
             Seus Serviços Mais Valorizados
           </h3>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {servicosOferecidos
               .sort((a, b) => b.preco - a.preco)
               .slice(0, 4)
               .map((service, index) => (
-              <div key={service.id} className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{service.nome}</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{service.descricao?.replace(/<[^>]*>/g, '')}</p>
-                  </div>
-                  <div className="flex items-center space-x-1 ml-2">
-                    {index === 0 && <FaTrophy className="text-yellow-500 text-sm" />}
-                    <span className={`text-sm sm:text-base font-bold ${getPriceColor(service.preco)}`}>
-                      {formatPrice(service.preco)}
-                    </span>
+                <div key={service.id} className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{service.nome}</h4>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{service.descricao?.replace(/<[^>]*>/g, '')}</p>
+                    </div>
+                    <div className="flex items-center space-x-1 ml-2">
+                      {index === 0 && <FaTrophy className="text-yellow-500 text-sm" />}
+                      <span className={`text-sm sm:text-base font-bold ${getPriceColor(service.preco)}`}>
+                        {formatPrice(service.preco)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
-          
+
           {servicosOferecidos.length > 4 && (
             <p className="text-center text-gray-500 text-sm mt-4">
               +{servicosOferecidos.length - 4} serviços adicionais
@@ -438,7 +432,7 @@ const ServicesManagement = () => {
             )}
           </div>
         </div>
-        
+
         <div className="mt-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Progresso</span>
@@ -511,7 +505,7 @@ const ServicesManagement = () => {
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
                 <div className="flex-1 mb-3 sm:mb-0">
                   <h4 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">{service.nome}</h4>
-                  <div 
+                  <div
                     className="text-gray-600 text-xs sm:text-sm"
                     dangerouslySetInnerHTML={{ __html: service.descricao }}
                   />
@@ -697,7 +691,7 @@ const ServicesManagement = () => {
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4">
                 <div className="flex-1 mb-3 sm:mb-0">
                   <h4 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">{service.nome}</h4>
-                  <div 
+                  <div
                     className="text-gray-600 text-xs sm:text-sm"
                     dangerouslySetInnerHTML={{ __html: service.descricao }}
                   />
@@ -790,7 +784,7 @@ const ServicesManagement = () => {
                 Controle seu portfólio de serviços e maximize seus ganhos
               </p>
             </div>
-            
+
             <button
               onClick={() => setShowTutorial(true)}
               className="mt-4 lg:mt-0 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base mx-auto lg:mx-0"
@@ -813,7 +807,7 @@ const ServicesManagement = () => {
                 <FaBars className="text-gray-600" />
               </button>
             </div>
-            
+
             <AnimatePresence>
               {showMobileMenu && (
                 <motion.div
@@ -831,11 +825,10 @@ const ServicesManagement = () => {
                           setActiveTab(tab.id);
                           setShowMobileMenu(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-                          activeTab === tab.id
-                            ? "bg-green-50 text-green-600 border-r-4 border-green-500"
-                            : "text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${activeTab === tab.id
+                          ? "bg-green-50 text-green-600 border-r-4 border-green-500"
+                          : "text-gray-600 hover:bg-gray-50"
+                          }`}
                       >
                         <Icon className="text-lg" />
                         <span className="font-medium">{tab.label}</span>
@@ -855,11 +848,10 @@ const ServicesManagement = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
-                    activeTab === tab.id
-                      ? "bg-white text-green-600 shadow-lg"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${activeTab === tab.id
+                    ? "bg-white text-green-600 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   <Icon className="text-lg" />
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -920,17 +912,17 @@ const ServicesManagement = () => {
                 {(() => {
                   const currentTutorial = tutorialSteps[currentStep];
                   const IconComponent = currentTutorial.icon;
-                  
+
                   return (
                     <div className="text-center">
                       <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 bg-gradient-to-br ${currentTutorial.color}`}>
                         <IconComponent className="text-white text-lg sm:text-2xl" />
                       </div>
-                      
+
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
                         {currentTutorial.title}
                       </h3>
-                      
+
                       <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
                         {currentTutorial.description}
                       </p>
@@ -940,9 +932,8 @@ const ServicesManagement = () => {
                           {tutorialSteps.map((_, index) => (
                             <div
                               key={index}
-                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                index === currentStep ? "bg-green-500 w-6 sm:w-8" : "bg-gray-300"
-                              }`}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentStep ? "bg-green-500 w-6 sm:w-8" : "bg-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
@@ -956,7 +947,7 @@ const ServicesManagement = () => {
                               Anterior
                             </button>
                           )}
-                          
+
                           <button
                             onClick={handleNextStep}
                             className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 text-sm sm:text-base"

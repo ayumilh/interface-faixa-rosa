@@ -7,7 +7,6 @@ const ModalVerificarDocumentos = ({
   anunciante,
   documentStatus,
   atualizarStatusDocumento,
-  userToken,
   onClose,
   isLoading,
   setIsLoading,
@@ -30,7 +29,7 @@ const ModalVerificarDocumentos = ({
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/documents/approve`,
         {},
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        { withCredentials: true }
       );
       atualizarStatusDocumento("APPROVED");
       setDocumentStatusModal("APPROVED");
@@ -50,7 +49,7 @@ const ModalVerificarDocumentos = ({
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/companion/${anunciante.id}/documents/reject`,
         {},
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        { withCredentials: true }
       );
       atualizarStatusDocumento("REJECTED");
       setDocumentStatusModal("REJECTED");

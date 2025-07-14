@@ -20,14 +20,9 @@ const Clientes = () => {
   useEffect(() => {
     const fetchContratantes = async () => {
       try {
-        const userToken = Cookies.get("userToken");
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/contratantes`,
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
+          { withCredentials: true }
         );
         setClientes(response.data);
       } catch (error) {
@@ -90,14 +85,9 @@ const Clientes = () => {
             <button
               onClick={async () => {
                 try {
-                  const userToken = Cookies.get("userToken");
                   await axios.delete(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/contratantes/${clienteId}`,
-                    {
-                      headers: {
-                        Authorization: `Bearer ${userToken}`,
-                      },
-                    }
+                    { withCredentials: true }
                   );
                   setClientes(clientes.filter((c) => c.id !== clienteId));
                   setModal({

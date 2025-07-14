@@ -31,11 +31,7 @@ export default function ActivePlans() {
         try {
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/user-plans`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+                { withCredentials: true }
             );
 
             const { mainPlan, extraPlans } = response.data;
@@ -94,11 +90,7 @@ export default function ActivePlans() {
             await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/plans/disable`,
                 {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Autenticação com o token
-                    },
-                }
+                { withCredentials: true }
             );
             toast.success("Plano básico desativado com sucesso!");
 
@@ -130,11 +122,7 @@ export default function ActivePlans() {
                 {
                     extraPlanIds: [planToManage.id], // Envia o ID do plano extra
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Autenticação com o token
-                    },
-                }
+                { withCredentials: true }
             );
 
             toast.success("Plano extra desativado com sucesso!");

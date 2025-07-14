@@ -38,7 +38,7 @@ const Metrics = ({ userName, userCity, userState }) => {
     telegram: { username: "" },
     phone: { number: "", countryCode: '+55' },
   });
-  
+
   const [activeSection, setActiveSection] = useState("whatsapp");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -185,9 +185,7 @@ const Metrics = ({ userName, userCity, userState }) => {
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/contact`,
-          {
-            headers: { Authorization: `Bearer ${userToken}` },
-          }
+          { withCredentials: true }
         );
         const { contact } = response.data;
 
@@ -265,9 +263,7 @@ const Metrics = ({ userName, userCity, userState }) => {
       await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/contact/update`,
         payload,
-        {
-          headers: { Authorization: `Bearer ${userToken}` },
-        }
+        { withCredentials: true }
       );
 
       setMessage("✨ Dados atualizados com sucesso!");
@@ -307,8 +303,8 @@ const Metrics = ({ userName, userCity, userState }) => {
             <div>
               <h4 className="font-semibold text-green-800 mb-2 text-sm md:text-base">📱 Mensagem Automática</h4>
               <p className="text-xs md:text-sm text-green-700 italic">
-  <strong>Mensagem padrão:</strong> &quot;Olá, {userName}! Encontrei seu anúncio no Faixa Rosa em {userCity}-{userState}.&quot;
-</p>
+                <strong>Mensagem padrão:</strong> &quot;Olá, {userName}! Encontrei seu anúncio no Faixa Rosa em {userCity}-{userState}.&quot;
+              </p>
 
             </div>
           </div>
@@ -422,7 +418,7 @@ const Metrics = ({ userName, userCity, userState }) => {
             <div className="flex items-center space-x-2">
               <FaCheckCircle className="text-blue-500" />
               <span className="text-blue-800 font-medium text-sm md:text-base">
-                Link do seu Telegram: 
+                Link do seu Telegram:
               </span>
             </div>
             <p className="text-blue-700 text-sm md:text-base mt-1 font-mono bg-white px-2 py-1 rounded">
@@ -499,7 +495,7 @@ const Metrics = ({ userName, userCity, userState }) => {
             <div className="flex items-center space-x-2">
               <FaCheckCircle className="text-gray-500" />
               <span className="text-gray-800 font-medium text-sm md:text-base">
-                Número formatado: 
+                Número formatado:
               </span>
             </div>
             <p className="text-gray-700 text-sm md:text-base mt-1 font-mono bg-white px-2 py-1 rounded">
@@ -570,7 +566,7 @@ const Metrics = ({ userName, userCity, userState }) => {
             <p className="text-gray-600 text-sm md:text-lg mb-4">
               Configure seus meios de contato para facilitar a comunicação com seus clientes
             </p>
-            
+
             {/* Tutorial Button */}
             <motion.button
               onClick={() => setShowTutorial(true)}
@@ -601,7 +597,7 @@ const Metrics = ({ userName, userCity, userState }) => {
               </div>
               {isMobileMenuOpen ? <FaChevronUp /> : <FaChevronDown />}
             </button>
-            
+
             <AnimatePresence>
               {isMobileMenuOpen && (
                 <motion.div
@@ -620,11 +616,10 @@ const Metrics = ({ userName, userCity, userState }) => {
                           setActiveSection(section.id);
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`w-full flex items-center space-x-3 p-4 text-left transition-colors ${
-                          activeSection === section.id
-                            ? `bg-${section.color}-50 text-${section.color}-600 border-r-4 border-${section.color}-500`
-                            : "text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className={`w-full flex items-center space-x-3 p-4 text-left transition-colors ${activeSection === section.id
+                          ? `bg-${section.color}-50 text-${section.color}-600 border-r-4 border-${section.color}-500`
+                          : "text-gray-600 hover:bg-gray-50"
+                          }`}
                       >
                         <Icon className="text-lg" />
                         <span className="font-medium">{section.label}</span>
@@ -644,11 +639,10 @@ const Metrics = ({ userName, userCity, userState }) => {
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center space-x-2 px-4 py-3 rounded-2xl font-semibold transition-all duration-300 ${
-                    activeSection === section.id
-                      ? `bg-white text-${section.color}-600 shadow-lg`
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-2xl font-semibold transition-all duration-300 ${activeSection === section.id
+                    ? `bg-white text-${section.color}-600 shadow-lg`
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   <Icon className="text-lg" />
                   <span>{section.label}</span>
@@ -678,9 +672,8 @@ const Metrics = ({ userName, userCity, userState }) => {
           transition={{ delay: 0.4 }}
         >
           {/* WhatsApp Status */}
-          <div className={`bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-md border ${
-            contactConfig.whatsapp.number ? 'border-green-200 bg-green-50' : 'border-gray-200'
-          }`}>
+          <div className={`bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-md border ${contactConfig.whatsapp.number ? 'border-green-200 bg-green-50' : 'border-gray-200'
+            }`}>
             <div className="flex items-center space-x-2 md:space-x-3">
               <FaWhatsapp className={`text-lg md:text-xl ${contactConfig.whatsapp.number ? 'text-green-500' : 'text-gray-400'}`} />
               <div>
@@ -693,9 +686,8 @@ const Metrics = ({ userName, userCity, userState }) => {
           </div>
 
           {/* Telegram Status */}
-          <div className={`bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-md border ${
-            contactConfig.telegram.username ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
-          }`}>
+          <div className={`bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-md border ${contactConfig.telegram.username ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
+            }`}>
             <div className="flex items-center space-x-2 md:space-x-3">
               <FaTelegram className={`text-lg md:text-xl ${contactConfig.telegram.username ? 'text-blue-500' : 'text-gray-400'}`} />
               <div>
@@ -708,9 +700,8 @@ const Metrics = ({ userName, userCity, userState }) => {
           </div>
 
           {/* Phone Status */}
-          <div className={`bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-md border ${
-            contactConfig.phone.number ? 'border-gray-300 bg-gray-50' : 'border-gray-200'
-          }`}>
+          <div className={`bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-md border ${contactConfig.phone.number ? 'border-gray-300 bg-gray-50' : 'border-gray-200'
+            }`}>
             <div className="flex items-center space-x-2 md:space-x-3">
               <FaPhoneAlt className={`text-lg md:text-xl ${contactConfig.phone.number ? 'text-gray-600' : 'text-gray-400'}`} />
               <div>
@@ -755,11 +746,10 @@ const Metrics = ({ userName, userCity, userState }) => {
         <AnimatePresence>
           {message && (
             <motion.div
-              className={`fixed bottom-4 left-4 right-4 md:bottom-6 md:right-6 md:left-auto p-3 md:p-4 rounded-2xl shadow-2xl flex items-center space-x-3 z-50 ${
-                message.includes('sucesso') 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-red-500 text-white'
-              }`}
+              className={`fixed bottom-4 left-4 right-4 md:bottom-6 md:right-6 md:left-auto p-3 md:p-4 rounded-2xl shadow-2xl flex items-center space-x-3 z-50 ${message.includes('sucesso')
+                ? 'bg-green-500 text-white'
+                : 'bg-red-500 text-white'
+                }`}
               initial={{ opacity: 0, y: 50, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 50, scale: 0.8 }}
@@ -794,17 +784,17 @@ const Metrics = ({ userName, userCity, userState }) => {
                 {(() => {
                   const currentTutorial = tutorialSteps[currentStep];
                   const IconComponent = currentTutorial.icon;
-                  
+
                   return (
                     <div className="text-center">
                       <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br ${currentTutorial.color}`}>
                         <IconComponent className="text-white text-2xl md:text-3xl" />
                       </div>
-                      
+
                       <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">
                         {currentTutorial.title}
                       </h3>
-                      
+
                       <p className="text-sm md:text-base text-gray-600 mb-6 leading-relaxed">
                         {currentTutorial.description}
                       </p>
@@ -823,13 +813,12 @@ const Metrics = ({ userName, userCity, userState }) => {
                         {tutorialSteps.map((_, index) => (
                           <div
                             key={index}
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              index === currentStep 
-                                ? "bg-pink-500 w-8 md:w-10" 
-                                : index < currentStep 
-                                  ? "bg-green-500 w-2" 
-                                  : "bg-gray-300 w-2"
-                            }`}
+                            className={`h-2 rounded-full transition-all duration-300 ${index === currentStep
+                              ? "bg-pink-500 w-8 md:w-10"
+                              : index < currentStep
+                                ? "bg-green-500 w-2"
+                                : "bg-gray-300 w-2"
+                              }`}
                           />
                         ))}
                       </div>
@@ -849,7 +838,7 @@ const Metrics = ({ userName, userCity, userState }) => {
                               Anterior
                             </button>
                           )}
-                          
+
                           <button
                             onClick={handleNextStep}
                             className={`px-6 py-2 rounded-xl font-semibold transition-all duration-300 text-sm md:text-base bg-gradient-to-r ${currentTutorial.color} text-white hover:shadow-lg`}

@@ -212,9 +212,7 @@ const DescriptionManagement = () => {
         const userToken = Cookies.get("userToken");
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description`,
-          {
-            headers: { Authorization: `Bearer ${userToken}` },
-          }
+          { withCredentials: true }
         );
 
         if (response.status === 200) {
@@ -287,12 +285,7 @@ const DescriptionManagement = () => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
         updatedData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       if (response.status === 200) {
@@ -361,9 +354,9 @@ const DescriptionManagement = () => {
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           formData,
           {
+            withCredentials: true,
             headers: {
               "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${userToken}`,
             },
             timeout: 60000,
           }
@@ -372,12 +365,7 @@ const DescriptionManagement = () => {
         response = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
           processedData,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
+          { withCredentials: true }
         );
       }
 
@@ -402,12 +390,7 @@ const DescriptionManagement = () => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`,
         { userName: newUserName },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       if (response.status === 200) {
@@ -448,9 +431,9 @@ const DescriptionManagement = () => {
 
       axios
         .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/description/update`, formData, {
+          withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${userToken}`,
           },
           timeout: 60000,
         })

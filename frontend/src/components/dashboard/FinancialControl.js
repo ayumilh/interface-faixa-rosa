@@ -55,7 +55,7 @@ const FinancialControl = () => {
   // Estados do tutorial
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  
+
   // Estados para preço personalizado
   const [editingPrice, setEditingPrice] = useState(null);
   const [tempPrice, setTempPrice] = useState('');
@@ -108,11 +108,7 @@ const FinancialControl = () => {
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/finance`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       // Atualizando os métodos de pagamento
@@ -302,11 +298,7 @@ const FinancialControl = () => {
       await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/finance/update`,
         payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       // Recarregar os dados do backend para confirmar a atualização
@@ -324,9 +316,9 @@ const FinancialControl = () => {
   // Função para formatar preço
   const formatPrice = (price) => {
     if (price === 0) return "Grátis";
-    return `R$ ${price.toLocaleString("pt-BR", { 
+    return `R$ ${price.toLocaleString("pt-BR", {
       minimumFractionDigits: price % 1 !== 0 ? 2 : 0,
-      maximumFractionDigits: 2 
+      maximumFractionDigits: 2
     })}`;
   };
 
@@ -411,7 +403,7 @@ const FinancialControl = () => {
             <FaCheckCircle className="text-green-500 mr-2" />
             Seus Serviços Ativos
           </h3>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {servicosOferecidos.slice(0, 4).map((service, index) => (
               <div key={service.id} className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4">
@@ -427,7 +419,7 @@ const FinancialControl = () => {
               </div>
             ))}
           </div>
-          
+
           {servicosOferecidos.length > 4 && (
             <p className="text-center text-gray-500 text-sm mt-4">
               +{servicosOferecidos.length - 4} serviços adicionais
@@ -742,16 +734,15 @@ const FinancialControl = () => {
         transition={{ delay: 0.2 }}
       >
         <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">Métodos de Pagamento</h3>
-        
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {paymentMethods.map((method, index) => (
             <motion.div
               key={method.nome}
-              className={`relative p-4 sm:p-6 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
-                method.aceito
-                  ? 'border-green-400 bg-green-50 shadow-md'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
+              className={`relative p-4 sm:p-6 border-2 rounded-xl cursor-pointer transition-all duration-300 ${method.aceito
+                ? 'border-green-400 bg-green-50 shadow-md'
+                : 'border-gray-200 bg-white hover:border-gray-300'
+                }`}
               onClick={() => togglePaymentMethod(index)}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -763,9 +754,8 @@ const FinancialControl = () => {
                 <div className={`transition-opacity duration-300 ${method.aceito ? 'opacity-100' : 'opacity-40'}`}>
                   {method.icon}
                 </div>
-                <span className={`text-xs sm:text-sm font-semibold transition-colors duration-300 ${
-                  method.aceito ? 'text-green-700' : 'text-gray-500'
-                }`}>
+                <span className={`text-xs sm:text-sm font-semibold transition-colors duration-300 ${method.aceito ? 'text-green-700' : 'text-gray-500'
+                  }`}>
                   {method.displayName}
                 </span>
                 {method.aceito && (
@@ -906,7 +896,7 @@ const FinancialControl = () => {
                 Gerencie preços dos seus serviços e formas de pagamento
               </p>
             </div>
-            
+
             <button
               onClick={() => setShowTutorial(true)}
               className="mt-4 lg:mt-0 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base mx-auto lg:mx-0"
@@ -929,7 +919,7 @@ const FinancialControl = () => {
                 <FaBars className="text-gray-600" />
               </button>
             </div>
-            
+
             <AnimatePresence>
               {showMobileMenu && (
                 <motion.div
@@ -947,11 +937,10 @@ const FinancialControl = () => {
                           setActiveTab(tab.id);
                           setShowMobileMenu(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-                          activeTab === tab.id
-                            ? "bg-green-50 text-green-600 border-r-4 border-green-500"
-                            : "text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${activeTab === tab.id
+                          ? "bg-green-50 text-green-600 border-r-4 border-green-500"
+                          : "text-gray-600 hover:bg-gray-50"
+                          }`}
                       >
                         <Icon className="text-lg" />
                         <span className="font-medium">{tab.label}</span>
@@ -971,11 +960,10 @@ const FinancialControl = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
-                    activeTab === tab.id
-                      ? "bg-white text-green-600 shadow-lg"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${activeTab === tab.id
+                    ? "bg-white text-green-600 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   <Icon className="text-lg" />
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -1036,17 +1024,17 @@ const FinancialControl = () => {
                 {(() => {
                   const currentTutorial = tutorialSteps[currentStep];
                   const IconComponent = currentTutorial.icon;
-                  
+
                   return (
                     <div className="text-center">
                       <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 bg-gradient-to-br ${currentTutorial.color}`}>
                         <IconComponent className="text-white text-lg sm:text-2xl" />
                       </div>
-                      
+
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
                         {currentTutorial.title}
                       </h3>
-                      
+
                       <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
                         {currentTutorial.description}
                       </p>
@@ -1056,9 +1044,8 @@ const FinancialControl = () => {
                           {tutorialSteps.map((_, index) => (
                             <div
                               key={index}
-                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                index === currentStep ? "bg-green-500 w-6 sm:w-8" : "bg-gray-300"
-                              }`}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentStep ? "bg-green-500 w-6 sm:w-8" : "bg-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
@@ -1072,7 +1059,7 @@ const FinancialControl = () => {
                               Anterior
                             </button>
                           )}
-                          
+
                           <button
                             onClick={handleNextStep}
                             className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 text-sm sm:text-base"

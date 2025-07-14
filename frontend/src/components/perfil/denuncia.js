@@ -54,41 +54,37 @@ export default function Denuncia({ dataCriacao, denunciadoId }) {
     setIsConfirmationOpen(true);
   };
 
-const handleConfirm = async () => {
-  try {
-    const userToken = Cookies.get("userToken");
-    if (!userToken) {
-      toast.error('Você precisa estar logado para fazer uma denúncia.');
-      return;
-    }
-
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/denuncias/create`,
-      {
-        denunciadoId: denunciadoId, // <-- Verifique se esse ID está vindo corretamente como prop
-        motivo: motivoSelecionado === 'outros' ? motivo : motivoSelecionado,
-        descricao: descricao,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
+  const handleConfirm = async () => {
+    try {
+      const userToken = Cookies.get("userToken");
+      if (!userToken) {
+        toast.error('Você precisa estar logado para fazer uma denúncia.');
+        return;
       }
-    );
 
-    toast.success('Denúncia enviada com sucesso!');
-    setIsConfirmationOpen(false);
-    setIsThankYouOpen(true);
-    resetModal();
-  } catch (error) {
-    console.error('Erro ao enviar denúncia:', error);
-    if (error.response?.data?.error) {
-      toast.error(`❌ ${error.response.data.error}`);
-    } else {
-      toast.error('❌ Erro ao enviar denúncia. Tente novamente.');
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/denuncias/create`,
+        {
+          denunciadoId: denunciadoId, // <-- Verifique se esse ID está vindo corretamente como prop
+          motivo: motivoSelecionado === 'outros' ? motivo : motivoSelecionado,
+          descricao: descricao,
+        },
+        { withCredentials: true }
+      );
+
+      toast.success('Denúncia enviada com sucesso!');
+      setIsConfirmationOpen(false);
+      setIsThankYouOpen(true);
+      resetModal();
+    } catch (error) {
+      console.error('Erro ao enviar denúncia:', error);
+      if (error.response?.data?.error) {
+        toast.error(`❌ ${error.response.data.error}`);
+      } else {
+        toast.error('❌ Erro ao enviar denúncia. Tente novamente.');
+      }
     }
-  }
-};
+  };
 
 
   const resetModal = () => {

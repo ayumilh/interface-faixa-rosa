@@ -20,11 +20,11 @@ export default function GerenciamentoDeAssinaturas() {
     };
 
     // Buscar assinaturas ativas
-    const fetchSubscriptions = useCallback(async () => { 
+    const fetchSubscriptions = useCallback(async () => {
         try {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/subscriptions`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/subscriptions`,
+                { withCredentials: true }
+            );
             setCompanions(response.data);
         } catch (error) {
             console.error("Erro ao buscar assinaturas ativas:", error);

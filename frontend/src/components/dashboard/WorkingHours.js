@@ -48,7 +48,7 @@ const WorkingHours = () => {
   const [loading, setLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
+
   // Estados do tutorial
   const [showTutorial, setShowTutorial] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -155,11 +155,7 @@ const WorkingHours = () => {
       const token = Cookies.get("userToken");
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/schedule`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       if (response.data.schedule) {
@@ -199,11 +195,8 @@ const WorkingHours = () => {
       const token = Cookies.get("userToken");
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/unavailable-date`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        { withCredentials: true }
+      );
 
       if (response.data.unavailableDates) {
         const formattedDates = response.data.unavailableDates.map(date => new Date(date).toDateString());
@@ -285,9 +278,7 @@ const WorkingHours = () => {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/schedule/update`,
         payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       setOriginalHours(JSON.stringify(workingHours));
@@ -336,9 +327,8 @@ const WorkingHours = () => {
       await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/companions/unavailable-date/update`,
         payload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        { withCredentials: true }
+      );
 
       setOriginalExceptions(JSON.stringify(exceptions));
       setIsUpdated(false);
@@ -432,25 +422,25 @@ const WorkingHours = () => {
             <FaCalendarCheck className="text-green-500 mr-2" />
             Seus Horários de Trabalho
           </h3>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {workingHours
               .filter(day => day.ativo)
               .map((day, index) => (
-              <div key={day.id} className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{day.dia}</h4>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                      {day.start} - {day.end}
-                    </p>
-                  </div>
-                  <div className="bg-green-500 text-white p-2 rounded-full">
-                    <FaCheckCircle className="text-sm" />
+                <div key={day.id} className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{day.dia}</h4>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                        {day.start} - {day.end}
+                      </p>
+                    </div>
+                    <div className="bg-green-500 text-white p-2 rounded-full">
+                      <FaCheckCircle className="text-sm" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </motion.div>
       )}
@@ -467,28 +457,28 @@ const WorkingHours = () => {
             <FaCalendarTimes className="text-red-500 mr-2" />
             Próximas Exceções
           </h3>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {exceptions
               .map(dateStr => new Date(dateStr))
               .sort((a, b) => a - b)
               .slice(0, 6)
               .map((date, index) => (
-              <div key={index} className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg p-3">
-                <div className="flex items-center">
-                  <FaCalendarTimes className="text-red-500 mr-2 flex-shrink-0" />
-                  <span className="text-sm font-medium text-gray-800">
-                    {date.toLocaleDateString('pt-BR', { 
-                      weekday: 'short', 
-                      day: '2-digit', 
-                      month: '2-digit' 
-                    })}
-                  </span>
+                <div key={index} className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center">
+                    <FaCalendarTimes className="text-red-500 mr-2 flex-shrink-0" />
+                    <span className="text-sm font-medium text-gray-800">
+                      {date.toLocaleDateString('pt-BR', {
+                        weekday: 'short',
+                        day: '2-digit',
+                        month: '2-digit'
+                      })}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
-          
+
           {exceptionsCount > 6 && (
             <p className="text-center text-gray-500 text-sm mt-4">
               +{exceptionsCount - 6} exceções adicionais
@@ -563,7 +553,7 @@ const WorkingHours = () => {
             )}
           </div>
         </div>
-        
+
         <div className="mt-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Progresso</span>
@@ -644,9 +634,8 @@ const WorkingHours = () => {
         {workingHours.map((day, index) => (
           <motion.div
             key={day.id}
-            className={`bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border-l-4 transition-all duration-300 hover:shadow-xl ${
-              day.ativo ? 'border-green-500' : 'border-gray-300'
-            }`}
+            className={`bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg border-l-4 transition-all duration-300 hover:shadow-xl ${day.ativo ? 'border-green-500' : 'border-gray-300'
+              }`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
@@ -676,9 +665,8 @@ const WorkingHours = () => {
                     id={`start-${index}`}
                     value={day.start}
                     onChange={(e) => handleHoursChange(index, "start", e.target.value)}
-                    className={`w-full p-3 border rounded-xl border-gray-300 focus:outline-none focus:ring-2 transition-all ${
-                      day.error ? "focus:ring-red-500 border-red-300" : "focus:ring-green-500"
-                    }`}
+                    className={`w-full p-3 border rounded-xl border-gray-300 focus:outline-none focus:ring-2 transition-all ${day.error ? "focus:ring-red-500 border-red-300" : "focus:ring-green-500"
+                      }`}
                     aria-required="true"
                   />
                 </div>
@@ -691,9 +679,8 @@ const WorkingHours = () => {
                     id={`end-${index}`}
                     value={day.end}
                     onChange={(e) => handleHoursChange(index, "end", e.target.value)}
-                    className={`w-full p-3 border rounded-xl border-gray-300 focus:outline-none focus:ring-2 transition-all ${
-                      day.error ? "focus:ring-red-500 border-red-300" : "focus:ring-green-500"
-                    }`}
+                    className={`w-full p-3 border rounded-xl border-gray-300 focus:outline-none focus:ring-2 transition-all ${day.error ? "focus:ring-red-500 border-red-300" : "focus:ring-green-500"
+                      }`}
                     aria-required="true"
                   />
                 </div>
@@ -851,7 +838,7 @@ const WorkingHours = () => {
               const dateStr = date.toDateString();
               const today = new Date().toDateString();
               const isPast = date < new Date() && dateStr !== today;
-              
+
               if (exceptions.includes(dateStr)) {
                 return "bg-red-100 border-red-500 text-red-700 font-semibold hover:bg-red-200";
               }
@@ -893,31 +880,31 @@ const WorkingHours = () => {
             <FaCalendarTimes className="text-red-500 mr-2" />
             Exceções Marcadas ({exceptionsCount})
           </h4>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {exceptions
               .map(dateStr => new Date(dateStr))
               .sort((a, b) => a - b)
               .map((date, index) => (
-              <div 
-                key={index} 
-                className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-red-100 transition-colors"
-                onClick={() => handleDateClick(date)}
-                title="Clique para remover"
-              >
-                <FaCalendarTimes className="text-red-500 mx-auto mb-1" />
-                <span className="text-xs sm:text-sm font-medium text-red-700 block">
-                  {date.toLocaleDateString('pt-BR', { 
-                    day: '2-digit', 
-                    month: '2-digit',
-                    year: '2-digit'
-                  })}
-                </span>
-                <span className="text-xs text-red-600">
-                  {date.toLocaleDateString('pt-BR', { weekday: 'short' })}
-                </span>
-              </div>
-            ))}
+                <div
+                  key={index}
+                  className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-3 text-center cursor-pointer hover:bg-red-100 transition-colors"
+                  onClick={() => handleDateClick(date)}
+                  title="Clique para remover"
+                >
+                  <FaCalendarTimes className="text-red-500 mx-auto mb-1" />
+                  <span className="text-xs sm:text-sm font-medium text-red-700 block">
+                    {date.toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: '2-digit'
+                    })}
+                  </span>
+                  <span className="text-xs text-red-600">
+                    {date.toLocaleDateString('pt-BR', { weekday: 'short' })}
+                  </span>
+                </div>
+              ))}
           </div>
         </motion.div>
       )}
@@ -1027,7 +1014,7 @@ const WorkingHours = () => {
                 Configure seus horários de trabalho e exceções
               </p>
             </div>
-            
+
             <button
               onClick={() => setShowTutorial(true)}
               className="mt-4 lg:mt-0 bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base mx-auto lg:mx-0"
@@ -1050,7 +1037,7 @@ const WorkingHours = () => {
                 <FaBars className="text-gray-600" />
               </button>
             </div>
-            
+
             <AnimatePresence>
               {showMobileMenu && (
                 <motion.div
@@ -1068,11 +1055,10 @@ const WorkingHours = () => {
                           setActiveTab(tab.id);
                           setShowMobileMenu(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-                          activeTab === tab.id
-                            ? "bg-green-50 text-green-600 border-r-4 border-green-500"
-                            : "text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${activeTab === tab.id
+                          ? "bg-green-50 text-green-600 border-r-4 border-green-500"
+                          : "text-gray-600 hover:bg-gray-50"
+                          }`}
                       >
                         <Icon className="text-lg" />
                         <span className="font-medium">{tab.label}</span>
@@ -1092,11 +1078,10 @@ const WorkingHours = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${
-                    activeTab === tab.id
-                      ? "bg-white text-green-600 shadow-lg"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`flex items-center space-x-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap text-sm sm:text-base ${activeTab === tab.id
+                    ? "bg-white text-green-600 shadow-lg"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   <Icon className="text-lg" />
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -1142,8 +1127,8 @@ const WorkingHours = () => {
                 <>
                   <FaSave className="text-lg sm:text-xl" />
                   <span>
-                    {JSON.stringify(exceptions) !== originalExceptions 
-                      ? "Salvar Exceções" 
+                    {JSON.stringify(exceptions) !== originalExceptions
+                      ? "Salvar Exceções"
                       : "Salvar Horários"}
                   </span>
                 </>
@@ -1171,17 +1156,17 @@ const WorkingHours = () => {
                 {(() => {
                   const currentTutorial = tutorialSteps[currentStep];
                   const IconComponent = currentTutorial.icon;
-                  
+
                   return (
                     <div className="text-center">
                       <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 bg-gradient-to-br ${currentTutorial.color}`}>
                         <IconComponent className="text-white text-lg sm:text-2xl" />
                       </div>
-                      
+
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
                         {currentTutorial.title}
                       </h3>
-                      
+
                       <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">
                         {currentTutorial.description}
                       </p>
@@ -1191,9 +1176,8 @@ const WorkingHours = () => {
                           {tutorialSteps.map((_, index) => (
                             <div
                               key={index}
-                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                index === currentStep ? "bg-green-500 w-6 sm:w-8" : "bg-gray-300"
-                              }`}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentStep ? "bg-green-500 w-6 sm:w-8" : "bg-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
@@ -1207,7 +1191,7 @@ const WorkingHours = () => {
                               Anterior
                             </button>
                           )}
-                          
+
                           <button
                             onClick={handleNextStep}
                             className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 sm:px-6 py-2 rounded-lg sm:rounded-xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 text-sm sm:text-base"

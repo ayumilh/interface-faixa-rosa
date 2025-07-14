@@ -22,7 +22,7 @@ const Denuncias = () => {
             try {
                 const res = await axios.get(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/denuncias`,
-                    { headers: { Authorization: `Bearer ${userToken}` } }
+                    { withCredentials: true }
                 );
                 setDenuncias(res.data.data || []);
             } catch (error) {
@@ -47,9 +47,7 @@ const Denuncias = () => {
                         await axios.patch(
                             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/denuncias/${id}/status`,
                             { status: newStatus },
-                            {
-                                headers: { Authorization: `Bearer ${userToken}` },
-                            }
+                            { withCredentials: true }
                         );
                         setDenuncias((prev) =>
                             prev.map((d) =>
@@ -72,7 +70,7 @@ const Denuncias = () => {
         try {
             await axios.delete(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/denuncias/${id}`,
-                { headers: { Authorization: `Bearer ${userToken}` } }
+                { withCredentials: true }
             );
             setDenuncias((prev) => prev.filter((d) => d.id !== id));
             toast.success("Denúncia excluída.");
@@ -167,9 +165,7 @@ const Denuncias = () => {
                                                         await axios.put(
                                                             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/denuncias/${d.id}/status`,
                                                             { status: newStatus },
-                                                            {
-                                                                headers: { Authorization: `Bearer ${userToken}` },
-                                                            }
+                                                            { withCredentials: true }
                                                         );
                                                         setDenuncias((prev) =>
                                                             prev.map((item) =>

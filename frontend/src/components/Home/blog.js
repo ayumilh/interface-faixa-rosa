@@ -303,7 +303,7 @@ const Blog = memo(() => {
         transition={{ delay: 0.8 }}
       >
         <motion.a
-          href="https://faixarosa.com/blog"
+          href="https://faixarosa.com/com/blog"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
           whileHover={{ scale: 1.05, y: -2 }}

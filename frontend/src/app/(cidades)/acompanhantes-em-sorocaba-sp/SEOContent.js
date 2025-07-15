@@ -34,16 +34,16 @@ export default function SEOContent() {
   ];
 
   const cities = [
-    "São Paulo",
-    "Campinas",
-    "Santos",
-    "Ribeirão Preto",
-    "Sorocaba",
-    "Sorocaba",
-    "Marília",
-    "Presidente Prudente",
-    "São José do Rio Preto",
-    "Botucatu",
+    "São Paulo-SP",
+    "Campinas-SP",
+    "Santos-SP",
+    "Ribeirão Preto-SP",
+    "Bauru-SP",
+    "Birigui-SP",
+    "Marília-SP",
+    "Presidente Prudente-SP",
+    "São José do Rio Preto-SP",
+    "Botucatu-SP",
   ];
 
   return (

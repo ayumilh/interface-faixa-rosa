@@ -14,7 +14,6 @@ import {
 import Navbar from "../../components/Navbar";
 import Image from "next/image";
 import Footer from "../../components/search/footer";
-import Final from "../../components/search/final"; // Componente de Final
 
 export default function AcompanhantesBrasil() {
   const [filter, setFilter] = useState("mulheres");
@@ -218,7 +217,6 @@ export default function AcompanhantesBrasil() {
       </div>
 
       <Footer />
-      <Final />
     </div>
   );
 }

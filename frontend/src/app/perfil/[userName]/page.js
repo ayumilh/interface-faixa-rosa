@@ -1,6 +1,6 @@
-import ClientPerfilWrapper from "./ClientPerfilWrapper";
+// ✅ page.js (metadata dinâmico para perfis)
 
-
+import ClientPerfil from "./ClientPerfil";
 
 export async function generateMetadata({ params }) {
   const userName = params?.userName;
@@ -88,5 +88,5 @@ export async function generateMetadata({ params }) {
 }
 
 export default function Page() {
-  return <ClientPerfilWrapper />;
+  return <ClientPerfil />;
 }

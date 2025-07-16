@@ -18,10 +18,12 @@ export default function Page() {
       <HeroSection />
       <BlogSection />
       <VerMais />
-      <Footer />
-
+      
       {/* Wrapper Client com Loader, Navbar, ConsentModal, VSL */}
       <ClientHomeWrapper />
+
+      <Footer />
+
     </>
   );
 }

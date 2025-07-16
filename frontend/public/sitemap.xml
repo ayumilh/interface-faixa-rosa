@@ -3,94 +3,105 @@
 
   <url>
     <loc>https://faixarosa.com/</loc>
-    <lastmod>2025-06-17</lastmod>
+    <lastmod>2025-07-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://faixarosa.com/blog</loc>
-    <lastmod>2025-06-17</lastmod>
+    <loc>https://faixarosa.com/blog/</loc>
+    <lastmod>2025-07-16</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>1.0</priority>
   </url>
-
   <url>
-    <loc>https://faixarosa.com/blog/marketing</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <loc>https://faixarosa.com/acompanhantes/</loc>
+    <lastmod>2025-07-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
-
+  
   <url>
-    <loc>https://faixarosa.com/blog/inclusao/diversidade-e-inclusao-no-faixa-rosa-um-espaco-livre-de-preconceitos</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-
-<url>
-    <loc>https://faixarosa.com/blog/seguranca/a-importancia-da-seguranca-digital-para-anunciantes-dicas-do-faixa-rosa</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-
-  <url>
-    <loc>https://faixarosa.com/acompanhantes-em-lins-sp</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://faixarosa.com/acompanhantes-em-bauru-sp</loc>
-    <lastmod>2025-06-17</lastmod>
+    <loc>https://faixarosa.com/acompanhantes-em-lins-sp/</loc>
+    <lastmod>2025-07-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://faixarosa.com/acompanhantes-em-birigui-sp</loc>
-    <lastmod>2025-06-17</lastmod>
+    <loc>https://faixarosa.com/acompanhantes-em-bauru-sp/</loc>
+    <lastmod>2025-07-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-    <url>
-    <loc>https://faixarosa.com/acompanhantes-em-marilia-sp</loc>
-    <lastmod>2025-06-17</lastmod>
+  <url>
+    <loc>https://faixarosa.com/acompanhantes-em-birigui-sp/</loc>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-    <url>
-    <loc>https://faixarosa.com/acompanhantes-em-sorocaba-sp</loc>
-    <lastmod>2025-06-17</lastmod>
+  <url>
+    <loc>https://faixarosa.com/acompanhantes-em-marilia-sp/</loc>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-      <url>
-    <loc>https://faixarosa.com/acompanhantes</loc>
-    <lastmod>2025-06-17</lastmod>
+  <url>
+    <loc>https://faixarosa.com/acompanhantes-em-sorocaba-sp/</loc>
+    <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-    <url>
+  
+  <url>
+    <loc>https://faixarosa.com/blog/marketing/</loc>
+    <lastmod>2025-07-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://faixarosa.com/blog/inclusao/diversidade-e-inclusao-no-faixa-rosa-um-espaco-livre-de-preconceitos/</loc>
+    <lastmod>2025-07-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://faixarosa.com/blog/seguranca/a-importancia-da-seguranca-digital-para-anunciantes-dicas-do-faixa-rosa/</loc>
+    <lastmod>2025-06-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
     <loc>https://faixarosa.com/acompanhantes/cidades/alto-nivel-vip-faixarosa-acompanhantes-em-lins-sp/</loc>
-    <lastmod>2025-06-17</lastmod>
+    <lastmod>2025-07-15</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://faixarosa.com/acompanhantes/cidades/alto-nivel-faixarosa-acompanhantes-em-birigui-sp/</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
-    <url>
-    <loc>https://faixarosa.com/acompanhantes/cidades/alto-nivel-faixarosa-acompanhantes-em-birigui-sp/</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+  <url>
+    <loc>https://faixarosa.com/acompanhantes/sobre-nos/</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://faixarosa.com/acompanhantes/contato/</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://faixarosa.com/acompanhantes/dicas/tenha-0-duvidas-sobre-o-faixa-rosa/</loc>
+    <lastmod>2025-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
 </urlset>

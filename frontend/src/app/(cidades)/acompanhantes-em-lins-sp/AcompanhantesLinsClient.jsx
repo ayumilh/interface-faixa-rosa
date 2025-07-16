@@ -848,7 +848,7 @@ export default function AcompanhantesLinsClient() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-700 leading-tight tracking-tight">
-            Acompanhantes  em Lins – SP
+            Acompanhantes em Lins – SP
           </h1>
           <p className="text-gray-700 mt-3 sm:mt-4 text-lg sm:text-xl max-w-3xl mx-auto font-light">
             Conecte-se com perfis verificados e desfrute de experiências únicas, seguras e inesquecíveis na vibrante cidade de Lins.

@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { MapPin } from "phosphor-react";
+import Footer from "../../../components/search/footer";
 
 export default function SEOContent() {
   const highlights = [
@@ -46,7 +45,7 @@ export default function SEOContent() {
     "Botucatu-SP",
   ];
 
-  return (
+  return (<>
     <section
       className="py-12 sm:py-16 bg-white/90 backdrop-blur-lg scroll-mt-24"
       aria-labelledby="seo-heading"
@@ -81,7 +80,7 @@ a companhia ideal para eventos, viagens ou momentos de lazer em Birigui.
               <div
                 className={`${item.bgColor} p-3 rounded-full flex items-center justify-center`}
               >
-                <MapPin size={24} className={item.iconColor} weight="fill" />
+                {/* <MapPin size={24} className={item.iconColor} weight="fill" /> */}
               </div>
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
@@ -111,7 +110,7 @@ a companhia ideal para eventos, viagens ou momentos de lazer em Birigui.
                   key={city}
                   className="flex items-center gap-2 bg-pink-50 text-pink-600 px-4 py-2 rounded-full text-sm sm:text-base opacity-60 cursor-not-allowed relative"
                 >
-                  <MapPin size={16} className="text-pink-500" weight="fill" />
+                  {/* <MapPin size={16} className="text-pink-500" weight="fill" /> */}
                   {city}
                   <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs px-1 rounded-full">
                     em breve
@@ -129,5 +128,7 @@ a companhia ideal para eventos, viagens ou momentos de lazer em Birigui.
         </div>
       </div>
     </section>
-  );
+
+    <Footer />
+  </>);
 }

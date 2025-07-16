@@ -102,6 +102,6 @@ export default function SEOContent() {
       </div>
     </section>
 
-          <Footer />
+    <Footer />
   </>);
 }

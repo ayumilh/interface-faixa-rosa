@@ -1,6 +1,6 @@
-"use client";
+"use client"; 
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,7 +22,7 @@ import {
 // Importando componentes compartilhados
 import Navbar from "../../../components/Navbar";
 import Stories from "../../../components/search/stories";
-
+import Footer from "../../../components/search/footer";
 
 // Importando componentes de Card específicos para diferentes planos/temas
 import CardVIP from "../../../components/search/CardVIP";
@@ -581,7 +581,7 @@ function ResultControls({ count, sortBy, onSort, show, toggle, open }) {
           <div className="text-center sm:text-left w-full sm:w-auto">
             <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-1 flex items-center justify-center sm:justify-start gap-2">
               <MapPin size={22} className="text-pink-500" weight="fill" />
-              {count} perfis encontrados em Lins
+              {count} perfis encontrados em Birigui
             </h2>
             <p className="text-gray-600 text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-1">
               <Clock size={14} className="text-gray-400" />
@@ -659,7 +659,7 @@ function CompanionGrid({ companions, statusMap }) {
         <Sparkle size={72} className="text-gray-300 mx-auto mb-6" weight="duotone" />
         <h3 className="text-2xl sm:text-3xl font-bold text-gray-700 mb-3">Ops! Nenhum resultado encontrado</h3>
         <p className="text-gray-500 mb-6 sm:mb-8 px-6 text-base sm:text-lg">
-          Não encontramos perfis em Lins com os filtros selecionados.
+          Não encontramos perfis em Birigui com os filtros selecionados.
           Tente ajustar suas preferências ou explore outras cidades em São Paulo.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
@@ -718,12 +718,12 @@ function CompanionGrid({ companions, statusMap }) {
 }
 
 /**
- * Componente da página principal para Acompanhantes em Lins, SP.
+ * Componente da página principal para Acompanhantes em Birigui, SP.
  * Ele integra todos os subcomponentes para formar o layout completo da página com UI/UX refinado.
- * @returns {JSX.Element} A página AcompanhantesLins.
+ * @returns {JSX.Element} A página AcompanhantesBirigui.
  */
-export default function AcompanhantesLinsClient() {
-  const city = "Lins";
+export default function AcompanhantesBiriguiClient() {
+  const city = "Birigui";
   const stateUF = "SP";
 
   const { companions, fetchCompanions, loading } = usePlan();
@@ -836,7 +836,7 @@ export default function AcompanhantesLinsClient() {
           <span>Acompanhantes</span>
           <span className="text-gray-400">/</span>
           <span className="font-semibold text-pink-600">
-            Acompanhantes em Lins – SP
+            Acompanhantes em Birigui – SP
           </span>
         </motion.div>
 
@@ -848,10 +848,10 @@ export default function AcompanhantesLinsClient() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-700 leading-tight tracking-tight">
-            Acompanhantes em Lins – SP
+            Acompanhantes  em Birigui – SP
           </h1>
           <p className="text-gray-700 mt-3 sm:mt-4 text-lg sm:text-xl max-w-3xl mx-auto font-light">
-            Conecte-se com perfis verificados e desfrute de experiências únicas, seguras e inesquecíveis na vibrante cidade de Lins.
+            Conecte-se com perfis verificados e desfrute de experiências únicas, seguras e inesquecíveis na vibrante cidade de Birigui.
           </p>
           {/* Destaques principais para confiança e qualidade */}
           <motion.div
@@ -885,7 +885,7 @@ export default function AcompanhantesLinsClient() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.5 }}
         >
-          <Stories cidade={`Lins`} estado={`SP`} />
+          <Stories cidade={`Birigui`} estado={`SP`} />
         </motion.div>
 
         {/* Seção de Filtros Rápidos */}
@@ -911,6 +911,8 @@ export default function AcompanhantesLinsClient() {
           onApplyFilters={handleApplyAdvancedFilters}
         />
       </main>
+
+      <Footer />
     </div>
   );
 }
